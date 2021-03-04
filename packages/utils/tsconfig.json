@@ -12,6 +12,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "skipLibCheck": true,
+    "removeComments": true,
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {

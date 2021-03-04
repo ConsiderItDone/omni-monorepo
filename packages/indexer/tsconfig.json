@@ -4,14 +4,13 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "target": "ES2020",
     "noImplicitAny": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "skipLibCheck": true,
+    "removeComments": true,
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
@@ -23,4 +22,8 @@
   "files": [
     "index.ts"
   ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
