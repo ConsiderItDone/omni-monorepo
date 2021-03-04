@@ -1,0 +1,18 @@
+version: '3.2'
+
+services:
+  db:
+    restart: always
+    image: postgres:13.2-alpine
+    environment:
+      POSTGRES_USER: "nodle"
+      POSTGRES_DB: "nodle"
+      POSTGRES_PASSWORD: "password"
+    volumes:
+     - nodle_db:/var/lib/postgresql/data
+    ports:
+     - "127.0.0.1:54321:5432"
+
+
+volumes:
+  nodle_db:
