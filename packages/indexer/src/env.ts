@@ -20,6 +20,7 @@ export default envalid.cleanEnv(
         TYPEORM_LOGGING: envalid.bool({
             default: false,
         }),
+        WS_PROVIDER: envalid.str(),
 
     },
     { strict: true }

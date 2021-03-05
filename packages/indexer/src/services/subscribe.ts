@@ -1,8 +1,9 @@
-const {ApiPromise, WsProvider} = require('@polkadot/api');
+import {ApiPromise, WsProvider} from "@polkadot/api";
+import env from "../env";
 const { u8aToHex, u8aToString, compactToU8a } = require('@polkadot/util');
 const { blake2AsU8a } =require('@polkadot/util-crypto');
 
-const provider = new WsProvider('ws://195.201.97.114:9944'); // TODO: use env
+const provider = new WsProvider(env.WS_PROVIDER);
 
 
 async function getApi() {
@@ -43,7 +44,7 @@ async function getApi() {
     })
 }
 
-async function fetchEvents(api: any, hash: string) {
+async function fetchEvents(api: any, hash: any) {
     try {
         return await api.query.system.events.at(hash);
     } catch (e) {

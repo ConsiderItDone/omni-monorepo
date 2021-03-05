@@ -18,19 +18,19 @@ export default class Block extends BaseEntity {
   public timestamp: number; // TODO: Date
 
   @Field(() => String)
-  @Column("character varying", { name: "hash" })
+  @Column("character varying", { name: "hash", length: 66 })
   public hash: string;
 
-  @Field(() => String)
-  @Column("character varying", { name: "parent_hash" })
+  @Field(() => String) // One to one relation ???
+  @Column("character varying", { name: "parent_hash", length: 66 })
   public parentHash: string;
 
   @Field(() => String)
-  @Column("character varying", { name: "state_root" })
+  @Column("character varying", { name: "state_root", length: 66 })
   public stateRoot: string;
 
   @Field(() => String)
-  @Column("character varying", { name: "extrinsics_root" })
+  @Column("character varying", { name: "extrinsics_root", length: 66 })
   public extrinsicsRoot: string;
 
   @Field(() => Number)
