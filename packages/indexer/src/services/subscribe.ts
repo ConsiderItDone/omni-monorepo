@@ -1,7 +1,9 @@
-import {ApiPromise, WsProvider} from "@polkadot/api";
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { createConnection, getCustomRepository, getRepository } from "typeorm";
 import env from "../env";
-const { u8aToHex, u8aToString, compactToU8a } = require('@polkadot/util');
-const { blake2AsU8a } =require('@polkadot/util-crypto');
+import BlockRepository from '../repositories/public/blockRepository'
+const { u8aToHex, u8aToString, compactToU8a, extractTime } = require('@polkadot/util');
+const { blake2AsU8a } = require('@polkadot/util-crypto');
 
 const provider = new WsProvider(env.WS_PROVIDER);
 
@@ -55,22 +57,42 @@ async function fetchEvents(api: any, hash: any) {
 
 export async function subscribe() {
     const api = await getApi();
-    api.rpc.chain.subscribeNewHeads(async (header: any) => { // ws subscription
+    const blockRepository = getCustomRepository(BlockRepository)
+
+    let count = 0;
+
+    const unsubscribe = await api.rpc.chain.subscribeNewHeads(async (header: any) => { // ws subscription
         console.log(`Chain is at block: #${header.number}`);
 
         const blockHash = await api.rpc.chain.getBlockHash(header.number);
 
-        const [{block}, events] = await Promise.all([
+        const [{ block }, timestamp, events] = await Promise.all([
             api.rpc.chain.getBlock(blockHash),
+            api.query.timestamp.now.at(blockHash),
             fetchEvents(api, blockHash),
         ]);
 
-        const {parentHash, number, stateRoot, extrinsicsRoot} = block.header;
+        const { parentHash, number, stateRoot, extrinsicsRoot, hash } = block.header;
 
-        console.log(number.toString(), parentHash.toString(), u8aToHex(parentHash), u8aToHex(stateRoot), u8aToHex(extrinsicsRoot));
+        await blockRepository.add({
+            number: number.toString(),
+            timestamp: new Date(timestamp.toNumber()),
+            hash: hash.toHex(),
+            parentHash: parentHash.toString(),
+            stateRoot: u8aToHex(stateRoot),
+            extrinsicsRoot: u8aToHex(extrinsicsRoot),
+            // TO Find out
+            specVersion: 1,
+            finalized: false
+        })
 
-        // TODO: save to db via processData via repository
-    });
+        // DEBUG (unsubcribe after 10 blocks)
+        if (++count === 10) {
+            unsubscribe();
+            process.exit(0);
+        }
+    }
 
+    );
 }
 

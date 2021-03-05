@@ -1,5 +1,6 @@
-import {BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ID, ObjectType} from "type-graphql";
+import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { Field, ID, ObjectType } from "type-graphql";
+import Event from './event'
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
@@ -11,11 +12,11 @@ export default class Block extends BaseEntity {
 
   @Field(() => Number)
   @Column("integer", { name: "number" })
-  public number: number;
+  public number: string;
 
   @Field(() => Date)
-  @Column("integer", { name: "timestamp" })
-  public timestamp: number; // TODO: Date
+  @Column("timestamp without time zone", { name: "timestamp" })
+  public timestamp: Date;
 
   @Field(() => String)
   @Column("character varying", { name: "hash", length: 66 })
@@ -40,4 +41,9 @@ export default class Block extends BaseEntity {
   @Field(() => Boolean)
   @Column("boolean", { name: "finalized", default: () => "false" })
   public finalized: boolean;
+
+  @Field(() => Event)
+  @OneToMany(() => Event, event => event.block)
+  @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
+  public events: Event[];
 }
