@@ -18,5 +18,8 @@
   "homepage": "https://github.com/ConsiderItDone/nodle#readme",
   "engines": {
     "npm": "^7.0.0"
+  },
+  "dependencies": {
+    "@polkadot/api": "^3.11.1"
   }
 }

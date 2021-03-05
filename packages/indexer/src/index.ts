@@ -4,6 +4,7 @@ import { buildSchema } from "type-graphql";
 import { DateUtils} from "@nodle/utils";
 import { DefaultResolver } from "./resolvers/defaultResolver";
 import env from "./env";
+import { subscribe } from "./services/subscribe";
 
 const start = async function() {
     const connectionOptions : ConnectionOptions = {
@@ -28,15 +29,21 @@ const start = async function() {
         },
     };
 
-
     await createConnection(connectionOptions);
+
+
+    // TODO: create subscription from services/subscribe
+    // TODO: process data
+
+    subscribe(); // rub subscription
+
 
     const schema = await buildSchema({
         resolvers: [
             DefaultResolver,
         ],
     });
-
+    // TODO: move apollo to separate module
     await new ApolloServer({ schema }).listen(env.GRAPHQL_SERVER_PORT);
 
     console.info(`GraphQL server running on port ${env.GRAPHQL_SERVER_PORT}`, DateUtils.getCurrentDate());
