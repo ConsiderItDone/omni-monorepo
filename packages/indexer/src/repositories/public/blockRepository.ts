@@ -1,6 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
 import Block from "../../models/public/block";
-import Event from "../../models/public/event";
 
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {
@@ -13,9 +12,8 @@ export default class BlockRepository extends Repository<Block> {
     extrinsicsRoot,
     specVersion,
     finalized,
-    // events,
   }: {
-    number: string;
+    number: number;
     timestamp: Date;
     hash: string;
     parentHash: string;
@@ -23,7 +21,6 @@ export default class BlockRepository extends Repository<Block> {
     extrinsicsRoot: string;
     specVersion: number;
     finalized: boolean;
-    // events: Event[];
   }) {
     return this.save({
       number,
@@ -34,7 +31,10 @@ export default class BlockRepository extends Repository<Block> {
       extrinsicsRoot,
       specVersion,
       finalized,
-      // events,
     });
+  }
+
+  public findByNumber(number: number) {
+    return this.findOne({ where: { number } })
   }
 }

@@ -11,8 +11,8 @@ export default class Block extends BaseEntity {
   public blockId: number;
 
   @Field(() => Number)
-  @Column("integer", { name: "number" })
-  public number: string;
+  @Column("bigint", { name: "number" })
+  public number: number; // TODO number or BigInt ?
 
   @Field(() => Date)
   @Column("timestamp without time zone", { name: "timestamp" })

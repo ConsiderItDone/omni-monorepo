@@ -10,16 +10,16 @@ export default class Event extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "event_id" })
   public eventId: number;
 
-  @Field(() => Number)
-  @Column("integer", { name: "index" })
-  public index: number;
+  @Field(() => String)
+  @Column("character varying", { name: "index" })
+  public index: string;
 
   @Field(() => String)
   @Column("character varying", { name: "type" })
   public type: string;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "extrinsic_hash", nullable: true })
+  @Column("character varying", { name: "extrinsic_hash", nullable: true }) // TODO check length
   public extrinsicHash: string | null;
 
   @Field(() => String)
@@ -29,6 +29,10 @@ export default class Event extends BaseEntity {
   @Field(() => String)
   @Column("character varying", { name: "event_name" })
   public eventName: string;
+
+  @Field(() => Number)
+  @Column("integer", { name: "block_id" })
+  public blockId: number;
 
   @Field(() => Block)
   @ManyToOne(() => Block, block => block.events)

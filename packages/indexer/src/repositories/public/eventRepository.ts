@@ -1,5 +1,4 @@
 import { EntityRepository, Repository } from "typeorm";
-import Block from "../../models/public/block";
 import Event from "../../models/public/event";
 
 @EntityRepository(Event)
@@ -10,14 +9,14 @@ export default class EventRepository extends Repository<Event> {
     extrinsicHash,
     moduleName,
     eventName,
-    block,
+    blockId,
   }: {
-    index: number,
+    index: string,
     type: string,
     extrinsicHash: string | null,
     moduleName: string,
     eventName: string,
-    block: Block,
+    blockId: number,
   }) {
     return this.save({
       index,
@@ -25,7 +24,7 @@ export default class EventRepository extends Repository<Event> {
       extrinsicHash,
       moduleName,
       eventName,
-      block,
+      blockId,
     });
   }
 }
