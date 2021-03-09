@@ -2,7 +2,8 @@ import { createConnection, ConnectionOptions } from "typeorm";
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
 import { DateUtils} from "@nodle/utils";
-import { DefaultResolver } from "./resolvers/defaultResolver";
+import BlockResolver from "./resolvers/blockResolver";
+import EventResolver from "./resolvers/eventResolver";
 import env from "./env";
 import { subscribe } from "./services/subscribe";
 
@@ -40,7 +41,8 @@ const start = async function() {
 
     const schema = await buildSchema({
         resolvers: [
-            DefaultResolver,
+            BlockResolver,
+            EventResolver,
         ],
     });
     // TODO: move apollo to separate module

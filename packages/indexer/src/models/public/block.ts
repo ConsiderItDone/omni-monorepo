@@ -1,5 +1,13 @@
-import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from "typeorm";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import Event from './event'
 
 @ObjectType()
@@ -10,9 +18,11 @@ export default class Block extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "block_id" })
   public blockId: number;
 
-  @Field(() => Number)
-  @Column("bigint", { name: "number" })
-  public number: number; // TODO number or BigInt ?
+  @Field(() => String)
+  @Column("bigint", {
+    name: "number",
+  })
+  private number: string;
 
   @Field(() => Date)
   @Column("timestamp without time zone", { name: "timestamp" })
@@ -39,10 +49,13 @@ export default class Block extends BaseEntity {
   public specVersion: number;
 
   @Field(() => Boolean)
-  @Column("boolean", { name: "finalized", default: () => "false" })
+  @Column("boolean", { name: "finalized", default: () => false })
   public finalized: boolean;
 
-  @Field(() => Event)
+  @Field(() => [Event], {
+    nullable: true,
+    defaultValue: [],
+  })
   @OneToMany(() => Event, event => event.block)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
   public events: Event[];

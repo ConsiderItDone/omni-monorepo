@@ -13,7 +13,7 @@ export default class BlockRepository extends Repository<Block> {
     specVersion,
     finalized,
   }: {
-    number: number;
+    number: string;
     timestamp: Date;
     hash: string;
     parentHash: string;
@@ -21,7 +21,7 @@ export default class BlockRepository extends Repository<Block> {
     extrinsicsRoot: string;
     specVersion: number;
     finalized: boolean;
-  }) {
+  }) : Promise<Block> {
     return this.save({
       number,
       timestamp,

@@ -78,7 +78,7 @@ export async function subscribe() {
         const { parentHash, number, stateRoot, extrinsicsRoot, hash } = block.header;
 
         const newBlock = await blockRepository.add({
-            number: number.toNumber(), // TODO toNumber or toBigInt
+            number: number.toString(),
             timestamp: new Date(timestamp.toNumber()),
             hash: hash.toHex(),
             parentHash: parentHash.toString(),

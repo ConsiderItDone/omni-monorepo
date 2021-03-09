@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 
 @ObjectType()
@@ -30,7 +30,7 @@ export default class Event extends BaseEntity {
   @Column("character varying", { name: "event_name" })
   public eventName: string;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
