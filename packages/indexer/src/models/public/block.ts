@@ -1,7 +1,8 @@
 import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
-import Event from './Event'
-import Log from './Log'
+import Event from './event'
+import Log from './log'
+import Extrinsic from './extrinsic'
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
@@ -54,4 +55,9 @@ export default class Block extends BaseEntity {
   @OneToMany(() => Log, log => log.block)
   @JoinColumn([{ name: "log_id", referencedColumnName: "logId" }])
   public logs: Log[];
+
+  @Field(() => [Extrinsic], { nullable: true, defaultValue: [] })
+  @OneToMany(() => Extrinsic, extrinsic => extrinsic.block)
+  @JoinColumn([{ name:"extrinsic_id", referencedColumnName:"extrinsicId"}])
+  public extrinsics: Extrinsic[];
 }

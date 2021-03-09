@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import Log from "../../models/public/Log";
+import Log from "../../models/public/log";
 
 @EntityRepository(Log)
 export default class LogRepository extends Repository<Log> {

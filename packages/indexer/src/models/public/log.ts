@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
-import Block from "./Block";
+import Block from "./block";
 
 @ObjectType()
 @Index("log_pk", ["logId"], { unique: true })

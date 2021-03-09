@@ -1,6 +1,6 @@
 import {Resolver, Query, Arg, FieldResolver, Root} from "type-graphql";
-import Event from "../models/public/Event";
-import Block from "../models/public/Block";
+import Event from "../models/public/event";
+import Block from "../models/public/block";
 
 @Resolver(Event)
 export default class EventResolver {
