@@ -2,17 +2,19 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { getCustomRepository } from "typeorm";
 import env from "../env";
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
-import type { Header } from '@polkadot/types/interfaces/runtime';
+import type { Header, DigestItem, Moment } from '@polkadot/types/interfaces/runtime';
 import type { EventRecord, Event } from '@polkadot/types/interfaces/system';
-import BlockRepository from '../repositories/public/blockRepository'
-import EventRepository from '../repositories/public/eventRepository'
+import type { GenericExtrinsic, Vec } from '@polkadot/types';
+import BlockRepository from '../repositories/public/BlockRepository'
+import EventRepository from '../repositories/public/EventRepository'
+import LogRepository from '../repositories/public/LogRepository'
 import { u8aToHex } from '@polkadot/util';
-import {BlockNumber} from "@polkadot/types/interfaces/runtime";
+import { BlockNumber } from "@polkadot/types/interfaces/runtime";
 
 const provider = new WsProvider(env.WS_PROVIDER);
 
 
-async function getApi() : Promise<ApiPromise> {
+async function getApi(): Promise<ApiPromise> {
     return ApiPromise.create({
         provider,
         types: {
@@ -50,18 +52,8 @@ async function getApi() : Promise<ApiPromise> {
     })
 }
 
-async function fetchEvents(api: ApiPromise, hash: BlockHash) {
-    try {
-        return await api.query.system.events.at(hash);
-    } catch (e) {
-        throw new Error('Unable to fetch Events, cannot confirm extrinsic status. Check pruning settings on the node.');
-    }
-}
-
 export async function subscribe() {
     const api: ApiPromise = await getApi();
-    const blockRepository = getCustomRepository(BlockRepository)
-    const eventRepository = getCustomRepository(EventRepository)
 
     await api.rpc.chain.subscribeNewHeads(async (header: Header) => { // ws subscription
         console.log(`Chain is at block: #${header.number.toString()}`);
@@ -72,50 +64,81 @@ export async function subscribe() {
         const [{ block }, timestamp, events] = await Promise.all([
             api.rpc.chain.getBlock(blockHash),
             api.query.timestamp.now.at(blockHash),
-            fetchEvents(api, blockHash),
+            api.query.system.events.at(blockHash),
         ]);
 
-        const { parentHash, number, stateRoot, extrinsicsRoot, hash } = block.header;
+        // 1. Block
+        const newBlockId = await handleNewBlock(block.header, timestamp)
 
-        const newBlock = await blockRepository.add({
-            number: number.toString(),
-            timestamp: new Date(timestamp.toNumber()),
-            hash: hash.toHex(),
-            parentHash: parentHash.toString(),
-            stateRoot: u8aToHex(stateRoot),
-            extrinsicsRoot: u8aToHex(extrinsicsRoot),
-            // TODO Find out
-            specVersion: 1,
-            finalized: false
-        });
+        // 2.Events
+        handleEvents(events, block.extrinsics, newBlockId)
 
-        // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
-        const extrinsicsWithBoundedEvents = block.extrinsics.map(({ method: { method, section }, hash }, index) => {
-            const boundedEvents: Event[] = events
-                .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
-                .map(({ event }: EventRecord) => event);
-
-            return ({ hash: hash.toHex(), boundedEvents })
-        });
-
-        for (const event of events) {
-            const { index, method, section, typeDef } = event.event
-
-            // Finds the extrinsic, which has an event with same hash as current event's
-            const extrinsicHash = extrinsicsWithBoundedEvents.find(extr => extr.boundedEvents.some(evt => evt.hash.toHex() === event.event.hash.toHex()))?.hash || null
-
-            await eventRepository.add({
-                // TODO string or number ??? always 0x0000 for new blocks
-                index: index.toHex(),
-                // TODO store type as first item of an array ?
-                type: typeDef[0].type,
-                extrinsicHash,
-                moduleName: section,
-                eventName: method,
-                blockId: newBlock.blockId,
-            });
-        }
+        // 3.Logs
+        handleLogs(block.header.digest.logs, newBlockId)
     })
+}
+
+async function handleNewBlock(blockHeader: Header, timestamp: Moment) {
+    const blockRepository = getCustomRepository(BlockRepository);
+    const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
+
+    const newBlock = await blockRepository.add({
+        number: number.toString(),
+        timestamp: new Date(timestamp.toNumber()),
+        hash: hash.toHex(),
+        parentHash: parentHash.toString(),
+        stateRoot: u8aToHex(stateRoot),
+        extrinsicsRoot: u8aToHex(extrinsicsRoot),
+        // TODO Find out
+        specVersion: 1,
+        finalized: false
+    });
+    return newBlock.blockId
+}
+
+async function handleEvents(events: EventRecord[], extrinsics: GenericExtrinsic[], blockId: number) {
+    const eventRepository = getCustomRepository(EventRepository);
+
+    // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
+    const extrinsicsWithBoundedEvents = extrinsics.map(({ method: { method, section }, hash }, index) => {
+        const boundedEvents: Event[] = events
+            .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
+            .map(({ event }: EventRecord) => event);
+
+        return ({ hash: hash.toHex(), boundedEvents })
+    });
+    for (const event of events) {
+        const { index, method, section, typeDef } = event.event
+
+        // Finds the extrinsic, which has an event with same hash as current event's
+        const extrinsicHash = extrinsicsWithBoundedEvents.find(extr => extr.boundedEvents.some(evt => evt.hash.toHex() === event.event.hash.toHex())).hash || null
+
+        await eventRepository.add({
+            // TODO string or number ??? always 0x0000 for new blocks
+            index: index.toHex(),
+            // TODO store type as first item of an array ?
+            type: typeDef[0].type,
+            extrinsicHash,
+            moduleName: section,
+            eventName: method,
+            blockId,
+        });
+    }
+}
+
+async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
+    const logRepository = getCustomRepository(LogRepository);
+
+    for (const log of logs) {
+        const { type, index, value } = log;
+        await logRepository.add({
+            index,
+            type,
+            data: value.toHuman().toString().split(',')[1], // value is always ['BABE':u32, hash:Bytes]
+            isFinalized: false, // TODO finalized what ? suggestion is 'preruntime' === false, seal === true
+            blockId,
+        })
+    }
 }
 
 

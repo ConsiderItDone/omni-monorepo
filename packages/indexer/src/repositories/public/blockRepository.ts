@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import Block from "../../models/public/block";
+import Block from "../../models/public/Block";
 
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {

@@ -1,14 +1,7 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
-import Event from './event'
+import Event from './Event'
+import Log from './Log'
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
@@ -52,11 +45,13 @@ export default class Block extends BaseEntity {
   @Column("boolean", { name: "finalized", default: () => false })
   public finalized: boolean;
 
-  @Field(() => [Event], {
-    nullable: true,
-    defaultValue: [],
-  })
+  @Field(() => [Event], { nullable: true, defaultValue: [] })
   @OneToMany(() => Event, event => event.block)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
   public events: Event[];
+
+  @Field(() => [Log], { nullable: true, defaultValue: [] })
+  @OneToMany(() => Log, log => log.block)
+  @JoinColumn([{ name: "log_id", referencedColumnName: "logId" }])
+  public logs: Log[];
 }
