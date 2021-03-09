@@ -5,9 +5,9 @@ import type { BlockHash } from '@polkadot/types/interfaces/chain';
 import type { Header, DigestItem, Moment } from '@polkadot/types/interfaces/runtime';
 import type { EventRecord, Event } from '@polkadot/types/interfaces/system';
 import type { GenericExtrinsic, Vec } from '@polkadot/types';
-import BlockRepository from '../repositories/public/BlockRepository'
-import EventRepository from '../repositories/public/EventRepository'
-import LogRepository from '../repositories/public/LogRepository'
+import BlockRepository from '../repositories/public/blockRepository'
+import EventRepository from '../repositories/public/eventRepository'
+import LogRepository from '../repositories/public/logRepository'
 import { u8aToHex } from '@polkadot/util';
 import { BlockNumber } from "@polkadot/types/interfaces/runtime";
 
