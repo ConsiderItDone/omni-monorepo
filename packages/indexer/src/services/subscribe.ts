@@ -2,16 +2,17 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { getCustomRepository } from "typeorm";
 import env from "../env";
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
+import type { Header } from '@polkadot/types/interfaces/runtime';
+import type { EventRecord, Event } from '@polkadot/types/interfaces/system';
 import BlockRepository from '../repositories/public/blockRepository'
 import EventRepository from '../repositories/public/eventRepository'
-import { u8aToHex, u8aToString, compactToU8a } from '@polkadot/util';
-import { blake2AsU8a } from '@polkadot/util-crypto';
+import { u8aToHex } from '@polkadot/util';
+import {BlockNumber} from "@polkadot/types/interfaces/runtime";
 
 const provider = new WsProvider(env.WS_PROVIDER);
 
 
-async function getApi() {
+async function getApi() : Promise<ApiPromise> {
     return ApiPromise.create({
         provider,
         types: {
@@ -49,24 +50,24 @@ async function getApi() {
     })
 }
 
-async function fetchEvents(api: any, hash: BlockHash) {
+async function fetchEvents(api: ApiPromise, hash: BlockHash) {
     try {
         return await api.query.system.events.at(hash);
     } catch (e) {
-        console.error(e);
-        return 'Unable to fetch Events, cannot confirm extrinsic status. Check pruning settings on the node.';
+        throw new Error('Unable to fetch Events, cannot confirm extrinsic status. Check pruning settings on the node.');
     }
 }
 
 export async function subscribe() {
-    const api = await getApi();
+    const api: ApiPromise = await getApi();
     const blockRepository = getCustomRepository(BlockRepository)
     const eventRepository = getCustomRepository(EventRepository)
 
-    await api.rpc.chain.subscribeNewHeads(async (header: any) => { // ws subscription
-        console.log(`Chain is at block: #${header.number}`);
+    await api.rpc.chain.subscribeNewHeads(async (header: Header) => { // ws subscription
+        console.log(`Chain is at block: #${header.number.toString()}`);
 
-        const blockHash = await api.rpc.chain.getBlockHash(header.number);
+        const blockNumber: BlockNumber = header.number.unwrap();
+        const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
 
         const [{ block }, timestamp, events] = await Promise.all([
             api.rpc.chain.getBlock(blockHash),
@@ -76,7 +77,7 @@ export async function subscribe() {
 
         const { parentHash, number, stateRoot, extrinsicsRoot, hash } = block.header;
 
-        await blockRepository.add({
+        const newBlock = await blockRepository.add({
             number: number.toNumber(), // TODO toNumber or toBigInt
             timestamp: new Date(timestamp.toNumber()),
             hash: hash.toHex(),
@@ -86,41 +87,34 @@ export async function subscribe() {
             // TODO Find out
             specVersion: 1,
             finalized: false
-        })
+        });
 
         // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
         const extrinsicsWithBoundedEvents = block.extrinsics.map(({ method: { method, section }, hash }, index) => {
-            const boundedEvents: EventRecord[] = events
+            const boundedEvents: Event[] = events
                 .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
                 .map(({ event }: EventRecord) => event);
 
             return ({ hash: hash.toHex(), boundedEvents })
         });
 
-        Promise.all(events.map(async (event: EventRecord) => {
+        for (const event of events) {
             const { index, method, section, typeDef } = event.event
-            // Checks if block exists in DB
-            const existingBlock = await blockRepository.findByNumber(number.toNumber())
 
-            if (existingBlock) {
-                const { blockId } = existingBlock
+            // Finds the extrinsic, which has an event with same hash as current event's
+            const extrinsicHash = extrinsicsWithBoundedEvents.find(extr => extr.boundedEvents.some(evt => evt.hash.toHex() === event.event.hash.toHex()))?.hash || null
 
-                // Finds the extrinsic, which has an event with same hash as current event's
-                const extrinsicHash = extrinsicsWithBoundedEvents.find(extr => extr.boundedEvents.some(evt => evt.hash.toHex() === event.event.hash.toHex())).hash || null
-
-                await eventRepository.add({
-                    // TODO string or number ??? always 0x0000 for new blocks
-                    index: index.toHex(),
-                    // TODO store type as first item of an array ?
-                    type: typeDef[0].type,
-                    extrinsicHash,
-                    moduleName: section,
-                    eventName: method,
-                    blockId,
-                })
-            }
-            else console.log("Referenced block was't found in DB")
-        }))
+            await eventRepository.add({
+                // TODO string or number ??? always 0x0000 for new blocks
+                index: index.toHex(),
+                // TODO store type as first item of an array ?
+                type: typeDef[0].type,
+                extrinsicHash,
+                moduleName: section,
+                eventName: method,
+                blockId: newBlock.blockId,
+            });
+        }
     })
 }
 
