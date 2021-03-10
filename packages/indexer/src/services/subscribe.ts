@@ -155,7 +155,7 @@ async function handleExtrinsics(extrinsics: GenericExtrinsic[], events: EventRec
         index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'
         params: extrinsic.args.toString(),
         account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, )
-        fee: '0', //seems like coming from transactions, not on creation
+        fee: 0, //seems like coming from transactions, not on creation
         length: extrinsic.length,
         versionInfo: extrinsic.version.toString(),
         callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??

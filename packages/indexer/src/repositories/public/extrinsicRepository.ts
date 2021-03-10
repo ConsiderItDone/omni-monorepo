@@ -16,7 +16,7 @@ type NewExtrinsicParam = {
     hash: string;
     isSigned: boolean;
     success: boolean;
-    fee: string;
+    fee: number;
     blockId: number;
 }
 

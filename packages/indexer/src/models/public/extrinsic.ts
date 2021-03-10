@@ -66,9 +66,9 @@ export default class Extrinsic extends BaseEntity {
   @Column("boolean", { name: "success", default: () => "false" })
   public success: boolean;
 
-  @Field(() => String)
-  @Column("numeric", { name: "fee", default: () => "0" })
-  public fee: string;
+  @Field(() => Number)
+  @Column("numeric", { name: "fee", default: () => 0 })
+  public fee: number;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
