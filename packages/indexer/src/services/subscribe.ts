@@ -150,27 +150,26 @@ async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
 
 async function handleExtrinsics(extrinsics: GenericExtrinsic[], events: EventRecord[], api: ApiPromise, blockId: number) {
     const extrinsicRepository = getCustomRepository(ExtrinsicRepository)
-    extrinsics.forEach((extrinsic: GenericExtrinsic, index: number) => {
-        extrinsicRepository.add({
-            index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'
-            params: extrinsic.args.toString(),
-            account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, )
-            fee: '0', //seems like coming from transactions, not on creation
-            length: extrinsic.length,
-            versionInfo: extrinsic.version.toString(),
-            callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-            callModuleFunction: extrinsic.method.method,
-            callModule: extrinsic.method.section,
-            nonce: extrinsic.nonce.toNumber(),
-            era: extrinsic.era.toString(), //saves as 'era.type: era.value'
-            hash: extrinsic.hash.toHex(),
-            isSigned: extrinsic.isSigned,
-            signature: extrinsic.isSigned ? JSON.stringify({ signature: extrinsic.signature, signer: extrinsic.signer }) : null, //{ signature, signer } = extrinsic
-            success: events.filter(({ phase }: any) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
-                .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event)), //typeof events === 'string' ? events : false;
-            blockId,
-        });
-    });
+
+    await extrinsicRepository.addList(extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
+        index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'
+        params: extrinsic.args.toString(),
+        account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, )
+        fee: '0', //seems like coming from transactions, not on creation
+        length: extrinsic.length,
+        versionInfo: extrinsic.version.toString(),
+        callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
+        callModuleFunction: extrinsic.method.method,
+        callModule: extrinsic.method.section,
+        nonce: extrinsic.nonce.toNumber(),
+        era: extrinsic.era.toString(), //saves as 'era.type: era.value'
+        hash: extrinsic.hash.toHex(),
+        isSigned: extrinsic.isSigned,
+        signature: extrinsic.isSigned ? JSON.stringify({ signature: extrinsic.signature, signer: extrinsic.signer }) : null, //{ signature, signer } = extrinsic
+        success: events.filter(({ phase }: any) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
+            .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event)), //typeof events === 'string' ? events : false;
+        blockId,
+    })));
 }
 
 /************* Querying the system events and extract information from them

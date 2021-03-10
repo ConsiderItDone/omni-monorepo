@@ -1,6 +1,25 @@
 import { EntityRepository, Repository } from "typeorm";
 import Extrinsic from "../../models/public/extrinsic";
 
+type NewExtrinsicParam = {
+    index: number;
+    length: number;
+    versionInfo: string;
+    callCode: string;
+    callModuleFunction: string;
+    callModule: string;
+    params: string;
+    account: string | null;
+    signature: string | null;
+    nonce: number | null;
+    era: string | null;
+    hash: string;
+    isSigned: boolean;
+    success: boolean;
+    fee: string;
+    blockId: number;
+}
+
 @EntityRepository(Extrinsic)
 export default class ExtrinsicRepository extends Repository<Extrinsic> {
     public add({
@@ -20,24 +39,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
         success,
         fee,
         blockId
-    }: {
-        index: number,
-        length: number,
-        versionInfo: string,
-        callCode: string,
-        callModuleFunction: string,
-        callModule: string,
-        params: string,
-        account: string | null,
-        signature: string | null,
-        nonce: number | null,
-        era: string | null,
-        hash: string,
-        isSigned: boolean,
-        success: boolean,
-        fee: string,
-        blockId: number
-    }) {
+    }: NewExtrinsicParam) {
         return this.save({
             index,
             length,
@@ -56,5 +58,9 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
             fee,
             blockId
         });
+    }
+
+    public addList(list: NewExtrinsicParam[]) {
+        return this.save(list);
     }
 }
