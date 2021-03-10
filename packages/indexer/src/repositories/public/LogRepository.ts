@@ -1,6 +1,14 @@
 import { EntityRepository, Repository } from "typeorm";
 import Log from "../../models/public/log";
 
+type NewLogParam = {
+  index: string,
+  type: string,
+  data: string,
+  isFinalized: boolean,
+  blockId: number,
+}
+
 @EntityRepository(Log)
 export default class LogRepository extends Repository<Log> {
   public add({
@@ -9,13 +17,7 @@ export default class LogRepository extends Repository<Log> {
     data,
     isFinalized,
     blockId,
-  }: {
-    index: number,
-    type: string,
-    data: string,
-    isFinalized: boolean,
-    blockId: number,
-  }) {
+  }: NewLogParam) {
     return this.save({
       index,
       type,
@@ -23,5 +25,9 @@ export default class LogRepository extends Repository<Log> {
       isFinalized,
       blockId,
     });
+  };
+
+  public addList(list: NewLogParam[]) {
+    return this.save(list);
   }
 }

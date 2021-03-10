@@ -81,7 +81,6 @@ export async function subscribe() {
         // 4. Extrinsics
         handleExtrinsics(block.extrinsics, events, api, newBlockId)
 
-
     })
 }
 
@@ -136,17 +135,19 @@ async function handleEvents(events: EventRecord[], extrinsics: GenericExtrinsic[
 async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
     const logRepository = getCustomRepository(LogRepository);
 
-    for (const log of logs) {
-        const { type, index, value } = log;
-        await logRepository.add({
-            index, // 0 for PreRuntime, 1 for Seal, etc... ?
+    await logRepository.addList(logs.map((log: any, index: number) => {
+        const { type, value } = log;
+        return {
+            index: `${blockId}-${index}`,
             type,
             data: value.toHuman().toString().split(',')[1], // value is always ['BABE':u32, hash:Bytes]
             isFinalized: false, // TODO finalized what ? suggestion is 'preruntime' === false, seal === true
             blockId,
-        })
-    }
+        }
+    }));
 }
+
+
 
 async function handleExtrinsics(extrinsics: GenericExtrinsic[], events: EventRecord[], api: ApiPromise, blockId: number) {
     const extrinsicRepository = getCustomRepository(ExtrinsicRepository)

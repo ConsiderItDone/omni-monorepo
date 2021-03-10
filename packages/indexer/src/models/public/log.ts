@@ -10,9 +10,9 @@ export default class Log extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "log_id" })
   public logId: number;
 
-  @Field(() => Number)
-  @Column("integer", { name: "index" })
-  public index: number;
+  @Field(() => String)
+  @Column("character varying", { name: "index" })
+  public index: string;
 
   @Field(() => String)
   @Column("character varying", { name: "type" })
