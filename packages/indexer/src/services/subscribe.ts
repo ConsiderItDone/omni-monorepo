@@ -54,6 +54,32 @@ async function getApi(): Promise<ApiPromise> {
         per_period: "Balance",
       },
     },
+    /* rpc: {
+      rootOfTrust: {
+        isRootCertificateValid: {
+          description: "Verify if a root certificate is valid",
+          params: [{
+            name: "cert",
+            type: "CertificateId"
+          }],
+          type: "bool"
+        },
+        isChildCertificateValid: {
+          description: "Verify if a child and root certificates are valid",
+          params: [
+            {
+              name: "root",
+              type: "CertificateId"
+            },
+            {
+              name: "child",
+              type: "CertificateId"
+            }
+          ],
+          type: "bool"
+        },
+      },
+    }, */
   });
 }
 
@@ -173,12 +199,10 @@ async function handleExtrinsics(
   blockId: number
 ) {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
-
   await extrinsicRepository.addList(
     extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
       index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'
       params: extrinsic.args.toString(),
-      account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, )
       fee: 0, //seems like coming from transactions, not on creation
       length: extrinsic.length,
       versionInfo: extrinsic.version.toString(),
@@ -189,12 +213,8 @@ async function handleExtrinsics(
       era: extrinsic.era.toString(), //saves as 'era.type: era.value'
       hash: extrinsic.hash.toHex(),
       isSigned: extrinsic.isSigned,
-      signature: extrinsic.isSigned
-        ? JSON.stringify({
-            signature: extrinsic.signature,
-            signer: extrinsic.signer,
-          })
-        : null, //{ signature, signer } = extrinsic
+      account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, ) // Signer ??
+      signature: extrinsic.isSigned ? extrinsic.signature.toString() : null, // skipping signer of signature
       success: events
         .filter(
           ({ phase }: any) =>

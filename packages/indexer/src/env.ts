@@ -21,6 +21,7 @@ export default envalid.cleanEnv(
       default: false,
     }),
     WS_PROVIDER: envalid.host(),
+    TEST_WS_PROVIDER: envalid.host(),
   },
   { strict: true }
 );
