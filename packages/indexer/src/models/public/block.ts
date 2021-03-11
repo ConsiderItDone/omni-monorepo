@@ -11,6 +11,7 @@ import { Field, ID, ObjectType } from "type-graphql";
 import Event from "./event";
 import Log from "./log";
 import Extrinsic from "./extrinsic";
+import RootCertificate from "./rootCertificate";
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
@@ -68,4 +69,9 @@ export default class Block extends BaseEntity {
   @OneToMany(() => Extrinsic, (extrinsic) => extrinsic.block)
   @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
   public extrinsics: Extrinsic[];
+
+  @Field(() => [RootCertificate], { nullable: true })
+  @OneToMany(() => RootCertificate, (rootCertificate) => rootCertificate.block)
+  @JoinColumn([{name:"rootCertificate_id", referencedColumnName: "rootCertificateId"}])
+  public rootCertificates: RootCertificate[];
 }
