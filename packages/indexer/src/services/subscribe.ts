@@ -15,7 +15,7 @@ import { u8aToHex } from "@polkadot/util";
 import BlockRepository from "../repositories/public/blockRepository";
 import EventRepository from "../repositories/public/eventRepository";
 import LogRepository from "../repositories/public/logRepository";
-import ExtrinsicRepository from "../repositories/public/ExtrinsicRepository";
+import ExtrinsicRepository from "../repositories/public/extrinsicRepository";
 
 const provider = new WsProvider(env.WS_PROVIDER);
 

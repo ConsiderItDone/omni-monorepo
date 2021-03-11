@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
-import Block from "./Block";
+import Block from "./block";
 
 @ObjectType()
 @Index("root_certificate_pk", ["rootCertificateId"], { unique: true })

@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import RootCertificate from "../../models/public/RootCertificate";
+import RootCertificate from "../../models/public/rootCertificate";
 
 type NewRootCertificateParam = {
   rootCertificateId: number;
