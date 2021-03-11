@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Nodle monorepo",
   "scripts": {
-    "lint": "npm run prettier-check && npm exec -- eslint --ext=ts,tsx ./packages",
+    "lint": "npm run prettier-check & npm exec -- eslint --ext=ts,tsx ./packages",
     "prettier-format": "npm exec -- prettier --write ./packages",
     "prettier-check": "npm exec -- prettier --check ./packages",
     "build:indexer": "npm run build --prefix packages/indexer",
