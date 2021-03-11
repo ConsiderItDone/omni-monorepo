@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 
@@ -39,11 +47,19 @@ export default class Extrinsic extends BaseEntity {
   public params: string;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "account", nullable: true, default: null })
+  @Column("character varying", {
+    name: "account",
+    nullable: true,
+    default: null,
+  })
   public account: string | null;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "signature", nullable: true, default: null })
+  @Column("character varying", {
+    name: "signature",
+    nullable: true,
+    default: null,
+  })
   public signature: string | null;
 
   @Field(() => Number, { nullable: true })

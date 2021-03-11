@@ -3,7 +3,8 @@ import Block from "../../models/public/block";
 
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {
-  public add({ // TODO: support all fields
+  public add({
+    // TODO: support all fields
     number,
     timestamp,
     hash,
@@ -21,7 +22,7 @@ export default class BlockRepository extends Repository<Block> {
     extrinsicsRoot: string;
     specVersion: number;
     finalized: boolean;
-  }) : Promise<Block> {
+  }): Promise<Block> {
     return this.save({
       number,
       timestamp,
@@ -35,6 +36,6 @@ export default class BlockRepository extends Repository<Block> {
   }
 
   public findByNumber(number: number) {
-    return this.findOne({ where: { number } })
+    return this.findOne({ where: { number } });
   }
 }

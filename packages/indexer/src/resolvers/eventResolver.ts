@@ -1,10 +1,9 @@
-import {Resolver, Query, Arg, FieldResolver, Root} from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import Event from "../models/public/event";
 import Block from "../models/public/block";
 
 @Resolver(Event)
 export default class EventResolver {
-
   @Query(() => Event)
   async event(@Arg("id") id: number) {
     const block = await Event.findOne(id);

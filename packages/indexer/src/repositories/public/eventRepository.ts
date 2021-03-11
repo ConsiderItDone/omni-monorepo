@@ -11,12 +11,12 @@ export default class EventRepository extends Repository<Event> {
     eventName,
     blockId,
   }: {
-    index: string,
-    type: string,
-    extrinsicHash: string | null,
-    moduleName: string,
-    eventName: string,
-    blockId: number,
+    index: string;
+    type: string;
+    extrinsicHash: string | null;
+    moduleName: string;
+    eventName: string;
+    blockId: number;
   }) {
     return this.save({
       index,
