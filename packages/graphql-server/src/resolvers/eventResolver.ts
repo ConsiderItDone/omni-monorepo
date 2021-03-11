@@ -1,6 +1,6 @@
 import {Resolver, Query, Arg, FieldResolver, Root} from "type-graphql";
-import Event from "../models/public/event";
-import Block from "../models/public/block";
+import Block from "@nodle/db/src/models/public/block";
+import Event from "@nodle/db/src/models/public/event";
 
 @Resolver(Event)
 export default class EventResolver {

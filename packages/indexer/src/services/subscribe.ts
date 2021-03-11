@@ -1,5 +1,5 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { getCustomRepository } from "typeorm";
+import {getCustomRepository, Connection} from "typeorm";
 import env from "../env";
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
 import type { Header, DigestItem, Moment } from '@polkadot/types/interfaces/runtime';
@@ -8,13 +8,14 @@ import { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { GenericExtrinsic, Vec } from '@polkadot/types';
 import { u8aToHex } from '@polkadot/util';
 
-import BlockRepository from '../repositories/public/blockRepository'
-import EventRepository from '../repositories/public/eventRepository'
-import LogRepository from '../repositories/public/logRepository'
-import ExtrinsicRepository from '../repositories/public/ExtrinsicRepository'
+import BlockRepository from '@nodle/db/src/repositories/public/blockRepository'
+import EventRepository from '@nodle/db/src/repositories/public/eventRepository'
+import LogRepository from '@nodle/db/src/repositories/public/logRepository'
+import ExtrinsicRepository from '@nodle/db/src/repositories/public/ExtrinsicRepository'
 
 const provider = new WsProvider(env.WS_PROVIDER);
 
+let connection: Connection = null;
 
 async function getApi(): Promise<ApiPromise> {
     return ApiPromise.create({
@@ -54,8 +55,10 @@ async function getApi(): Promise<ApiPromise> {
     })
 }
 
-export async function subscribe() {
+export async function subscribe(con: Connection) {
     const api: ApiPromise = await getApi();
+
+    connection = con; // TODO: make perfect
 
     await api.rpc.chain.subscribeNewHeads(async (header: Header) => { // ws subscription
         console.log(`Chain is at block: #${header.number.toString()}`);
@@ -86,7 +89,7 @@ export async function subscribe() {
 }
 
 async function handleNewBlock(blockHeader: Header, timestamp: Moment) {
-    const blockRepository = getCustomRepository(BlockRepository);
+    const blockRepository = connection.getCustomRepository(BlockRepository);
     const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
 
     const newBlock = await blockRepository.add({
@@ -104,7 +107,7 @@ async function handleNewBlock(blockHeader: Header, timestamp: Moment) {
 }
 
 async function handleEvents(events: EventRecord[], extrinsics: GenericExtrinsic[], blockId: number) {
-    const eventRepository = getCustomRepository(EventRepository);
+    const eventRepository = connection.getCustomRepository(EventRepository);
 
     // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
     const extrinsicsWithBoundedEvents = extrinsics.map(({ method: { method, section }, hash }, index) => {
@@ -134,7 +137,7 @@ async function handleEvents(events: EventRecord[], extrinsics: GenericExtrinsic[
 }
 
 async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
-    const logRepository = getCustomRepository(LogRepository);
+    const logRepository = connection.getCustomRepository(LogRepository);
 
     for (const log of logs) {
         const { type, index, value } = log;
@@ -149,7 +152,7 @@ async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
 }
 
 async function handleExtrinsics(extrinsics: GenericExtrinsic[], events: EventRecord[], api: ApiPromise, blockId: number) {
-    const extrinsicRepository = getCustomRepository(ExtrinsicRepository)
+    const extrinsicRepository = connection.getCustomRepository(ExtrinsicRepository)
 
     await extrinsicRepository.addList(extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
         index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'

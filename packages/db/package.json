@@ -1,0 +1,29 @@
+{
+  "name": "@nodle/db",
+  "version": "1.0.0",
+  "module": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "./dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "directory": "packages/db"
+  },
+  "scripts": {
+    "build": "npm exec tsc",
+    "prepare": "npm run build",
+    "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
+    "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
+  },
+  "dependencies": {
+    "ts-node": "^9.1.1",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.31"
+  },
+  "devDependencies": {
+    "typeorm-model-generator": "^0.4.5"
+  }
+}

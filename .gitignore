@@ -3,3 +3,5 @@ dist
 .idea
 .DS_Store
 .env
+ormconfig.js
+ormconfig.json
