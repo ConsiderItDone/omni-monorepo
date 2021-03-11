@@ -54,32 +54,34 @@ async function getApi(): Promise<ApiPromise> {
         per_period: "Balance",
       },
     },
-    /* rpc: {
+    rpc: {
       rootOfTrust: {
         isRootCertificateValid: {
           description: "Verify if a root certificate is valid",
-          params: [{
-            name: "cert",
-            type: "CertificateId"
-          }],
-          type: "bool"
+          params: [
+            {
+              name: "cert",
+              type: "CertificateId",
+            },
+          ],
+          type: "bool",
         },
         isChildCertificateValid: {
           description: "Verify if a child and root certificates are valid",
           params: [
             {
               name: "root",
-              type: "CertificateId"
+              type: "CertificateId",
             },
             {
               name: "child",
-              type: "CertificateId"
-            }
+              type: "CertificateId",
+            },
           ],
-          type: "bool"
+          type: "bool",
         },
       },
-    }, */
+    },
   });
 }
 
