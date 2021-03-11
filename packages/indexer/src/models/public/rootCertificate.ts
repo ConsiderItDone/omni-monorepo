@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./Block";
 
 @ObjectType()
@@ -42,10 +42,10 @@ export default class RootCertificate extends BaseEntity {
   @Column("varchar", { name: "child_revocations", nullable: true, array: true })
   public childRevocations: string[] | null;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "certificate_id", nullable: true })
-  public certificateId: string | null;
-
+  @Field(() => Int)
+  @Column("integer", { name: "block_id" })
+  public blockId: number;
+  
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.rootCertificates)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
