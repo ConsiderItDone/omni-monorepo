@@ -1,6 +1,29 @@
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  FieldResolver,
+  Root,
+  ArgsType,
+  Field,
+  Int,
+  Args,
+} from "type-graphql";
+import { Min, Max } from "class-validator";
 import Block from "../models/public/block";
 import Event from "../models/public/event";
+
+@ArgsType()
+class GetBlocksArgs {
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0)
+  skip: number;
+
+  @Field(() => Int)
+  @Min(1)
+  @Max(100)
+  take = 25;
+}
 
 @Resolver(Block)
 export default class BlockResolver {
@@ -15,8 +38,14 @@ export default class BlockResolver {
   }
 
   @Query(() => [Block])
-  protected blocks() {
-    return Block.find(); // TODO: use repository for real models
+  protected blocks(@Args() { take, skip }: GetBlocksArgs) {
+    return Block.find({
+      take,
+      skip,
+      order: {
+        blockId: "ASC",
+      },
+    }); // TODO: use repository for real models
   }
 
   @FieldResolver()

@@ -4,6 +4,9 @@ import { buildSchema } from "type-graphql";
 import { DateUtils } from "@nodle/utils";
 import BlockResolver from "./resolvers/blockResolver";
 import EventResolver from "./resolvers/eventResolver";
+import LogResolver from "./resolvers/logResolver";
+import RootCertificateResolver from "./resolvers/rootCertificateResolver";
+import ExtrinsicResolver from "./resolvers/extrinsicResolver";
 import env from "./env";
 import { subscribe } from "./services/subscribe";
 
@@ -38,7 +41,13 @@ const start = async function () {
   subscribe(); // rub subscription
 
   const schema = await buildSchema({
-    resolvers: [BlockResolver, EventResolver],
+    resolvers: [
+      BlockResolver,
+      EventResolver,
+      LogResolver,
+      RootCertificateResolver,
+      ExtrinsicResolver,
+    ],
   });
   // TODO: move apollo to separate module
   await new ApolloServer({ schema }).listen(env.GRAPHQL_SERVER_PORT);
