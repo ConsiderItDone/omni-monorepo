@@ -14,6 +14,7 @@ import { u8aToHex } from "@polkadot/util";
 
 import BlockRepository from "../repositories/public/blockRepository";
 import EventRepository from "../repositories/public/eventRepository";
+import RootCertificateRepository from "../repositories/public/rootCertificateRepository";
 import LogRepository from "../repositories/public/logRepository";
 import ExtrinsicRepository from "../repositories/public/extrinsicRepository";
 
@@ -120,7 +121,18 @@ export async function subscribe() {
     handleLogs(block.header.digest.logs, newBlockId);
 
     // 4. Extrinsics
-    handleExtrinsics(block.extrinsics, extrinsicsWithBoundedEvents, newBlockId);
+    const rootOftrustExtrinsics = await handleExtrinsics(
+      block.extrinsics,
+      extrinsicsWithBoundedEvents,
+      newBlockId,
+      api
+    );
+    //5. Root of Trust
+    if (rootOftrustExtrinsics) {
+      rootOftrustExtrinsics.forEach((extrinsic) =>
+        handleRootOfTrust(extrinsic, api, newBlockId)
+      );
+    }
   });
 }
 
@@ -199,32 +211,75 @@ async function handleLogs(
 async function handleExtrinsics(
   extrinsics: GenericExtrinsic[],
   extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
-  blockId: number
+  blockId: number,
+  api: ApiPromise
   //events: EventRecord[],
-  //api: ApiPromise,
-): Promise<void> {
+): Promise<GenericExtrinsic[]> {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
 
-  await extrinsicRepository.addList(
-    extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
-      index,
-      length: extrinsic.length,
-      versionInfo: extrinsic.version.toString(),
-      callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-      callModule: extrinsic.method.section,
-      callModuleFunction: extrinsic.method.method,
-      params: JSON.stringify(extrinsic.method.args),
-      nonce: extrinsic.nonce.toNumber(),
-      era: extrinsic.era.toString(),
-      hash: extrinsic.hash.toHex(),
-      isSigned: extrinsic.isSigned,
-      signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
-      success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents), // TODO find a new way to find extrinsic success
-      account: null,
-      fee: 0, //seems like coming from transactions, not on creation
-      blockId,
-    }))
+  const rootOftrustExtrinsics: GenericExtrinsic[] = [];
+  const processedExtrinsics = extrinsics.map(
+    (extrinsic: GenericExtrinsic, index: number) => {
+      if (extrinsic.method.section === "pkiRootOfTrust") {
+        rootOftrustExtrinsics.push(extrinsic);
+      }
+      return {
+        index,
+        length: extrinsic.length,
+        versionInfo: extrinsic.version.toString(),
+        callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
+        callModule: extrinsic.method.section,
+        callModuleFunction: extrinsic.method.method,
+        params: JSON.stringify(extrinsic.method.args), // TODO changed after downgrade
+        nonce: extrinsic.nonce.toNumber(),
+        era: extrinsic.era.toString(),
+        hash: extrinsic.hash.toHex(),
+        isSigned: extrinsic.isSigned,
+        signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
+        success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents), // TODO find a new way to find extrinsic success
+        account: null,
+        fee: 0, //seems like coming from transactions, not on creation
+        blockId,
+      };
+    }
   );
+  await extrinsicRepository.addList(processedExtrinsics);
+  return rootOftrustExtrinsics;
+}
+
+async function handleRootOfTrust(
+  extrinsic: GenericExtrinsic,
+  api: ApiPromise,
+  blockId: number
+) {
+  const { signer } = extrinsic;
+  const rootCertificateRepository = getCustomRepository(
+    RootCertificateRepository
+  );
+
+  const slot = await api.query.pkiRootOfTrust.slots(signer.toHuman());
+
+  const {
+    owner,
+    key,
+    revoked,
+    renewed, // TODO 0 while not created
+    created, // TODO 0 while not created
+    child_revocations,
+  } = slot as any;
+
+  await rootCertificateRepository.add({
+    owner: owner.toHuman(),
+    key: key.toHuman(),
+    created: new Date(created.toNumber()),
+    renewed: new Date(renewed.toNumber()),
+    revoked: revoked.toHuman(),
+    childRevocations:
+      child_revocations.length > 0
+        ? child_revocations.map((revokation: any) => revokation.toString())
+        : null,
+    blockId,
+  });
 }
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
@@ -262,8 +317,12 @@ function getExtrinsicSuccess(
   //events: EventRecord[],
   //api: ApiPromise
 ): boolean {
-  const extr = extrinsicsWithBoundedEvents.find(e => e.hash === extrinsic.hash.toHex())
-  return extr.boundedEvents.some(event => event.method === 'ExtrinsicSuccess') // !!! DANGER ZONE
+  const extr = extrinsicsWithBoundedEvents.find(
+    (e) => e.hash === extrinsic.hash.toHex()
+  );
+  return extr.boundedEvents.some(
+    (event) => event.method === "ExtrinsicSuccess"
+  ); // !!! DANGER ZONE
 
   /* return events  // TODO find a new way to find extrinsic success
     .filter(
