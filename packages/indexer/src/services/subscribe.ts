@@ -14,9 +14,11 @@ import { u8aToHex } from "@polkadot/util";
 
 import BlockRepository from "../repositories/public/blockRepository";
 import EventRepository from "../repositories/public/eventRepository";
+import RootCertificateRepository from "../repositories/public/rootCertificateRepository";
 import LogRepository from "../repositories/public/logRepository";
 import ExtrinsicRepository from "../repositories/public/extrinsicRepository";
 
+type ExtrinsicWithBoundedEvents = { hash: string; boundedEvents: Event[] };
 const provider = new WsProvider(env.WS_PROVIDER);
 
 async function getApi(): Promise<ApiPromise> {
@@ -109,13 +111,28 @@ export async function subscribe() {
     );
 
     // 2.Events
-    handleEvents(events, block.extrinsics, newBlockId);
+    const extrinsicsWithBoundedEvents = await handleEvents(
+      events,
+      block.extrinsics,
+      newBlockId
+    );
 
     // 3.Logs
     handleLogs(block.header.digest.logs, newBlockId);
 
     // 4. Extrinsics
-    handleExtrinsics(block.extrinsics, events, api, newBlockId);
+    const rootOftrustExtrinsics = await handleExtrinsics(
+      block.extrinsics,
+      extrinsicsWithBoundedEvents,
+      newBlockId,
+      api
+    );
+    //5. Root of Trust
+    if (rootOftrustExtrinsics) {
+      rootOftrustExtrinsics.forEach((extrinsic) =>
+        handleRootOfTrust(extrinsic, api, newBlockId)
+      );
+    }
   });
 }
 
@@ -144,7 +161,7 @@ async function handleEvents(
   events: EventRecord[],
   extrinsics: GenericExtrinsic[],
   blockId: number
-): Promise<void> {
+): Promise<ExtrinsicWithBoundedEvents[]> {
   const eventRepository = getCustomRepository(EventRepository);
 
   const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
@@ -160,7 +177,7 @@ async function handleEvents(
     );
 
     await eventRepository.add({
-      index, // TODO : index of event in events array || `${blockNum}-${index}`
+      index, // TODO ? : index of event in events array || `${blockNum}-${index}`
       type: JSON.stringify(typeDef), // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
       extrinsicHash,
       moduleName: section,
@@ -168,6 +185,7 @@ async function handleEvents(
       blockId,
     });
   });
+  return extrinsicsWithBoundedEvents;
 }
 
 async function handleLogs(
@@ -192,39 +210,83 @@ async function handleLogs(
 
 async function handleExtrinsics(
   extrinsics: GenericExtrinsic[],
-  events: EventRecord[],
-  api: ApiPromise,
-  blockId: number
-): Promise<void> {
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
+  blockId: number,
+  api: ApiPromise
+  //events: EventRecord[],
+): Promise<GenericExtrinsic[]> {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
 
-  await extrinsicRepository.addList(
-    extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
-      index,
-      length: extrinsic.length,
-      versionInfo: extrinsic.version.toString(),
-      callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-      callModule: extrinsic.method.section,
-      callModuleFunction: extrinsic.method.method,
-      params: JSON.stringify(extrinsic.method.toJSON().args),
-      nonce: extrinsic.nonce.toNumber(),
-      era: extrinsic.era.toString(),
-      hash: extrinsic.hash.toHex(),
-      isSigned: extrinsic.isSigned,
-      signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
-      success: getExtrinsicSuccess(index, events, api),
-      account: null,
-      fee: 0, //seems like coming from transactions, not on creation
-      blockId,
-    }))
+  const rootOftrustExtrinsics: GenericExtrinsic[] = [];
+  const processedExtrinsics = extrinsics.map(
+    (extrinsic: GenericExtrinsic, index: number) => {
+      if (extrinsic.method.section === "pkiRootOfTrust") {
+        rootOftrustExtrinsics.push(extrinsic);
+      }
+      return {
+        index,
+        length: extrinsic.length,
+        versionInfo: extrinsic.version.toString(),
+        callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
+        callModule: extrinsic.method.section,
+        callModuleFunction: extrinsic.method.method,
+        params: JSON.stringify(extrinsic.method.args), // TODO changed after downgrade
+        nonce: extrinsic.nonce.toNumber(),
+        era: extrinsic.era.toString(),
+        hash: extrinsic.hash.toHex(),
+        isSigned: extrinsic.isSigned,
+        signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
+        success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents), // TODO find a new way to find extrinsic success
+        account: null,
+        fee: 0, //seems like coming from transactions, not on creation
+        blockId,
+      };
+    }
   );
+  await extrinsicRepository.addList(processedExtrinsics);
+  return rootOftrustExtrinsics;
+}
+
+async function handleRootOfTrust(
+  extrinsic: GenericExtrinsic,
+  api: ApiPromise,
+  blockId: number
+) {
+  const { signer } = extrinsic;
+  const rootCertificateRepository = getCustomRepository(
+    RootCertificateRepository
+  );
+
+  const slot = await api.query.pkiRootOfTrust.slots(signer.toHuman());
+
+  const {
+    owner,
+    key,
+    revoked,
+    renewed, // TODO 0 while not created
+    created, // TODO 0 while not created
+    child_revocations,
+  } = slot as any;
+
+  await rootCertificateRepository.add({
+    owner: owner.toHuman(),
+    key: key.toHuman(),
+    created: new Date(created.toNumber()),
+    renewed: new Date(renewed.toNumber()),
+    revoked: revoked.toHuman(),
+    childRevocations:
+      child_revocations.length > 0
+        ? child_revocations.map((revokation: any) => revokation.toString())
+        : null,
+    blockId,
+  });
 }
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 function boundEventsToExtrinsics(
   extrinsics: any[],
   events: EventRecord[]
-): { hash: string; boundedEvents: Event[] }[] {
+): ExtrinsicWithBoundedEvents[] {
   return extrinsics.map(({ hash }, index) => {
     const boundedEvents: Event[] = events
       .filter(
@@ -237,7 +299,7 @@ function boundEventsToExtrinsics(
   });
 }
 function findExtrinsicsWithEventsHash(
-  extrinsicsWithBoundedEvents: { hash: string; boundedEvents: Event[] }[],
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   eventRecord: EventRecord
 ): string | null {
   return (
@@ -249,14 +311,23 @@ function findExtrinsicsWithEventsHash(
   );
 }
 function getExtrinsicSuccess(
-  extrinsicIndex: number,
-  events: EventRecord[],
-  api: ApiPromise
+  extrinsic: GenericExtrinsic,
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[]
+  //extrinsicIndex: number,
+  //events: EventRecord[],
+  //api: ApiPromise
 ): boolean {
-  return events
+  const extr = extrinsicsWithBoundedEvents.find(
+    (e) => e.hash === extrinsic.hash.toHex()
+  );
+  return extr.boundedEvents.some(
+    (event) => event.method === "ExtrinsicSuccess"
+  ); // !!! DANGER ZONE
+
+  /* return events  // TODO find a new way to find extrinsic success
     .filter(
-      ({ phase }: any) =>
+      ({ phase }: EventRecord) =>
         phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
     )
-    .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event));
+    .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
