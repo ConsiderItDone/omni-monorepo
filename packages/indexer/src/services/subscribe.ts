@@ -198,6 +198,9 @@ async function handleExtrinsics(
 ): Promise<void> {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
 
+
+  extrinsics.map(ex => console.log(ex.method.args))
+
   await extrinsicRepository.addList(
     extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
       index,
@@ -206,7 +209,7 @@ async function handleExtrinsics(
       callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
       callModule: extrinsic.method.section,
       callModuleFunction: extrinsic.method.method,
-      params: JSON.stringify(extrinsic.method.toJSON().args),
+      params: JSON.stringify(extrinsic.method.args),
       nonce: extrinsic.nonce.toNumber(),
       era: extrinsic.era.toString(),
       hash: extrinsic.hash.toHex(),
@@ -253,10 +256,11 @@ function getExtrinsicSuccess(
   events: EventRecord[],
   api: ApiPromise
 ): boolean {
-  return events
+  return true
+  /* return events
     .filter(
-      ({ phase }: any) =>
+      ({ phase }: EventRecord) =>
         phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
     )
-    .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event));
+    .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
