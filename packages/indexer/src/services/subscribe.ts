@@ -220,7 +220,7 @@ async function handleExtrinsics(
   );
 }
 
-  // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
+// Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 function boundEventsToExtrinsics(
   extrinsics: any[],
   events: EventRecord[]
