@@ -72,6 +72,8 @@ export default class Block extends BaseEntity {
 
   @Field(() => [RootCertificate], { nullable: true })
   @OneToMany(() => RootCertificate, (rootCertificate) => rootCertificate.block)
-  @JoinColumn([{name:"rootCertificate_id", referencedColumnName: "rootCertificateId"}])
+  @JoinColumn([
+    { name: "rootCertificate_id", referencedColumnName: "rootCertificateId" },
+  ])
   public rootCertificates: RootCertificate[];
 }
