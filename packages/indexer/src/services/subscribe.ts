@@ -87,7 +87,6 @@ async function getApi(): Promise<ApiPromise> {
 
 export async function subscribe() {
   const api: ApiPromise = await getApi();
-
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
     console.log(`Chain is at block: #${header.number.toString()}`);
@@ -95,14 +94,19 @@ export async function subscribe() {
     const blockNumber: BlockNumber = header.number.unwrap();
     const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNumber);
 
-    const [{ block }, timestamp, events] = await Promise.all([
+    const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
       api.rpc.chain.getBlock(blockHash),
       api.query.timestamp.now.at(blockHash),
       api.query.system.events.at(blockHash),
+      api.rpc.state.getRuntimeVersion(blockHash),
     ]);
 
     // 1. Block
-    const newBlockId = await handleNewBlock(block.header, timestamp);
+    const newBlockId = await handleNewBlock(
+      block.header,
+      timestamp,
+      specVersion.toNumber()
+    );
 
     // 2.Events
     handleEvents(events, block.extrinsics, newBlockId);
@@ -115,10 +119,14 @@ export async function subscribe() {
   });
 }
 
-async function handleNewBlock(blockHeader: Header, timestamp: Moment) {
+async function handleNewBlock(
+  blockHeader: Header,
+  timestamp: Moment,
+  specVersion: number
+): Promise<number> {
   const blockRepository = getCustomRepository(BlockRepository);
-  const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
 
+  const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
   const newBlock = await blockRepository.add({
     number: number.toString(),
     timestamp: new Date(timestamp.toNumber()),
@@ -126,8 +134,7 @@ async function handleNewBlock(blockHeader: Header, timestamp: Moment) {
     parentHash: parentHash.toString(),
     stateRoot: u8aToHex(stateRoot),
     extrinsicsRoot: u8aToHex(extrinsicsRoot),
-    // TODO Find out
-    specVersion: 1,
+    specVersion,
     finalized: false,
   });
   return newBlock.blockId;
@@ -137,47 +144,36 @@ async function handleEvents(
   events: EventRecord[],
   extrinsics: GenericExtrinsic[],
   blockId: number
-) {
+): Promise<void> {
   const eventRepository = getCustomRepository(EventRepository);
 
-  // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
-  const extrinsicsWithBoundedEvents = extrinsics.map(
-    ({ method: { method, section }, hash }, index) => {
-      const boundedEvents: Event[] = events
-        .filter(
-          ({ phase }: EventRecord) =>
-            phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
-        )
-        .map(({ event }: EventRecord) => event);
-
-      return { hash: hash.toHex(), boundedEvents };
-    }
+  const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
+    extrinsics,
+    events
   );
-  for (const event of events) {
-    const { index, method, section, typeDef } = event.event;
 
-    // Finds the extrinsic, which has an event with same hash as current event's
-    const extrinsicHash =
-      extrinsicsWithBoundedEvents.find((extr) =>
-        extr.boundedEvents.some(
-          (evt) => evt.hash.toHex() === event.event.hash.toHex()
-        )
-      ).hash || null;
+  events.forEach(async (eventRecord, index) => {
+    const { method, section, typeDef } = eventRecord.event;
+    const extrinsicHash = findExtrinsicsWithEventsHash(
+      extrinsicsWithBoundedEvents,
+      eventRecord
+    );
 
     await eventRepository.add({
-      // TODO string or number ??? always 0x0000 for new blocks
-      index: index.toHex(),
-      // TODO store type as first item of an array ?
-      type: typeDef[0].type,
+      index, // TODO : index of event in events array || `${blockNum}-${index}`
+      type: JSON.stringify(typeDef), // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
       extrinsicHash,
       moduleName: section,
       eventName: method,
       blockId,
     });
-  }
+  });
 }
 
-async function handleLogs(logs: Vec<DigestItem>, blockId: number) {
+async function handleLogs(
+  logs: Vec<DigestItem>,
+  blockId: number
+): Promise<void> {
   const logRepository = getCustomRepository(LogRepository);
 
   await logRepository.addList(
@@ -199,105 +195,68 @@ async function handleExtrinsics(
   events: EventRecord[],
   api: ApiPromise,
   blockId: number
-) {
+): Promise<void> {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
+
   await extrinsicRepository.addList(
     extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
-      index, //what kind of index? Index of extrisic in block array or some of 'The actual [sectionIndex, methodIndex] as used in the Call'
-      params: extrinsic.args.toString(),
-      fee: 0, //seems like coming from transactions, not on creation
+      index,
       length: extrinsic.length,
       versionInfo: extrinsic.version.toString(),
       callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-      callModuleFunction: extrinsic.method.method,
       callModule: extrinsic.method.section,
+      callModuleFunction: extrinsic.method.method,
+      params: JSON.stringify(extrinsic.method.toJSON().args),
       nonce: extrinsic.nonce.toNumber(),
-      era: extrinsic.era.toString(), //saves as 'era.type: era.value'
+      era: extrinsic.era.toString(),
       hash: extrinsic.hash.toHex(),
       isSigned: extrinsic.isSigned,
-      account: null, //seems like coming from transactions, not on creation(e.g.balances.Endowed, ) // Signer ??
-      signature: extrinsic.isSigned ? extrinsic.signature.toString() : null, // skipping signer of signature
-      success: events
-        .filter(
-          ({ phase }: any) =>
-            phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
-        )
-        .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event)), //typeof events === 'string' ? events : false;
+      signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
+      success: getExtrinsicSuccess(index, events, api),
+      account: null,
+      fee: 0, //seems like coming from transactions, not on creation
       blockId,
     }))
   );
 }
 
-/************* Querying the system events and extract information from them
+  // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
+function boundEventsToExtrinsics(
+  extrinsics: any[],
+  events: EventRecord[]
+): { hash: string; boundedEvents: Event[] }[] {
+  return extrinsics.map(({ hash }, index) => {
+    const boundedEvents: Event[] = events
+      .filter(
+        ({ phase }: EventRecord) =>
+          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
+      )
+      .map(({ event }: EventRecord) => event);
 
-    events.forEach((record: EventRecord, index:number) => {
-        // Extract the phase, event and the event types
-        const { event, phase } = record;
-        const types = event.typeDef;
-
-
-        // Show what we are busy with
-        // console.log(`\t${event.section}:${event.method}:: (phase=${phase.toString()})`);
-        // console.log(`\t\t${event.meta.documentation.toString()}`);
-
-        // Loop through each of the parameters, displaying the type and data
-        event.data.forEach((data: any, index: any) => {
-            console.log(`\t\t\t${types[index].type}: ${data.toString()}`);
-        });
-    });
-********************************************/
-
-/******* Mapping extrinsics to their events
-
-            _Mike: extrinsics also have method:event.module_name & section:event.event_name,
-                extrinsic have hash, event - don't have extrinsicHash
-
- signedBlock.block.extrinsics.forEach(({ method: { method, section } }, index) => {
-  // filter the specific events based on the phase and then the
-  // index of our extrinsic in the block
-  const events = allRecords
-    .filter(({ phase }) =>
-      phase.isApplyExtrinsic &&
-      phase.asApplyExtrinsic.eq(index)
+    return { hash: hash.toHex(), boundedEvents };
+  });
+}
+function findExtrinsicsWithEventsHash(
+  extrinsicsWithBoundedEvents: { hash: string; boundedEvents: Event[] }[],
+  eventRecord: EventRecord
+): string | null {
+  return (
+    extrinsicsWithBoundedEvents.find((extrinsic) =>
+      extrinsic.boundedEvents.some(
+        (event) => event.hash.toHex() === eventRecord.event.hash.toHex()
+      )
+    ).hash || null
+  );
+}
+function getExtrinsicSuccess(
+  extrinsicIndex: number,
+  events: EventRecord[],
+  api: ApiPromise
+): boolean {
+  return events
+    .filter(
+      ({ phase }: any) =>
+        phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
     )
-    .map(({ event }) => `${event.section}.${event.method}`);
-
-  console.log(`${section}.${method}:: ${events.join(', ') || 'no events'}`);
-});
-
-
-*/
-/***** Determining if an extrinsic succeeded/failed
-
-block.extrinsics.forEach(({ method: { method, section } }, index) => {
-    events.filter(({ phase }: any) =>
-        phase.isApplyExtrinsic &&
-        phase.asApplyExtrinsic.eq(index)
-    ).forEach(({ event }: any) => {// test the events against the specific types we are looking for
-        if (api.events.system.ExtrinsicSuccess.is(event)) {
-            // extract the data for this event
-            // (In TS, because of the guard above, these will be typed)
-            const [dispatchInfo] = event.data;
-            console.log(`${section}.${method}:: ExtrinsicSuccess:: ${ JSON.stringify(dispatchInfo.toHuman(), null, 2)}`);
-        } else if (api.events.system.ExtrinsicFailed.is(event)) {
-            // extract the data for this event
-            const [dispatchError, dispatchInfo] = event.data;
-            let errorInfo;
-
-            // decode the error
-            if (dispatchError.isModule) {
-                // for module errors, we have the section indexed, lookup
-                // (For specific known errors, we can also do a check against the
-                // api.errors.<module>.<ErrorName>.is(dispatchError.asModule) guard)
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-
-                errorInfo = `${decoded.section}.${decoded.name}`;
-            } else {
-                // Other, CannotLookup, BadOrigin, no extra info
-                errorInfo = dispatchError.toString();
-            }
-
-            console.log(`${section}.${method}:: ExtrinsicFailed:: ${errorInfo}`);
-        }
-    });
-}) */
+    .some(({ event }: any) => api.events.system.ExtrinsicSuccess.is(event));
+}

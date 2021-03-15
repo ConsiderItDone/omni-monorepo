@@ -11,7 +11,7 @@ export default class EventRepository extends Repository<Event> {
     eventName,
     blockId,
   }: {
-    index: string;
+    index: number;
     type: string;
     extrinsicHash: string | null;
     moduleName: string;

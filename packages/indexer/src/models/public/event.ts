@@ -18,9 +18,9 @@ export default class Event extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "event_id" })
   public eventId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "index" })
-  public index: string;
+  @Field(() => Number)
+  @Column("smallint", { name: "index" })
+  public index: number;
 
   @Field(() => String)
   @Column("character varying", { name: "type" })
