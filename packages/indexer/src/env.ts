@@ -21,6 +21,7 @@ export default envalid.cleanEnv(
       default: false,
     }),
     WS_PROVIDER: envalid.host(),
+    RABBIT_MQ_URL: envalid.url(),
   },
   { strict: true }
 );

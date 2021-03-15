@@ -1,9 +1,10 @@
 import { EntityRepository, Repository } from "typeorm";
 import Block from "../../models/public/block";
+import MQ from "../../mq";
 
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {
-  public add({
+  public async add({
     // TODO: support all fields
     number,
     timestamp,
@@ -23,7 +24,7 @@ export default class BlockRepository extends Repository<Block> {
     specVersion: number;
     finalized: boolean;
   }): Promise<Block> {
-    return this.save({
+    const block = await this.save({
       number,
       timestamp,
       hash,
@@ -33,6 +34,10 @@ export default class BlockRepository extends Repository<Block> {
       specVersion,
       finalized,
     });
+
+    MQ.getMQ().emit("newBlock", block);
+
+    return block;
   }
 
   public findByNumber(number: number) {

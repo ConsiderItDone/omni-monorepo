@@ -8,10 +8,12 @@ import {
   Field,
   Int,
   Args,
+  Subscription,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "../models/public/block";
 import Event from "../models/public/event";
+import MQ from "../mq";
 
 @ArgsType()
 class GetBlocksArgs {
@@ -46,6 +48,13 @@ export default class BlockResolver {
         blockId: "ASC",
       },
     }); // TODO: use repository for real models
+  }
+
+  @Subscription(() => Block, {
+    subscribe: () => MQ.getMQ().on("newBlock"),
+  })
+  newBlock(@Root() block: Block): Block {
+    return block;
   }
 
   @FieldResolver()

@@ -9,6 +9,7 @@ import RootCertificateResolver from "./resolvers/rootCertificateResolver";
 import ExtrinsicResolver from "./resolvers/extrinsicResolver";
 import env from "./env";
 import { subscribe } from "./services/subscribe";
+import MQ from "./mq";
 
 const start = async function () {
   const connectionOptions: ConnectionOptions = {
@@ -34,6 +35,8 @@ const start = async function () {
   };
 
   await createConnection(connectionOptions);
+
+  MQ.getMQ(); // init MQ connection
 
   // TODO: create subscription from services/subscribe
   // TODO: process data
