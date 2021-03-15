@@ -17,6 +17,7 @@ import EventRepository from "../repositories/public/eventRepository";
 import LogRepository from "../repositories/public/logRepository";
 import ExtrinsicRepository from "../repositories/public/extrinsicRepository";
 
+type ExtrinsicWithBoundedEvents = { hash: string; boundedEvents: Event[] };
 const provider = new WsProvider(env.WS_PROVIDER);
 
 async function getApi(): Promise<ApiPromise> {
@@ -109,13 +110,17 @@ export async function subscribe() {
     );
 
     // 2.Events
-    handleEvents(events, block.extrinsics, newBlockId);
+    const extrinsicsWithBoundedEvents = await handleEvents(
+      events,
+      block.extrinsics,
+      newBlockId
+    );
 
     // 3.Logs
     handleLogs(block.header.digest.logs, newBlockId);
 
     // 4. Extrinsics
-    handleExtrinsics(block.extrinsics, events, api, newBlockId);
+    handleExtrinsics(block.extrinsics, extrinsicsWithBoundedEvents, newBlockId);
   });
 }
 
@@ -144,7 +149,7 @@ async function handleEvents(
   events: EventRecord[],
   extrinsics: GenericExtrinsic[],
   blockId: number
-): Promise<void> {
+): Promise<ExtrinsicWithBoundedEvents[]> {
   const eventRepository = getCustomRepository(EventRepository);
 
   const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
@@ -160,7 +165,7 @@ async function handleEvents(
     );
 
     await eventRepository.add({
-      index, // TODO : index of event in events array || `${blockNum}-${index}`
+      index, // TODO ? : index of event in events array || `${blockNum}-${index}`
       type: JSON.stringify(typeDef), // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
       extrinsicHash,
       moduleName: section,
@@ -168,6 +173,7 @@ async function handleEvents(
       blockId,
     });
   });
+  return extrinsicsWithBoundedEvents;
 }
 
 async function handleLogs(
@@ -192,14 +198,12 @@ async function handleLogs(
 
 async function handleExtrinsics(
   extrinsics: GenericExtrinsic[],
-  events: EventRecord[],
-  api: ApiPromise,
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number
+  //events: EventRecord[],
+  //api: ApiPromise,
 ): Promise<void> {
   const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
-
-
-  extrinsics.map(ex => console.log(ex.method.args))
 
   await extrinsicRepository.addList(
     extrinsics.map((extrinsic: GenericExtrinsic, index: number) => ({
@@ -215,7 +219,7 @@ async function handleExtrinsics(
       hash: extrinsic.hash.toHex(),
       isSigned: extrinsic.isSigned,
       signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
-      success: getExtrinsicSuccess(index, events, api),
+      success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents), // TODO find a new way to find extrinsic success
       account: null,
       fee: 0, //seems like coming from transactions, not on creation
       blockId,
@@ -227,7 +231,7 @@ async function handleExtrinsics(
 function boundEventsToExtrinsics(
   extrinsics: any[],
   events: EventRecord[]
-): { hash: string; boundedEvents: Event[] }[] {
+): ExtrinsicWithBoundedEvents[] {
   return extrinsics.map(({ hash }, index) => {
     const boundedEvents: Event[] = events
       .filter(
@@ -240,7 +244,7 @@ function boundEventsToExtrinsics(
   });
 }
 function findExtrinsicsWithEventsHash(
-  extrinsicsWithBoundedEvents: { hash: string; boundedEvents: Event[] }[],
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   eventRecord: EventRecord
 ): string | null {
   return (
@@ -252,12 +256,16 @@ function findExtrinsicsWithEventsHash(
   );
 }
 function getExtrinsicSuccess(
-  extrinsicIndex: number,
-  events: EventRecord[],
-  api: ApiPromise
+  extrinsic: GenericExtrinsic,
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[]
+  //extrinsicIndex: number,
+  //events: EventRecord[],
+  //api: ApiPromise
 ): boolean {
-  return true
-  /* return events
+  const extr = extrinsicsWithBoundedEvents.find(e => e.hash === extrinsic.hash.toHex())
+  return extr.boundedEvents.some(event => event.method === 'ExtrinsicSuccess') // !!! DANGER ZONE
+
+  /* return events  // TODO find a new way to find extrinsic success
     .filter(
       ({ phase }: EventRecord) =>
         phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
