@@ -1,9 +1,10 @@
 import { EntityRepository, Repository } from "typeorm";
 import Event from "../../models/public/event";
+import MQ from "../../mq";
 
 @EntityRepository(Event)
 export default class EventRepository extends Repository<Event> {
-  public add({
+  public async add({
     index,
     type,
     extrinsicHash,
@@ -18,7 +19,7 @@ export default class EventRepository extends Repository<Event> {
     eventName: string;
     blockId: number;
   }) {
-    return this.save({
+    const event = await this.save({
       index,
       type,
       extrinsicHash,
@@ -26,5 +27,9 @@ export default class EventRepository extends Repository<Event> {
       eventName,
       blockId,
     });
+
+    MQ.getMQ().emit("newEvent", event);
+
+    return event;
   }
 }

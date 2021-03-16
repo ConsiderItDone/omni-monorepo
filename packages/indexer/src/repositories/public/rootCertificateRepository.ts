@@ -1,5 +1,6 @@
 import { EntityRepository, Repository } from "typeorm";
 import RootCertificate from "../../models/public/rootCertificate";
+import MQ from "../../mq";
 
 type NewRootCertificateParam = {
   owner: string;
@@ -13,7 +14,7 @@ type NewRootCertificateParam = {
 
 @EntityRepository(RootCertificate)
 export default class RootCertificateRepository extends Repository<RootCertificate> {
-  public add({
+  public async add({
     owner,
     key,
     created,
@@ -22,7 +23,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
     childRevocations,
     blockId,
   }: NewRootCertificateParam) {
-    return this.save({
+    const rootCertificate = await this.save({
       owner,
       key,
       created,
@@ -31,5 +32,9 @@ export default class RootCertificateRepository extends Repository<RootCertificat
       childRevocations,
       blockId,
     });
+
+    MQ.getMQ().emit("newRootCertificate", rootCertificate);
+
+    return rootCertificate;
   }
 }
