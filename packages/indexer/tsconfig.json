@@ -14,16 +14,9 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "*": [
-        "node_modules/*"
-      ]
+      "*": ["node_modules/*"]
     }
   },
-  "files": [
-    "index.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "files": ["index.ts"],
+  "exclude": ["node_modules", "dist"]
 }

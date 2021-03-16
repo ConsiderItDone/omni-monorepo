@@ -1,5 +1,5 @@
-const getCurrentDate = (): Date => new Date()
+const getCurrentDate = (): Date => new Date();
 
 export const DateUtils = {
-    getCurrentDate
-}
+  getCurrentDate,
+};

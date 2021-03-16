@@ -1,3 +1,3 @@
-import { Indexer } from './index';
+import { Indexer } from "./index";
 
 Indexer.start();
