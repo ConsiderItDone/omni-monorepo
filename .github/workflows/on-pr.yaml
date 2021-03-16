@@ -15,13 +15,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      #- run: npm run lint
+      - run: npm run lint
       - run: npm run build:all
   build:
     name: Run docker build
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - uses: actions/checkout@v2
-      - name: Run docker build
-        run: make docker-build
+      - name: Run docker build dev
+        run: make docker-build-dev
+      - name: Run docker build prod
+        run: make docker-build-prod
