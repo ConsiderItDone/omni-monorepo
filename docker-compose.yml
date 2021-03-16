@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   db:
-    restart: always
+    restart: unless-stopped
     image: postgres:13.2-alpine
     environment:
       POSTGRES_USER: "nodle"
@@ -12,6 +12,14 @@ services:
      - nodle_db:/var/lib/postgresql/data
     ports:
      - "127.0.0.1:54321:5432"
+
+  indexer:
+    restart: unless-stopped
+    build:
+      context: .
+    env_file:
+      - .env
+    command: ["npm run start"]
 
 
 volumes:
