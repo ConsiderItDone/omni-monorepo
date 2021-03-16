@@ -1,6 +1,15 @@
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  FieldResolver,
+  Root,
+  Subscription,
+} from "type-graphql";
 import Block from "../models/public/block";
 import Extrinsic from "../models/public/extrinsic";
+import Event from "../models/public/event";
+import MQ from "../mq";
 
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver {
@@ -17,6 +26,13 @@ export default class ExtrinsicResolver {
   @Query(() => [Extrinsic])
   protected extrinsics() {
     return Extrinsic.find(); // TODO: use repository for real models
+  }
+
+  @Subscription(() => Extrinsic, {
+    subscribe: () => MQ.getMQ().on("newExtrinsic"),
+  })
+  newExtrinsic(@Root() extrinsic: Extrinsic): Extrinsic {
+    return extrinsic;
   }
 
   @FieldResolver()
