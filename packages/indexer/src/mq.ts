@@ -24,10 +24,10 @@ export default class MQ {
   }
 
   public on(eventName: string): any {
-    return MQ.getMQ()?.pubsub?.asyncIterator(eventName);
+    return MQ.getMQ().pubsub.asyncIterator(eventName);
   }
 
   public emit(eventName: string, payload: any) {
-    MQ.getMQ()?.pubsub?.publish(eventName, payload);
+    MQ.getMQ().pubsub.publish(eventName, payload);
   }
 }
