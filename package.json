@@ -9,7 +9,7 @@
     "build:indexer": "npm run build --prefix packages/indexer",
     "build:utils": "npm run build --prefix packages/utils",
     "build:all": "npm run build:indexer & npm run build:utils",
-    "start": "npm run start:indexer --prefix packages/indexer"
+    "start": "NPM_CONFIG_USER=root cd packages/indexer && npm run start:indexer"
   },
   "workspaces": [
     "./packages/*"
