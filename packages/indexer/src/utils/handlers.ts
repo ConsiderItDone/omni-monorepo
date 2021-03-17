@@ -9,13 +9,20 @@ import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 
-import BlockRepository from "../repositories/public/blockRepository";
-import EventRepository from "../repositories/public/eventRepository";
-import RootCertificateRepository from "../repositories/public/rootCertificateRepository";
-import LogRepository from "../repositories/public/logRepository";
-import ExtrinsicRepository from "../repositories/public/extrinsicRepository";
+import {
+  BlockRepository,
+  EventRepository,
+  ExtrinsicRepository,
+  LogRepository,
+  RootCertificateRepository,
+  VestingScheduleRepository,
+} from "../repositories";
 
-import { boundEventsToExtrinsics, findExtrinsicsWithEventsHash, getExtrinsicSuccess} from './misc'
+import {
+  boundEventsToExtrinsics,
+  findExtrinsicsWithEventsHash,
+  getExtrinsicSuccess,
+} from "./misc";
 import { ExtrinsicWithBoundedEvents, CustomExtrinsicSection } from "./types";
 /******************** BASE HANDLERS **********************/
 
