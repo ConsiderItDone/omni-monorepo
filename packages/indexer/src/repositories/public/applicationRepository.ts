@@ -31,7 +31,7 @@ export default class ApplicationRepository extends Repository<Application> {
     votersAgainst,
     createdBlock,
     challengedBlock,
-  }: NewApplicationParams) {
+  }: NewApplicationParams): Promise<Application> {
     return this.save({
       blockId,
       candidate,

@@ -80,16 +80,7 @@ async function getApi(): Promise<ApiPromise> {
   });
 }
 
-async function fetchEvents(api: ApiPromise, hash: BlockHash) {
-  try {
-    return await api.query.system.events.at(hash);
-  } catch (e) {
-    console.error(e);
-    return "Unable to fetch Events, cannot confirm extrinsic status. Check pruning settings on the node.";
-  }
-}
-
-export async function subscribe() {
+export async function subscribe(): Promise<void> {
   const api: ApiPromise = await getApi();
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {

@@ -11,7 +11,7 @@ import env from "./env";
 import { subscribe } from "./services/subscribe";
 import MQ from "./mq";
 
-const start = async function () {
+const start = async function (): Promise<void> {
   const connectionOptions: ConnectionOptions = {
     type: "postgres",
     host: env.TYPEORM_HOST,

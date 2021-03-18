@@ -8,13 +8,12 @@ import {
 } from "type-graphql";
 import RootCertificate from "../models/public/rootCertificate";
 import Block from "../models/public/block";
-import Log from "../models/public/log";
 import MQ from "../mq";
 
 @Resolver(RootCertificate)
 export default class RootCertificateResolver {
   @Query(() => RootCertificate)
-  async rootCertificate(@Arg("id") id: number) {
+  async rootCertificate(@Arg("id") id: number): Promise<RootCertificate> {
     const rc = await RootCertificate.findOne(id);
     if (rc === undefined) {
       throw new Error(`RootCertificate ${id} not found`);
@@ -24,7 +23,7 @@ export default class RootCertificateResolver {
   }
 
   @Query(() => [RootCertificate])
-  protected rootCertificates() {
+  protected rootCertificates(): Promise<RootCertificate[]> {
     return RootCertificate.find(); // TODO: use repository for real models
   }
 
@@ -38,7 +37,7 @@ export default class RootCertificateResolver {
   }
 
   @FieldResolver()
-  async block(@Root() rc: RootCertificate) {
+  async block(@Root() rc: RootCertificate): Promise<Block> {
     const block = await Block.findOne(rc.blockId);
     if (!block) {
       return null;

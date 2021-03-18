@@ -5,8 +5,8 @@ import {
   BlockNumber,
   AccountId,
 } from "@polkadot/types/interfaces/runtime";
-import {u32, u8} from "@polkadot/types";
-import {ITuple} from "@polkadot/types/types";
+import { u32, u8 } from "@polkadot/types";
+import { ITuple } from "@polkadot/types/types";
 
 export type ExtrinsicWithBoundedEvents = {
   hash: string;
@@ -26,9 +26,9 @@ export type Application = {
   challenger: Option<AccountId>;
   challenger_deposit: Option<Balance>;
   votes_for: Option<Balance>;
-  voters_for: Vec<ITuple<[AccountId, Balance]>>,
+  voters_for: Vec<ITuple<[AccountId, Balance]>>;
   votes_against: Option<Balance>;
-  voters_against: Vec<ITuple<[AccountId, Balance]>>,
+  voters_against: Vec<ITuple<[AccountId, Balance]>>;
   created_block: BlockNumber;
   challenged_block: BlockNumber;
 };

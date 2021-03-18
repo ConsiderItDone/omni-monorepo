@@ -22,7 +22,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
     revoked,
     childRevocations,
     blockId,
-  }: NewRootCertificateParam) {
+  }: NewRootCertificateParam): Promise<RootCertificate> {
     const rootCertificate = await this.save({
       owner,
       key,

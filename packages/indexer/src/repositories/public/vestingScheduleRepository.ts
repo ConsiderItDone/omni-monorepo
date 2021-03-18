@@ -17,7 +17,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
     periodCount,
     perPeriod,
     blockId,
-  }: NewVestingSchedule) {
+  }: NewVestingSchedule): Promise<VestingSchedule> {
     return this.save({
       start,
       period,

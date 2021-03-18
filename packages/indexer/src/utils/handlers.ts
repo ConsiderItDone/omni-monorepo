@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { getCustomRepository, getRepository } from "typeorm";
+import { getCustomRepository } from "typeorm";
 import type {
   Header,
   DigestItem,
@@ -19,7 +19,10 @@ import {
   ApplicationRepository,
 } from "../repositories";
 
-import { Account, Application as ApplicationModel } from "../models";
+import {
+  //Account,
+  Application as ApplicationModel,
+} from "../models";
 
 import {
   boundEventsToExtrinsics,
@@ -73,18 +76,14 @@ export async function handleEvents(
       extrinsicsWithBoundedEvents,
       eventRecord
     );
-    /* console.log("meta", eventRecord.event.meta.toHuman());
-      console.log(JSON.stringify(eventRecord.event));
-      console.log(eventRecord.event.method); */
-
-    /* await eventRepository.add({
-        index, // TODO ? : index of event in events array || `${blockNum}-${index}`
-        type: typeDef ? JSON.stringify(typeDef) : "error", // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
-        extrinsicHash,
-        moduleName: section,
-        eventName: method,
-        blockId,
-      }); */
+    await eventRepository.add({
+      index, // TODO ? : index of event in events array || `${blockNum}-${index}`
+      type: typeDef ? JSON.stringify(typeDef) : "error", // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
+      extrinsicHash,
+      moduleName: section,
+      eventName: method,
+      blockId,
+    });
   });
   return extrinsicsWithBoundedEvents;
 }
@@ -121,9 +120,9 @@ export async function handleExtrinsics(
   const processedExtrinsics = extrinsics.map(
     (extrinsic: GenericExtrinsic, index: number) => {
       if (
-          (Object.values(CustomExtrinsicSection) as string[]).includes(
-            extrinsic.method.section
-          )
+        (Object.values(CustomExtrinsicSection) as string[]).includes(
+          extrinsic.method.section
+        )
       ) {
         trackedExtrinsics.push(extrinsic);
       }
@@ -157,7 +156,7 @@ export async function handleTrackedExtrinsics(
   trackedExtrinsics: GenericExtrinsic[],
   api: ApiPromise,
   blockId: number
-) {
+): Promise<void> {
   if (trackedExtrinsics.length < 1) {
     return;
   }
@@ -217,7 +216,7 @@ async function handleVestingSchedule(
   api: ApiPromise
 ) {
   switch (extrinsic.method.method) {
-    case "addVestingSchedule":
+    case "addVestingSchedule": {
       console.log("vesting add");
       const vestingTargetAccountId: any = extrinsic.args[0].toHuman();
       const vestingData: any = extrinsic.args[1];
@@ -243,6 +242,7 @@ async function handleVestingSchedule(
         blockId,
       });
       break;
+    }
     case "claim":
       console.log("claim");
       break;
@@ -259,10 +259,10 @@ async function handleApplication(
   api: ApiPromise
 ) {
   switch (extrinsic.method.method) {
-    case "apply":
-      const application = (await api.query.pkiTcr.applications(
+    case "apply": {
+      const application = await api.query.pkiTcr.applications(
         extrinsic.signer.toHuman()
-      ));
+      );
       //const metadata = extrinsic.method.args[0];
       //const deposit = extrinsic.method.args[1];
       // console.log(application.toHuman());
@@ -280,7 +280,7 @@ async function handleApplication(
         voters_against,
         created_block,
         challenged_block,
-      } = application as any as Application;
+      } = (application as any) as Application;
 
       const newApplication = {
         blockId,
@@ -312,6 +312,7 @@ async function handleApplication(
 
       await applicationRepository.add(newApplication);
       break;
+    }
     default:
       return;
   }
