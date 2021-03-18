@@ -45,7 +45,7 @@ export default class BlockResolver {
       take,
       skip,
       order: {
-        blockId: "ASC",
+        number: "DESC",
       },
     }); // TODO: use repository for real models
   }
