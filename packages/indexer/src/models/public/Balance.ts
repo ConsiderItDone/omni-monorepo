@@ -25,7 +25,7 @@ export default class Balance extends BaseEntity {
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
-  
+
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.balances)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])

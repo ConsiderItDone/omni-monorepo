@@ -1,14 +1,16 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import env from "../env";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import type {
-  Header,
-} from "@polkadot/types/interfaces/runtime";
+import type { Header } from "@polkadot/types/interfaces/runtime";
 import { BlockNumber } from "@polkadot/types/interfaces/runtime";
 
-
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, handleTrackedExtrinsics } from "../utils";
-
+import {
+  handleNewBlock,
+  handleEvents,
+  handleLogs,
+  handleExtrinsics,
+  handleTrackedExtrinsics,
+} from "../utils";
 
 const provider = new WsProvider(env.WS_PROVIDER);
 

@@ -86,6 +86,8 @@ export default class Block extends BaseEntity {
 
   @Field(() => [VestingSchedule], { nullable: true, defaultValue: null })
   @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.block)
-  @JoinColumn([{ name: "vestingSchedule_id", referencedColumnName: "vestingScheduleId" }])
+  @JoinColumn([
+    { name: "vestingSchedule_id", referencedColumnName: "vestingScheduleId" },
+  ])
   public vestingSchedules: VestingSchedule[];
 }

@@ -32,7 +32,11 @@ export default class Application extends BaseEntity {
   public metadata: string;
 
   @Field(() => String)
-  @Column("character varying", { name: "challenger", nullable: true, default: null })
+  @Column("character varying", {
+    name: "challenger",
+    nullable: true,
+    default: null,
+  })
   public challenger: string | null;
 
   @Field(() => Number, { nullable: true })

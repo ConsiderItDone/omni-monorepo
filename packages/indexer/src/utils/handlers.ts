@@ -299,7 +299,7 @@ async function handleApplication(
         challengedBlock: challenged_block.toString(),
       } as ApplicationModel;
 
-/*       if (newApplication.challenger)
+      /*       if (newApplication.challenger)
         newApplication.challenger = newApplication.challenger.toString();
        if (newApplication.challengerDeposit)
         newApplication.challengerDeposit = newApplication.challengerDeposit.toNumber();

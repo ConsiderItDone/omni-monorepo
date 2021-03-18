@@ -7,7 +7,6 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
-
 @ObjectType()
 @Index("account_pk", ["accountId"], { unique: true })
 @Entity("account", { schema: "public" })

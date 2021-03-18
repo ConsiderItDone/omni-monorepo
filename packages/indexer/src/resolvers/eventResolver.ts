@@ -4,7 +4,11 @@ import {
   Arg,
   FieldResolver,
   Root,
-  Subscription, Args, ArgsType, Field, Int,
+  Subscription,
+  Args,
+  ArgsType,
+  Field,
+  Int,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Event from "../models/public/event";
@@ -41,7 +45,7 @@ export default class EventResolver {
       take,
       skip,
       order: {
-        eventId: "DESC"
+        eventId: "DESC",
       },
     }); // TODO: use repository for real models
   }
