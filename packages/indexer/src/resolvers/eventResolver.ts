@@ -1,6 +1,27 @@
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  FieldResolver,
+  Root,
+  Subscription, Args, ArgsType, Field, Int,
+} from "type-graphql";
+import { Min, Max } from "class-validator";
 import Event from "../models/public/event";
 import Block from "../models/public/block";
+import MQ from "../mq";
+
+@ArgsType()
+class GetEventArgs {
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0)
+  skip: number;
+
+  @Field(() => Int)
+  @Min(1)
+  @Max(100)
+  take = 25;
+}
 
 @Resolver(Event)
 export default class EventResolver {
@@ -15,8 +36,21 @@ export default class EventResolver {
   }
 
   @Query(() => [Event])
-  protected events() {
-    return Event.find(); // TODO: use repository for real models
+  protected events(@Args() { take, skip }: GetEventArgs) {
+    return Event.find({
+      take,
+      skip,
+      order: {
+        eventId: "DESC"
+      },
+    }); // TODO: use repository for real models
+  }
+
+  @Subscription(() => Event, {
+    subscribe: () => MQ.getMQ().on("newEvent"),
+  })
+  newEvent(@Root() event: Event): Event {
+    return event;
   }
 
   @FieldResolver()

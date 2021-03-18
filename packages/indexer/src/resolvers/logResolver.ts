@@ -1,6 +1,15 @@
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  FieldResolver,
+  Root,
+  Subscription,
+} from "type-graphql";
 import Log from "../models/public/log";
 import Block from "../models/public/block";
+import Extrinsic from "../models/public/extrinsic";
+import MQ from "../mq";
 
 @Resolver(Log)
 export default class LogResolver {
@@ -17,6 +26,13 @@ export default class LogResolver {
   @Query(() => [Log])
   protected logs() {
     return Log.find(); // TODO: use repository for real models
+  }
+
+  @Subscription(() => Log, {
+    subscribe: () => MQ.getMQ().on("newLog"),
+  })
+  newLog(@Root() log: Log): Log {
+    return log;
   }
 
   @FieldResolver()

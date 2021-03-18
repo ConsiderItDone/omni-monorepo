@@ -1,6 +1,15 @@
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  FieldResolver,
+  Root,
+  Subscription,
+} from "type-graphql";
 import RootCertificate from "../models/public/rootCertificate";
 import Block from "../models/public/block";
+import Log from "../models/public/log";
+import MQ from "../mq";
 
 @Resolver(RootCertificate)
 export default class RootCertificateResolver {
@@ -17,6 +26,15 @@ export default class RootCertificateResolver {
   @Query(() => [RootCertificate])
   protected rootCertificates() {
     return RootCertificate.find(); // TODO: use repository for real models
+  }
+
+  @Subscription(() => RootCertificate, {
+    subscribe: () => MQ.getMQ().on("newRootCertificate"),
+  })
+  newRootCertificate(
+    @Root() rootCertificate: RootCertificate
+  ): RootCertificate {
+    return rootCertificate;
   }
 
   @FieldResolver()

@@ -14,6 +14,7 @@ import { Min, Max } from "class-validator";
 import Block from "../models/public/block";
 import Event from "../models/public/event";
 import MQ from "../mq";
+import Extrinsic from "../models/public/extrinsic";
 
 @ArgsType()
 class GetBlocksArgs {
@@ -45,7 +46,7 @@ export default class BlockResolver {
       take,
       skip,
       order: {
-        blockId: "ASC",
+        blockId: "DESC"
       },
     }); // TODO: use repository for real models
   }
@@ -69,5 +70,19 @@ export default class BlockResolver {
     }
 
     return events;
+  }
+
+  @FieldResolver()
+  async extrinsics(@Root() block: Block) {
+    const extrinsic = await Extrinsic.find({
+      where: {
+        blockId: block.blockId,
+      },
+    });
+    if (!extrinsic) {
+      return [];
+    }
+
+    return extrinsic;
   }
 }
