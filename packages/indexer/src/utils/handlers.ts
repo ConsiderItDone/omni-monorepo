@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { getCustomRepository } from "typeorm";
+import { getCustomRepository, getRepository } from "typeorm";
 import type {
   Header,
   DigestItem,
@@ -16,7 +16,10 @@ import {
   LogRepository,
   RootCertificateRepository,
   VestingScheduleRepository,
+  ApplicationRepository,
 } from "../repositories";
+
+import { Account, Application as ApplicationModel } from "../models";
 
 import {
   boundEventsToExtrinsics,
@@ -27,6 +30,7 @@ import {
   ExtrinsicWithBoundedEvents,
   CustomExtrinsicSection,
   VestingScheduleOf,
+  Application,
 } from "./types";
 /******************** BASE HANDLERS **********************/
 
@@ -231,7 +235,7 @@ async function handleVestingSchedule(
         per_period,
       } = vestingData as VestingScheduleOf;
 
-      vestingScheduleRepository.add({
+      await vestingScheduleRepository.add({
         start: start.toString(),
         period: period.toString(),
         periodCount: period_count.toNumber(),
@@ -256,15 +260,59 @@ async function handleApplication(
 ) {
   switch (extrinsic.method.method) {
     case "apply":
-      const applications = await api.query.pkiTcr.applications(extrinsic.signer.toHuman());
-      const metadata = extrinsic.method.args[0]
-      const deposit = extrinsic.method.args[1]
-      console.log(applications.toHuman());
+      const application = (await api.query.pkiTcr.applications(
+        extrinsic.signer.toHuman()
+      )) as any;
+      //const metadata = extrinsic.method.args[0];
+      //const deposit = extrinsic.method.args[1];
+      //console.log(application.toHuman());
+
+      const applicationRepository = getCustomRepository(ApplicationRepository);
+      const {
+        candidate,
+        candidate_deposit,
+        metadata,
+        challenger,
+        challenger_deposit,
+        votes_for,
+        voters_for,
+        votes_against,
+        voters_against,
+        created_block,
+        challenged_block,
+      } = application as Application;
+
+      const newApplication = {
+        blockId,
+        candidate: candidate.toString(),
+        candidateDeposit: candidate_deposit.toNumber(),
+        metadata: metadata.toString(),
+        challenger: challenger.unwrapOr(null),
+        challengerDeposit:
+          challenger_deposit.unwrapOr(null) &&
+          challenger_deposit.unwrap().toNumber(),
+        votesFor: votes_for.unwrapOr(null) && votes_for.unwrap().toString(),
+        votersFor: [], //(voters_for as []).map((v: String)=> v.toString()),
+        votesAgainst: challenger_deposit.unwrapOr(null),
+        votersAgainst: [], //string array
+        createdBlock: created_block.toString(),
+        challengedBlock: challenged_block.toString(),
+      } as ApplicationModel;
+
+/*       if (newApplication.challenger)
+        newApplication.challenger = newApplication.challenger.toString();
+       if (newApplication.challengerDeposit)
+        newApplication.challengerDeposit = newApplication.challengerDeposit.toNumber();
+      if (newApplication.votesAgainst)
+        newApplication.votesAgainst = newApplication.votesAgainst.toString();
+      if (newApplication.votersFor)
+        newApplication.votersFor = newApplication.votersFor.map((v) =>
+          v.toString()
+        ); */
+
+      await applicationRepository.add(newApplication);
       break;
     default:
       return;
   }
-  console.log(extrinsic.toHuman());
-  
-
 }

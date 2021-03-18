@@ -1,7 +1,12 @@
 import type { Event } from "@polkadot/types/interfaces/system";
-import type { Vec } from "@polkadot/types";
+import type { Vec, Option } from "@polkadot/types";
 import U32 from "@polkadot/types/primitive/U32";
-import { Balance, BlockNumber } from '@polkadot/types/interfaces/runtime';
+import U8 from "@polkadot/types/primitive/U8";
+import {
+  Balance,
+  BlockNumber,
+  AccountId,
+} from "@polkadot/types/interfaces/runtime";
 
 export type ExtrinsicWithBoundedEvents = {
   hash: string;
@@ -11,8 +16,22 @@ export type ExtrinsicWithBoundedEvents = {
 export enum CustomExtrinsicSection {
   RootOfTrust = "pkiRootOfTrust",
   VestingSchedule = "grants",
-  Application = "pkiTcr"
+  Application = "pkiTcr",
 }
+
+export type Application = {
+  candidate: AccountId;
+  candidate_deposit: Balance;
+  metadata: Vec<U8>; // u8
+  challenger: Option<AccountId>;
+  challenger_deposit: Option<Balance>;
+  votes_for: Option<Balance>;
+  voters_for: any; //Vec<(AccountId, Balance)>,
+  votes_against: Option<Balance>;
+  voters_against: any; //Vec<(AccountId, Balance)>,
+  created_block: BlockNumber;
+  challenged_block: BlockNumber;
+};
 
 export type VestingScheduleOf = {
   start: BlockNumber;
