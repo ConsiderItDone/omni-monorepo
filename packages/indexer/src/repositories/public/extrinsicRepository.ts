@@ -40,7 +40,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     success,
     fee,
     blockId,
-  }: NewExtrinsicParam) {
+  }: NewExtrinsicParam): Promise<Extrinsic> {
     const extrinsic = await this.save({
       index,
       length,
@@ -65,7 +65,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     return;
   }
 
-  public async addList(list: NewExtrinsicParam[]) {
+  public async addList(list: NewExtrinsicParam[]): Promise<Extrinsic[]> {
     const extrinsics = await this.save(list);
     for (const extrinsic of extrinsics) {
       MQ.getMQ().emit("newExtrinsic", extrinsic);

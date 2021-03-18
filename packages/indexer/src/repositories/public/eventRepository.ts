@@ -18,7 +18,7 @@ export default class EventRepository extends Repository<Event> {
     moduleName: string;
     eventName: string;
     blockId: number;
-  }) {
+  }): Promise<Event> {
     const event = await this.save({
       index,
       type,
