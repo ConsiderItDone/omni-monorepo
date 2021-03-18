@@ -40,7 +40,7 @@ export default class BlockRepository extends Repository<Block> {
     return block;
   }
 
-  public findByNumber(number: number) {
+  public findByNumber(number: number): Promise<Block> {
     return this.findOne({ where: { number } });
   }
 }

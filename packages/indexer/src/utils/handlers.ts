@@ -96,7 +96,7 @@ export async function handleLogs(
   const logRepository = getCustomRepository(LogRepository);
 
   await logRepository.addList(
-    logs.map((log: any, index: number) => {
+    logs.map((log: DigestItem, index: number) => {
       const { type, value } = log;
       return {
         index: `${blockId}-${index}`,
@@ -121,9 +121,9 @@ export async function handleExtrinsics(
   const processedExtrinsics = extrinsics.map(
     (extrinsic: GenericExtrinsic, index: number) => {
       if (
-        Object.values(CustomExtrinsicSection).includes(
-          extrinsic.method.section as CustomExtrinsicSection
-        )
+          (Object.values(CustomExtrinsicSection) as string[]).includes(
+            extrinsic.method.section
+          )
       ) {
         trackedExtrinsics.push(extrinsic);
       }
@@ -262,10 +262,10 @@ async function handleApplication(
     case "apply":
       const application = (await api.query.pkiTcr.applications(
         extrinsic.signer.toHuman()
-      )) as any;
+      ));
       //const metadata = extrinsic.method.args[0];
       //const deposit = extrinsic.method.args[1];
-      //console.log(application.toHuman());
+      // console.log(application.toHuman());
 
       const applicationRepository = getCustomRepository(ApplicationRepository);
       const {
@@ -280,7 +280,7 @@ async function handleApplication(
         voters_against,
         created_block,
         challenged_block,
-      } = application as Application;
+      } = application as any as Application;
 
       const newApplication = {
         blockId,
