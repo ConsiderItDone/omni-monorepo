@@ -33,7 +33,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
       blockId,
     });
 
-    MQ.getMQ().emit("newRootCertificate", rootCertificate);
+    MQ.getMQ().emit<RootCertificate>("newRootCertificate", rootCertificate);
 
     return rootCertificate;
   }

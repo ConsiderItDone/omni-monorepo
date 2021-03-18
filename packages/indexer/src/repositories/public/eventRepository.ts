@@ -28,7 +28,7 @@ export default class EventRepository extends Repository<Event> {
       blockId,
     });
 
-    MQ.getMQ().emit("newEvent", event);
+    MQ.getMQ().emit<Event>("newEvent", event);
 
     return event;
   }

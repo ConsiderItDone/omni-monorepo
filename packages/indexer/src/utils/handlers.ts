@@ -70,7 +70,7 @@ export async function handleEvents(
     events
   );
 
-  events.forEach(async (eventRecord: EventRecord, index: number) => {
+  for (const [index, eventRecord] of events.entries()) {
     const { method, section, typeDef } = eventRecord.event;
     const extrinsicHash = findExtrinsicsWithEventsHash(
       extrinsicsWithBoundedEvents,
@@ -84,7 +84,8 @@ export async function handleEvents(
       eventName: method,
       blockId,
     });
-  });
+  }
+
   return extrinsicsWithBoundedEvents;
 }
 
@@ -195,7 +196,7 @@ async function handleRootOfTrust(
     renewed, // TODO 0 while not created
     created, // TODO 0 while not created
     child_revocations,
-  } = slot as any;
+  } = slot as any; // eslint-disable-line
 
   await rootCertificateRepository.add({
     owner: owner.toHuman(),
@@ -205,7 +206,7 @@ async function handleRootOfTrust(
     revoked: revoked.toHuman(),
     childRevocations:
       child_revocations.length > 0
-        ? child_revocations.map((revokation: any) => revokation.toString())
+        ? child_revocations.map((revokation: string) => revokation.toString())
         : null,
     blockId,
   });

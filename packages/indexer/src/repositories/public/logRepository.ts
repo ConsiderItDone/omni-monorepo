@@ -27,7 +27,7 @@ export default class LogRepository extends Repository<Log> {
       blockId,
     });
 
-    MQ.getMQ().emit("newLog", log);
+    MQ.getMQ().emit<Log>("newLog", log);
 
     return log;
   }
@@ -35,7 +35,7 @@ export default class LogRepository extends Repository<Log> {
   public async addList(list: NewLogParam[]): Promise<Log[]> {
     const logs = await this.save(list);
     for (const log of logs) {
-      MQ.getMQ().emit("newLog", log);
+      MQ.getMQ().emit<Log>("newLog", log);
     }
 
     return logs;
