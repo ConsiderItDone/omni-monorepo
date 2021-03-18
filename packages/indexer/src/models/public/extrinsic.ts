@@ -71,7 +71,7 @@ export default class Extrinsic extends BaseEntity {
   public era: string | null;
 
   @Field(() => String)
-  @Column("character varying", { name: "hash" })
+  @Column("character varying", { name: "hash", length: 66 })
   public hash: string;
 
   @Field(() => Boolean)

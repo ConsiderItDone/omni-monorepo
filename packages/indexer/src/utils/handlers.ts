@@ -23,7 +23,11 @@ import {
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
 } from "./misc";
-import { ExtrinsicWithBoundedEvents, CustomExtrinsicSection } from "./types";
+import {
+  ExtrinsicWithBoundedEvents,
+  CustomExtrinsicSection,
+  VestingScheduleOf,
+} from "./types";
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
@@ -112,10 +116,11 @@ export async function handleExtrinsics(
   const trackedExtrinsics: GenericExtrinsic[] = [];
   const processedExtrinsics = extrinsics.map(
     (extrinsic: GenericExtrinsic, index: number) => {
-      if (extrinsic.method.section === "pkiRootOfTrust") {
-        trackedExtrinsics.push(extrinsic);
-      }
-      if (extrinsic.method.section === "grants") {
+      if (
+        Object.values(CustomExtrinsicSection).includes(
+          extrinsic.method.section as CustomExtrinsicSection
+        )
+      ) {
         trackedExtrinsics.push(extrinsic);
       }
       return {
@@ -158,7 +163,10 @@ export async function handleTrackedExtrinsics(
         handleRootOfTrust(extrinsic.signer.toHuman() as string, api, blockId);
         break;
       case CustomExtrinsicSection.VestingSchedule:
-        handleVestingSchedule(extrinsic, api);
+        handleVestingSchedule(extrinsic, blockId, api);
+        break;
+      case CustomExtrinsicSection.Application:
+        handleApplication(extrinsic, blockId, api);
         break;
       default:
         return;
@@ -201,13 +209,62 @@ async function handleRootOfTrust(
 }
 async function handleVestingSchedule(
   extrinsic: GenericExtrinsic,
+  blockId: number,
   api: ApiPromise
 ) {
-  const vestingTargetAccountId: any = extrinsic.args[0].toHuman();
-  const vestingData: any = extrinsic.args[1];
-  console.log(vestingData.start);
-  //console.log(JSON.stringify(extrinsic.args));
-  const grant = await api.query.grants.vestingSchedules(vestingTargetAccountId);
-  console.log("grant", JSON.stringify(grant));
+  switch (extrinsic.method.method) {
+    case "addVestingSchedule":
+      console.log("vesting add");
+      const vestingTargetAccountId: any = extrinsic.args[0].toHuman();
+      const vestingData: any = extrinsic.args[1];
+
+      //const grant = await api.query.grants.vestingSchedules(vestingTargetAccountId);  array of schedules with no identifiers
+      //console.log("grant", JSON.stringify(grant));
+
+      const vestingScheduleRepository = getCustomRepository(
+        VestingScheduleRepository
+      );
+      const {
+        start,
+        period,
+        period_count,
+        per_period,
+      } = vestingData as VestingScheduleOf;
+
+      vestingScheduleRepository.add({
+        start: start.toString(),
+        period: period.toString(),
+        periodCount: period_count.toNumber(),
+        perPeriod: per_period.toString(),
+        blockId,
+      });
+      break;
+    case "claim":
+      console.log("claim");
+      break;
+    case "cancelAllVestingSchedules":
+      console.log("cancel");
+      break;
+    default:
+      return;
+  }
 }
-async function handleApplication(params: any) {}
+async function handleApplication(
+  extrinsic: GenericExtrinsic,
+  blockId: number,
+  api: ApiPromise
+) {
+  switch (extrinsic.method.method) {
+    case "apply":
+      const applications = await api.query.pkiTcr.applications(extrinsic.signer.toHuman());
+      const metadata = extrinsic.method.args[0]
+      const deposit = extrinsic.method.args[1]
+      console.log(applications.toHuman());
+      break;
+    default:
+      return;
+  }
+  console.log(extrinsic.toHuman());
+  
+
+}

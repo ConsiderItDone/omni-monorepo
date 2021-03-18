@@ -100,7 +100,7 @@ export async function subscribe() {
     const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
       api.rpc.chain.getBlock(blockHash),
       api.query.timestamp.now.at(blockHash),
-      api.query.system.events.at(blockHash),
+      api.query.system.events.at(blockHash) as any, // original type throws error on custom extrinsics
       api.rpc.state.getRuntimeVersion(blockHash),
     ]);
 
