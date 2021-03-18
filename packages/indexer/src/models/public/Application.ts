@@ -71,7 +71,7 @@ export default class Application extends BaseEntity {
   @Column("simple-array", {
     name: "voters_against",
     array: true,
-    nullable:true,
+    nullable: true,
   })
   public votersAgainst: string[];
 
