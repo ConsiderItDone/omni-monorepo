@@ -56,7 +56,7 @@ export default class Application extends BaseEntity {
   public votesFor: string | null;
 
   @Field(() => [String])
-  @Column("character varying", { name: "voters_for", array: true, default: [] })
+  @Column("simple-array", { name: "voters_for", array: true, nullable: true })
   public votersFor: string[];
 
   @Field(() => String, { nullable: true })
@@ -68,10 +68,10 @@ export default class Application extends BaseEntity {
   public votesAgainst: string | null;
 
   @Field(() => [String])
-  @Column("character varying", {
+  @Column("simple-array", {
     name: "voters_against",
     array: true,
-    default: [],
+    nullable:true,
   })
   public votersAgainst: string[];
 
