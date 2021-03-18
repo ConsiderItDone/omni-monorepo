@@ -27,7 +27,7 @@ export function findExtrinsicsWithEventsHash(
       extrinsic.boundedEvents.some(
         (event) => event.hash.toHex() === eventRecord.event.hash.toHex()
       )
-    ).hash || null
+    )?.hash || null
   );
 }
 export function getExtrinsicSuccess(
