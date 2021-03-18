@@ -21,6 +21,9 @@ class GetEventArgs {
   @Min(1)
   @Max(100)
   take = 25;
+
+  @Field(() => String)
+  eventName: string;
 }
 
 @Resolver(Event)
@@ -36,10 +39,13 @@ export default class EventResolver {
   }
 
   @Query(() => [Event])
-  protected events(@Args() { take, skip }: GetEventArgs) {
+  protected events(@Args() { take, skip, eventName }: GetEventArgs) {
     return Event.find({
       take,
       skip,
+      where: {
+        eventName,
+      },
       order: {
         eventId: "DESC"
       },
