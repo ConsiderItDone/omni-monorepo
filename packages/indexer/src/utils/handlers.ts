@@ -197,19 +197,22 @@ async function handleRootOfTrust(
     created, // TODO 0 while not created
     child_revocations,
   } = slot as any; // eslint-disable-line
-
-  await rootCertificateRepository.add({
-    owner: owner.toHuman(),
-    key: key.toHuman(),
-    created: new Date(created.toNumber()),
-    renewed: new Date(renewed.toNumber()),
-    revoked: revoked.toHuman(),
-    childRevocations:
+  if(owner !== '5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM') {
+    await rootCertificateRepository.add({
+      owner: owner.toHuman(),
+      key: key.toHuman(),
+      created: new Date(created.toNumber()),
+      renewed: new Date(renewed.toNumber()),
+      revoked: revoked.toHuman(),
+      childRevocations:
       child_revocations.length > 0
-        ? child_revocations.map((revokation: string) => revokation.toString())
-        : null,
-    blockId,
-  });
+      ? child_revocations.map((revokation: string) => revokation.toString())
+      : null,
+      blockId,
+    });
+  } else {
+    console.log('Skipping empty rootCertificate')
+  }
 }
 async function handleVestingSchedule(
   extrinsic: GenericExtrinsic,
@@ -283,6 +286,7 @@ async function handleApplication(
         challenged_block,
       } = (application as any) as Application;
 
+      console.log('new app')
       const newApplication = {
         blockId,
         candidate: candidate.toString(),
@@ -293,7 +297,7 @@ async function handleApplication(
           challenger_deposit.unwrapOr(null) &&
           challenger_deposit.unwrap().toNumber(),
         votesFor: votes_for.unwrapOr(null) && votes_for.unwrap().toString(),
-        votersFor: [], //(voters_for as []).map((v: String)=> v.toString()),
+        votersFor: voters_for.map((v) => v.toString()), //(voters_for as []).map((v: String)=> v.toString()),
         votesAgainst: challenger_deposit.unwrapOr(null),
         votersAgainst: [], //string array
         createdBlock: created_block.toString(),
@@ -318,3 +322,4 @@ async function handleApplication(
       return;
   }
 }
+

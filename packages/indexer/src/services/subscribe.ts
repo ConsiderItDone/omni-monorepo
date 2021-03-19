@@ -42,12 +42,13 @@ async function getApi(): Promise<ApiPromise> {
         child_revocations: "Vec<CertificateId>",
       },
       Amendment: "Call",
-      VestingScheduleOf: {
-        start: "BlockNumber",
-        period: "BlockNumber",
-        period_count: "u32",
-        per_period: "Balance",
+      VestingSchedule: {
+        start: 'BlockNumber',
+        period: 'BlockNumber',
+        period_count: 'u32',
+        per_period: 'Balance'
       },
+      VestingScheduleOf: 'VestingSchedule'
     },
     rpc: {
       rootOfTrust: {
