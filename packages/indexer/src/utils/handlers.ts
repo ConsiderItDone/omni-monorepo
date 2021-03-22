@@ -204,13 +204,13 @@ async function handleRootOfTrust(
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
     certificateId
-  )) as any) as RootCertificate;
+  )) as undefined) as RootCertificate;
   await upsertRootCertificate(certificateId, certificateData, blockId);
 }
 async function handleVestingSchedule(
   event: Event,
   blockId: number,
-  api: ApiPromise
+  api: ApiPromise // eslint-disable-line
 ) {
   let targetAccount: AccountId = event.data[0] as AccountId; // default
   const vestingScheduleRepository = getCustomRepository(
@@ -226,7 +226,8 @@ async function handleVestingSchedule(
     // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
       targetAccount = event.data[1] as AccountId;
-      const vestingScheduleData = (event.data[2] as any) as VestingScheduleOf;
+      const vestingScheduleData = (event
+        .data[2] as undefined) as VestingScheduleOf;
       const { start, period, period_count, per_period } = vestingScheduleData;
       await vestingScheduleRepository.add({
         accountAddress: targetAccount.toString(),
@@ -312,7 +313,7 @@ async function handleApplication(
   }
   await upsertApplication(
     accountId,
-    (applicationData as any) as ApplicationType,
+    (applicationData as undefined) as ApplicationType,
     blockId,
     applicationStatus
   );

@@ -68,7 +68,7 @@ export default class EventResolver {
   @Query(() => [Event])
   protected eventsByName(
     @Args() { take, skip, eventName }: GetEventByNameArgs
-  ) {
+  ): Promise<Event[]> {
     return Event.find({
       take,
       skip,
