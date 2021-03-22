@@ -100,7 +100,6 @@ async function getApi(): Promise<ApiPromise> {
     });
 ********************************************/
 
-
 /******* Mapping extrinsics to their events
 
             _Mike: extrinsics also have method:event.module_name & section:event.event_name,

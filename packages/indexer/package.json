@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.17",
-	"tsconfig-paths": "^3.9.0",
+    "tsconfig-paths": "^3.9.0",
     "typeorm-model-generator": "^0.4.5"
   }
 }
