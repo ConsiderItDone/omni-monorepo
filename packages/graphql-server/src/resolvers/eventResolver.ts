@@ -11,9 +11,9 @@ import {
   Int,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Event from "../models/public/event";
-import Block from "../models/public/block";
-import MQ from "../mq";
+import Event from "@nodle/db/models/public/event";
+import Block from "@nodle/db/models/public/block";
+import MQ from "../../mq";
 
 @ArgsType()
 class GetEventArgs {

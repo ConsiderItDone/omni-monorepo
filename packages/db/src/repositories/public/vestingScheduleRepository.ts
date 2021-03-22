@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import VestingSchedule from "../../models/public/vestingSchedule";
+import VestingSchedule from "../../models/public/VestingSchedule";
 
 type NewVestingSchedule = {
   accountAddress: string;

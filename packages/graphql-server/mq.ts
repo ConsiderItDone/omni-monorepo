@@ -1,5 +1,5 @@
 import amqp = require("amqplib"); // eslint-disable-line
-import env from "./env";
+import env from "@nodle/indexer/src/env";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
 
 export default class MQ {

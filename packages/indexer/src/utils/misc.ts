@@ -10,11 +10,11 @@ import { getCustomRepository } from "typeorm";
 import {
   ApplicationRepository,
   RootCertificateRepository,
-} from "../repositories";
+} from "../../../db/src/repositories";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
-} from "../models";
+} from "../../../db/src/models";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(

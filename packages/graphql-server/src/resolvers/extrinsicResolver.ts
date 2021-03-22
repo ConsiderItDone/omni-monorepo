@@ -6,9 +6,9 @@ import {
   Root,
   Subscription,
 } from "type-graphql";
-import Block from "../models/public/block";
-import Extrinsic from "../models/public/extrinsic";
-import MQ from "@nodle/indexer/dist/src/mq";
+import Block from "@nodle/db/models/public/block";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
+import MQ from "../../mq";
 
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver {

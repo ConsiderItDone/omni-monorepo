@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
-import { ApplicationStatus } from "../../utils/types";
+import { ApplicationStatus } from "@nodle/indexer/src/utils/types";
 
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })

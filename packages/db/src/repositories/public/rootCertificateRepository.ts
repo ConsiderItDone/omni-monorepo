@@ -1,6 +1,6 @@
 import { EntityRepository, Repository, UpdateResult } from "typeorm";
 import RootCertificate from "../../models/public/rootCertificate";
-import MQ from "../../mq";
+import MQ from "../../../../graphql-server/mq";
 
 type NewRootCertificateParam = {
   owner: string;

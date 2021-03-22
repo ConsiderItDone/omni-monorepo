@@ -15,7 +15,7 @@ import {
   ExtrinsicRepository,
   LogRepository,
   VestingScheduleRepository,
-} from "../repositories";
+} from "@nodle/db/src/repositories";
 
 import {
   boundEventsToExtrinsics,

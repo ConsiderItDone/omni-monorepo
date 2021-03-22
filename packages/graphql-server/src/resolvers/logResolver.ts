@@ -6,9 +6,9 @@ import {
   Root,
   Subscription,
 } from "type-graphql";
-import Log from "../models/public/log";
-import Block from "../models/public/block";
-import MQ from "@nodle/indexer/dist/src/mq";
+import Log from "@nodle/db/models/public/log";
+import Block from "@nodle/db/models/public/block";
+import MQ from "../../mq";
 
 @Resolver(Log)
 export default class LogResolver {

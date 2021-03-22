@@ -11,10 +11,10 @@ import {
   Subscription,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Block from "../models/public/block";
-import Event from "../models/public/event";
-import MQ from "../mq";
-import Extrinsic from "../models/public/extrinsic";
+import Block from "@nodle/db/src/models/public/block";
+import Event from "@nodle/db/models/public/event";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
+import MQ from "../../mq";
 
 @ArgsType()
 class GetBlocksArgs {

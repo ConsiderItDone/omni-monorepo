@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
-import { VestingSchedule } from "..";
+import { VestingSchedule } from "@nodle/indexer/dist/src/models";
 
 @ObjectType()
 @Index("account_pk", ["accountId"], { unique: true })
