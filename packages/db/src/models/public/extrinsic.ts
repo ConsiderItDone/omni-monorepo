@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 
@@ -39,11 +47,19 @@ export default class Extrinsic extends BaseEntity {
   public params: string;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "account", nullable: true, default: null })
+  @Column("character varying", {
+    name: "account",
+    nullable: true,
+    default: null,
+  })
   public account: string | null;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "signature", nullable: true, default: null })
+  @Column("character varying", {
+    name: "signature",
+    nullable: true,
+    default: null,
+  })
   public signature: string | null;
 
   @Field(() => Number, { nullable: true })
@@ -55,7 +71,7 @@ export default class Extrinsic extends BaseEntity {
   public era: string | null;
 
   @Field(() => String)
-  @Column("character varying", { name: "hash" })
+  @Column("character varying", { name: "hash", length: 66 })
   public hash: string;
 
   @Field(() => Boolean)
@@ -66,9 +82,9 @@ export default class Extrinsic extends BaseEntity {
   @Column("boolean", { name: "success", default: () => "false" })
   public success: boolean;
 
-  @Field(() => String)
-  @Column("numeric", { name: "fee", default: () => "0" })
-  public fee: string;
+  @Field(() => Number)
+  @Column("numeric", { name: "fee", default: () => 0 })
+  public fee: number;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })

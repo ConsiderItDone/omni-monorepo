@@ -192,14 +192,7 @@ async function main() {
     console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
 }
 
-async function fetchEvents(api, hash) {
-    try {
-        return await api.query.system.events.at(hash);
-    } catch (e) {
-        console.error(e);
-        return 'Unable to fetch Events, cannot confirm extrinsic status. Check pruning settings on the node.';
-    }
-}
+
 
 main().catch(console.error);
 

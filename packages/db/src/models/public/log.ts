@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 
@@ -10,9 +18,9 @@ export default class Log extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "log_id" })
   public logId: number;
 
-  @Field(() => Number)
-  @Column("integer", { name: "index" })
-  public index: number;
+  @Field(() => String)
+  @Column("character varying", { name: "index" })
+  public index: string;
 
   @Field(() => String)
   @Column("character varying", { name: "type" })
@@ -31,7 +39,7 @@ export default class Log extends BaseEntity {
   public blockId: number;
 
   @Field(() => Block)
-  @ManyToOne(() => Block, block => block.logs)
+  @ManyToOne(() => Block, (block) => block.logs)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
 }

@@ -26,5 +26,5 @@ const start = async function() {
 }
 
 export const Indexer = {
-    start
-}
+  start,
+};

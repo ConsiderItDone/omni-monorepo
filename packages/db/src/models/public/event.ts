@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 
@@ -10,9 +18,9 @@ export default class Event extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "event_id" })
   public eventId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "index" })
-  public index: string;
+  @Field(() => Number)
+  @Column("smallint", { name: "index" })
+  public index: number;
 
   @Field(() => String)
   @Column("character varying", { name: "type" })
@@ -35,7 +43,7 @@ export default class Event extends BaseEntity {
   public blockId: number;
 
   @Field(() => Block)
-  @ManyToOne(() => Block, block => block.events)
+  @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
 }

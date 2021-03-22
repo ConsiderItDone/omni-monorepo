@@ -4,6 +4,9 @@ import { connect } from "@nodle/db";
 
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
+import LogResolver from "./src/resolvers/logResolver";
+import RootCertificateResolver from "./src/resolvers/rootCertificateResolver";
+import ExtrinsicResolver from "./src/resolvers/extrinsicResolver";
 
 const PORT = 4000; // env.GRAPHQL_SERVER_PORT
 
@@ -35,6 +38,9 @@ const PORT = 4000; // env.GRAPHQL_SERVER_PORT
         resolvers: [
             BlockResolver,
             EventResolver,
+            LogResolver,
+            RootCertificateResolver,
+            ExtrinsicResolver,
         ],
     });
 
