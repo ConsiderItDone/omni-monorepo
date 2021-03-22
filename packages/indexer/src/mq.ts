@@ -23,7 +23,7 @@ export default class MQ {
     return MQ.mq;
   }
 
-  public on(eventName: string): AsyncIterator<any> { // eslint-disable-line
+  public on(eventName: string): AsyncIterator<undefined> {
     return MQ.getMQ().pubsub.asyncIterator(eventName);
   }
 

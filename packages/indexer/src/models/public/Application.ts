@@ -7,6 +7,8 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
+import { ApplicationStatus } from "../../utils/types";
+
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })
 @Entity("application", { schema: "public" })
@@ -18,6 +20,13 @@ export default class Application extends BaseEntity {
   @Field(() => Number)
   @Column("integer", { name: "block_id" })
   public blockId: number;
+
+  @Field(() => String, { defaultValue: ApplicationStatus.pending }) //TODO add default
+  @Column("character varying", {
+    name: "status",
+    default: ApplicationStatus.pending,
+  })
+  public status: string;
 
   @Field(() => String)
   @Column("character varying", { name: "candidate" })
@@ -56,7 +65,12 @@ export default class Application extends BaseEntity {
   public votesFor: string | null;
 
   @Field(() => [String])
-  @Column("simple-array", { name: "voters_for", array: true, nullable: true })
+  // TODO change to 'simple-array'
+  @Column("character varying", {
+    name: "voters_for",
+    array: true,
+    nullable: true,
+  })
   public votersFor: string[];
 
   @Field(() => String, { nullable: true })
@@ -68,7 +82,8 @@ export default class Application extends BaseEntity {
   public votesAgainst: string | null;
 
   @Field(() => [String])
-  @Column("simple-array", {
+  // TODO change to 'simple-array'
+  @Column("character varying", {
     name: "voters_against",
     array: true,
     nullable: true,

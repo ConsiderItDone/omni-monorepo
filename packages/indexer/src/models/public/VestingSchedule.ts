@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
-import Block from "./block";
+import { Block, Account } from "../index";
 
 @ObjectType()
 @Index("vesting_schedule_pk", ["vestingScheduleId"], { unique: true })
@@ -33,6 +33,15 @@ export default class VestingSchedule extends BaseEntity {
   @Field(() => String)
   @Column("bigint", { name: "per_period", default: () => "0" })
   public perPeriod: string;
+
+  @Field(() => String)
+  @Column("character varying", { name: "account_address" })
+  public accountAddress: string;
+
+  @Field(() => Account)
+  @ManyToOne(() => Account, (account) => account.vestingSchedules)
+  @JoinColumn([{ name: "account_address", referencedColumnName: "address" }])
+  public account: Account;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })

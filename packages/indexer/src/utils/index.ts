@@ -8,5 +8,5 @@ export {
   handleEvents,
   handleLogs,
   handleExtrinsics,
-  handleTrackedExtrinsics,
+  handleTrackedEvents,
 } from "./handlers";
