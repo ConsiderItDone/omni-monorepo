@@ -26,17 +26,21 @@ export default class RootCertificate extends BaseEntity {
   @Column("character varying", { name: "key" })
   public key: string;
 
-  @Field(() => Date)
-  @Column("timestamp without time zone", { name: "created" })
-  public created: Date;
+  @Field(() => String)
+  @Column("bigint", { name: "created" })
+  public created: string;
 
-  @Field(() => Date)
-  @Column("timestamp without time zone", { name: "renewed" })
-  public renewed: Date;
+  @Field(() => String)
+  @Column("bigint", { name: "renewed" })
+  public renewed: string;
 
   @Field(() => Boolean)
   @Column("boolean", { name: "revoked", default: () => "false" })
   public revoked: boolean;
+
+  @Field(() => Number)
+  @Column("integer", { name: "validity" })
+  public validity: number;
 
   @Field(() => [String], { nullable: true, defaultValue: [] })
   @Column("varchar", { name: "child_revocations", nullable: true, array: true })

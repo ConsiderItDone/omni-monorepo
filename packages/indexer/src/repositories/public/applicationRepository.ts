@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, UpdateResult } from "typeorm";
 import { Application } from "../../models";
 
 type NewApplicationParams = {
@@ -15,10 +15,6 @@ type NewApplicationParams = {
   votersAgainst: string[];
   createdBlock: string;
   challengedBlock: string;
-};
-
-type ApplicationParams = NewApplicationParams & {
-  applicationId: number;
 };
 
 @EntityRepository(Application)
@@ -54,40 +50,28 @@ export default class ApplicationRepository extends Repository<Application> {
       challengedBlock,
     });
   }
-  public replace({
-    applicationId,
-    status,
-    blockId,
-    candidate,
-    candidateDeposit,
-    metadata,
-    challenger,
-    challengerDeposit,
-    votesFor,
-    votersFor,
-    votesAgainst,
-    votersAgainst,
-    createdBlock,
-    challengedBlock,
-  }: ApplicationParams): Promise<ApplicationParams> {
-    return this.save({
-      applicationId,
-      status,
-      blockId,
-      candidate,
-      candidateDeposit,
-      metadata,
-      challenger,
-      challengerDeposit,
-      votesFor,
-      votersFor,
-      votesAgainst,
-      votersAgainst,
-      createdBlock,
-      challengedBlock,
-    });
+  public replace(
+    applicationId: number,
+    applicationData: NewApplicationParams
+  ): Promise<UpdateResult> {
+    return this.update(applicationId, applicationData);
   }
-  public findCandidate(accountId: string) {
-    return this.findOne({ candidate: accountId });
+  public async upsert(
+    accountId: string,
+    applicationData: Application
+  ): Promise<UpdateResult | Application> {
+    const existingApplication = await this.findCandidate(accountId);
+
+    if (existingApplication) {
+      return await this.replace(
+        existingApplication.applicationId,
+        applicationData
+      );
+    } else {
+      return await this.add(applicationData);
+    }
+  }
+  public async findCandidate(accountId: string): Promise<Application> {
+    return await this.findOne({ candidate: accountId });
   }
 }

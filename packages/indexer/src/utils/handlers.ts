@@ -14,7 +14,6 @@ import {
   EventRepository,
   ExtrinsicRepository,
   LogRepository,
-  RootCertificateRepository,
   VestingScheduleRepository,
 } from "../repositories";
 
@@ -22,7 +21,8 @@ import {
   boundEventsToExtrinsics,
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
-  addOrReplaceApplication,
+  upsertApplication,
+  upsertRootCertificate,
 } from "./misc";
 
 import {
@@ -31,9 +31,11 @@ import {
   VestingScheduleOf,
   Application as ApplicationType,
   ApplicationStatus,
+  RootCertificate,
 } from "./types";
 
 import AccountId from "@polkadot/types/generic/AccountId";
+import { Codec } from "@polkadot/types/types";
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
@@ -179,54 +181,31 @@ export async function handleTrackedEvents(
 
 async function handleRootOfTrust(
   event: Event,
-  //signer: string,
   api: ApiPromise,
   blockId: number
 ) {
-  const rootCertificateRepository = getCustomRepository(
-    RootCertificateRepository
-  );
+  let certificateId = event?.data[0]?.toString() || "";
   switch (event.method) {
     // Book a certificate slot (AccountId, CertificateId)
     case "SlotTaken":
+      certificateId = event.data[1].toString();
       break;
     // Renew a non expired slot and make it valid for a longer time (CertificateId)
     case "SlotRenewed":
+      certificateId = event.data[0].toString();
       break;
     //Revoke a slot before it is expired thus invalidating all child certificates  (CertificateId)
     case "SlotRevoked":
+      certificateId = event.data[0].toString();
       break;
     // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
       break;
   }
-
-  //const slot = await api.query.pkiRootOfTrust.slots(signer);
-
-  /* const {
-    owner,
-    key,
-    revoked,
-    renewed, // TODO 0 while not created
-    created, // TODO 0 while not created
-    child_revocations,
-  } = slot as any; // eslint-disable-line
-  if (owner !== "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM") {
-    await rootCertificateRepository.add({
-      owner: owner.toHuman(),
-      key: key.toHuman(),
-      created: new Date(created.toNumber()),
-      renewed: new Date(renewed.toNumber()),
-      revoked: revoked.toHuman(),
-      childRevocations:
-        child_revocations.length > 0
-          ? child_revocations.map((revokation: string) => revokation.toString())
-          : null,
-      blockId,
-    });
-  } else {
-    console.log("Skipping empty rootCertificate");
-  } */
+  const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
+    certificateId
+  )) as any) as RootCertificate;
+  await upsertRootCertificate(certificateId, certificateData, blockId);
 }
 async function handleVestingSchedule(
   event: Event,
@@ -234,40 +213,43 @@ async function handleVestingSchedule(
   api: ApiPromise
 ) {
   let targetAccount: AccountId = event.data[0] as AccountId; // default
+  const vestingScheduleRepository = getCustomRepository(
+    VestingScheduleRepository
+  );
+
+  /* //GET all vesting schedules for account
+  const grants = ((await api.query.grants.vestingSchedules(
+    account
+  )) as any) as VestingScheduleOf[]; */
+
   switch (event.method) {
     // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
       targetAccount = event.data[1] as AccountId;
+      const vestingScheduleData = (event.data[2] as any) as VestingScheduleOf;
+      const { start, period, period_count, per_period } = vestingScheduleData;
+      await vestingScheduleRepository.add({
+        accountAddress: targetAccount.toString(),
+        start: start.toString(),
+        period: period.toString(),
+        periodCount: period_count.toNumber(),
+        perPeriod: per_period.toString(),
+        blockId,
+      });
       break;
     }
     /// Canceled all vesting schedules (who)
     case "VestingSchedulesCanceled": {
-      targetAccount = event.data[0] as AccountId; // event.data[1]
+      const accountSchedules = await vestingScheduleRepository.find({
+        accountAddress: targetAccount.toString(),
+      });
+      vestingScheduleRepository.remove(accountSchedules);
       break;
     }
-    /// Claimed vesting (who, locked_amount)
-    case "Claimed": {
-      targetAccount = event.data[0] as AccountId;
-      break;
-    }
+    /// Claimed vesting (who, locked_amount) DOES NOTHING WITH VESTING SCHEDULES
+    case "Claimed":
     default:
       return;
-  }
-  const grants = ((await api.query.grants.vestingSchedules(
-    targetAccount
-  )) as any) as VestingScheduleOf[];
-  const vestingScheduleRepository = getCustomRepository(
-    VestingScheduleRepository
-  );
-  for (const vestingSchedule of grants) {
-    const { start, period, period_count, per_period } = vestingSchedule;
-    await vestingScheduleRepository.add({
-      start: start.toString(),
-      period: period.toString(),
-      periodCount: period_count.toNumber(),
-      perPeriod: per_period.toString(),
-      blockId,
-    });
   }
 }
 async function handleApplication(
@@ -275,50 +257,30 @@ async function handleApplication(
   blockId: number,
   api: ApiPromise
 ) {
+  const accountId = event.data[0].toString(); // may be reassigned
+  let applicationData: Codec;
+  let applicationStatus = ApplicationStatus.pending;
+
   switch (event.method) {
     /// Someone applied to join the registry  NewApplication(AccountId, Balance)
     case "NewApplication": {
-      const accountId = event.data[0].toString();
-      // Getting information about applicant & his application
-      const applicationData: ApplicationType = ((await api.query.pkiTcr.applications(
-        accountId
-      )) as any) as ApplicationType;
-      await addOrReplaceApplication(
-        accountId,
-        applicationData,
-        blockId,
-        ApplicationStatus.pending
-      );
+      applicationData = await api.query.pkiTcr.applications(accountId);
+      applicationStatus = ApplicationStatus.pending;
       break;
     }
     /// An application passed without being countered  ApplicationPassed(AccountId)
     case "ApplicationPassed": {
-      const accountId = event.data[0].toString();
-      // Getting information about 'member'(applied user) & his application
-      const applicationData: ApplicationType = ((await api.query.pkiTcr.members(
-        accountId
-      )) as any) as ApplicationType;
-      // Will reset previous information and replace it with response
-      await addOrReplaceApplication(
-        accountId,
-        applicationData,
-        blockId,
-        ApplicationStatus.accepted
-      );
+      applicationData = await api.query.pkiTcr.members(accountId);
+      applicationStatus = ApplicationStatus.accepted;
       break;
     }
     /// A member's application is being challenged ApplicationChallenged(AccountId, AccountId, Balance)
     case "ApplicationChallenged": {
-      const accountId = event.data[0].toString();
-      const challengerAcc = event.data[1];
-      const balance = event.data[2];
-      const applicationData: ApplicationType = ((await api.query.pkiTcr.challenges(
-        accountId
-      )) as any) as ApplicationType;
-      await addOrReplaceApplication(accountId, applicationData, blockId);
+      applicationData = await api.query.pkiTcr.challenges(accountId);
+      applicationStatus = ApplicationStatus.accepted;
       break;
     }
-
+    /* 
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
       const counteredAcc = event.data[0];
@@ -343,8 +305,15 @@ async function handleApplication(
     case "ChallengeAcceptedApplication": {
       const acc = event.data[0];
       break;
-    }
+    } 
+    */
     default:
       return;
   }
+  await upsertApplication(
+    accountId,
+    (applicationData as any) as ApplicationType,
+    blockId,
+    applicationStatus
+  );
 }

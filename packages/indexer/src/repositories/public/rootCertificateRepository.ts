@@ -1,13 +1,14 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, UpdateResult } from "typeorm";
 import RootCertificate from "../../models/public/rootCertificate";
 import MQ from "../../mq";
 
 type NewRootCertificateParam = {
   owner: string;
   key: string;
-  created: Date;
-  renewed: Date;
+  created: string;
+  renewed: string;
   revoked: boolean;
+  validity: number;
   childRevocations: string[] | null;
   blockId: number;
 };
@@ -20,6 +21,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
     created,
     renewed,
     revoked,
+    validity,
     childRevocations,
     blockId,
   }: NewRootCertificateParam): Promise<RootCertificate> {
@@ -29,6 +31,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
       created,
       renewed,
       revoked,
+      validity,
       childRevocations,
       blockId,
     });
@@ -36,5 +39,30 @@ export default class RootCertificateRepository extends Repository<RootCertificat
     MQ.getMQ().emit<RootCertificate>("newRootCertificate", rootCertificate);
 
     return rootCertificate;
+  }
+  public replace(
+    rootCertificateId: number,
+    certificateData: NewRootCertificateParam
+  ): Promise<UpdateResult> {
+    return this.update(rootCertificateId, certificateData);
+  }
+
+  public async upsert(
+    certificateKey: string,
+    certificateData: NewRootCertificateParam
+  ): Promise<UpdateResult | RootCertificate> {
+    const existingRootCertificate = await this.findByKey(certificateKey);
+    if (existingRootCertificate) {
+      return await this.replace(
+        existingRootCertificate.rootCertificateId,
+        certificateData
+      );
+    } else {
+      return await this.add(certificateData);
+    }
+  }
+
+  public async findByKey(certificateId: string): Promise<RootCertificate> {
+    return await this.findOne({ key: certificateId });
   }
 }

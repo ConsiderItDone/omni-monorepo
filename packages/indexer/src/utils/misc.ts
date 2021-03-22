@@ -1,12 +1,20 @@
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
+import { AccountId } from "@polkadot/types/interfaces/runtime";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
+  RootCertificate as RootCertificateType,
 } from "./types";
 import { getCustomRepository } from "typeorm";
-import { ApplicationRepository } from "../repositories";
-import { Application as ApplicationModel } from "../models";
+import {
+  ApplicationRepository,
+  RootCertificateRepository,
+} from "../repositories";
+import {
+  Application as ApplicationModel,
+  RootCertificate as RootCertificateModel,
+} from "../models";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -59,31 +67,23 @@ export function getExtrinsicSuccess(
 }
 
 /******************* Application utils *************************************/
-export async function addOrReplaceApplication(
+export async function upsertApplication(
   accountId: string,
   applicationData: ApplicationType,
   blockId: number,
   status?: string
-) {
+): Promise<void> {
   const applicationRepository = getCustomRepository(ApplicationRepository);
-  const existingApplication = await applicationRepository.findCandidate(
-    accountId
-  );
-  const unpackedApplicationData = unpackApplicationData(
+
+  const transformedApplicationData = transformApplicationData(
     blockId,
     applicationData,
     status
   );
-  if (existingApplication) {
-    await applicationRepository.replace({
-      applicationId: existingApplication.applicationId,
-      ...unpackedApplicationData,
-    });
-  } else {
-    await applicationRepository.add(unpackedApplicationData);
-  }
+  applicationRepository.upsert(accountId, transformedApplicationData);
 }
-function unpackApplicationData(
+
+function transformApplicationData(
   blockId: number,
   application: ApplicationType,
   status?: string
@@ -120,4 +120,50 @@ function unpackApplicationData(
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
+}
+
+/******************* Root Certificate utils *************************************/
+export async function upsertRootCertificate(
+  certificateId: string,
+  certificateData: RootCertificateType,
+  blockId: number
+): Promise<void> {
+  const rootCertificateRepository = getCustomRepository(
+    RootCertificateRepository
+  );
+  const transformedCertificateData = transformCertificateData(
+    blockId,
+    certificateData
+  );
+  rootCertificateRepository.upsert(certificateId, transformedCertificateData);
+}
+function transformCertificateData(
+  blockId: number,
+  certificateData: RootCertificateType
+): RootCertificateModel {
+  const {
+    owner,
+    key,
+    revoked,
+    renewed,
+    created,
+    validity,
+    child_revocations,
+  } = certificateData;
+
+  return {
+    owner: owner.toHuman(),
+    key: key.toHuman(),
+    created: created.toString(),
+    renewed: renewed.toString(),
+    revoked: revoked.toHuman(),
+    validity: validity.toNumber(),
+    childRevocations:
+      child_revocations.length > 0
+        ? child_revocations.map((revokation: AccountId) =>
+            revokation.toString()
+          )
+        : null,
+    blockId,
+  } as RootCertificateModel;
 }

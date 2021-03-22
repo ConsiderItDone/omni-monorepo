@@ -1,5 +1,5 @@
 import type { Event } from "@polkadot/types/interfaces/system";
-import type { Vec, Option } from "@polkadot/types";
+import type { Vec, Option, bool } from "@polkadot/types";
 import {
   Balance,
   BlockNumber,
@@ -18,6 +18,8 @@ export enum CustomEventSection {
   VestingSchedule = "grants",
   Application = "pkiTcr",
 }
+
+export type CertificateId = AccountId;
 
 export type Application = {
   candidate: AccountId;
@@ -43,4 +45,14 @@ export type VestingScheduleOf = {
   period: BlockNumber;
   period_count: u32;
   per_period: Balance;
+};
+
+export type RootCertificate = {
+  owner: AccountId;
+  key: CertificateId;
+  created: BlockNumber;
+  renewed: BlockNumber;
+  revoked: bool;
+  validity: BlockNumber;
+  child_revocations: Vec<CertificateId>;
 };
