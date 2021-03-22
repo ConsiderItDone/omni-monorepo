@@ -13,7 +13,7 @@ export type ExtrinsicWithBoundedEvents = {
   boundedEvents: Event[];
 };
 
-export enum CustomExtrinsicSection {
+export enum CustomEventSection {
   RootOfTrust = "pkiRootOfTrust",
   VestingSchedule = "grants",
   Application = "pkiTcr",
@@ -32,6 +32,11 @@ export type Application = {
   created_block: BlockNumber;
   challenged_block: BlockNumber;
 };
+
+export enum ApplicationStatus {
+  pending = "application",
+  accepted = "member",
+}
 
 export type VestingScheduleOf = {
   start: BlockNumber;

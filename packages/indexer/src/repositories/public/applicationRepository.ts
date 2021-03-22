@@ -3,6 +3,7 @@ import { Application } from "../../models";
 
 type NewApplicationParams = {
   blockId: number;
+  status: string;
   candidate: string;
   candidateDeposit: number;
   metadata: string;
@@ -16,10 +17,15 @@ type NewApplicationParams = {
   challengedBlock: string;
 };
 
+type ApplicationParams = NewApplicationParams & {
+  applicationId: number;
+};
+
 @EntityRepository(Application)
 export default class ApplicationRepository extends Repository<Application> {
   public add({
     blockId,
+    status,
     candidate,
     candidateDeposit,
     metadata,
@@ -34,6 +40,7 @@ export default class ApplicationRepository extends Repository<Application> {
   }: NewApplicationParams): Promise<Application> {
     return this.save({
       blockId,
+      status,
       candidate,
       candidateDeposit,
       metadata,
@@ -46,5 +53,41 @@ export default class ApplicationRepository extends Repository<Application> {
       createdBlock,
       challengedBlock,
     });
+  }
+  public replace({
+    applicationId,
+    status,
+    blockId,
+    candidate,
+    candidateDeposit,
+    metadata,
+    challenger,
+    challengerDeposit,
+    votesFor,
+    votersFor,
+    votesAgainst,
+    votersAgainst,
+    createdBlock,
+    challengedBlock,
+  }: ApplicationParams): Promise<ApplicationParams> {
+    return this.save({
+      applicationId,
+      status,
+      blockId,
+      candidate,
+      candidateDeposit,
+      metadata,
+      challenger,
+      challengerDeposit,
+      votesFor,
+      votersFor,
+      votesAgainst,
+      votersAgainst,
+      createdBlock,
+      challengedBlock,
+    });
+  }
+  public findCandidate(accountId: string) {
+    return this.findOne({ candidate: accountId });
   }
 }

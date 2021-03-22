@@ -9,7 +9,7 @@ import {
   handleEvents,
   handleLogs,
   handleExtrinsics,
-  handleTrackedExtrinsics,
+  handleTrackedEvents,
 } from "../utils";
 
 const provider = new WsProvider(env.WS_PROVIDER);
@@ -43,12 +43,12 @@ async function getApi(): Promise<ApiPromise> {
       },
       Amendment: "Call",
       VestingSchedule: {
-        start: 'BlockNumber',
-        period: 'BlockNumber',
-        period_count: 'u32',
-        per_period: 'Balance'
+        start: "BlockNumber",
+        period: "BlockNumber",
+        period_count: "u32",
+        per_period: "Balance",
       },
-      VestingScheduleOf: 'VestingSchedule'
+      VestingScheduleOf: "VestingSchedule",
     },
     rpc: {
       rootOfTrust: {
@@ -106,7 +106,7 @@ export async function subscribe(): Promise<void> {
     );
 
     // 2.Events
-    const extrinsicsWithBoundedEvents = await handleEvents(
+    const [extrinsicsWithBoundedEvents, trackedEvents] = await handleEvents(
       events,
       block.extrinsics,
       newBlockId
@@ -116,12 +116,8 @@ export async function subscribe(): Promise<void> {
     handleLogs(block.header.digest.logs, newBlockId);
 
     // 4. Extrinsics
-    const trackedExtrinsics = await handleExtrinsics(
-      block.extrinsics,
-      extrinsicsWithBoundedEvents,
-      newBlockId
-    );
-    //5. Root of trust, vesting schedule, ...
-    handleTrackedExtrinsics(trackedExtrinsics, api, newBlockId);
+    handleExtrinsics(block.extrinsics, extrinsicsWithBoundedEvents, newBlockId);
+    //5. Handling custom events
+    handleTrackedEvents(trackedEvents, api, newBlockId);
   });
 }

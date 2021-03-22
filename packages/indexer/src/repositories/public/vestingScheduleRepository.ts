@@ -7,6 +7,7 @@ type NewVestingSchedule = {
   periodCount: number;
   perPeriod: string;
   blockId: number;
+  // accoundId: number; Not id
 };
 
 @EntityRepository(VestingSchedule)
