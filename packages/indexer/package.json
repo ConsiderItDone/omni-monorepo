@@ -16,7 +16,7 @@
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
   "dependencies": {
-    "@polkadot/api": "^2.3.2-2",
+    "@polkadot/api": "2.3.2-2",
     "amqplib": "^0.7.1",
     "apollo-server": "^2.21.0",
     "dotenv": "^8.2.0",
@@ -28,7 +28,6 @@
     "typescript": "^4.2.3"
   },
   "devDependencies": {
-    "@polkadot/types": "^2.3.2-2",
     "@types/amqplib": "^0.5.17",
     "typeorm-model-generator": "^0.4.5"
   }

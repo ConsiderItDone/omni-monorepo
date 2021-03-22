@@ -27,6 +27,21 @@ class GetEventArgs {
   take = 25;
 }
 
+@ArgsType()
+class GetEventByNameArgs {
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0)
+  skip: number;
+
+  @Field(() => Int)
+  @Min(1)
+  @Max(100)
+  take = 25;
+
+  @Field(() => String)
+  eventName: string;
+}
+
 @Resolver(Event)
 export default class EventResolver {
   @Query(() => Event)
@@ -44,6 +59,22 @@ export default class EventResolver {
     return Event.find({
       take,
       skip,
+      order: {
+        eventId: "DESC",
+      },
+    }); // TODO: use repository for real models
+  }
+
+  @Query(() => [Event])
+  protected eventsByName(
+    @Args() { take, skip, eventName }: GetEventByNameArgs
+  ) {
+    return Event.find({
+      take,
+      skip,
+      where: {
+        eventName,
+      },
       order: {
         eventId: "DESC",
       },
