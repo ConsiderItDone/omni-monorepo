@@ -137,6 +137,36 @@ export async function changeApplicationStatus(
   }
 }
 
+export async function recordVote(
+  initiatorId: AccountId,
+  targetId: AccountId,
+  value: boolean,
+  blockId: number,
+  targetData?: ApplicationType
+): Promise<void> {
+  const applicationRepository = getCustomRepository(ApplicationRepository);
+
+  const targetInDB = await applicationRepository.findCandidate(
+    targetId.toString()
+  );
+
+  if(!targetInDB && !targetData) console.log('Error! Trying to record vote with no data about target(in db and from response)')
+  if (targetData) {
+    await upsertApplication(
+      targetId.toString(),
+      (targetData as undefined) as ApplicationType,
+      blockId,
+      ApplicationStatus.accepted
+    );
+  }
+
+  await applicationRepository.changeCandidateVote(
+    initiatorId.toString(),
+    targetId.toString(),
+    value
+  );
+}
+
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
   certificateId: string,

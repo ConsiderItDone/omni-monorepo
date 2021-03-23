@@ -10,6 +10,7 @@ import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 
 import {
+  ApplicationRepository,
   BlockRepository,
   EventRepository,
   ExtrinsicRepository,
@@ -24,6 +25,7 @@ import {
   upsertApplication,
   changeApplicationStatus,
   upsertRootCertificate,
+  recordVote,
 } from "./misc";
 
 import {
@@ -290,15 +292,19 @@ async function handleApplication(
       changeApplicationStatus(counteredAcc, ApplicationStatus.countered);
       return;
     }
-    /* 
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
     case "VoteRecorded": {
-      const acc1 = event.data[0];
-      const acc2 = event.data[1];
-      const balance = event.data[2];
-      const bool = event.data[3];
+      const voteTarget = event.data[0] as AccountId;
+      const voteInitiator = event.data[1] as AccountId;
+      const voteValue = event.data[3].toHuman() as boolean;
+
+      const targetData = ((await api.query.pki.members(
+        voteTarget.toString()
+      )) as undefined) as ApplicationType;
+      recordVote(voteInitiator, voteTarget, voteValue, blockId, targetData);
       break;
     }
+    /* 
     /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
     case "ChallengeRefusedApplication": {
       const acc = event.data[0];

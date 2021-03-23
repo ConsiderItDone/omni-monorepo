@@ -74,4 +74,21 @@ export default class ApplicationRepository extends Repository<Application> {
   public async findCandidate(accountId: string): Promise<Application> {
     return await this.findOne({ candidate: accountId });
   }
+  public async changeCandidateVote(
+    initiatorId: string,
+    targetId: string,
+    value: boolean
+  ): Promise<void> {
+    const initiator = await this.findCandidate(initiatorId);
+    // Change's initiator data only if he is in DB, otherwise all data will be empty (he is not applicant)
+    if (initiator) {
+      if (value) initiator.votesFor = targetId;
+      else initiator.votesAgainst = targetId;
+      await this.save(initiator);
+    }
+    const target = await this.findCandidate(targetId);
+    if (value) target.votersFor = [...target.votersFor, initiatorId];
+    else target.votersAgainst = [...target.votersAgainst, initiatorId];
+    await this.save(target);
+  }
 }
