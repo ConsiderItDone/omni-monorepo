@@ -10,7 +10,6 @@ import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 
 import {
-  ApplicationRepository,
   BlockRepository,
   EventRepository,
   ExtrinsicRepository,
