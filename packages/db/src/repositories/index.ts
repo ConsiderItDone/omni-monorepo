@@ -1,7 +1,7 @@
-export { default as BlockRepository } from "./public/blockRepository";
-export { default as EventRepository } from "./public/eventRepository";
-export { default as ExtrinsicRepository } from "./public/extrinsicRepository";
-export { default as LogRepository } from "./public/logRepository";
-export { default as RootCertificateRepository } from "./public/rootCertificateRepository";
-export { default as VestingScheduleRepository } from "./public/vestingScheduleRepository";
-export { default as ApplicationRepository } from "./public/applicationRepository";
+export * as BlockRepository from  "./public/blockRepository";
+export * as EventRepository from "./public/eventRepository";
+export * as ExtrinsicRepository from "./public/extrinsicRepository";
+export * as LogRepository from "./public/logRepository";
+export * as RootCertificateRepository from "./public/rootCertificateRepository";
+export * as VestingScheduleRepository from "./public/vestingScheduleRepository";
+export * as ApplicationRepository from "./public/applicationRepository";

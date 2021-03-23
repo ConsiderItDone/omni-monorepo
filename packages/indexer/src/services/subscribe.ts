@@ -3,6 +3,7 @@ import env from "../env";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { Header } from "@polkadot/types/interfaces/runtime";
 import { BlockNumber } from "@polkadot/types/interfaces/runtime";
+import {Connection} from "typeorm";
 
 import {
   handleNewBlock,
@@ -154,7 +155,7 @@ block.extrinsics.forEach(({ method: { method, section } }, index) => {
         }
     });
 }) */
-export async function subscribe(): Promise<void> {
+export async function subscribe(connection: Connection): Promise<void> {
   const api: ApiPromise = await getApi();
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {

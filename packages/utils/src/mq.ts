@@ -1,5 +1,4 @@
 import amqp = require("amqplib"); // eslint-disable-line
-import env from "@nodle/indexer/src/env";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
 
 export default class MQ {
@@ -8,7 +7,7 @@ export default class MQ {
   private pubsub: AMQPPubSub;
 
   private constructor() {
-    amqp.connect(env.RABBIT_MQ_URL).then((connection) => {
+    amqp.connect(process.env.RABBIT_MQ_URL).then((connection) => {
       this.pubsub = new AMQPPubSub({
         connection,
       });

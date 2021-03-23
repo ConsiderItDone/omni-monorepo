@@ -9,13 +9,13 @@ import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 
-import {
-  BlockRepository,
-  EventRepository,
-  ExtrinsicRepository,
-  LogRepository,
-  VestingScheduleRepository,
-} from "@nodle/db/src/repositories";
+import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
+import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
+import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
+import LogRepository from "@nodle/db/src/repositories/public/logRepository";
+import VestingScheduleRepository from "@nodle/db/src/repositories/public/vestingScheduleRepository";
+
+import MQ from "@nodle/utils/src/mq";
 
 import {
   boundEventsToExtrinsics,
@@ -32,10 +32,16 @@ import {
   Application as ApplicationType,
   ApplicationStatus,
   RootCertificate,
-} from "./types";
+} from "../../../utils/src/types";
 
 import AccountId from "@polkadot/types/generic/AccountId";
 import { Codec } from "@polkadot/types/types";
+
+import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import Log from "@nodle/db/src/models/public/log";
+import Block from "@nodle/db/src/models/public/block";
+
+
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
@@ -46,7 +52,7 @@ export async function handleNewBlock(
   const blockRepository = getCustomRepository(BlockRepository);
 
   const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
-  const newBlock = await blockRepository.add({
+  const block = await blockRepository.add({
     number: number.toString(),
     timestamp: new Date(timestamp.toNumber()),
     hash: hash.toHex(),
@@ -56,7 +62,10 @@ export async function handleNewBlock(
     specVersion,
     finalized: false,
   });
-  return newBlock.blockId;
+
+  MQ.getMQ().emit<Block>("newBlock", block);
+
+  return block.blockId;
 }
 
 export async function handleEvents(
@@ -86,7 +95,7 @@ export async function handleEvents(
       extrinsicsWithBoundedEvents,
       eventRecord
     );
-    await eventRepository.add({
+    const event = await eventRepository.add({
       index, // TODO ? : index of event in events array || `${blockNum}-${index}`
       type: typeDef ? JSON.stringify(typeDef) : "error", // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
       extrinsicHash,
@@ -94,6 +103,9 @@ export async function handleEvents(
       eventName: method,
       blockId,
     });
+
+    // TODO: uncomment
+    // MQ.getMQ().emit<Event>("newEvent", event);
   }
 
   return [extrinsicsWithBoundedEvents, trackedEvents];
@@ -105,7 +117,7 @@ export async function handleLogs(
 ): Promise<void> {
   const logRepository = getCustomRepository(LogRepository);
 
-  await logRepository.addList(
+  const newLogs = await logRepository.addList(
     logs.map((log: DigestItem, index: number) => {
       const { type, value } = log;
       return {
@@ -117,6 +129,10 @@ export async function handleLogs(
       };
     })
   );
+
+  for (const log of newLogs) {
+    MQ.getMQ().emit<Log>("newLog", log);
+  }
 }
 
 export async function handleExtrinsics(
@@ -149,7 +165,11 @@ export async function handleExtrinsics(
       };
     }
   );
-  await extrinsicRepository.addList(processedExtrinsics);
+  const newExtrinsics = await extrinsicRepository.addList(processedExtrinsics);
+
+  for (const extrinsic of newExtrinsics) {
+    MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
+  }
 }
 
 /******************** CUSTOM EVENTS HANDLERS **********************/

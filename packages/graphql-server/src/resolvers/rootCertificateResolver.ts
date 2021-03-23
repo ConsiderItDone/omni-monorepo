@@ -6,9 +6,9 @@ import {
   Root,
   Subscription,
 } from "type-graphql";
-import RootCertificate from "@nodle/indexer/dist/src/models/public/rootCertificate";
-import Block from "@nodle/db/models/public/block";
-import MQ from "../../mq";
+import RootCertificate from "@nodle/db/src/models/public/rootCertificate";
+import Block from "@nodle/db/src/models/public/block";
+import MQ from "../../../utils/src/mq";
 
 @Resolver(RootCertificate)
 export default class RootCertificateResolver {

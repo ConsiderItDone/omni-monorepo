@@ -15,11 +15,13 @@
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
   "dependencies": {
-    "ts-node": "^9.1.1",
+    "@nodle/utils": "^1.0.0",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.31"
   },
   "devDependencies": {
-    "typeorm-model-generator": "^0.4.5"
+    "ts-node": "^9.1.1",
+    "typeorm-model-generator": "^0.4.5",
+    "typescript": "^4.2.3"
   }
 }

@@ -10,13 +10,20 @@
     "build:utils": "npm run build --prefix packages/utils",
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
-    "build:all": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server",
+    "build": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server",
+    "//": "npm run add -- submodule0 somepackage",
+    "add": "npm install --package-lock-only --no-package-lock --prefix",
     "start": "npm run start:indexer --prefix packages/indexer",
     "start:server": "npm run start:server --prefix packages/graphql-server"
   },
-  "workspaces": [
-    "./packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "./packages/db",
+      "./packages/utils",
+      "./packages/indexer",
+      "./packages/graphql-server"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ConsiderItDone/nodle.git"
@@ -34,5 +41,6 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "2.2.1"
-  }
+  },
+  "dependencies": {}
 }

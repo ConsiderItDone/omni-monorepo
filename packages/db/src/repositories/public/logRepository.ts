@@ -1,6 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
 import Log from "../../models/public/log";
-import MQ from "../../../../graphql-server/mq";
 
 type NewLogParam = {
   index: string;
@@ -27,17 +26,10 @@ export default class LogRepository extends Repository<Log> {
       blockId,
     });
 
-    MQ.getMQ().emit<Log>("newLog", log);
-
     return log;
   }
 
   public async addList(list: NewLogParam[]): Promise<Log[]> {
-    const logs = await this.save(list);
-    for (const log of logs) {
-      MQ.getMQ().emit<Log>("newLog", log);
-    }
-
-    return logs;
+    return await this.save(list);
   }
 }

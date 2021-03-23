@@ -12,5 +12,12 @@
     "no-console": "off",
     "eol-last": "warn",
     "prettier/prettier": 2 // Means error
+  },
+  "settings": {
+    "import/resolver": {
+      "webpack": {
+        "config": "webpack.common.config.js"
+      }
+    }
   }
 }

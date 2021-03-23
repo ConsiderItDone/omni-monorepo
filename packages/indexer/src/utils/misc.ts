@@ -5,16 +5,14 @@ import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
-} from "./types";
+} from "@nodle/utils/src/types";
 import { getCustomRepository } from "typeorm";
-import {
-  ApplicationRepository,
-  RootCertificateRepository,
-} from "../../../db/src/repositories";
+import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
+import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
-} from "../../../db/src/models";
+} from "@nodle/db/src/models";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(

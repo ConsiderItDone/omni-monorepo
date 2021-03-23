@@ -1,6 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
 import Block from "../../models/public/block";
-import MQ from "../../mq";
 
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {
@@ -34,8 +33,6 @@ export default class BlockRepository extends Repository<Block> {
       specVersion,
       finalized,
     });
-
-    MQ.getMQ().emit<Block>("newBlock", block);
 
     return block;
   }

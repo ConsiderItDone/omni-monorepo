@@ -1,5 +1,4 @@
 import { subscribe } from "./services/subscribe";
-import { createConnection } from "typeorm";
 import { connect } from "@nodle/db";
 
 const start = async function () {

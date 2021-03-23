@@ -1,6 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
 import Extrinsic from "../../models/public/extrinsic";
-import MQ from "../../mq";
 
 type NewExtrinsicParam = {
   index: number;
@@ -60,17 +59,10 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
       blockId,
     });
 
-    MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
-
     return;
   }
 
   public async addList(list: NewExtrinsicParam[]): Promise<Extrinsic[]> {
-    const extrinsics = await this.save(list);
-    for (const extrinsic of extrinsics) {
-      MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
-    }
-
-    return extrinsics;
+    return await this.save(list);
   }
 }
