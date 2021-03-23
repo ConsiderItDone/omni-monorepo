@@ -33,7 +33,7 @@ import {
   Application as ApplicationType,
   ApplicationStatus,
   RootCertificate,
-} from "../../../utils/src/types";
+} from "@nodle/utils/src/types";
 
 import AccountId from "@polkadot/types/generic/AccountId";
 import { Codec } from "@polkadot/types/types";

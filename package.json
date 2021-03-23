@@ -7,19 +7,23 @@
     "prettier-format": "npm exec -- prettier --write ./packages",
     "prettier-check": "npm exec -- prettier --check ./packages",
     "build:indexer": "npm run build --prefix packages/indexer",
+    "build:backfiller": "npm run build --prefix packages/backfiller",
     "build:utils": "npm run build --prefix packages/utils",
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
-    "build": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server",
+    "build": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server & npm run build:backfiller",
     "start:indexer": "npm run start:indexer --prefix packages/indexer",
-    "start:server": "npm run start:server --prefix packages/graphql-server"
+    "start:server": "npm run start:server --prefix packages/graphql-server",
+    "start:backfiller": "npm run start:backfiller --prefix packages/backfiller"
   },
   "workspaces": {
     "packages": [
       "./packages/db",
       "./packages/utils",
       "./packages/indexer",
-      "./packages/graphql-server"
+      "./packages/graphql-server",
+      "./packages/backfiller",
+      "./packages/polkadot"
     ]
   },
   "repository": {
