@@ -22,6 +22,7 @@ import {
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
   upsertApplication,
+  changeApplicationStatus,
   upsertRootCertificate,
 } from "./misc";
 
@@ -282,14 +283,14 @@ async function handleApplication(
       applicationStatus = ApplicationStatus.accepted;
       break;
     }
-    /* 
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
-      const counteredAcc = event.data[0];
-      const counterAcc = event.data[1];
-      const balance = event.data[2];
-      break;
+      const counteredAcc = event.data[0].toString();
+      //applicationData = await api.query.pkiTcr.members(counteredAcc);
+      changeApplicationStatus(counteredAcc, ApplicationStatus.countered);
+      return;
     }
+    /* 
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
     case "VoteRecorded": {
       const acc1 = event.data[0];

@@ -5,6 +5,7 @@ import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
+  ApplicationStatus,
 } from "./types";
 import { getCustomRepository } from "typeorm";
 import {
@@ -120,6 +121,20 @@ function transformApplicationData(
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
+}
+
+export async function changeApplicationStatus(
+  accountId: string,
+  status: ApplicationStatus
+): Promise<void> {
+  const applicationRepository = getCustomRepository(ApplicationRepository);
+  const existingApplication = await applicationRepository.findCandidate(
+    accountId
+  );
+  if (existingApplication) {
+    existingApplication.status = status;
+    applicationRepository.save(existingApplication);
+  }
 }
 
 /******************* Root Certificate utils *************************************/

@@ -38,6 +38,7 @@ export type Application = {
 export enum ApplicationStatus {
   pending = "application",
   accepted = "member",
+  countered = "countered",
 }
 
 export type VestingScheduleOf = {
