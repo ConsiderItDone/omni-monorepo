@@ -14,6 +14,19 @@ export default class MQ {
     });
   }
 
+  public static async init(): Promise<MQ> {
+    if (!MQ.mq) {
+      MQ.mq = new MQ();
+    }
+
+    // wait for 2 seconds for init connection with rabbitmq
+    await new Promise((resolve) => {
+      setTimeout(resolve, 2000); // eslint-disable-line
+    });
+
+    return MQ.mq;
+  }
+
   public static getMQ(): MQ {
     if (!MQ.mq) {
       MQ.mq = new MQ();
@@ -23,10 +36,10 @@ export default class MQ {
   }
 
   public on(eventName: string): AsyncIterator<undefined> {
-    return MQ.getMQ().pubsub.asyncIterator(eventName);
+    return MQ.getMQ()?.pubsub?.asyncIterator(eventName);
   }
 
   public emit<T>(eventName: string, payload: T): Promise<void> {
-    return MQ.getMQ().pubsub.publish(eventName, payload);
+    return MQ.getMQ()?.pubsub?.publish(eventName, payload);
   }
 }

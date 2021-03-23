@@ -4,6 +4,6 @@ export const DateUtils = {
   getCurrentDate,
 };
 
-export * as MQ from './mq';
+export * as MQ from "./mq";
 
-export * as types from './types';
+export * as types from "./types";

@@ -11,9 +11,7 @@
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
     "build": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server",
-    "//": "npm run add -- submodule0 somepackage",
-    "add": "npm install --package-lock-only --no-package-lock --prefix",
-    "start": "npm run start:indexer --prefix packages/indexer",
+    "start:indexer": "npm run start:indexer --prefix packages/indexer",
     "start:server": "npm run start:server --prefix packages/graphql-server"
   },
   "workspaces": {

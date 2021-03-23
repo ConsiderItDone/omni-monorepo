@@ -14,7 +14,7 @@ import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
 import Event from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import MQ from "../../../utils/src/mq";
+import MQ from "@nodle/utils/src/mq";
 
 @ArgsType()
 class GetBlocksArgs {

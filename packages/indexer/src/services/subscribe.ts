@@ -3,7 +3,7 @@ import env from "../env";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { Header } from "@polkadot/types/interfaces/runtime";
 import { BlockNumber } from "@polkadot/types/interfaces/runtime";
-import {Connection} from "typeorm";
+import { Connection } from "typeorm";
 
 import {
   handleNewBlock,
@@ -174,6 +174,7 @@ export async function subscribe(connection: Connection): Promise<void> {
 
     // 1. Block
     const newBlockId = await handleNewBlock(
+      connection,
       block.header,
       timestamp,
       specVersion.toNumber()
@@ -181,17 +182,23 @@ export async function subscribe(connection: Connection): Promise<void> {
 
     // 2.Events
     const [extrinsicsWithBoundedEvents, trackedEvents] = await handleEvents(
+      connection,
       events,
       block.extrinsics,
       newBlockId
     );
 
     // 3.Logs
-    handleLogs(block.header.digest.logs, newBlockId);
+    handleLogs(connection, block.header.digest.logs, newBlockId);
 
     // 4. Extrinsics
-    handleExtrinsics(block.extrinsics, extrinsicsWithBoundedEvents, newBlockId);
+    handleExtrinsics(
+      connection,
+      block.extrinsics,
+      extrinsicsWithBoundedEvents,
+      newBlockId
+    );
     //5. Handling custom events
-    handleTrackedEvents(trackedEvents, api, newBlockId);
+    handleTrackedEvents(connection, trackedEvents, api, newBlockId);
   });
 }

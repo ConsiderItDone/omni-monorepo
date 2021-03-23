@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { getCustomRepository } from "typeorm";
+import { Connection } from "typeorm";
 import type {
   Header,
   DigestItem,
@@ -40,16 +40,17 @@ import { Codec } from "@polkadot/types/types";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
-
+import * as EventModel from "@nodle/db/src/models/public/event";
 
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
+  connection: Connection,
   blockHeader: Header,
   timestamp: Moment,
   specVersion: number
 ): Promise<number> {
-  const blockRepository = getCustomRepository(BlockRepository);
+  const blockRepository = connection.getCustomRepository(BlockRepository);
 
   const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
   const block = await blockRepository.add({
@@ -69,11 +70,12 @@ export async function handleNewBlock(
 }
 
 export async function handleEvents(
+  connection: Connection,
   events: Vec<EventRecord>,
   extrinsics: Vec<GenericExtrinsic>,
   blockId: number
 ): Promise<[ExtrinsicWithBoundedEvents[], Event[]]> {
-  const eventRepository = getCustomRepository(EventRepository);
+  const eventRepository = connection.getCustomRepository(EventRepository);
 
   const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
     extrinsics,
@@ -104,18 +106,18 @@ export async function handleEvents(
       blockId,
     });
 
-    // TODO: uncomment
-    // MQ.getMQ().emit<Event>("newEvent", event);
+    MQ.getMQ().emit<EventModel.default>("newEvent", event);
   }
 
   return [extrinsicsWithBoundedEvents, trackedEvents];
 }
 
 export async function handleLogs(
+  connection: Connection,
   logs: Vec<DigestItem>,
   blockId: number
 ): Promise<void> {
-  const logRepository = getCustomRepository(LogRepository);
+  const logRepository = connection.getCustomRepository(LogRepository);
 
   const newLogs = await logRepository.addList(
     logs.map((log: DigestItem, index: number) => {
@@ -136,12 +138,15 @@ export async function handleLogs(
 }
 
 export async function handleExtrinsics(
+  connection: Connection,
   extrinsics: Vec<GenericExtrinsic>,
   extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number
   //events: EventRecord[],
 ): Promise<void> {
-  const extrinsicRepository = getCustomRepository(ExtrinsicRepository);
+  const extrinsicRepository = connection.getCustomRepository(
+    ExtrinsicRepository
+  );
 
   const processedExtrinsics = extrinsics.map(
     (extrinsic: GenericExtrinsic, index: number) => {
@@ -175,6 +180,7 @@ export async function handleExtrinsics(
 /******************** CUSTOM EVENTS HANDLERS **********************/
 
 export async function handleTrackedEvents(
+  connection: Connection,
   trackedEvents: Event[],
   api: ApiPromise,
   blockId: number
@@ -185,13 +191,13 @@ export async function handleTrackedEvents(
   for (const event of trackedEvents) {
     switch (event.section) {
       case CustomEventSection.RootOfTrust:
-        handleRootOfTrust(event, api, blockId);
+        handleRootOfTrust(connection, event, api, blockId);
         break;
       case CustomEventSection.VestingSchedule:
-        handleVestingSchedule(event, blockId, api);
+        handleVestingSchedule(connection, event, blockId, api);
         break;
       case CustomEventSection.Application:
-        handleApplication(event, blockId, api);
+        handleApplication(connection, event, blockId, api);
         break;
       default:
         return;
@@ -200,6 +206,7 @@ export async function handleTrackedEvents(
 }
 
 async function handleRootOfTrust(
+  connection: Connection,
   event: Event,
   api: ApiPromise,
   blockId: number
@@ -225,15 +232,21 @@ async function handleRootOfTrust(
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
     certificateId
   )) as undefined) as RootCertificate;
-  await upsertRootCertificate(certificateId, certificateData, blockId);
+  await upsertRootCertificate(
+    connection,
+    certificateId,
+    certificateData,
+    blockId
+  );
 }
 async function handleVestingSchedule(
+  connection: Connection,
   event: Event,
   blockId: number,
   api: ApiPromise // eslint-disable-line
 ) {
   let targetAccount: AccountId = event.data[0] as AccountId; // default
-  const vestingScheduleRepository = getCustomRepository(
+  const vestingScheduleRepository = connection.getCustomRepository(
     VestingScheduleRepository
   );
 
@@ -274,6 +287,7 @@ async function handleVestingSchedule(
   }
 }
 async function handleApplication(
+  connection: Connection,
   event: Event,
   blockId: number,
   api: ApiPromise
@@ -332,6 +346,7 @@ async function handleApplication(
       return;
   }
   await upsertApplication(
+    connection,
     accountId,
     (applicationData as undefined) as ApplicationType,
     blockId,

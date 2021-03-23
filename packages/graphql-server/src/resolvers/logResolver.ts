@@ -8,7 +8,7 @@ import {
 } from "type-graphql";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
-import MQ from "../../../utils/src/mq";
+import MQ from "@nodle/utils/src/mq";
 
 @Resolver(Log)
 export default class LogResolver {

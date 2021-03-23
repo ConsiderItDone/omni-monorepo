@@ -8,7 +8,7 @@ import {
 } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import MQ from "../../../utils/src/mq";
+import MQ from "@nodle/utils/src/mq";
 
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver {

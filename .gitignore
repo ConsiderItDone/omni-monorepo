@@ -5,3 +5,4 @@ dist
 .env
 ormconfig.js
 ormconfig.json
+/nodle-*.tgz

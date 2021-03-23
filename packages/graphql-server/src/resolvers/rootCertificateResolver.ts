@@ -8,7 +8,7 @@ import {
 } from "type-graphql";
 import RootCertificate from "@nodle/db/src/models/public/rootCertificate";
 import Block from "@nodle/db/src/models/public/block";
-import MQ from "../../../utils/src/mq";
+import MQ from "@nodle/utils/src/mq";
 
 @Resolver(RootCertificate)
 export default class RootCertificateResolver {

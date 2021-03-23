@@ -6,7 +6,7 @@ import {
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
 } from "@nodle/utils/src/types";
-import { getCustomRepository } from "typeorm";
+import { Connection } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import {
@@ -66,12 +66,15 @@ export function getExtrinsicSuccess(
 
 /******************* Application utils *************************************/
 export async function upsertApplication(
+  connection: Connection,
   accountId: string,
   applicationData: ApplicationType,
   blockId: number,
   status?: string
 ): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
+  const applicationRepository = connection.getCustomRepository(
+    ApplicationRepository
+  );
 
   const transformedApplicationData = transformApplicationData(
     blockId,
@@ -122,11 +125,12 @@ function transformApplicationData(
 
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
+  connection: Connection,
   certificateId: string,
   certificateData: RootCertificateType,
   blockId: number
 ): Promise<void> {
-  const rootCertificateRepository = getCustomRepository(
+  const rootCertificateRepository = connection.getCustomRepository(
     RootCertificateRepository
   );
   const transformedCertificateData = transformCertificateData(

@@ -59,7 +59,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
       blockId,
     });
 
-    return;
+    return extrinsic;
   }
 
   public async addList(list: NewExtrinsicParam[]): Promise<Extrinsic[]> {
