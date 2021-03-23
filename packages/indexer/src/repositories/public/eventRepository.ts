@@ -18,7 +18,7 @@ export default class EventRepository extends Repository<Event> {
     moduleName: string;
     eventName: string;
     blockId: number;
-  }) {
+  }): Promise<Event> {
     const event = await this.save({
       index,
       type,
@@ -28,7 +28,7 @@ export default class EventRepository extends Repository<Event> {
       blockId,
     });
 
-    MQ.getMQ().emit("newEvent", event);
+    MQ.getMQ().emit<Event>("newEvent", event);
 
     return event;
   }

@@ -8,13 +8,12 @@ import {
 } from "type-graphql";
 import Block from "../models/public/block";
 import Extrinsic from "../models/public/extrinsic";
-import Event from "../models/public/event";
 import MQ from "../mq";
 
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver {
   @Query(() => Extrinsic)
-  async extrinsic(@Arg("id") id: number) {
+  async extrinsic(@Arg("id") id: number): Promise<Extrinsic> {
     const extrinsic = await Extrinsic.findOne(id);
     if (extrinsic === undefined) {
       throw new Error(`Extrinsic ${id} not found`);
@@ -24,7 +23,7 @@ export default class ExtrinsicResolver {
   }
 
   @Query(() => [Extrinsic])
-  protected extrinsics() {
+  protected extrinsics(): Promise<Extrinsic[]> {
     return Extrinsic.find(); // TODO: use repository for real models
   }
 
@@ -36,7 +35,7 @@ export default class ExtrinsicResolver {
   }
 
   @FieldResolver()
-  async block(@Root() extrinsic: Extrinsic) {
+  async block(@Root() extrinsic: Extrinsic): Promise<Block> {
     const block = await Block.findOne(extrinsic.blockId);
     if (!block) {
       return null;

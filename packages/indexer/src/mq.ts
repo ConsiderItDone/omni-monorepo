@@ -1,11 +1,11 @@
 import amqp = require("amqplib"); // eslint-disable-line
-const { AMQPPubSub } = require("graphql-amqp-subscriptions"); // eslint-disable-line
 import env from "./env";
+import { AMQPPubSub } from "graphql-amqp-subscriptions";
 
 export default class MQ {
   private static mq: MQ;
 
-  private pubsub: any;
+  private pubsub: AMQPPubSub;
 
   private constructor() {
     amqp.connect(env.RABBIT_MQ_URL).then((connection) => {
@@ -23,11 +23,11 @@ export default class MQ {
     return MQ.mq;
   }
 
-  public on(eventName: string): any {
-    return MQ.getMQ()?.pubsub?.asyncIterator(eventName);
+  public on(eventName: string): AsyncIterator<undefined> {
+    return MQ.getMQ().pubsub.asyncIterator(eventName);
   }
 
-  public emit(eventName: string, payload: any) {
-    MQ.getMQ()?.pubsub?.publish(eventName, payload);
+  public emit<T>(eventName: string, payload: T): Promise<void> {
+    return MQ.getMQ().pubsub.publish(eventName, payload);
   }
 }

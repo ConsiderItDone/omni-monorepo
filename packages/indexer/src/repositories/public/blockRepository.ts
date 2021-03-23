@@ -35,12 +35,12 @@ export default class BlockRepository extends Repository<Block> {
       finalized,
     });
 
-    MQ.getMQ().emit("newBlock", block);
+    MQ.getMQ().emit<Block>("newBlock", block);
 
     return block;
   }
 
-  public findByNumber(number: number) {
+  public findByNumber(number: number): Promise<Block> {
     return this.findOne({ where: { number } });
   }
 }

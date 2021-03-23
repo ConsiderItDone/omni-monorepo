@@ -9,7 +9,8 @@
     "prettier"
   ],
   "rules": {
-    "no-console": 1, // Means warning
+    "no-console": "off",
+    "eol-last": "warn",
     "prettier/prettier": 2 // Means error
   }
 }

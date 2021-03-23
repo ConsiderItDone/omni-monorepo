@@ -45,7 +45,7 @@ class GetEventByNameArgs {
 @Resolver(Event)
 export default class EventResolver {
   @Query(() => Event)
-  async event(@Arg("id") id: number) {
+  async event(@Arg("id") id: number): Promise<Event> {
     const block = await Event.findOne(id);
     if (block === undefined) {
       throw new Error(`Block ${id} not found`);
@@ -55,7 +55,7 @@ export default class EventResolver {
   }
 
   @Query(() => [Event])
-  protected events(@Args() { take, skip }: GetEventArgs) {
+  protected events(@Args() { take, skip }: GetEventArgs): Promise<Event[]> {
     return Event.find({
       take,
       skip,
@@ -64,10 +64,11 @@ export default class EventResolver {
       },
     }); // TODO: use repository for real models
   }
+
   @Query(() => [Event])
   protected eventsByName(
     @Args() { take, skip, eventName }: GetEventByNameArgs
-  ) {
+  ): Promise<Event[]> {
     return Event.find({
       take,
       skip,
@@ -88,7 +89,7 @@ export default class EventResolver {
   }
 
   @FieldResolver()
-  async block(@Root() event: Event) {
+  async block(@Root() event: Event): Promise<Block> {
     const block = await Block.findOne(event.blockId);
     if (!block) {
       return null;

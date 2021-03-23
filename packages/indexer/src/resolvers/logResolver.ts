@@ -8,13 +8,12 @@ import {
 } from "type-graphql";
 import Log from "../models/public/log";
 import Block from "../models/public/block";
-import Extrinsic from "../models/public/extrinsic";
 import MQ from "../mq";
 
 @Resolver(Log)
 export default class LogResolver {
   @Query(() => Log)
-  async log(@Arg("id") id: number) {
+  async log(@Arg("id") id: number): Promise<Log> {
     const log = await Log.findOne(id);
     if (log === undefined) {
       throw new Error(`Log ${id} not found`);
@@ -24,7 +23,7 @@ export default class LogResolver {
   }
 
   @Query(() => [Log])
-  protected logs() {
+  protected logs(): Promise<Log[]> {
     return Log.find(); // TODO: use repository for real models
   }
 
@@ -36,7 +35,7 @@ export default class LogResolver {
   }
 
   @FieldResolver()
-  async block(@Root() log: Log) {
+  async block(@Root() log: Log): Promise<Block> {
     const block = await Block.findOne(log.blockId);
     if (!block) {
       return null;

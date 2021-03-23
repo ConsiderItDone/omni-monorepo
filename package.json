@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Nodle monorepo",
   "scripts": {
-    "lint": "npm run prettier-check & npm exec -- eslint --ext=ts,tsx ./packages",
+    "lint": "npm run prettier-check & npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages",
     "prettier-format": "npm exec -- prettier --write ./packages",
     "prettier-check": "npm exec -- prettier --check ./packages",
     "build:indexer": "npm run build --prefix packages/indexer",
@@ -23,7 +23,7 @@
     "npm": "^7.0.0"
   },
   "devDependencies": {
-    "@polkadot/api": "^2.3.2-2",
+    "@polkadot/api": "2.3.2-2",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.21.0",

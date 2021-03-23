@@ -31,7 +31,7 @@ class GetBlocksArgs {
 @Resolver(Block)
 export default class BlockResolver {
   @Query(() => Block)
-  async block(@Arg("id") id: number) {
+  async block(@Arg("id") id: number): Promise<Block> {
     const block = await Block.findOne(id);
     if (block === undefined) {
       throw new Error(`Block ${id} not found`);
@@ -41,7 +41,7 @@ export default class BlockResolver {
   }
 
   @Query(() => [Block])
-  protected blocks(@Args() { take, skip }: GetBlocksArgs) {
+  protected blocks(@Args() { take, skip }: GetBlocksArgs): Promise<Block[]> {
     return Block.find({
       take,
       skip,
@@ -59,7 +59,7 @@ export default class BlockResolver {
   }
 
   @FieldResolver()
-  async events(@Root() block: Block) {
+  async events(@Root() block: Block): Promise<Event[]> {
     const events = await Event.find({
       where: {
         blockId: block.blockId,
@@ -73,7 +73,7 @@ export default class BlockResolver {
   }
 
   @FieldResolver()
-  async extrinsics(@Root() block: Block) {
+  async extrinsics(@Root() block: Block): Promise<Extrinsic[]> {
     const extrinsic = await Extrinsic.find({
       where: {
         blockId: block.blockId,
