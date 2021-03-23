@@ -200,6 +200,7 @@ async function handleRootOfTrust(
       break;
     // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
+      certificateId = event.data[1].toString();
       break;
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
