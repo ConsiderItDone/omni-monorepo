@@ -5,6 +5,7 @@ import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
+  ApplicationStatus,
 } from "@nodle/utils/src/types";
 import { Connection } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
@@ -121,6 +122,23 @@ function transformApplicationData(
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
+}
+
+export async function changeApplicationStatus(
+  connection: Connection,
+  accountId: string,
+  status: ApplicationStatus
+): Promise<void> {
+  const applicationRepository = connection.getCustomRepository(
+    ApplicationRepository
+  );
+  const existingApplication = await applicationRepository.findCandidate(
+    accountId
+  );
+  if (existingApplication) {
+    existingApplication.status = status;
+    applicationRepository.save(existingApplication);
+  }
 }
 
 /******************* Root Certificate utils *************************************/

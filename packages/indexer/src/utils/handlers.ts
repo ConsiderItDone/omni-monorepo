@@ -22,6 +22,7 @@ import {
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
   upsertApplication,
+  changeApplicationStatus,
   upsertRootCertificate,
 } from "./misc";
 
@@ -227,6 +228,7 @@ async function handleRootOfTrust(
       break;
     // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
+      certificateId = event.data[1].toString();
       break;
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
@@ -315,14 +317,18 @@ async function handleApplication(
       applicationStatus = ApplicationStatus.accepted;
       break;
     }
-    /* 
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
-      const counteredAcc = event.data[0];
-      const counterAcc = event.data[1];
-      const balance = event.data[2];
-      break;
+      const counteredAcc = event.data[0].toString();
+      //applicationData = await api.query.pkiTcr.members(counteredAcc);
+      changeApplicationStatus(
+        connection,
+        counteredAcc,
+        ApplicationStatus.countered
+      );
+      return;
     }
+    /* 
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
     case "VoteRecorded": {
       const acc1 = event.data[0];
