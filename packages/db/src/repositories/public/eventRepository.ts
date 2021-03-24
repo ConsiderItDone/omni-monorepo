@@ -5,14 +5,14 @@ import Event from "../../models/public/event";
 export default class EventRepository extends Repository<Event> {
   public async add({
     index,
-    type,
+    data,
     extrinsicHash,
     moduleName,
     eventName,
     blockId,
   }: {
     index: number;
-    type: string;
+    data: any;
     extrinsicHash: string | null;
     moduleName: string;
     eventName: string;
@@ -20,7 +20,7 @@ export default class EventRepository extends Repository<Event> {
   }): Promise<Event> {
     const event = await this.save({
       index,
-      type,
+      data,
       extrinsicHash,
       moduleName,
       eventName,

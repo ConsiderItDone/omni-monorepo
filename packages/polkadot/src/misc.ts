@@ -7,9 +7,11 @@ import {
   RootCertificate as RootCertificateType,
   ApplicationStatus,
 } from "@nodle/utils/src/types";
-import { Connection } from "typeorm";
+import { Connection, getCustomRepository } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
+import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
+
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
@@ -138,6 +140,72 @@ export async function changeApplicationStatus(
   if (existingApplication) {
     existingApplication.status = status;
     applicationRepository.save(existingApplication);
+  }
+}
+
+export async function recordVote(
+  connection: Connection,
+  initiatorId: AccountId,
+  targetId: AccountId,
+  value: boolean,
+  blockId: number,
+  targetData?: ApplicationType
+): Promise<void> {
+  const applicationRepository = getCustomRepository(ApplicationRepository);
+
+  const targetInDB = await applicationRepository.findCandidate(
+    targetId.toString()
+  );
+
+  if (!targetInDB && !targetData) {
+    console.log(
+      "Error! Trying to record vote with no data about target(in db and from response)"
+    );
+  }
+  if (targetData) {
+    await upsertApplication(
+      connection,
+      targetId.toString(),
+      (targetData as undefined) as ApplicationType,
+      blockId,
+      ApplicationStatus.accepted
+    );
+  }
+
+  await applicationRepository.changeCandidateVote(
+    initiatorId.toString(),
+    targetId.toString(),
+    value
+  );
+}
+
+export async function addChallenger(
+  challengedAcc: string,
+  challengerAcc: string,
+  challengerDeposit: number,
+  blockId: number,
+  challengedAppData: ApplicationType
+): Promise<void> {
+  const applicationRepository = getCustomRepository(ApplicationRepository);
+  const blockRepository = getCustomRepository(BlockRepository);
+  const candidate = await applicationRepository.findOne({
+    candidate: challengedAcc,
+  });
+  if (candidate) {
+    const challengedBlock = await blockRepository.findOne({ blockId: blockId });
+    applicationRepository.addChallenger(
+      challengedAcc,
+      challengerAcc,
+      challengerDeposit,
+      challengedBlock?.number
+    );
+  } else {
+    const transformedApplicationData = transformApplicationData(
+      blockId,
+      challengedAppData,
+      ApplicationStatus.accepted
+    );
+    applicationRepository.upsert(challengedAcc, transformedApplicationData);
   }
 }
 

@@ -30,4 +30,19 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
       blockId,
     });
   }
+  public async changeStatus(
+    vestingSchedule: VestingSchedule,
+    status: string
+  ): Promise<VestingSchedule> {
+    vestingSchedule.status = status;
+    return await this.save(vestingSchedule);
+  }
+  public async cancelSchedules(accountAddress: string): Promise<void> {
+    const schedules = await this.find({
+      accountAddress: accountAddress,
+    });
+    for (const schedule of schedules) {
+      await this.changeStatus(schedule, "canceled");
+    }
+  }
 }

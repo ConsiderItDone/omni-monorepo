@@ -4,6 +4,7 @@ import type {
   Header,
   DigestItem,
   Moment,
+  Balance,
 } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
@@ -24,6 +25,8 @@ import {
   upsertApplication,
   changeApplicationStatus,
   upsertRootCertificate,
+  recordVote,
+  addChallenger,
 } from "./misc";
 
 import {
@@ -86,7 +89,7 @@ export async function handleEvents(
   const trackedEvents: Event[] = [];
 
   for (const [index, eventRecord] of events.entries()) {
-    const { method, section, typeDef } = eventRecord.event;
+    const { method, section, data } = eventRecord.event;
     if (
       (Object.values(CustomEventSection) as string[]).includes(
         eventRecord.event.section
@@ -98,9 +101,10 @@ export async function handleEvents(
       extrinsicsWithBoundedEvents,
       eventRecord
     );
+
     const event = await eventRepository.add({
-      index, // TODO ? : index of event in events array || `${blockNum}-${index}`
-      type: typeDef ? JSON.stringify(typeDef) : "error", // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
+      index,
+      data: data.toHuman(),
       extrinsicHash,
       moduleName: section,
       eventName: method,
@@ -218,17 +222,9 @@ async function handleRootOfTrust(
     case "SlotTaken":
       certificateId = event.data[1].toString();
       break;
-    // Renew a non expired slot and make it valid for a longer time (CertificateId)
     case "SlotRenewed":
-      certificateId = event.data[0].toString();
-      break;
-    //Revoke a slot before it is expired thus invalidating all child certificates  (CertificateId)
     case "SlotRevoked":
-      certificateId = event.data[0].toString();
-      break;
-    // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
-      certificateId = event.data[1].toString();
       break;
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
@@ -247,7 +243,8 @@ async function handleVestingSchedule(
   blockId: number,
   api: ApiPromise // eslint-disable-line
 ) {
-  let targetAccount: AccountId = event.data[0] as AccountId; // default
+
+  let targetAccount: string = event.data[0].toString(); // default
   const vestingScheduleRepository = connection.getCustomRepository(
     VestingScheduleRepository
   );
@@ -260,12 +257,12 @@ async function handleVestingSchedule(
   switch (event.method) {
     // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
-      targetAccount = event.data[1] as AccountId;
+      targetAccount = event.data[1].toString();
       const vestingScheduleData = (event
         .data[2] as undefined) as VestingScheduleOf;
       const { start, period, period_count, per_period } = vestingScheduleData;
       await vestingScheduleRepository.add({
-        accountAddress: targetAccount.toString(),
+        accountAddress: targetAccount,
         start: start.toString(),
         period: period.toString(),
         periodCount: period_count.toNumber(),
@@ -276,10 +273,7 @@ async function handleVestingSchedule(
     }
     /// Canceled all vesting schedules (who)
     case "VestingSchedulesCanceled": {
-      const accountSchedules = await vestingScheduleRepository.find({
-        accountAddress: targetAccount.toString(),
-      });
-      vestingScheduleRepository.remove(accountSchedules);
+      await vestingScheduleRepository.cancelSchedules(targetAccount);
       break;
     }
     /// Claimed vesting (who, locked_amount) DOES NOTHING WITH VESTING SCHEDULES
@@ -313,9 +307,20 @@ async function handleApplication(
     }
     /// A member's application is being challenged ApplicationChallenged(AccountId, AccountId, Balance)
     case "ApplicationChallenged": {
-      applicationData = await api.query.pkiTcr.challenges(accountId);
-      applicationStatus = ApplicationStatus.accepted;
-      break;
+      const challengedAcc = event.data[0].toString();
+      const challengerAcc = event.data[1].toString();
+      const challengerDeposit = event.data[2] as Balance;
+      const challengedAppData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+      addChallenger(
+        challengedAcc,
+        challengerAcc,
+        challengerDeposit.toNumber(),
+        blockId,
+        challengedAppData
+      );
+      return;
     }
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
@@ -328,15 +333,20 @@ async function handleApplication(
       );
       return;
     }
-    /* 
+
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
     case "VoteRecorded": {
-      const acc1 = event.data[0];
-      const acc2 = event.data[1];
-      const balance = event.data[2];
-      const bool = event.data[3];
+      const voteTarget = event.data[0] as AccountId;
+      const voteInitiator = event.data[1] as AccountId;
+      const voteValue = event.data[3].toHuman() as boolean;
+
+      const targetData = ((await api.query.pki.members(
+        voteTarget.toString()
+      )) as undefined) as ApplicationType;
+      recordVote(connection, voteInitiator, voteTarget, voteValue, blockId, targetData);
       break;
     }
+    /* 
     /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
     case "ChallengeRefusedApplication": {
       const acc = event.data[0];
