@@ -10,7 +10,6 @@ import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 
 import {
-  ApplicationRepository,
   BlockRepository,
   EventRepository,
   ExtrinsicRepository,
@@ -77,7 +76,7 @@ export async function handleEvents(
   const trackedEvents: Event[] = [];
 
   for (const [index, eventRecord] of events.entries()) {
-    const { method, section, typeDef } = eventRecord.event;
+    const { method, section, data } = eventRecord.event;
     if (
       (Object.values(CustomEventSection) as string[]).includes(
         eventRecord.event.section
@@ -90,8 +89,8 @@ export async function handleEvents(
       eventRecord
     );
     await eventRepository.add({
-      index, // TODO ? : index of event in events array || `${blockNum}-${index}`
-      type: typeDef ? JSON.stringify(typeDef) : "error", // TODO What is type of event? typeDef is an array | Is it event_id ? (event_id === eventName === method)
+      index,
+      data: data.toHuman(),
       extrinsicHash,
       moduleName: section,
       eventName: method,
@@ -203,7 +202,7 @@ async function handleRootOfTrust(
       break;
     // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
-      certificateId = event.data[1].toString();
+      certificateId = event.data[0].toString();
       break;
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(

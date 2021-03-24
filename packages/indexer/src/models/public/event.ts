@@ -23,8 +23,8 @@ export default class Event extends BaseEntity {
   public index: number;
 
   @Field(() => String)
-  @Column("character varying", { name: "type" })
-  public type: string;
+  @Column("jsonb", { name: "data"})
+  public data: any;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", { name: "extrinsic_hash", nullable: true }) // TODO check length
