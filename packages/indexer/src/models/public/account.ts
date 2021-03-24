@@ -23,6 +23,14 @@ export default class Account extends BaseEntity {
   public address: string;
 
   @Field(() => Number)
+  @Column("integer", { name: "nonce" })
+  public nonce: number;
+  
+  @Field(() => Number)
+  @Column("integer", { name: "refcount" })
+  public refcount: number;
+
+  @Field(() => Number)
   @Column("numeric", { name: "balance", default: 0 })
   public balance: number;
 
