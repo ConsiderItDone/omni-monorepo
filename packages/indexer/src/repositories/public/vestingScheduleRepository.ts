@@ -41,7 +41,6 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
     const schedules = await this.find({
       accountAddress: accountAddress,
     });
-    console.log(schedules)
     for (const schedule of schedules) {
       await this.changeStatus(schedule, "canceled");
     }
