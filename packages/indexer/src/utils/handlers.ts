@@ -192,17 +192,9 @@ async function handleRootOfTrust(
     case "SlotTaken":
       certificateId = event.data[1].toString();
       break;
-    // Renew a non expired slot and make it valid for a longer time (CertificateId)
     case "SlotRenewed":
-      certificateId = event.data[0].toString();
-      break;
-    //Revoke a slot before it is expired thus invalidating all child certificates  (CertificateId)
     case "SlotRevoked":
-      certificateId = event.data[0].toString();
-      break;
-    // Mark a slot's child as revoked thus invalidating it  (CertificateId, CertificateId)
     case "ChildSlotRevoked":
-      certificateId = event.data[0].toString();
       break;
   }
   const certificateData: RootCertificate = ((await api.query.pkiRootOfTrust.slots(
