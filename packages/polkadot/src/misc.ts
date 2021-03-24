@@ -197,7 +197,7 @@ export async function addChallenger(
       challengedAcc,
       challengerAcc,
       challengerDeposit,
-      challengedBlock?.number
+      challengedBlock?.number as string
     );
   } else {
     const transformedApplicationData = transformApplicationData(

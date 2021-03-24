@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   JoinColumn,
+  Unique,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import Event from "./event";
@@ -18,17 +19,18 @@ import VestingSchedule from "./vestingSchedule";
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
 @Entity("block", { schema: "public" })
+@Unique(['number'])
 export default class Block extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn({ type: "integer", name: "block_id" })
   public blockId: number;
 
-  @Field(() => String)
+  @Field(() => String || Number)
   @Column("bigint", {
     name: "number",
     unique: true,
   })
-  public number: string;
+  public number: string | number;
 
   @Field(() => Date)
   @Column("timestamp without time zone", { name: "timestamp" })
