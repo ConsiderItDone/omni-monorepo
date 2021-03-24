@@ -26,6 +26,7 @@ export default class Block extends BaseEntity {
   @Field(() => String)
   @Column("bigint", {
     name: "number",
+    unique: true,
   })
   private number: string;
 
