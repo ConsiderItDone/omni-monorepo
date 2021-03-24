@@ -4,6 +4,7 @@ import type {
   Header,
   DigestItem,
   Moment,
+  Balance,
 } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
@@ -25,6 +26,7 @@ import {
   changeApplicationStatus,
   upsertRootCertificate,
   recordVote,
+  addChallenger,
 } from "./misc";
 
 import {
@@ -38,6 +40,7 @@ import {
 
 import AccountId from "@polkadot/types/generic/AccountId";
 import { Codec } from "@polkadot/types/types";
+
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
@@ -269,9 +272,20 @@ async function handleApplication(
     }
     /// A member's application is being challenged ApplicationChallenged(AccountId, AccountId, Balance)
     case "ApplicationChallenged": {
-      applicationData = await api.query.pkiTcr.challenges(accountId);
-      applicationStatus = ApplicationStatus.accepted;
-      break;
+      const challengedAcc = event.data[0].toString();
+      const challengerAcc = event.data[1].toString();
+      const challengerDeposit = event.data[2] as Balance;
+      const challengedAppData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+      addChallenger(
+        challengedAcc,
+        challengerAcc,
+        challengerDeposit.toNumber(),
+        blockId,
+        challengedAppData
+      );
+      return;
     }
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {

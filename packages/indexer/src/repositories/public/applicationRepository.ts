@@ -91,4 +91,16 @@ export default class ApplicationRepository extends Repository<Application> {
     else target.votersAgainst = [...target.votersAgainst, initiatorId];
     await this.save(target);
   }
+  public async addChallenger(
+    challengedAcc: string,
+    challengerAcc: string,
+    challengerDeposit: number,
+    blockNumber: string
+  ): Promise<void> {
+    const candidate = await this.findCandidate(challengedAcc)
+    candidate.challenger = challengerAcc;
+    candidate.challengerDeposit = challengerDeposit;
+    candidate.challengedBlock = blockNumber;
+    await this.save(candidate)
+  }
 }

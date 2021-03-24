@@ -28,7 +28,7 @@ export default class Block extends BaseEntity {
     name: "number",
     unique: true,
   })
-  private number: string;
+  public number: string;
 
   @Field(() => Date)
   @Column("timestamp without time zone", { name: "timestamp" })

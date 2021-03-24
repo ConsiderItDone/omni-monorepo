@@ -10,6 +10,7 @@ import {
 import { getCustomRepository } from "typeorm";
 import {
   ApplicationRepository,
+  BlockRepository,
   RootCertificateRepository,
 } from "../repositories";
 import {
@@ -150,7 +151,10 @@ export async function recordVote(
     targetId.toString()
   );
 
-  if(!targetInDB && !targetData) console.log('Error! Trying to record vote with no data about target(in db and from response)')
+  if (!targetInDB && !targetData)
+    console.log(
+      "Error! Trying to record vote with no data about target(in db and from response)"
+    );
   if (targetData) {
     await upsertApplication(
       targetId.toString(),
@@ -165,6 +169,36 @@ export async function recordVote(
     targetId.toString(),
     value
   );
+}
+
+export async function addChallenger(
+  challengedAcc: string,
+  challengerAcc: string,
+  challengerDeposit: number,
+  blockId: number,
+  challengedAppData: ApplicationType
+): Promise<void> {
+  const applicationRepository = getCustomRepository(ApplicationRepository);
+  const blockRepository = getCustomRepository(BlockRepository);
+  const candidate = await applicationRepository.findOne({
+    candidate: challengedAcc,
+  });
+  if (candidate) {
+    const challengedBlock = await blockRepository.findOne({ blockId: blockId });
+    applicationRepository.addChallenger(
+      challengedAcc,
+      challengerAcc,
+      challengerDeposit,
+      challengedBlock?.number
+    );
+  } else {
+    const transformedApplicationData = transformApplicationData(
+      blockId,
+      challengedAppData,
+      ApplicationStatus.accepted
+    );
+    applicationRepository.upsert(challengedAcc, transformedApplicationData);
+  }
 }
 
 /******************* Root Certificate utils *************************************/
