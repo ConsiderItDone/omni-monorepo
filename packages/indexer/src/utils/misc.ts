@@ -151,10 +151,11 @@ export async function recordVote(
     targetId.toString()
   );
 
-  if (!targetInDB && !targetData)
+  if (!targetInDB && !targetData) {
     console.log(
       "Error! Trying to record vote with no data about target(in db and from response)"
     );
+  }
   if (targetData) {
     await upsertApplication(
       targetId.toString(),
