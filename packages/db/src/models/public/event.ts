@@ -24,7 +24,7 @@ export default class Event extends BaseEntity {
 
   @Field(() => String)
   @Column("jsonb", { name: "data" })
-  public data: any;
+  public data: any; // eslint-disable-line
 
   @Field(() => String, { nullable: true })
   @Column("character varying", { name: "extrinsic_hash", nullable: true }) // TODO check length
