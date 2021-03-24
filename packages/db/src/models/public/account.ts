@@ -25,7 +25,7 @@ export default class Account extends BaseEntity {
   @Field(() => Number)
   @Column("integer", { name: "nonce" })
   public nonce: number;
-  
+
   @Field(() => Number)
   @Column("integer", { name: "refcount" })
   public refcount: number;

@@ -243,7 +243,6 @@ async function handleVestingSchedule(
   blockId: number,
   api: ApiPromise // eslint-disable-line
 ) {
-
   let targetAccount: string = event.data[0].toString(); // default
   const vestingScheduleRepository = connection.getCustomRepository(
     VestingScheduleRepository
@@ -343,7 +342,14 @@ async function handleApplication(
       const targetData = ((await api.query.pki.members(
         voteTarget.toString()
       )) as undefined) as ApplicationType;
-      recordVote(connection, voteInitiator, voteTarget, voteValue, blockId, targetData);
+      recordVote(
+        connection,
+        voteInitiator,
+        voteTarget,
+        voteValue,
+        blockId,
+        targetData
+      );
       break;
     }
     /* 

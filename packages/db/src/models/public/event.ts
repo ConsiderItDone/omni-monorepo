@@ -23,7 +23,7 @@ export default class Event extends BaseEntity {
   public index: number;
 
   @Field(() => String)
-  @Column("jsonb", { name: "data"})
+  @Column("jsonb", { name: "data" })
   public data: any;
 
   @Field(() => String, { nullable: true })

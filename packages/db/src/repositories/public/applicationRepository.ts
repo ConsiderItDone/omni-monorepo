@@ -97,10 +97,10 @@ export default class ApplicationRepository extends Repository<Application> {
     challengerDeposit: number,
     blockNumber: string
   ): Promise<void> {
-    const candidate = await this.findCandidate(challengedAcc)
+    const candidate = await this.findCandidate(challengedAcc);
     candidate.challenger = challengerAcc;
     candidate.challengerDeposit = challengerDeposit;
     candidate.challengedBlock = blockNumber;
-    await this.save(candidate)
+    await this.save(candidate);
   }
 }
