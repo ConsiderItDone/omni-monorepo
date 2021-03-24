@@ -47,6 +47,10 @@ export default class VestingSchedule extends BaseEntity {
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
+  @Field(() => String)
+  @Column("character varying", { name: "status", nullable: true })
+  public status: string;
+
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.vestingSchedules)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])

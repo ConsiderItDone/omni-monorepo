@@ -207,7 +207,7 @@ async function handleVestingSchedule(
   blockId: number,
   api: ApiPromise // eslint-disable-line
 ) {
-  let targetAccount: AccountId = event.data[0] as AccountId; // default
+  let targetAccount: string = event.data[0].toString(); // default
   const vestingScheduleRepository = getCustomRepository(
     VestingScheduleRepository
   );
@@ -220,12 +220,12 @@ async function handleVestingSchedule(
   switch (event.method) {
     // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
-      targetAccount = event.data[1] as AccountId;
+      targetAccount = event.data[1].toString();
       const vestingScheduleData = (event
         .data[2] as undefined) as VestingScheduleOf;
       const { start, period, period_count, per_period } = vestingScheduleData;
       await vestingScheduleRepository.add({
-        accountAddress: targetAccount.toString(),
+        accountAddress: targetAccount,
         start: start.toString(),
         period: period.toString(),
         periodCount: period_count.toNumber(),
@@ -236,10 +236,7 @@ async function handleVestingSchedule(
     }
     /// Canceled all vesting schedules (who)
     case "VestingSchedulesCanceled": {
-      const accountSchedules = await vestingScheduleRepository.find({
-        accountAddress: targetAccount.toString(),
-      });
-      vestingScheduleRepository.remove(accountSchedules);
+      await vestingScheduleRepository.cancelSchedules(targetAccount);
       break;
     }
     /// Claimed vesting (who, locked_amount) DOES NOTHING WITH VESTING SCHEDULES
