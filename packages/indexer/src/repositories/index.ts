@@ -4,4 +4,5 @@ export { default as ExtrinsicRepository } from "./public/extrinsicRepository";
 export { default as LogRepository } from "./public/logRepository";
 export { default as RootCertificateRepository } from "./public/rootCertificateRepository";
 export { default as VestingScheduleRepository } from "./public/vestingScheduleRepository";
+export { default as AccountRepository } from "./public/accountRepository";
 export { default as ApplicationRepository } from "./public/applicationRepository";
