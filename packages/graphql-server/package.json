@@ -1,0 +1,27 @@
+{
+  "name": "@nodle/graphql-server",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "directory": "packages/graphql-server"
+  },
+  "scripts": {
+    "build": "npm exec tsc",
+    "prepare": "npm run build",
+    "start:server": "npm exec -- ts-node -r tsconfig-paths/register index.ts"
+  },
+  "dependencies": {
+    "apollo-server": "^2.21.0",
+    "@nodle/db": "^1.0.0",
+    "@nodle/utils": "^1.0.0",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.31"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "tsconfig-paths": "^3.9.0"
+  }
+}

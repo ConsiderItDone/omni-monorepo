@@ -1,5 +1,4 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import env from "../env";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { Header } from "@polkadot/types/interfaces/runtime";
 import { BlockNumber } from "@polkadot/types/interfaces/runtime";
@@ -13,7 +12,10 @@ import {
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
 
-const provider = new WsProvider(env.WS_PROVIDER);
+// TODO: fix param
+const provider = new WsProvider(
+  process.env.WS_PROVIDER || "ws://3.217.156.114:9944"
+);
 
 async function getApi(): Promise<ApiPromise> {
   return ApiPromise.create({
@@ -155,8 +157,11 @@ block.extrinsics.forEach(({ method: { method, section } }, index) => {
         }
     });
 }) */
-export async function subscribe(connection: Connection): Promise<void> {
+export async function backfiller(connection: Connection): Promise<void> {
   const api: ApiPromise = await getApi();
+
+  console.log("Backfiller mock");
+  // TODO: work with historical blocks
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription

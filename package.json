@@ -7,13 +7,25 @@
     "prettier-format": "npm exec -- prettier --write ./packages",
     "prettier-check": "npm exec -- prettier --check ./packages",
     "build:indexer": "npm run build --prefix packages/indexer",
+    "build:backfiller": "npm run build --prefix packages/backfiller",
     "build:utils": "npm run build --prefix packages/utils",
-    "build:all": "npm run build:indexer & npm run build:utils",
-    "start": "NPM_CONFIG_USER=root cd packages/indexer && npm run start:indexer"
+    "build:db": "npm run build --prefix packages/db",
+    "build:server": "npm run build --prefix packages/graphql-server",
+    "build": "npm run build:db & npm run build:indexer & npm run build:utils & npm run build:server & npm run build:backfiller",
+    "start:indexer": "npm run start:indexer --prefix packages/indexer",
+    "start:server": "npm run start:server --prefix packages/graphql-server",
+    "start:backfiller": "npm run start:backfiller --prefix packages/backfiller"
   },
-  "workspaces": [
-    "./packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "./packages/db",
+      "./packages/utils",
+      "./packages/indexer",
+      "./packages/graphql-server",
+      "./packages/backfiller",
+      "./packages/polkadot"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ConsiderItDone/nodle.git"
@@ -31,5 +43,6 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "2.2.1"
-  }
+  },
+  "dependencies": {}
 }
