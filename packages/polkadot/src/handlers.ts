@@ -440,15 +440,15 @@ async function backfillApplication(
     }
     case "ApplicationCountered": {
       const counteredAcc = event.data[0].toString();
-      const application = ((await api.query.pkiTcr.applications(
+      const acceptedApplication = ((await api.query.pkiTcr.members(
         accountId
       )) as undefined) as ApplicationType;
       const existingApp = await applicationRepository.findCandidate(
         counteredAcc
       );
+      if(!applicationIsEmpty(acceptedApplication)) return
       if (
-        existingApp.status === ApplicationStatus.pending &&
-        !applicationIsEmpty(application)
+        existingApp.status === ApplicationStatus.pending
       ) {
         changeApplicationStatus(
           connection,
