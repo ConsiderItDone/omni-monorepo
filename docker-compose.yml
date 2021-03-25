@@ -22,7 +22,18 @@ services:
       - .env
     volumes:
       - ./:/app  # only dev
-    command: ["sh", "-c", "NPM_CONFIG_USER=root npm ci && cd packages/indexer && npm ci && npm run start:indexer"]
+    command: ["sh", "-c", "npm ci && npm run start:indexer"]
+
+  server:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./:/app  # only dev
+    command: ["sh", "-c", "npm ci && npm run start:server"]
     ports:
       - "4000:4000"
 
