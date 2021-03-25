@@ -19,7 +19,7 @@ import VestingSchedule from "./vestingSchedule";
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
 @Entity("block", { schema: "public" })
-@Unique(['number'])
+@Unique(["number"])
 export default class Block extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn({ type: "integer", name: "block_id" })
