@@ -1,9 +1,9 @@
 export { default as Account } from "./public/account";
-export { default as Application } from "./public/Application";
-export { default as Balance } from "./public/Balance";
+export { default as Application } from "./public/application";
+export { default as Balance } from "./public/balance";
 export { default as Block } from "./public/block";
 export { default as Event } from "./public/event";
 export { default as Extrinsic } from "./public/extrinsic";
 export { default as Log } from "./public/log";
 export { default as RootCertificate } from "./public/rootCertificate";
-export { default as VestingSchedule } from "./public/VestingSchedule";
+export { default as VestingSchedule } from "./public/vestingSchedule";
