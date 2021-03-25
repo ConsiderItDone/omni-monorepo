@@ -397,7 +397,7 @@ export async function backfillTrackedEvents(
         handleVestingSchedule(connection, event, blockId, api);
         break;
       case CustomEventSection.Application:
-        handleApplication(connection, event, blockId, api);
+        backfillApplication(connection, event, blockId, api);
         break;
       default:
         return;
@@ -411,10 +411,12 @@ async function backfillApplication(
   blockId: number,
   api: ApiPromise
 ) {
-  const accountId = event.data[0].toString(); // may be reassigned
+  const accountId = event.data[0].toString();
   let applicationData;
   let applicationStatus = ApplicationStatus.pending;
-
+  const applicationRepository = connection.getCustomRepository(
+    ApplicationRepository
+  );
   switch (event.method) {
     case "NewApplication": {
       applicationData = ((await api.query.pkiTcr.applications(
@@ -429,15 +431,32 @@ async function backfillApplication(
 
       if (applicationIsEmpty(applicationData)) return;
 
-      const applicationRepository = connection.getCustomRepository(
-        ApplicationRepository
-      );
       const candidate = await applicationRepository.findOne({
         candidate: applicationData.candidate.toString(),
       });
       if (candidate) return;
       else applicationStatus = ApplicationStatus.accepted;
       break;
+    }
+    case "ApplicationCountered": {
+      const counteredAcc = event.data[0].toString();
+      const application = ((await api.query.pkiTcr.applications(
+        accountId
+      )) as undefined) as ApplicationType;
+      const existingApp = await applicationRepository.findCandidate(
+        counteredAcc
+      );
+      if (
+        existingApp.status === ApplicationStatus.pending &&
+        !applicationIsEmpty(application)
+      ) {
+        changeApplicationStatus(
+          connection,
+          counteredAcc,
+          ApplicationStatus.countered
+        );
+      }
+      return;
     }
     case "ApplicationChallenged": {
       const challengedAcc = event.data[0].toString();
@@ -452,16 +471,6 @@ async function backfillApplication(
         challengerDeposit.toNumber(),
         blockId,
         challengedAppData
-      );
-      return;
-    }
-    case "ApplicationCountered": {
-      const counteredAcc = event.data[0].toString();
-      //applicationData = await api.query.pkiTcr.members(counteredAcc);
-      changeApplicationStatus(
-        connection,
-        counteredAcc,
-        ApplicationStatus.countered
       );
       return;
     }
@@ -508,6 +517,7 @@ async function backfillApplication(
 }
 
 function applicationIsEmpty(applicationData: ApplicationType) {
+  console.log("application is empty");
   return (
     applicationData.candidate.toString() ===
     "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
