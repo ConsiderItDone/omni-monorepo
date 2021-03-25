@@ -1,28 +1,22 @@
 {
-  "name": "@nodle/indexer",
+  "name": "@nodle/polkadot",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConsiderItDone/nodle.git",
-    "directory": "packages/indexer"
+    "directory": "packages/polkadot"
   },
   "scripts": {
     "build": "npm exec tsc",
-    "prepare": "npm run build",
-    "start:indexer": "npm exec -- ts-node src/run.ts"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@polkadot/api": "2.3.2-2",
     "@nodle/db": "^1.0.0",
     "@nodle/utils": "^1.0.0",
-    "@nodle/polkadot": "^1.0.0",
-    "apollo-server": "^2.21.0",
-    "dotenv": "^8.2.0",
-    "envalid": "^7.0.0",
     "ts-node": "^9.1.1",
-    "type-graphql": "^1.1.1",
     "typeorm": "^0.2.31",
     "typescript": "^4.2.3"
   },

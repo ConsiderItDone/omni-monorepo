@@ -2,12 +2,14 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "experimentalDecorators": true,
-    "module": "commonjs",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "target": "ES2020",
     "noImplicitAny": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
     "sourceMap": true,
     "skipLibCheck": true,
     "removeComments": true,
@@ -17,6 +19,5 @@
       "*": ["node_modules/*"]
     }
   },
-  "files": ["index.ts"],
-  "exclude": ["node_modules", "dist"]
+  "files": ["index.ts"]
 }

@@ -5,6 +5,13 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "removeComments": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nodle/*": ["./packages/*"],
+      "@nodle": ["./packages"]
+    }
   }
 }

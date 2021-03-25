@@ -1,4 +1,4 @@
-import { subscribe } from "./services/subscribe";
+import { backfiller } from "./services/backfiller";
 import { connect } from "@nodle/db";
 import MQ from "@nodle/utils/src/mq";
 import { ConnectionOptions } from "typeorm";
@@ -20,9 +20,9 @@ const start = async function (): Promise<void> {
 
   await MQ.init(); // init MQ connection
 
-  subscribe(connection); // run subscription
+  backfiller(connection); // run service
 };
 
-export const Indexer = {
+export const Backfiller = {
   start,
 };
