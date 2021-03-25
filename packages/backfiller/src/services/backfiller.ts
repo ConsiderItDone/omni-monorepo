@@ -5,7 +5,7 @@ import {
   handleEvents,
   handleLogs,
   handleExtrinsics,
-  handleTrackedEvents,
+  backfillTrackedEvents,
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 
@@ -69,7 +69,7 @@ export async function backfiller(connection: Connection): Promise<void> {
       extrinsicsWithBoundedEvents,
       newBlockId
     );
+    //5. Backfilling custom events
+    backfillTrackedEvents(connection, trackedEvents, api, newBlockId);
   }
-  /*   //5. Handling custom events
-  handleTrackedEvents(connection, trackedEvents, api, newBlockId); */
 }

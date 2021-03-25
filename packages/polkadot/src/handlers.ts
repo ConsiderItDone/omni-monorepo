@@ -45,6 +45,7 @@ import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
 import * as EventModel from "@nodle/db/src/models/public/event";
+import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 
 /******************** BASE HANDLERS **********************/
 
@@ -104,7 +105,7 @@ export async function handleEvents(
 
     const event = await eventRepository.add({
       index,
-      data: data.toHuman(),
+      data: data.toHuman() as string,
       extrinsicHash,
       moduleName: section,
       eventName: method,
@@ -373,5 +374,142 @@ async function handleApplication(
     (applicationData as undefined) as ApplicationType,
     blockId,
     applicationStatus
+  );
+}
+
+/******************** BACKFILL CUSTOM EVENTS **********************/
+
+export async function backfillTrackedEvents(
+  connection: Connection,
+  trackedEvents: Event[],
+  api: ApiPromise,
+  blockId: number
+) {
+  if (trackedEvents.length < 1) {
+    return;
+  }
+  for (const event of trackedEvents) {
+    switch (event.section) {
+      case CustomEventSection.RootOfTrust:
+        handleRootOfTrust(connection, event, api, blockId);
+        break;
+      case CustomEventSection.VestingSchedule:
+        handleVestingSchedule(connection, event, blockId, api);
+        break;
+      case CustomEventSection.Application:
+        handleApplication(connection, event, blockId, api);
+        break;
+      default:
+        return;
+    }
+  }
+}
+
+async function backfillApplication(
+  connection: Connection,
+  event: Event,
+  blockId: number,
+  api: ApiPromise
+) {
+  const accountId = event.data[0].toString(); // may be reassigned
+  let applicationData;
+  let applicationStatus = ApplicationStatus.pending;
+
+  switch (event.method) {
+    case "NewApplication": {
+      applicationData = ((await api.query.pkiTcr.applications(
+        accountId
+      )) as undefined) as ApplicationType;
+      if (applicationIsEmpty(applicationData)) return;
+    }
+    case "ApplicationPassed": {
+      applicationData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+
+      if (applicationIsEmpty(applicationData)) return;
+
+      const applicationRepository = connection.getCustomRepository(
+        ApplicationRepository
+      );
+      const candidate = await applicationRepository.findOne({
+        candidate: applicationData.candidate.toString(),
+      });
+      if (candidate) return;
+      else applicationStatus = ApplicationStatus.accepted;
+      break;
+    }
+    case "ApplicationChallenged": {
+      const challengedAcc = event.data[0].toString();
+      const challengerAcc = event.data[1].toString();
+      const challengerDeposit = event.data[2] as Balance;
+      const challengedAppData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+      addChallenger(
+        challengedAcc,
+        challengerAcc,
+        challengerDeposit.toNumber(),
+        blockId,
+        challengedAppData
+      );
+      return;
+    }
+    case "ApplicationCountered": {
+      const counteredAcc = event.data[0].toString();
+      //applicationData = await api.query.pkiTcr.members(counteredAcc);
+      changeApplicationStatus(
+        connection,
+        counteredAcc,
+        ApplicationStatus.countered
+      );
+      return;
+    }
+    case "VoteRecorded": {
+      const voteTarget = event.data[0] as AccountId;
+      const voteInitiator = event.data[1] as AccountId;
+      const voteValue = event.data[3].toHuman() as boolean;
+
+      const targetData = ((await api.query.pki.members(
+        voteTarget.toString()
+      )) as undefined) as ApplicationType;
+      recordVote(
+        connection,
+        voteInitiator,
+        voteTarget,
+        voteValue,
+        blockId,
+        targetData
+      );
+      break;
+    }
+    /* 
+    /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
+    case "ChallengeRefusedApplication": {
+      const acc = event.data[0];
+      break;
+    }
+    /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
+    case "ChallengeAcceptedApplication": {
+      const acc = event.data[0];
+      break;
+    } 
+    */
+    default:
+      return;
+  }
+  await upsertApplication(
+    connection,
+    accountId,
+    (applicationData as undefined) as ApplicationType,
+    blockId,
+    applicationStatus
+  );
+}
+
+function applicationIsEmpty(applicationData: ApplicationType) {
+  return (
+    applicationData.candidate.toString() ===
+    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
   );
 }

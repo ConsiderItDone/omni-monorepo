@@ -9,4 +9,5 @@ export {
   handleLogs,
   handleExtrinsics,
   handleTrackedEvents,
+  backfillTrackedEvents,
 } from "./handlers";
