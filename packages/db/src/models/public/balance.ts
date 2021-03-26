@@ -42,5 +42,5 @@ export default class Balance extends BaseEntity {
   @Field(() => Account)
   @OneToOne(() => Account, (account) => account.balance)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
-  public account: Block;
+  public account: Account;
 }
