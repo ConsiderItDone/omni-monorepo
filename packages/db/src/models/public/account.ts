@@ -7,8 +7,9 @@ import {
   OneToMany,
   JoinColumn,
   OneToOne,
+  Unique,
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
 import { Balance } from "..";
 
@@ -31,6 +32,10 @@ export default class Account extends BaseEntity {
   @Field(() => Number)
   @Column("integer", { name: "refcount" })
   public refcount: number;
+
+  @Field(() => Int) //TODO add uniqness in DB in one to one may bug
+  @Column("integer", { name: "balance_id" })
+  public balanceId: number;
 
   @Field(() => Balance)
   @OneToOne(() => Balance, (balance) => balance.account)

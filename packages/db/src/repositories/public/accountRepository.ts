@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, UpdateResult } from "typeorm";
 import { Account } from "../../models";
 
 type NewAccountParam = {
@@ -23,5 +23,32 @@ export default class AccountRepository extends Repository<Account> {
 
   public async addList(list: NewAccountParam[]): Promise<Account[]> {
     return await this.save(list);
+  }
+
+  public async findByAddress(accountAddress: string): Promise<Account> {
+    return await this.findOne({ address: accountAddress });
+  }
+
+  public async replace(
+    accountId: number,
+    accountData: NewAccountParam
+  ): Promise<Account> {
+    return await this.save({
+      accountId,
+      ...accountData,
+    });
+  }
+
+  public async upsert(
+    accountAddress: string,
+    accountData: NewAccountParam
+  ): Promise<Account> {
+    const existingAccount = await this.findByAddress(accountAddress);
+
+    if (existingAccount) {
+      return await this.replace(existingAccount.accountId, accountData);
+    } else {
+      return await this.add(accountData);
+    }
   }
 }

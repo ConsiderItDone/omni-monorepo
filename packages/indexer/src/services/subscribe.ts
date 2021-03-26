@@ -1,6 +1,5 @@
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import type { Header } from "@polkadot/types/interfaces/runtime";
-import { BlockNumber } from "@polkadot/types/interfaces/runtime";
+import type { Header, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import {

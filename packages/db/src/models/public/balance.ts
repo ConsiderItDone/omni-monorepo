@@ -6,6 +6,7 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
@@ -19,6 +20,7 @@ export default class Balance extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 
+  // Bigints ?? like '1 189 999 611 450 410'
   @Field(() => Number)
   @Column("numeric", { name: "free" })
   public free: number;
@@ -35,12 +37,12 @@ export default class Balance extends BaseEntity {
   @Column("numeric", { name: "fee_frozen" })
   public feeFrozen: number;
 
-  @Field(() => Int)
+/*   @Field(() => Int) //TODO add uniqness in DB in one to one may bug
   @Column("integer", { name: "account_id" })
-  public accountId: number;
+  public accountId: number; */
 
   @Field(() => Account)
   @OneToOne(() => Account, (account) => account.balance)
-  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  //@JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 }
