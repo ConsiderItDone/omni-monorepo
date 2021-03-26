@@ -6,6 +6,7 @@ import {
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
   ApplicationStatus,
+  VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
 import { Connection, getCustomRepository } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
@@ -15,6 +16,7 @@ import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
+  VestingSchedule as VestingScheduleModel,
 } from "@nodle/db/src/models";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
@@ -209,6 +211,14 @@ export async function addChallenger(
   }
 }
 
+export function applicationIsEmpty(applicationData: ApplicationType) {
+  console.log("application is empty");
+  return (
+    applicationData.candidate.toString() ===
+    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
+  );
+}
+
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
   connection: Connection,
@@ -254,4 +264,24 @@ function transformCertificateData(
         : null,
     blockId,
   } as RootCertificateModel;
+}
+
+/******************* Vesting Schedules utils *************************************/
+
+export function transformVestingSchedules(
+  accountId: string,
+  schedulesData: VestingScheduleType[],
+  blockId: number
+): VestingScheduleModel[] {
+  return schedulesData.map((schedule) => {
+    const { start, period, period_count, per_period } = schedule;
+    return {
+      accountAddress: accountId,
+      start: start.toString(),
+      period: period.toString(),
+      periodCount: period_count.toNumber(),
+      perPeriod: per_period.toString(),
+      blockId,
+    } as VestingScheduleModel;
+  });
 }

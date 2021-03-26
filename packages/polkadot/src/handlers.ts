@@ -27,6 +27,8 @@ import {
   upsertRootCertificate,
   recordVote,
   addChallenger,
+  applicationIsEmpty,
+  transformVestingSchedules,
 } from "./misc";
 
 import {
@@ -46,6 +48,7 @@ import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
 import * as EventModel from "@nodle/db/src/models/public/event";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
+import { VestingSchedule } from "@nodle/db/src/models";
 
 /******************** BASE HANDLERS **********************/
 
@@ -423,6 +426,10 @@ async function backfillApplication(
         accountId
       )) as undefined) as ApplicationType;
       if (applicationIsEmpty(applicationData)) return;
+      const existingApplication = await applicationRepository.findCandidate(
+        accountId
+      );
+      if (existingApplication) return;
     }
     case "ApplicationPassed": {
       applicationData = ((await api.query.pkiTcr.members(
@@ -446,10 +453,8 @@ async function backfillApplication(
       const existingApp = await applicationRepository.findCandidate(
         counteredAcc
       );
-      if(!applicationIsEmpty(acceptedApplication)) return
-      if (
-        existingApp.status === ApplicationStatus.pending
-      ) {
+      if (!applicationIsEmpty(acceptedApplication)) return;
+      if (existingApp.status === ApplicationStatus.pending) {
         changeApplicationStatus(
           connection,
           counteredAcc,
@@ -516,10 +521,70 @@ async function backfillApplication(
   );
 }
 
-function applicationIsEmpty(applicationData: ApplicationType) {
-  console.log("application is empty");
-  return (
-    applicationData.candidate.toString() ===
-    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
+async function backfillVestingSchedules(
+  connection: Connection,
+  event: Event,
+  blockId: number,
+  api: ApiPromise
+) {
+  const vestingScheduleRepository = connection.getCustomRepository(
+    VestingScheduleRepository
   );
+  switch (event.method) {
+    case "VestingScheduleAdded": {
+      const accountId = event.data[1].toString();
+
+      const grants = ((await api.query.grants.vestingSchedules(
+        accountId
+      )) as undefined) as VestingScheduleOf[];
+
+      const vestingSchedulesByAccount = await vestingScheduleRepository.find({
+        accountAddress: accountId,
+      });
+
+      const missingVestingSchedules = compareVestingSchedules(
+        transformVestingSchedules(accountId, grants, blockId),
+        vestingSchedulesByAccount
+      );
+
+      // Magic goes here
+      return;
+    }
+    case "VestingSchedulesCanceled": {
+      const accountId = event.data[0].toString();
+
+      const grants = ((await api.query.grants.vestingSchedules(
+        accountId
+      )) as undefined) as VestingScheduleOf[];
+      return;
+    }
+    default:
+      return;
+  }
+}
+
+function compareVestingSchedules(
+  arr1: VestingSchedule[],
+  arr2: VestingSchedule[]
+) {
+  /* function objectsAreSame(x: any, y: any) {
+    let objectsAreSame = true;
+    for (var propertyName in x) {
+      if (x[propertyName] !== y[propertyName]) {
+        objectsAreSame = false;
+        break;
+      }
+    }
+    return objectsAreSame;
+  }
+  let missing = [];
+  let odd = [];
+
+  arr1.forEach((val, index) => {
+    const duplicatesInArr1 = arr1.filter((val2) => objectsAreSame(val2, val));
+    const duplicatesInArr2 = arr2.filter((val2) => objectsAreSame(val2, val));
+    for(let i = 0; i<= Math.abs(duplicatesInArr1.length - duplicatesInArr2.length); i++) {
+      missing.push(val)
+    }
+  }); */
 }
