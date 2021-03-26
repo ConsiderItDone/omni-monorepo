@@ -5,3 +5,5 @@ export * as LogRepository from "./public/logRepository";
 export * as RootCertificateRepository from "./public/rootCertificateRepository";
 export * as VestingScheduleRepository from "./public/vestingScheduleRepository";
 export * as ApplicationRepository from "./public/applicationRepository";
+export * as AccountRepository from "./public/accountRepository";
+export * as BalanceRepository from "./public/balanceReposirory";

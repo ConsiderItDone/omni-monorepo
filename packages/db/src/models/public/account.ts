@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToOne,
 } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
 import { Balance } from "..";
 
