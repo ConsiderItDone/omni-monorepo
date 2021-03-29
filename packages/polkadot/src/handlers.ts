@@ -28,6 +28,7 @@ import {
   addChallenger,
   applicationIsEmpty,
   boundEventsToExtrinsics,
+  saveAccount,
 } from "./misc";
 
 import {
@@ -210,6 +211,8 @@ export async function handleTrackedEvents(
       case CustomEventSection.Application:
         handleApplication(connection, event, blockId, api);
         break;
+      case CustomEventSection.Balance:
+        handleBalance(connection, event, blockId, api);
       default:
         return;
     }
@@ -383,7 +386,23 @@ async function handleApplication(
     applicationStatus
   );
 }
-
+async function handleBalance(
+  connection: Connection,
+  event: Event,
+  blockId: number,
+  api: ApiPromise
+): Promise<void> {
+  switch (event.method) {
+    case "Transfer":
+      const accFrom = await api.query.system.account(event.data[0]);
+      const accTo = await api.query.system.account(event.data[1]);
+      saveAccount(connection, accFrom as undefined);
+      saveAccount(connection, accTo as undefined)
+      break;
+    default:
+      return;
+  }
+}
 /******************** BACKFILL CUSTOM EVENTS **********************/
 
 export async function backfillTrackedEvents(

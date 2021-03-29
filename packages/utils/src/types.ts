@@ -17,6 +17,7 @@ export enum CustomEventSection {
   RootOfTrust = "pkiRootOfTrust",
   VestingSchedule = "grants",
   Application = "pkiTcr",
+  Balance = "balances",
 }
 
 export type CertificateId = AccountId;
