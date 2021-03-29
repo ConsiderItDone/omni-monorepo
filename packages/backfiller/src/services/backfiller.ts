@@ -9,6 +9,7 @@ import {
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 
+import { VestingScheduleOf } from '@nodle/utils/src/types';
 
 
 export async function backfiller(connection: Connection): Promise<void> {
@@ -16,6 +17,10 @@ export async function backfiller(connection: Connection): Promise<void> {
 
   console.log("Backfiller mock");
   // TODO: work with historical blocks
+
+  const grants = await api.query.grants.vestingSchedules('5HpG9w8EBLe5XCrbczpwq5TSXvedjrBGCwqxK1iQ7qUsSWFc')
+  if(grants) console.log('ok')
+  else console.log('not ok')
 
   const limit = 50; // Amount of block to check
   const startBlock = 1500; // Block number to search from

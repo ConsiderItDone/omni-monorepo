@@ -252,18 +252,30 @@ async function handleVestingSchedule(
     VestingScheduleRepository
   );
 
-  /* //GET all vesting schedules for account
-  const grants = ((await api.query.grants.vestingSchedules(
-    account
-  )) as any) as VestingScheduleOf[]; */
-
   switch (event.method) {
-    // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
       targetAccount = event.data[1].toString();
-      const vestingScheduleData = (event
-        .data[2] as undefined) as VestingScheduleOf;
-      const { start, period, period_count, per_period } = vestingScheduleData;
+      /* const vestingScheduleData = (event
+        .data[2] as undefined) as VestingScheduleOf;*/
+      break;
+    }
+    case "VestingSchedulesCanceled": {
+      //await vestingScheduleRepository.cancelSchedules(targetAccount);
+      break;
+    }
+    case "Claimed":
+    default:
+      return;
+  }
+  const grants = ((await api.query.grants.vestingSchedules(
+    targetAccount
+  )) as undefined) as VestingScheduleOf[];
+
+  if (grants) {
+    await vestingScheduleRepository.removeSchedulesByAccount(targetAccount);
+
+    for (const grant of grants) {
+      const { start, period, period_count, per_period } = grant;
       await vestingScheduleRepository.add({
         accountAddress: targetAccount,
         start: start.toString(),
@@ -272,17 +284,7 @@ async function handleVestingSchedule(
         perPeriod: per_period.toString(),
         blockId,
       });
-      break;
     }
-    /// Canceled all vesting schedules (who)
-    case "VestingSchedulesCanceled": {
-      await vestingScheduleRepository.cancelSchedules(targetAccount);
-      break;
-    }
-    /// Claimed vesting (who, locked_amount) DOES NOTHING WITH VESTING SCHEDULES
-    case "Claimed":
-    default:
-      return;
   }
 }
 async function handleApplication(
@@ -519,72 +521,4 @@ async function backfillApplication(
     blockId,
     applicationStatus
   );
-}
-
-async function backfillVestingSchedules(
-  connection: Connection,
-  event: Event,
-  blockId: number,
-  api: ApiPromise
-) {
-  const vestingScheduleRepository = connection.getCustomRepository(
-    VestingScheduleRepository
-  );
-  switch (event.method) {
-    case "VestingScheduleAdded": {
-      const accountId = event.data[1].toString();
-
-      const grants = ((await api.query.grants.vestingSchedules(
-        accountId
-      )) as undefined) as VestingScheduleOf[];
-
-      const vestingSchedulesByAccount = await vestingScheduleRepository.find({
-        accountAddress: accountId,
-      });
-
-      const missingVestingSchedules = compareVestingSchedules(
-        transformVestingSchedules(accountId, grants, blockId),
-        vestingSchedulesByAccount
-      );
-
-      // Magic goes here
-      return;
-    }
-    case "VestingSchedulesCanceled": {
-      const accountId = event.data[0].toString();
-
-      const grants = ((await api.query.grants.vestingSchedules(
-        accountId
-      )) as undefined) as VestingScheduleOf[];
-      return;
-    }
-    default:
-      return;
-  }
-}
-
-function compareVestingSchedules(
-  arr1: VestingSchedule[],
-  arr2: VestingSchedule[]
-) {
-  /* function objectsAreSame(x: any, y: any) {
-    let objectsAreSame = true;
-    for (var propertyName in x) {
-      if (x[propertyName] !== y[propertyName]) {
-        objectsAreSame = false;
-        break;
-      }
-    }
-    return objectsAreSame;
-  }
-  let missing = [];
-  let odd = [];
-
-  arr1.forEach((val, index) => {
-    const duplicatesInArr1 = arr1.filter((val2) => objectsAreSame(val2, val));
-    const duplicatesInArr2 = arr2.filter((val2) => objectsAreSame(val2, val));
-    for(let i = 0; i<= Math.abs(duplicatesInArr1.length - duplicatesInArr2.length); i++) {
-      missing.push(val)
-    }
-  }); */
 }

@@ -45,4 +45,10 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
       await this.changeStatus(schedule, "canceled");
     }
   }
+  public async removeSchedulesByAccount(accountAddress:string): Promise<void> {
+    const schedules = await this.find({
+      accountAddress: accountAddress,
+    });
+    await this.remove(schedules)
+  }
 }
