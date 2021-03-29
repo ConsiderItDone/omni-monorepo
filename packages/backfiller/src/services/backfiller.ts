@@ -9,8 +9,6 @@ import {
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 
-
-
 export async function backfiller(connection: Connection): Promise<void> {
   const api = await getApi();
 

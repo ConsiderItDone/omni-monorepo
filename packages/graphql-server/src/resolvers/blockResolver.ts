@@ -2,7 +2,12 @@ import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Event from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import Log from "@nodle/db/src/models/public/log";
+import RootCertificate from "@nodle/db/src/models/public/rootCertificate";
+import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
+
 import { createBaseResolver } from "../baseResolver";
+import { arrayFieldResolver } from "../fieldsResolver";
 
 const BlockBaseResolver = createBaseResolver("Block", Block);
 
@@ -22,30 +27,27 @@ export default class BlockResolver extends BlockBaseResolver {
   }
 
   @FieldResolver()
-  async events(@Root() block: Block): Promise<Event[]> {
-    const events = await Event.find({
-      where: {
-        blockId: block.blockId,
-      },
-    });
-    if (!events) {
-      return [];
-    }
-
-    return events;
+  events(@Root() source: Block) {
+    return arrayFieldResolver<Block>(source, Event, "blockId");
   }
 
   @FieldResolver()
-  async extrinsics(@Root() block: Block): Promise<Extrinsic[]> {
-    const extrinsic = await Extrinsic.find({
-      where: {
-        blockId: block.blockId,
-      },
-    });
-    if (!extrinsic) {
-      return [];
-    }
+  extrinsics(@Root() source: Block) {
+    return arrayFieldResolver<Block>(source, Extrinsic, "blockId");
+  }
 
-    return extrinsic;
+  @FieldResolver()
+  logs(@Root() source: Block) {
+    return arrayFieldResolver(source, Log, "blockId");
+  }
+
+  @FieldResolver()
+  rootCertificates(@Root() source: Block) {
+    return arrayFieldResolver(source, RootCertificate, "blockId");
+  }
+
+  @FieldResolver()
+  vestingSchedules(@Root() source: Block) {
+    return arrayFieldResolver(source, VestingSchedule, "blockId");
   }
 }

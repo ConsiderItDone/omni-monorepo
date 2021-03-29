@@ -54,20 +54,20 @@ export function createBaseResolver<T extends ClassType>(
       @Args() { take, skip, first, last }: PaginationArgs
     ): Promise<T[]> {
       if (first && last) {
-        throw new Error('Bad request');
+        throw new Error("Bad request");
       }
 
       const order: any = {}; // eslint-disable-line
-      order[`${suffix.toLowerCase()}Id`] = 'DESC';
+      order[`${suffix.toLowerCase()}Id`] = "DESC";
 
       if (first) {
         take = first;
-        order[`${suffix.toLowerCase()}Id`] = 'ASC';
+        order[`${suffix.toLowerCase()}Id`] = "ASC";
       }
 
       if (last) {
         take = last;
-        order[`${suffix.toLowerCase()}Id`] = 'DESC';
+        order[`${suffix.toLowerCase()}Id`] = "DESC";
       }
 
       return (objectTypeCls as any).find({ // eslint-disable-line
