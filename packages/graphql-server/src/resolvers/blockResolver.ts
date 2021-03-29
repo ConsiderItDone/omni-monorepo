@@ -1,60 +1,23 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  ArgsType,
-  Field,
-  Int,
-  Args,
-  Subscription,
-} from "type-graphql";
-import { Min, Max } from "class-validator";
+import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Event from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import MQ from "@nodle/utils/src/mq";
+import { createBaseResolver } from "../baseResolver";
 
-@ArgsType()
-class GetBlocksArgs {
-  @Field(() => Int, { defaultValue: 0 })
-  @Min(0)
-  skip: number;
-
-  @Field(() => Int)
-  @Min(1)
-  @Max(100)
-  take = 25;
-}
+const BlockBaseResolver = createBaseResolver("Block", Block);
 
 @Resolver(Block)
-export default class BlockResolver {
+export default class BlockResolver extends BlockBaseResolver {
   @Query(() => Block)
-  async block(@Arg("id") id: number): Promise<Block> {
-    const block = await Block.findOne(id);
+  async getBlockByBlockNumber(@Arg("number") number: string): Promise<Block> {
+    const block = await Block.findOne({
+      number,
+    });
+
     if (block === undefined) {
-      throw new Error(`Block ${id} not found`);
+      throw new Error(`Block #${number} not found`);
     }
 
-    return block;
-  }
-
-  @Query(() => [Block])
-  protected blocks(@Args() { take, skip }: GetBlocksArgs): Promise<Block[]> {
-    return Block.find({
-      take,
-      skip,
-      order: {
-        blockId: "DESC",
-      },
-    }); // TODO: use repository for real models
-  }
-
-  @Subscription(() => Block, {
-    subscribe: () => MQ.getMQ().on("newBlock"),
-  })
-  newBlock(@Root() block: Block): Block {
     return block;
   }
 

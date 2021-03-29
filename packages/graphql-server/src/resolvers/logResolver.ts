@@ -1,39 +1,12 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  Subscription,
-} from "type-graphql";
+import { Resolver, FieldResolver, Root } from "type-graphql";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
-import MQ from "@nodle/utils/src/mq";
+import { createBaseResolver } from "../baseResolver";
+
+const LogBaseResolver = createBaseResolver("Log", Log);
 
 @Resolver(Log)
-export default class LogResolver {
-  @Query(() => Log)
-  async log(@Arg("id") id: number): Promise<Log> {
-    const log = await Log.findOne(id);
-    if (log === undefined) {
-      throw new Error(`Log ${id} not found`);
-    }
-
-    return log;
-  }
-
-  @Query(() => [Log])
-  protected logs(): Promise<Log[]> {
-    return Log.find(); // TODO: use repository for real models
-  }
-
-  @Subscription(() => Log, {
-    subscribe: () => MQ.getMQ().on("newLog"),
-  })
-  newLog(@Root() log: Log): Log {
-    return log;
-  }
-
+export default class LogResolver extends LogBaseResolver {
   @FieldResolver()
   async block(@Root() log: Log): Promise<Block> {
     const block = await Block.findOne(log.blockId);
