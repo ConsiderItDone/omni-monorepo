@@ -50,7 +50,7 @@ export async function backfiller(connection: Connection): Promise<void> {
       api.rpc.state.getRuntimeVersion(blockHash),
     ]);
 
-    // 3. Blocks
+    // 1. Block
     const newBlockId = await handleNewBlock(
       connection,
       block.header,
@@ -58,24 +58,20 @@ export async function backfiller(connection: Connection): Promise<void> {
       specVersion.toNumber()
     );
 
-    // 2.Events
-    const [extrinsicsWithBoundedEvents, trackedEvents] = await handleEvents(
+    // 2. Extrinsics
+    const extrinsicsWithBoundedEvents = await handleExtrinsics(
       connection,
-      events,
       block.extrinsics,
+      events,
       newBlockId
     );
 
     // 3.Logs
     handleLogs(connection, block.header.digest.logs, newBlockId);
 
-    // 4. Extrinsics
-    handleExtrinsics(
-      connection,
-      block.extrinsics,
-      extrinsicsWithBoundedEvents,
-      newBlockId
-    );
+    // 4.Events
+    const trackedEvents = await handleEvents(connection, events, extrinsicsWithBoundedEvents, newBlockId);
+
     //5. Backfilling custom events
     backfillTrackedEvents(connection, trackedEvents, api, newBlockId);
   }

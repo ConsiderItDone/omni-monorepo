@@ -19,7 +19,6 @@ import VestingScheduleRepository from "@nodle/db/src/repositories/public/vesting
 import MQ from "@nodle/utils/src/mq";
 
 import {
-  boundEventsToExtrinsics,
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
   upsertApplication,
@@ -28,7 +27,7 @@ import {
   recordVote,
   addChallenger,
   applicationIsEmpty,
-  transformVestingSchedules,
+  boundEventsToExtrinsics,
 } from "./misc";
 
 import {
@@ -48,7 +47,6 @@ import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
 import * as EventModel from "@nodle/db/src/models/public/event";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
-import { VestingSchedule } from "@nodle/db/src/models";
 
 /******************** BASE HANDLERS **********************/
 
@@ -80,14 +78,12 @@ export async function handleNewBlock(
 export async function handleEvents(
   connection: Connection,
   events: Vec<EventRecord>,
-  extrinsics: Vec<GenericExtrinsic>,
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number
-): Promise<[ExtrinsicWithBoundedEvents[], Event[]]> {
+): Promise<Event[]> {
   const eventRepository = connection.getCustomRepository(EventRepository);
-
-  const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
-    extrinsics,
-    events
+  const extrinsicRepository = connection.getCustomRepository(
+    ExtrinsicRepository
   );
 
   const trackedEvents: Event[] = [];
@@ -105,11 +101,13 @@ export async function handleEvents(
       extrinsicsWithBoundedEvents,
       eventRecord
     );
+    const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
 
     const event = await eventRepository.add({
       index,
       data: data.toHuman() as string,
       extrinsicHash,
+      extrinsicId: extrinsic?.extrinsicId || null,
       moduleName: section,
       eventName: method,
       blockId,
@@ -118,7 +116,7 @@ export async function handleEvents(
     MQ.getMQ().emit<EventModel.default>("newEvent", event);
   }
 
-  return [extrinsicsWithBoundedEvents, trackedEvents];
+  return trackedEvents;
 }
 
 export async function handleLogs(
@@ -149,10 +147,14 @@ export async function handleLogs(
 export async function handleExtrinsics(
   connection: Connection,
   extrinsics: Vec<GenericExtrinsic>,
-  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
+  events: Vec<EventRecord>,
   blockId: number
-  //events: EventRecord[],
-): Promise<void> {
+): Promise<ExtrinsicWithBoundedEvents[]> {
+  const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
+    extrinsics,
+    events
+  );
+
   const extrinsicRepository = connection.getCustomRepository(
     ExtrinsicRepository
   );
@@ -184,6 +186,7 @@ export async function handleExtrinsics(
   for (const extrinsic of newExtrinsics) {
     MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
   }
+  return extrinsicsWithBoundedEvents;
 }
 
 /******************** CUSTOM EVENTS HANDLERS **********************/

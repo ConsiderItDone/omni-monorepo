@@ -42,6 +42,10 @@ export default class Event extends BaseEntity {
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
+  @Field(() => Int)
+  @Column("integer", { name: "extrinsic_id" })
+  public extrinsicId: number;
+
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
