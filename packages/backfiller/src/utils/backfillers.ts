@@ -1,6 +1,6 @@
 import { Connection } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
-import {saveAccount } from "@nodle/polkadot/src/misc"
+import { saveAccount } from "@nodle/polkadot/src/misc";
 import AccountId from "@polkadot/types/generic/AccountId";
 
 export async function backfillAccounts(

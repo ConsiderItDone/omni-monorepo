@@ -8,7 +8,6 @@ import {
   backfillTrackedEvents,
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
-import { saveAccount } from "@nodle/polkadot/src/misc";
 
 export async function backfiller(connection: Connection): Promise<void> {
   const api = await getApi();

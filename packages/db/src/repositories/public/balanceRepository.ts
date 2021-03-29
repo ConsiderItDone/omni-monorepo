@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import { Account, Balance } from "../../models";
+import { Balance } from "../../models";
 
 type NewBalanceParam = {
   free: number;

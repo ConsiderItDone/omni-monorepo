@@ -14,7 +14,6 @@ import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCer
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import { StorageKey } from "@polkadot/types";
 import { AccountInfo } from "@polkadot/types/interfaces/system";
 
 import {
@@ -294,7 +293,7 @@ export function transformVestingSchedules(
 
 export async function saveAccount(
   connection: Connection,
-  accountAddress: AccountId | String,
+  accountAddress: AccountId,
   accountInfo: AccountInfo
 ): Promise<void> {
   const accountRepository = connection.getCustomRepository(AccountRepository);

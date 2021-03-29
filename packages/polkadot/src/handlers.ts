@@ -9,7 +9,6 @@ import type {
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
-import { StorageKey } from "@polkadot/types";
 import { AccountInfo } from "@polkadot/types/interfaces/system";
 
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";

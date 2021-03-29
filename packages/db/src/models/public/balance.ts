@@ -5,7 +5,7 @@ import {
   Index,
   OneToOne,
   PrimaryGeneratedColumn,
-  JoinColumn
+  JoinColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
