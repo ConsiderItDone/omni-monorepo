@@ -9,7 +9,6 @@ import {
   handleExtrinsics,
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
-import { boundEventsToExtrinsics } from "@nodle/polkadot/src/misc";
 
 export async function subscribe(connection: Connection): Promise<void> {
   const api = await getApi();
@@ -47,7 +46,12 @@ export async function subscribe(connection: Connection): Promise<void> {
     handleLogs(connection, block.header.digest.logs, newBlockId);
 
     // 4.Events
-    const trackedEvents = await handleEvents(connection, events, extrinsicsWithBoundedEvents, newBlockId);
+    const trackedEvents = await handleEvents(
+      connection,
+      events,
+      extrinsicsWithBoundedEvents,
+      newBlockId
+    );
 
     //5. Handling custom events
     handleTrackedEvents(connection, trackedEvents, api, newBlockId);

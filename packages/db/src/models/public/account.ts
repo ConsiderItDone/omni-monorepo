@@ -7,7 +7,6 @@ import {
   OneToMany,
   JoinColumn,
   OneToOne,
-  Unique,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";

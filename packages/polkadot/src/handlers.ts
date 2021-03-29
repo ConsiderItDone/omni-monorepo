@@ -392,7 +392,7 @@ export async function backfillTrackedEvents(
   trackedEvents: Event[],
   api: ApiPromise,
   blockId: number
-) {
+): Promise<void> {
   if (trackedEvents.length < 1) {
     return;
   }
@@ -435,6 +435,7 @@ async function backfillApplication(
         accountId
       );
       if (existingApplication) return;
+      break;
     }
     case "ApplicationPassed": {
       applicationData = ((await api.query.pkiTcr.members(

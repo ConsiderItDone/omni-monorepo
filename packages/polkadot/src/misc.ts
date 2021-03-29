@@ -211,7 +211,7 @@ export async function addChallenger(
   }
 }
 
-export function applicationIsEmpty(applicationData: ApplicationType) {
+export function applicationIsEmpty(applicationData: ApplicationType): boolean {
   console.log("application is empty");
   return (
     applicationData.candidate.toString() ===
