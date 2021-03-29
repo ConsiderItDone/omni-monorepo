@@ -294,13 +294,14 @@ export function transformVestingSchedules(
 
 export async function saveAccount(
   connection: Connection,
-  account: [StorageKey, AccountInfo]
+  accountAddress: AccountId | String,
+  accountInfo: AccountInfo
 ): Promise<void> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
   const balanceRepository = connection.getCustomRepository(BalanceRepository);
 
-  const address = account[0].toHuman().toString();
-  const { nonce, refcount, data: balance } = account[1];
+  const address = accountAddress.toString();
+  const { nonce, refcount, data: balance } = accountInfo;
 
   const accountData = {
     address: address,
@@ -311,7 +312,7 @@ export async function saveAccount(
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
-    account: savedAccount,
+    accountId: savedAccount.accountId,
     free: free.toNumber(),
     reserved: reserved.toNumber(),
     miscFrozen: miscFrozen.toNumber(),

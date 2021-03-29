@@ -9,6 +9,8 @@ import type {
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
+import { StorageKey } from "@polkadot/types";
+import { AccountInfo } from "@polkadot/types/interfaces/system";
 
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
@@ -394,10 +396,20 @@ async function handleBalance(
 ): Promise<void> {
   switch (event.method) {
     case "Transfer":
-      const accFrom = await api.query.system.account(event.data[0]);
-      const accTo = await api.query.system.account(event.data[1]);
-      saveAccount(connection, accFrom as undefined);
-      saveAccount(connection, accTo as undefined)
+      const accFrom = [
+        event.data[0],
+        await api.query.system.account(event.data[0]),
+      ];
+      const accTo = [
+        event.data[1],
+        await api.query.system.account(event.data[1]),
+      ];
+      saveAccount(
+        connection,
+        accFrom[0] as AccountId,
+        accFrom[1] as AccountInfo
+      );
+      saveAccount(connection, accTo[0] as AccountId, accTo[1] as AccountInfo);
       break;
     default:
       return;

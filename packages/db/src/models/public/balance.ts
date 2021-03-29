@@ -5,8 +5,9 @@ import {
   Index,
   OneToOne,
   PrimaryGeneratedColumn,
+  JoinColumn
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
 
 @ObjectType()
@@ -34,12 +35,12 @@ export default class Balance extends BaseEntity {
   @Column("numeric", { name: "fee_frozen" })
   public feeFrozen: number;
 
-  /*   @Field(() => Int) //TODO add uniqness in DB in one to one may bug
+  @Field(() => Int)
   @Column("integer", { name: "account_id" })
-  public accountId: number; */
+  public accountId: number;
 
   @Field(() => Account)
   @OneToOne(() => Account, (account) => account.balance)
-  //@JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 }

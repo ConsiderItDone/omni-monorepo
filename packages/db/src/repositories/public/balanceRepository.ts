@@ -6,7 +6,7 @@ type NewBalanceParam = {
   reserved: number;
   miscFrozen: number;
   feeFrozen: number;
-  account: Account;
+  accountId: number;
 };
 
 @EntityRepository(Balance)
@@ -16,14 +16,14 @@ export default class BalanceRepository extends Repository<Balance> {
     reserved,
     miscFrozen,
     feeFrozen,
-    account,
+    accountId,
   }: NewBalanceParam): Promise<Balance> {
     return await this.save({
       free,
       reserved,
       miscFrozen,
       feeFrozen,
-      account,
+      accountId,
     });
   }
 

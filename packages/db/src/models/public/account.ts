@@ -32,13 +32,9 @@ export default class Account extends BaseEntity {
   @Column("integer", { name: "refcount" })
   public refcount: number;
 
-  @Field(() => Int) //TODO add uniqness in DB in one to one may bug
-  @Column("integer", { name: "balance_id" })
-  public balanceId: number;
-
   @Field(() => Balance)
   @OneToOne(() => Balance, (balance) => balance.account)
-  @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
+  // @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
   public balance: Balance;
 
   @Field(() => [VestingSchedule], { nullable: true })
