@@ -175,8 +175,7 @@ export async function handleExtrinsics(
         isSigned: extrinsic.isSigned,
         signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
         success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents),
-        account: null,
-        fee: 0, //seems like coming from transactions, not on creation
+        signer: extrinsic.isSigned ? extrinsic.signer.toString() : null,
         blockId,
       };
     }

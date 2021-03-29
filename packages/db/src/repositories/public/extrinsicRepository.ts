@@ -9,14 +9,13 @@ type NewExtrinsicParam = {
   callModuleFunction: string;
   callModule: string;
   params: string;
-  account: string | null;
+  signer: string | null;
   signature: string | null;
   nonce: number | null;
   era: string | null;
   hash: string;
   isSigned: boolean;
   success: boolean;
-  fee: number;
   blockId: number;
 };
 
@@ -30,14 +29,13 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     callModuleFunction,
     callModule,
     params,
-    account,
+    signer,
     signature,
     nonce,
     era,
     hash,
     isSigned,
     success,
-    fee,
     blockId,
   }: NewExtrinsicParam): Promise<Extrinsic> {
     const extrinsic = await this.save({
@@ -48,14 +46,13 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
       callModuleFunction,
       callModule,
       params,
-      account,
+      signer,
       signature,
       nonce,
       era,
       hash,
       isSigned,
       success,
-      fee,
       blockId,
     });
 

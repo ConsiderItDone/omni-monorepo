@@ -52,7 +52,7 @@ export default class Extrinsic extends BaseEntity {
     nullable: true,
     default: null,
   })
-  public account: string | null;
+  public signer: string | null;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
@@ -81,10 +81,6 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Boolean)
   @Column("boolean", { name: "success", default: () => "false" })
   public success: boolean;
-
-  @Field(() => Number)
-  @Column("numeric", { name: "fee", default: () => 0 })
-  public fee: number;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
