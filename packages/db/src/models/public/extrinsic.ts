@@ -48,7 +48,7 @@ export default class Extrinsic extends BaseEntity {
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
-    name: "account",
+    name: "signer",
     nullable: true,
     default: null,
   })
