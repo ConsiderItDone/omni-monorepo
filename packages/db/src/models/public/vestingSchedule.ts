@@ -48,7 +48,11 @@ export default class VestingSchedule extends BaseEntity {
   public blockId: number;
 
   @Field(() => String)
-  @Column("character varying", { name: "status", nullable: true })
+  @Column("character varying", {
+    name: "status",
+    nullable: true,
+    default: "active",
+  })
   public status: string;
 
   @Field(() => Block)

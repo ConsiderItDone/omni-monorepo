@@ -8,7 +8,7 @@ type NewVestingSchedule = {
   periodCount: number;
   perPeriod: string;
   blockId: number;
-  // accoundId: number; Not id
+  status: string;
 };
 
 @EntityRepository(VestingSchedule)
@@ -20,6 +20,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
     periodCount,
     perPeriod,
     blockId,
+    status = "active",
   }: NewVestingSchedule): Promise<VestingSchedule> {
     return this.save({
       accountAddress,
@@ -28,6 +29,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
       periodCount,
       perPeriod,
       blockId,
+      status
     });
   }
   public async changeStatus(

@@ -214,6 +214,7 @@ export async function handleTrackedEvents(
         break;
       case CustomEventSection.Balance:
         handleBalance(connection, event, blockId, api);
+        break;
       default:
         return;
     }
@@ -289,6 +290,7 @@ async function handleVestingSchedule(
         periodCount: period_count.toNumber(),
         perPeriod: per_period.toString(),
         blockId,
+        status: "active",
       });
     }
   }
