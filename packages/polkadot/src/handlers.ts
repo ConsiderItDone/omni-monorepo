@@ -439,6 +439,9 @@ export async function backfillTrackedEvents(
       case CustomEventSection.Application:
         backfillApplication(connection, event, blockId, api);
         break;
+      case CustomEventSection.Balance:
+        handleBalance(connection, event, blockId, api);
+        break;
       default:
         return;
     }
