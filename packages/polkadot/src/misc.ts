@@ -6,15 +6,20 @@ import {
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
   ApplicationStatus,
+  VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
 import { Connection, getCustomRepository } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
+import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
+import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
+import { AccountInfo } from "@polkadot/types/interfaces/system";
 
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
+  VestingSchedule as VestingScheduleModel,
 } from "@nodle/db/src/models";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
@@ -197,7 +202,7 @@ export async function addChallenger(
       challengedAcc,
       challengerAcc,
       challengerDeposit,
-      challengedBlock?.number
+      challengedBlock?.number as string
     );
   } else {
     const transformedApplicationData = transformApplicationData(
@@ -207,6 +212,14 @@ export async function addChallenger(
     );
     applicationRepository.upsert(challengedAcc, transformedApplicationData);
   }
+}
+
+export function applicationIsEmpty(applicationData: ApplicationType): boolean {
+  console.log("application is empty");
+  return (
+    applicationData.candidate.toString() ===
+    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
+  );
 }
 
 /******************* Root Certificate utils *************************************/
@@ -254,4 +267,58 @@ function transformCertificateData(
         : null,
     blockId,
   } as RootCertificateModel;
+}
+
+/******************* Vesting Schedules utils *************************************/
+
+export function transformVestingSchedules(
+  accountId: string,
+  schedulesData: VestingScheduleType[],
+  blockId: number
+): VestingScheduleModel[] {
+  return schedulesData.map((schedule) => {
+    const { start, period, period_count, per_period } = schedule;
+    return {
+      accountAddress: accountId,
+      start: start.toString(),
+      period: period.toString(),
+      periodCount: period_count.toNumber(),
+      perPeriod: per_period.toString(),
+      blockId,
+    } as VestingScheduleModel;
+  });
+}
+
+/******************* Account utils ****************************/
+
+export async function saveAccount(
+  connection: Connection,
+  accountAddress: AccountId,
+  accountInfo: AccountInfo
+): Promise<void> {
+  const accountRepository = connection.getCustomRepository(AccountRepository);
+  const balanceRepository = connection.getCustomRepository(BalanceRepository);
+
+  const address = accountAddress.toString();
+  const { nonce, refcount, data: balance } = accountInfo;
+
+  const accountData = {
+    address: address,
+    nonce: nonce.toNumber(),
+    refcount: refcount.toNumber(),
+  };
+  const savedAccount = await accountRepository.upsert(address, accountData);
+
+  const { free, reserved, miscFrozen, feeFrozen } = balance;
+  const balanceData = {
+    accountId: savedAccount.accountId,
+    free: free.toNumber(),
+    reserved: reserved.toNumber(),
+    miscFrozen: miscFrozen.toNumber(),
+    feeFrozen: feeFrozen.toNumber(),
+  };
+  await balanceRepository.upsertByAccountAddress(
+    savedAccount.address,
+    balanceData
+  );
 }

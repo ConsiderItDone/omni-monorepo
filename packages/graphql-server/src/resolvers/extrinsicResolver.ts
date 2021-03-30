@@ -1,46 +1,33 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  Subscription,
-} from "type-graphql";
+import { Resolver, FieldResolver, Root, Query, Arg } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import MQ from "@nodle/utils/src/mq";
+import Event from "@nodle/db/src/models/public/event";
+import { createBaseResolver } from "../baseResolver";
+import { singleFieldResolver } from "../fieldsResolver";
+
+const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
 @Resolver(Extrinsic)
-export default class ExtrinsicResolver {
-  @Query(() => Extrinsic)
-  async extrinsic(@Arg("id") id: number): Promise<Extrinsic> {
-    const extrinsic = await Extrinsic.findOne(id);
-    if (extrinsic === undefined) {
-      throw new Error(`Extrinsic ${id} not found`);
-    }
-
-    return extrinsic;
-  }
-
+export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => [Extrinsic])
-  protected extrinsics(): Promise<Extrinsic[]> {
-    return Extrinsic.find(); // TODO: use repository for real models
-  }
+  async getExtrinsicsByBlockNumber(
+    @Arg("number") number: string
+  ): Promise<Extrinsic[]> {
+    const extrinsics = await Extrinsic.createQueryBuilder("log")
+      .leftJoin(Block, "block", "block.blockId = log.blockId")
+      .where(`block.number = :number`, { number })
+      .getMany();
 
-  @Subscription(() => Extrinsic, {
-    subscribe: () => MQ.getMQ().on("newExtrinsic"),
-  })
-  newExtrinsic(@Root() extrinsic: Extrinsic): Extrinsic {
-    return extrinsic;
+    return extrinsics || [];
   }
 
   @FieldResolver()
-  async block(@Root() extrinsic: Extrinsic): Promise<Block> {
-    const block = await Block.findOne(extrinsic.blockId);
-    if (!block) {
-      return null;
-    }
+  block(@Root() source: Extrinsic): Promise<Block> {
+    return singleFieldResolver(source, Block, "blockId");
+  }
 
-    return block;
+  @FieldResolver()
+  events(@Root() source: Extrinsic): Promise<Event[]> {
+    return singleFieldResolver(source, Event, "eventId");
   }
 }

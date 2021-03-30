@@ -9,6 +9,7 @@ import type {
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
+import { AccountInfo } from "@polkadot/types/interfaces/system";
 
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
@@ -19,7 +20,6 @@ import VestingScheduleRepository from "@nodle/db/src/repositories/public/vesting
 import MQ from "@nodle/utils/src/mq";
 
 import {
-  boundEventsToExtrinsics,
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
   upsertApplication,
@@ -27,6 +27,9 @@ import {
   upsertRootCertificate,
   recordVote,
   addChallenger,
+  applicationIsEmpty,
+  boundEventsToExtrinsics,
+  saveAccount,
 } from "./misc";
 
 import {
@@ -45,6 +48,7 @@ import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
 import * as EventModel from "@nodle/db/src/models/public/event";
+import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 
 /******************** BASE HANDLERS **********************/
 
@@ -76,14 +80,12 @@ export async function handleNewBlock(
 export async function handleEvents(
   connection: Connection,
   events: Vec<EventRecord>,
-  extrinsics: Vec<GenericExtrinsic>,
+  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number
-): Promise<[ExtrinsicWithBoundedEvents[], Event[]]> {
+): Promise<Event[]> {
   const eventRepository = connection.getCustomRepository(EventRepository);
-
-  const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
-    extrinsics,
-    events
+  const extrinsicRepository = connection.getCustomRepository(
+    ExtrinsicRepository
   );
 
   const trackedEvents: Event[] = [];
@@ -101,11 +103,13 @@ export async function handleEvents(
       extrinsicsWithBoundedEvents,
       eventRecord
     );
+    const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
 
     const event = await eventRepository.add({
       index,
-      data: data.toHuman(),
+      data: data.toHuman() as string,
       extrinsicHash,
+      extrinsicId: extrinsic?.extrinsicId || null,
       moduleName: section,
       eventName: method,
       blockId,
@@ -114,7 +118,7 @@ export async function handleEvents(
     MQ.getMQ().emit<EventModel.default>("newEvent", event);
   }
 
-  return [extrinsicsWithBoundedEvents, trackedEvents];
+  return trackedEvents;
 }
 
 export async function handleLogs(
@@ -145,10 +149,14 @@ export async function handleLogs(
 export async function handleExtrinsics(
   connection: Connection,
   extrinsics: Vec<GenericExtrinsic>,
-  extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
+  events: Vec<EventRecord>,
   blockId: number
-  //events: EventRecord[],
-): Promise<void> {
+): Promise<ExtrinsicWithBoundedEvents[]> {
+  const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
+    extrinsics,
+    events
+  );
+
   const extrinsicRepository = connection.getCustomRepository(
     ExtrinsicRepository
   );
@@ -169,8 +177,7 @@ export async function handleExtrinsics(
         isSigned: extrinsic.isSigned,
         signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
         success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents),
-        account: null,
-        fee: 0, //seems like coming from transactions, not on creation
+        signer: extrinsic.isSigned ? extrinsic.signer.toString() : null,
         blockId,
       };
     }
@@ -180,6 +187,7 @@ export async function handleExtrinsics(
   for (const extrinsic of newExtrinsics) {
     MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
   }
+  return extrinsicsWithBoundedEvents;
 }
 
 /******************** CUSTOM EVENTS HANDLERS **********************/
@@ -203,6 +211,9 @@ export async function handleTrackedEvents(
         break;
       case CustomEventSection.Application:
         handleApplication(connection, event, blockId, api);
+        break;
+      case CustomEventSection.Balance:
+        handleBalance(connection, event, blockId, api);
         break;
       default:
         return;
@@ -248,18 +259,30 @@ async function handleVestingSchedule(
     VestingScheduleRepository
   );
 
-  /* //GET all vesting schedules for account
-  const grants = ((await api.query.grants.vestingSchedules(
-    account
-  )) as any) as VestingScheduleOf[]; */
-
   switch (event.method) {
-    // Added new vesting schedule (from, to, vesting_schedule)
     case "VestingScheduleAdded": {
       targetAccount = event.data[1].toString();
-      const vestingScheduleData = (event
-        .data[2] as undefined) as VestingScheduleOf;
-      const { start, period, period_count, per_period } = vestingScheduleData;
+      /* const vestingScheduleData = (event
+        .data[2] as undefined) as VestingScheduleOf;*/
+      break;
+    }
+    case "VestingSchedulesCanceled": {
+      //await vestingScheduleRepository.cancelSchedules(targetAccount);
+      break;
+    }
+    case "Claimed":
+    default:
+      return;
+  }
+  const grants = ((await api.query.grants.vestingSchedules(
+    targetAccount
+  )) as undefined) as VestingScheduleOf[];
+
+  if (grants) {
+    await vestingScheduleRepository.removeSchedulesByAccount(targetAccount);
+
+    for (const grant of grants) {
+      const { start, period, period_count, per_period } = grant;
       await vestingScheduleRepository.add({
         accountAddress: targetAccount,
         start: start.toString(),
@@ -267,18 +290,9 @@ async function handleVestingSchedule(
         periodCount: period_count.toNumber(),
         perPeriod: per_period.toString(),
         blockId,
+        status: "active",
       });
-      break;
     }
-    /// Canceled all vesting schedules (who)
-    case "VestingSchedulesCanceled": {
-      await vestingScheduleRepository.cancelSchedules(targetAccount);
-      break;
-    }
-    /// Claimed vesting (who, locked_amount) DOES NOTHING WITH VESTING SCHEDULES
-    case "Claimed":
-    default:
-      return;
   }
 }
 async function handleApplication(
@@ -334,6 +348,175 @@ async function handleApplication(
     }
 
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
+    case "VoteRecorded": {
+      const voteTarget = event.data[0] as AccountId;
+      const voteInitiator = event.data[1] as AccountId;
+      const voteValue = event.data[3].toHuman() as boolean;
+
+      const targetData = ((await api.query.pki.members(
+        voteTarget.toString()
+      )) as undefined) as ApplicationType;
+      recordVote(
+        connection,
+        voteInitiator,
+        voteTarget,
+        voteValue,
+        blockId,
+        targetData
+      );
+      break;
+    }
+    /* 
+    /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
+    case "ChallengeRefusedApplication": {
+      const acc = event.data[0];
+      break;
+    }
+    /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
+    case "ChallengeAcceptedApplication": {
+      const acc = event.data[0];
+      break;
+    } 
+    */
+    default:
+      return;
+  }
+  await upsertApplication(
+    connection,
+    accountId,
+    (applicationData as undefined) as ApplicationType,
+    blockId,
+    applicationStatus
+  );
+}
+async function handleBalance(
+  connection: Connection,
+  event: Event,
+  blockId: number,
+  api: ApiPromise
+): Promise<void> {
+  switch (event.method) {
+    case "Transfer": {
+      const accFrom = [
+        event.data[0],
+        await api.query.system.account(event.data[0]),
+      ];
+      const accTo = [
+        event.data[1],
+        await api.query.system.account(event.data[1]),
+      ];
+      saveAccount(
+        connection,
+        accFrom[0] as AccountId,
+        accFrom[1] as AccountInfo
+      );
+      saveAccount(connection, accTo[0] as AccountId, accTo[1] as AccountInfo);
+      break;
+    }
+    default:
+      return;
+  }
+}
+/******************** BACKFILL CUSTOM EVENTS **********************/
+
+export async function backfillTrackedEvents(
+  connection: Connection,
+  trackedEvents: Event[],
+  api: ApiPromise,
+  blockId: number
+): Promise<void> {
+  if (trackedEvents.length < 1) {
+    return;
+  }
+  for (const event of trackedEvents) {
+    switch (event.section) {
+      case CustomEventSection.RootOfTrust:
+        handleRootOfTrust(connection, event, api, blockId);
+        break;
+      case CustomEventSection.VestingSchedule:
+        handleVestingSchedule(connection, event, blockId, api);
+        break;
+      case CustomEventSection.Application:
+        backfillApplication(connection, event, blockId, api);
+        break;
+      default:
+        return;
+    }
+  }
+}
+
+async function backfillApplication(
+  connection: Connection,
+  event: Event,
+  blockId: number,
+  api: ApiPromise
+) {
+  const accountId = event.data[0].toString();
+  let applicationData;
+  let applicationStatus = ApplicationStatus.pending;
+  const applicationRepository = connection.getCustomRepository(
+    ApplicationRepository
+  );
+  switch (event.method) {
+    case "NewApplication": {
+      applicationData = ((await api.query.pkiTcr.applications(
+        accountId
+      )) as undefined) as ApplicationType;
+      if (applicationIsEmpty(applicationData)) return;
+      const existingApplication = await applicationRepository.findCandidate(
+        accountId
+      );
+      if (existingApplication) return;
+      break;
+    }
+    case "ApplicationPassed": {
+      applicationData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+
+      if (applicationIsEmpty(applicationData)) return;
+
+      const candidate = await applicationRepository.findOne({
+        candidate: applicationData.candidate.toString(),
+      });
+      if (candidate) return;
+      else applicationStatus = ApplicationStatus.accepted;
+      break;
+    }
+    case "ApplicationCountered": {
+      const counteredAcc = event.data[0].toString();
+      const acceptedApplication = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+      const existingApp = await applicationRepository.findCandidate(
+        counteredAcc
+      );
+      if (!applicationIsEmpty(acceptedApplication)) return;
+      if (existingApp.status === ApplicationStatus.pending) {
+        changeApplicationStatus(
+          connection,
+          counteredAcc,
+          ApplicationStatus.countered
+        );
+      }
+      return;
+    }
+    case "ApplicationChallenged": {
+      const challengedAcc = event.data[0].toString();
+      const challengerAcc = event.data[1].toString();
+      const challengerDeposit = event.data[2] as Balance;
+      const challengedAppData = ((await api.query.pkiTcr.members(
+        accountId
+      )) as undefined) as ApplicationType;
+      addChallenger(
+        challengedAcc,
+        challengerAcc,
+        challengerDeposit.toNumber(),
+        blockId,
+        challengedAppData
+      );
+      return;
+    }
     case "VoteRecorded": {
       const voteTarget = event.data[0] as AccountId;
       const voteInitiator = event.data[1] as AccountId;

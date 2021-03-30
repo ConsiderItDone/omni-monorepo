@@ -3,11 +3,14 @@ import {
   Column,
   Entity,
   Index,
+  ManyToOne,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
+import Block from "./block";
 
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })
@@ -20,6 +23,11 @@ export default class Application extends BaseEntity {
   @Field(() => Number)
   @Column("integer", { name: "block_id" })
   public blockId: number;
+
+  @Field(() => Block, { nullable: true })
+  @ManyToOne(() => Block, (block) => block.blockId)
+  @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  public block: Block;
 
   @Field(() => String, { defaultValue: ApplicationStatus.pending }) //TODO add default
   @Column("character varying", {

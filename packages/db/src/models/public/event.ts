@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import Extrinsic from "./extrinsic";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -24,7 +25,7 @@ export default class Event extends BaseEntity {
 
   @Field(() => String)
   @Column("jsonb", { name: "data" })
-  public data: any; // eslint-disable-line
+  public data: string;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", { name: "extrinsic_hash", nullable: true }) // TODO check length
@@ -46,4 +47,13 @@ export default class Event extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => Int)
+  @Column("integer", { name: "extrinsic_id" })
+  public extrinsicId: number;
+
+  @Field(() => Extrinsic, { nullable: true })
+  @ManyToOne(() => Extrinsic, (extrinsic) => extrinsic.extrinsicId)
+  @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
+  public extrinsic: Extrinsic;
 }

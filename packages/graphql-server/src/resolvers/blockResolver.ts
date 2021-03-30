@@ -1,88 +1,53 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  ArgsType,
-  Field,
-  Int,
-  Args,
-  Subscription,
-} from "type-graphql";
-import { Min, Max } from "class-validator";
+import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Event from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import MQ from "@nodle/utils/src/mq";
+import Log from "@nodle/db/src/models/public/log";
+import RootCertificate from "@nodle/db/src/models/public/rootCertificate";
+import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
 
-@ArgsType()
-class GetBlocksArgs {
-  @Field(() => Int, { defaultValue: 0 })
-  @Min(0)
-  skip: number;
+import { createBaseResolver } from "../baseResolver";
+import { arrayFieldResolver } from "../fieldsResolver";
 
-  @Field(() => Int)
-  @Min(1)
-  @Max(100)
-  take = 25;
-}
+const BlockBaseResolver = createBaseResolver("Block", Block);
 
 @Resolver(Block)
-export default class BlockResolver {
+export default class BlockResolver extends BlockBaseResolver {
   @Query(() => Block)
-  async block(@Arg("id") id: number): Promise<Block> {
-    const block = await Block.findOne(id);
+  async getBlockByBlockNumber(@Arg("number") number: string): Promise<Block> {
+    const block = await Block.findOne({
+      number,
+    });
+
     if (block === undefined) {
-      throw new Error(`Block ${id} not found`);
+      throw new Error(`Block #${number} not found`);
     }
 
     return block;
   }
 
-  @Query(() => [Block])
-  protected blocks(@Args() { take, skip }: GetBlocksArgs): Promise<Block[]> {
-    return Block.find({
-      take,
-      skip,
-      order: {
-        blockId: "DESC",
-      },
-    }); // TODO: use repository for real models
-  }
-
-  @Subscription(() => Block, {
-    subscribe: () => MQ.getMQ().on("newBlock"),
-  })
-  newBlock(@Root() block: Block): Block {
-    return block;
+  @FieldResolver()
+  events(@Root() source: Block): Promise<Event[]> {
+    return arrayFieldResolver<Block>(source, Event, "blockId");
   }
 
   @FieldResolver()
-  async events(@Root() block: Block): Promise<Event[]> {
-    const events = await Event.find({
-      where: {
-        blockId: block.blockId,
-      },
-    });
-    if (!events) {
-      return [];
-    }
-
-    return events;
+  extrinsics(@Root() source: Block): Promise<Extrinsic[]> {
+    return arrayFieldResolver<Block>(source, Extrinsic, "blockId");
   }
 
   @FieldResolver()
-  async extrinsics(@Root() block: Block): Promise<Extrinsic[]> {
-    const extrinsic = await Extrinsic.find({
-      where: {
-        blockId: block.blockId,
-      },
-    });
-    if (!extrinsic) {
-      return [];
-    }
+  logs(@Root() source: Block): Promise<Log[]> {
+    return arrayFieldResolver(source, Log, "blockId");
+  }
 
-    return extrinsic;
+  @FieldResolver()
+  rootCertificates(@Root() source: Block): Promise<RootCertificate[]> {
+    return arrayFieldResolver(source, RootCertificate, "blockId");
+  }
+
+  @FieldResolver()
+  vestingSchedules(@Root() source: Block): Promise<VestingSchedule[]> {
+    return arrayFieldResolver(source, VestingSchedule, "blockId");
   }
 }

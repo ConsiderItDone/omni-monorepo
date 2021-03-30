@@ -6,29 +6,30 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   JoinColumn,
+  Unique,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import Event from "./event";
 import Log from "./log";
 import Extrinsic from "./extrinsic";
 import RootCertificate from "./rootCertificate";
-import Balance from "./balance";
 import VestingSchedule from "./vestingSchedule";
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
 @Entity("block", { schema: "public" })
+@Unique(["number"])
 export default class Block extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn({ type: "integer", name: "block_id" })
   public blockId: number;
 
-  @Field(() => String)
+  @Field(() => String || Number)
   @Column("bigint", {
     name: "number",
     unique: true,
   })
-  public number: string;
+  public number: string | number;
 
   @Field(() => Date)
   @Column("timestamp without time zone", { name: "timestamp" })
@@ -80,10 +81,10 @@ export default class Block extends BaseEntity {
   ])
   public rootCertificates: RootCertificate[];
 
-  @Field(() => [Balance], { nullable: true, defaultValue: null })
+  /*   @Field(() => [Balance], { nullable: true, defaultValue: null })
   @OneToMany(() => Balance, (balance) => balance.block)
   @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
-  public balances: Balance[];
+  public balances: Balance[]; */
 
   @Field(() => [VestingSchedule], { nullable: true, defaultValue: null })
   @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.block)

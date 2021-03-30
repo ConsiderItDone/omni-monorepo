@@ -5,10 +5,12 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import Event from "./event";
 
 @ObjectType()
 @Index("extrinsic_pk", ["extrinsicId"], { unique: true })
@@ -48,11 +50,11 @@ export default class Extrinsic extends BaseEntity {
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
-    name: "account",
+    name: "signer",
     nullable: true,
     default: null,
   })
-  public account: string | null;
+  public signer: string | null;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
@@ -82,10 +84,6 @@ export default class Extrinsic extends BaseEntity {
   @Column("boolean", { name: "success", default: () => "false" })
   public success: boolean;
 
-  @Field(() => Number)
-  @Column("numeric", { name: "fee", default: () => 0 })
-  public fee: number;
-
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
@@ -94,4 +92,9 @@ export default class Extrinsic extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.extrinsics)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => [Event], { nullable: true, defaultValue: [] })
+  @OneToMany(() => Event, (event) => event.extrinsicId)
+  @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
+  public events: Event[];
 }

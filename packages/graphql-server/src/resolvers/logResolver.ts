@@ -1,46 +1,25 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  Subscription,
-} from "type-graphql";
+import { Resolver, FieldResolver, Root, Query, Arg } from "type-graphql";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
-import MQ from "@nodle/utils/src/mq";
+import { createBaseResolver } from "../baseResolver";
+import { singleFieldResolver } from "../fieldsResolver";
+
+const LogBaseResolver = createBaseResolver("Log", Log);
 
 @Resolver(Log)
-export default class LogResolver {
-  @Query(() => Log)
-  async log(@Arg("id") id: number): Promise<Log> {
-    const log = await Log.findOne(id);
-    if (log === undefined) {
-      throw new Error(`Log ${id} not found`);
-    }
-
-    return log;
-  }
-
+export default class LogResolver extends LogBaseResolver {
   @Query(() => [Log])
-  protected logs(): Promise<Log[]> {
-    return Log.find(); // TODO: use repository for real models
-  }
+  async getLogsByBlockNumber(@Arg("number") number: string): Promise<Log[]> {
+    const logs = await Log.createQueryBuilder("log")
+      .leftJoin(Block, "block", "block.blockId = log.blockId")
+      .where(`block.number = :number`, { number })
+      .getMany();
 
-  @Subscription(() => Log, {
-    subscribe: () => MQ.getMQ().on("newLog"),
-  })
-  newLog(@Root() log: Log): Log {
-    return log;
+    return logs || [];
   }
 
   @FieldResolver()
-  async block(@Root() log: Log): Promise<Block> {
-    const block = await Block.findOne(log.blockId);
-    if (!block) {
-      return null;
-    }
-
-    return block;
+  block(@Root() source: Log): Promise<Block> {
+    return singleFieldResolver(source, Block, "blockId");
   }
 }

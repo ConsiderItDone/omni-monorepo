@@ -1,5 +1,6 @@
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
+import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
 
 import BlockResolver from "./src/resolvers/blockResolver";
@@ -7,7 +8,10 @@ import EventResolver from "./src/resolvers/eventResolver";
 import LogResolver from "./src/resolvers/logResolver";
 import RootCertificateResolver from "./src/resolvers/rootCertificateResolver";
 import ExtrinsicResolver from "./src/resolvers/extrinsicResolver";
-import { ConnectionOptions } from "typeorm";
+import AccountResolver from "./src/resolvers/accountResolver";
+import ApplicationResolver from "./src/resolvers/applicationResolver";
+import BalanceResolver from "./src/resolvers/balanceResolver";
+import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 
 const PORT = 4000; // env.GRAPHQL_SERVER_PORT
 
@@ -29,11 +33,15 @@ const PORT = 4000; // env.GRAPHQL_SERVER_PORT
 
   const schema = await buildSchema({
     resolvers: [
+      AccountResolver,
+      ApplicationResolver,
+      BalanceResolver,
       BlockResolver,
       EventResolver,
       LogResolver,
       RootCertificateResolver,
       ExtrinsicResolver,
+      VestingScheduleResolver,
     ],
   });
 

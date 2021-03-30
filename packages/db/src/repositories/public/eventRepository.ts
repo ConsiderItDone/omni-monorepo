@@ -7,13 +7,15 @@ export default class EventRepository extends Repository<Event> {
     index,
     data,
     extrinsicHash,
+    extrinsicId,
     moduleName,
     eventName,
     blockId,
   }: {
     index: number;
-    data: any; // eslint-disable-line
+    data: string;
     extrinsicHash: string | null;
+    extrinsicId: number | null;
     moduleName: string;
     eventName: string;
     blockId: number;
@@ -22,6 +24,7 @@ export default class EventRepository extends Repository<Event> {
       index,
       data,
       extrinsicHash,
+      extrinsicId,
       moduleName,
       eventName,
       blockId,

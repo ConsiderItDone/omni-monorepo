@@ -1,7 +1,11 @@
 const getCurrentDate = (): Date => new Date();
+const lowerCaseFirstLetter = (string = ""): string => {
+  return string.charAt(0).toLowerCase() + string.slice(1);
+};
 
-export const DateUtils = {
+export const Utils = {
   getCurrentDate,
+  lowerCaseFirstLetter,
 };
 
 export * as MQ from "./mq";
