@@ -7,6 +7,7 @@ import {
   ArgsType,
   Field,
   Int,
+  Arg,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Event from "@nodle/db/src/models/public/event";
@@ -48,6 +49,18 @@ export default class EventResolver extends EventBaseResolver {
         eventId: "DESC",
       },
     }); // TODO: use repository for real models
+  }
+
+  @Query(() => [Event])
+  async getEventsByBlockNumber(
+    @Arg("number") number: string
+  ): Promise<Event[]> {
+    const events = await Event.createQueryBuilder("event")
+      .leftJoin(Block, "block", "block.blockId = event.blockId")
+      .where(`block.number = :number`, { number })
+      .getMany();
+
+    return events || [];
   }
 
   @FieldResolver()
