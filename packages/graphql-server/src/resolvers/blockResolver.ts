@@ -27,27 +27,27 @@ export default class BlockResolver extends BlockBaseResolver {
   }
 
   @FieldResolver()
-  events(@Root() source: Block) {
+  events(@Root() source: Block): Promise<Event[]> {
     return arrayFieldResolver<Block>(source, Event, "blockId");
   }
 
   @FieldResolver()
-  extrinsics(@Root() source: Block) {
+  extrinsics(@Root() source: Block): Promise<Extrinsic[]> {
     return arrayFieldResolver<Block>(source, Extrinsic, "blockId");
   }
 
   @FieldResolver()
-  logs(@Root() source: Block) {
+  logs(@Root() source: Block): Promise<Log[]> {
     return arrayFieldResolver(source, Log, "blockId");
   }
 
   @FieldResolver()
-  rootCertificates(@Root() source: Block) {
+  rootCertificates(@Root() source: Block): Promise<RootCertificate[]> {
     return arrayFieldResolver(source, RootCertificate, "blockId");
   }
 
   @FieldResolver()
-  vestingSchedules(@Root() source: Block) {
+  vestingSchedules(@Root() source: Block): Promise<VestingSchedule[]> {
     return arrayFieldResolver(source, VestingSchedule, "blockId");
   }
 }

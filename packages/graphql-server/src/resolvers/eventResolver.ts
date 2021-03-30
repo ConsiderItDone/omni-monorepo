@@ -7,11 +7,14 @@ import {
   ArgsType,
   Field,
   Int,
+  Arg,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Event from "@nodle/db/src/models/public/event";
 import Block from "@nodle/db/src/models/public/block";
+import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
+import { singleFieldResolver } from "../fieldsResolver";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -48,13 +51,25 @@ export default class EventResolver extends EventBaseResolver {
     }); // TODO: use repository for real models
   }
 
-  @FieldResolver()
-  async block(@Root() event: Event): Promise<Block> {
-    const block = await Block.findOne(event.blockId);
-    if (!block) {
-      return null;
-    }
+  @Query(() => [Event])
+  async getEventsByBlockNumber(
+    @Arg("number") number: string
+  ): Promise<Event[]> {
+    const events = await Event.createQueryBuilder("event")
+      .leftJoin(Block, "block", "block.blockId = event.blockId")
+      .where(`block.number = :number`, { number })
+      .getMany();
 
-    return block;
+    return events || [];
+  }
+
+  @FieldResolver()
+  block(@Root() source: Event): Promise<Block> {
+    return singleFieldResolver(source, Block, "blockId");
+  }
+
+  @FieldResolver()
+  extrinsic(@Root() source: Event): Promise<Extrinsic> {
+    return singleFieldResolver(source, Extrinsic, "blockId");
   }
 }

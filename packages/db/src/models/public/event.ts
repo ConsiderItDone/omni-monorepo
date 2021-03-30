@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import Extrinsic from "./extrinsic";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -42,12 +43,17 @@ export default class Event extends BaseEntity {
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
-  @Field(() => Int)
-  @Column("integer", { name: "extrinsic_id" })
-  public extrinsicId: number;
-
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => Int)
+  @Column("integer", { name: "extrinsic_id" })
+  public extrinsicId: number;
+
+  @Field(() => Extrinsic, { nullable: true })
+  @ManyToOne(() => Extrinsic, (extrinsic) => extrinsic.extrinsicId)
+  @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
+  public extrinsic: Extrinsic;
 }

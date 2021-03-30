@@ -1,19 +1,25 @@
-import { Resolver, FieldResolver, Root } from "type-graphql";
+import { Resolver, FieldResolver, Root, Query, Arg } from "type-graphql";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
+import { singleFieldResolver } from "../fieldsResolver";
 
 const LogBaseResolver = createBaseResolver("Log", Log);
 
 @Resolver(Log)
 export default class LogResolver extends LogBaseResolver {
-  @FieldResolver()
-  async block(@Root() log: Log): Promise<Block> {
-    const block = await Block.findOne(log.blockId);
-    if (!block) {
-      return null;
-    }
+  @Query(() => [Log])
+  async getLogsByBlockNumber(@Arg("number") number: string): Promise<Log[]> {
+    const logs = await Log.createQueryBuilder("log")
+      .leftJoin(Block, "block", "block.blockId = log.blockId")
+      .where(`block.number = :number`, { number })
+      .getMany();
 
-    return block;
+    return logs || [];
+  }
+
+  @FieldResolver()
+  block(@Root() source: Log): Promise<Block> {
+    return singleFieldResolver(source, Block, "blockId");
   }
 }
