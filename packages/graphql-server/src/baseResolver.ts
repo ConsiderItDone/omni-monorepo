@@ -11,13 +11,14 @@ import {
   Arg,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import MQ from "@nodle/utils/dist/src/mq";
+import MQ from "@nodle/utils/src/mq";
+import { Utils } from "@nodle/utils/src";
 
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
   objectTypeCls: T
+  // eslint-disable-next-line
 ): any {
-  // eslint-disable-line
   @ArgsType()
   class PaginationArgs {
     @Field(() => Int, { defaultValue: 0 })
@@ -59,20 +60,20 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       const order: any = {}; // eslint-disable-line
-      order[`${suffix.toLowerCase()}Id`] = "DESC";
+      order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "DESC";
 
       if (first) {
         take = first;
-        order[`${suffix.toLowerCase()}Id`] = "ASC";
+        order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "ASC";
       }
 
       if (last) {
         take = last;
-        order[`${suffix.toLowerCase()}Id`] = "DESC";
+        order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "DESC";
       }
 
+      // eslint-disable-next-line
       return (objectTypeCls as any).find({
-        // eslint-disable-line
         take,
         skip,
         order,

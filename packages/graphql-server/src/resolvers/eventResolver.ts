@@ -11,7 +11,9 @@ import {
 import { Min, Max } from "class-validator";
 import Event from "@nodle/db/src/models/public/event";
 import Block from "@nodle/db/src/models/public/block";
+import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
+import { singleFieldResolver } from "../fieldsResolver";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -49,12 +51,12 @@ export default class EventResolver extends EventBaseResolver {
   }
 
   @FieldResolver()
-  async block(@Root() event: Event): Promise<Block> {
-    const block = await Block.findOne(event.blockId);
-    if (!block) {
-      return null;
-    }
+  block(@Root() source: Event): Promise<Block> {
+    return singleFieldResolver(source, Block, "blockId");
+  }
 
-    return block;
+  @FieldResolver()
+  extrinsic(@Root() source: Event): Promise<Extrinsic> {
+    return singleFieldResolver(source, Extrinsic, "blockId");
   }
 }

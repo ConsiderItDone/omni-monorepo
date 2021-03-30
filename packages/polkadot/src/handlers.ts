@@ -214,6 +214,7 @@ export async function handleTrackedEvents(
         break;
       case CustomEventSection.Balance:
         handleBalance(connection, event, blockId, api);
+        break;
       default:
         return;
     }
@@ -394,7 +395,7 @@ async function handleBalance(
   api: ApiPromise
 ): Promise<void> {
   switch (event.method) {
-    case "Transfer":
+    case "Transfer": {
       const accFrom = [
         event.data[0],
         await api.query.system.account(event.data[0]),
@@ -410,6 +411,7 @@ async function handleBalance(
       );
       saveAccount(connection, accTo[0] as AccountId, accTo[1] as AccountInfo);
       break;
+    }
     default:
       return;
   }

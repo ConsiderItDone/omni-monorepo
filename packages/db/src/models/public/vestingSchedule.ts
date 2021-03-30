@@ -38,7 +38,9 @@ export default class VestingSchedule extends BaseEntity {
   @Column("character varying", { name: "account_address" })
   public accountAddress: string;
 
-  @Field(() => Account)
+  // TODO: use account_id instead of address
+
+  @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.vestingSchedules)
   @JoinColumn([{ name: "account_address", referencedColumnName: "address" }])
   public account: Account;
@@ -52,7 +54,7 @@ export default class VestingSchedule extends BaseEntity {
   public status: string;
 
   @Field(() => Block)
-  @ManyToOne(() => Block, (block) => block.vestingSchedules)
+  @ManyToOne(() => Block, (block) => block.blockId)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
 }
