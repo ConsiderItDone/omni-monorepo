@@ -29,7 +29,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
       periodCount,
       perPeriod,
       blockId,
-      status
+      status,
     });
   }
   public async changeStatus(
