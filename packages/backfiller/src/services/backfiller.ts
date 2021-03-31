@@ -17,7 +17,7 @@ export async function backfiller(connection: Connection): Promise<void> {
 
   // "00 00 00 * * *" to start every midnight
   // "00 */5 * * * *" to start every 5 minutes
-  const job = new CronJob("00 */5 * * * *", backfill);
+  const job = new CronJob("00 00 00 * * *", backfill);
   console.log("Backfiller started");
   job.start();
 
