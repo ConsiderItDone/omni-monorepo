@@ -1,6 +1,11 @@
-import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
+import type {
+  EventRecord,
+  Event,
+  AccountInfo,
+} from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId } from "@polkadot/types/interfaces/runtime";
+import { EventData } from "@polkadot/types/generic/Event";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -14,8 +19,6 @@ import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCer
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import { AccountInfo } from "@polkadot/types/interfaces/system";
-
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
@@ -72,6 +75,20 @@ export function getExtrinsicSuccess(
       .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
 
+export function transformEventData(method: string, data: EventData): string {
+  switch (method) {
+    case "Transfer": {
+      return JSON.stringify({
+        from: data[0],
+        to: data[1],
+        balance: data[2],
+      });
+    }
+    default:
+      return data.toHuman() as string;
+  }
+}
+
 /******************* Application utils *************************************/
 export async function upsertApplication(
   connection: Connection,
@@ -118,8 +135,7 @@ function transformApplicationData(
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
     challenger: challenger.unwrapOr(null),
-    challengerDeposit:
-      challenger_deposit?.toNumber() || null,
+    challengerDeposit: challenger_deposit?.toNumber() || null,
     votesFor: votes_for?.toString() || null,
     votersFor: voters_for.map((v) => JSON.stringify(v)),
     votesAgainst: votes_against?.toString() || null,

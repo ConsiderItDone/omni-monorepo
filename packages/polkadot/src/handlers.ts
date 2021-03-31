@@ -30,6 +30,7 @@ import {
   applicationIsEmpty,
   boundEventsToExtrinsics,
   saveAccount,
+  transformEventData,
 } from "./misc";
 
 import {
@@ -107,7 +108,7 @@ export async function handleEvents(
 
     const event = await eventRepository.add({
       index,
-      data: data.toHuman() as string,
+      data: transformEventData(method, data),
       extrinsicHash,
       extrinsicId: extrinsic?.extrinsicId || null,
       moduleName: section,
