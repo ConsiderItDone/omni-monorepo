@@ -8,69 +8,113 @@ import {
   backfillTrackedEvents,
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
+import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
+
+const CronJob = require("cron").CronJob;
 
 export async function backfiller(connection: Connection): Promise<void> {
   const api = await getApi();
 
-  console.log("Backfiller mock");
-  // TODO: work with historical blocks
+  // "00 00 00 * * *" to start every midnight
+  // "00 */5 * * * *" to start every 5 minutes
+  const job = new CronJob("00 */5 * * * *", backfill);
+  console.log("Backfiller started");
+  job.start();
 
-  const limit = 10; // Amount of block to check
-  const startBlock = 100528; // Block number to search from
-  const endBlock = startBlock + limit + 1; // Last block
+  async function backfill() {
+    const backfillProgressRepository = connection.getCustomRepository(
+      BackfillProgressRepository
+    );
+    const blockRepository = connection.getCustomRepository(BlockRepository);
 
-  const blockRepository = connection.getCustomRepository(BlockRepository);
+    const backfillProgress = await backfillProgressRepository.getProgress();
 
-  const blocks = await blockRepository.find({
-    number: Between(startBlock, startBlock + limit),
-  });
-  const blockNumbers = blocks.map(
-    (block) => parseInt(block.number as string, 10) // Parsing because returns as string
-  );
+    const startBlock = parseInt(backfillProgress.lastBlockNumber); // Block number to search from; TODO handle bigInt
+    const limit = backfillProgress.perPage; // Amount of block to check
+    const endBlock = await getEndBlock(blockRepository, startBlock, limit); //const endBlock = startBlock + limit + 1; // Last block
 
-  const missingBlocksNumbers = Array.from(
-    Array(endBlock - startBlock),
-    (v, i) => i + startBlock
-  ).filter((i: number) => !blockNumbers.includes(i));
-
-  for (const blockNumber of missingBlocksNumbers) {
-    console.log("Backfilling block: ", blockNumber);
-    const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
-    const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
-      api.rpc.chain.getBlock(blockHash),
-      api.query.timestamp.now.at(blockHash),
-      api.query.system.events.at(blockHash),
-      api.rpc.state.getRuntimeVersion(blockHash),
-    ]);
-
-    // 1. Block
-    const newBlockId = await handleNewBlock(
-      connection,
-      block.header,
-      timestamp,
-      specVersion.toNumber()
+    const blocks = await blockRepository.find({
+      number: Between(startBlock, endBlock + 1),
+    });
+    const blockNumbers = blocks.map(
+      (block) => parseInt(block.number as string, 10) // Parsing because returns as string
     );
 
-    // 2. Extrinsics
-    const extrinsicsWithBoundedEvents = await handleExtrinsics(
-      connection,
-      block.extrinsics,
-      events,
-      newBlockId
+    const missingBlocksNumbers = Array.from(
+      Array(endBlock + 1 - startBlock),
+      (v, i) => i + startBlock
+    ).filter((i: number) => !blockNumbers.includes(i));
+
+    console.log(
+      `Going to backfill ${missingBlocksNumbers.length} missing blocks from ${startBlock} to ${endBlock}`
     );
+    //console.log(missingBlocksNumbers);
 
-    // 3.Logs
-    handleLogs(connection, block.header.digest.logs, newBlockId);
+    for (const blockNumber of missingBlocksNumbers) {
+      console.log("Backfilling block: ", blockNumber);
+      const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+      const [
+        { block },
+        timestamp,
+        events,
+        { specVersion },
+      ] = await Promise.all([
+        api.rpc.chain.getBlock(blockHash),
+        api.query.timestamp.now.at(blockHash),
+        api.query.system.events.at(blockHash),
+        api.rpc.state.getRuntimeVersion(blockHash),
+      ]);
 
-    // 4.Events
-    const trackedEvents = await handleEvents(
-      connection,
-      events,
-      extrinsicsWithBoundedEvents,
-      newBlockId
-    );
+      // 1. Block
+      const newBlockId = await handleNewBlock(
+        connection,
+        block.header,
+        timestamp,
+        specVersion.toNumber()
+      );
 
-    //5. Backfilling custom events
-    backfillTrackedEvents(connection, trackedEvents, api, newBlockId);
+      // 2. Extrinsics
+      const extrinsicsWithBoundedEvents = await handleExtrinsics(
+        connection,
+        block.extrinsics,
+        events,
+        newBlockId
+      );
+
+      // 3.Logs
+      handleLogs(connection, block.header.digest.logs, newBlockId);
+
+      // 4.Events
+      const trackedEvents = await handleEvents(
+        connection,
+        events,
+        extrinsicsWithBoundedEvents,
+        newBlockId
+      );
+
+      //5. Backfilling custom events
+      backfillTrackedEvents(connection, trackedEvents, api, newBlockId);
+    }
+    console.log(`Backfiller finished succesfully with last block ${endBlock}`);
+    backfillProgressRepository.updateProgress(endBlock.toString());
   }
+}
+
+async function getEndBlock(
+  blockRepository: BlockRepository,
+  startBlock: number,
+  limit: number
+) {
+  let endBlock = startBlock + limit;
+  // will increase last block to check, so if limit is 1000 blocks, will make so AT LEAST 1000 block should be backfilled
+  for (let i = 1; ; i++) {
+    const blocks = await blockRepository.find({
+      number: Between(startBlock, startBlock + limit * i),
+    });
+    if (limit * i - blocks.length >= limit) {
+      endBlock = startBlock + limit * i;
+      break;
+    }
+  }
+  return endBlock;
 }

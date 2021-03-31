@@ -11,7 +11,7 @@ export default class BackfillProgressRepository extends Repository<BackfillProgr
   public async init() {
     return this.save(progressDefaults);
   }
-  private async getProgress(): Promise<BackfillProgress> {
+  public async getProgress(): Promise<BackfillProgress> {
     return (await this.findOne(1)) || (await this.init());
   }
   public async getLastBlockNumber(): Promise<number> {
@@ -19,10 +19,10 @@ export default class BackfillProgressRepository extends Repository<BackfillProgr
     return parseInt(progress.lastBlockNumber);
   }
   public async updateProgress(
-    lastSyncedBlockNumber: number
+    lastSyncedBlockNumber: string
   ): Promise<UpdateResult> {
     return await this.update(1, {
-      lastBlockNumber: lastSyncedBlockNumber.toString(),
+      lastBlockNumber: lastSyncedBlockNumber,
     });
   }
 }
