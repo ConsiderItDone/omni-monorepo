@@ -15,10 +15,10 @@ export async function getApi(): Promise<ApiPromise> {
         candidate_deposit: "Balance",
         metadata: "Vec<u8>",
         challenger: "Option<AccountId>",
-        challenger_deposit: "Option<Balance>",
-        votes_for: "Option<Balance>",
+        challenger_deposit: "Balance",
+        votes_for: "Balance",
         voters_for: "Vec<(AccountId, Balance)>",
-        votes_against: "Option<Balance>",
+        votes_against: "Balance",
         voters_against: "Vec<(AccountId, Balance)>",
         created_block: "BlockNumber",
         challenged_block: "BlockNumber",
@@ -33,13 +33,12 @@ export async function getApi(): Promise<ApiPromise> {
         child_revocations: "Vec<CertificateId>",
       },
       Amendment: "Call",
-      VestingSchedule: {
+      VestingScheduleOf: {
         start: "BlockNumber",
         period: "BlockNumber",
         period_count: "u32",
         per_period: "Balance",
       },
-      VestingScheduleOf: "VestingSchedule",
     },
     rpc: {
       rootOfTrust: {

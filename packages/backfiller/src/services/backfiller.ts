@@ -16,7 +16,7 @@ export async function backfiller(connection: Connection): Promise<void> {
   // TODO: work with historical blocks
 
   const limit = 10; // Amount of block to check
-  const startBlock = 96645; // Block number to search from
+  const startBlock = 100528; // Block number to search from
   const endBlock = startBlock + limit + 1; // Last block
 
   const blockRepository = connection.getCustomRepository(BlockRepository);

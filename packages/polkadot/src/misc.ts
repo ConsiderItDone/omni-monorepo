@@ -119,12 +119,10 @@ function transformApplicationData(
     metadata: metadata.toString(),
     challenger: challenger.unwrapOr(null),
     challengerDeposit:
-      challenger_deposit.unwrapOr(null) &&
-      challenger_deposit.unwrap().toNumber(),
-    votesFor: votes_for.unwrapOr(null) && votes_for.unwrap().toString(),
+      challenger_deposit?.toNumber() || null,
+    votesFor: votes_for?.toString() || null,
     votersFor: voters_for.map((v) => JSON.stringify(v)),
-    votesAgainst:
-      votes_against.unwrapOr(null) && votes_against.unwrap().toString(),
+    votesAgainst: votes_against?.toString() || null,
     votersAgainst: voters_against.map((v) => JSON.stringify(v)),
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
