@@ -302,69 +302,47 @@ async function handleApplication(
   blockId: number,
   api: ApiPromise
 ) {
-  const accountId = event.data[0].toString(); // may be reassigned
-  let applicationData: Codec;
+  let accountAddress = event.data[0].toString(); // may be reassigned
+  let applicationData;
   let applicationStatus = ApplicationStatus.pending;
 
   switch (event.method) {
     /// Someone applied to join the registry  NewApplication(AccountId, Balance)
     case "NewApplication": {
-      applicationData = await api.query.pkiTcr.applications(accountId);
+      applicationData = await api.query.pkiTcr.applications(accountAddress);
       applicationStatus = ApplicationStatus.pending;
       break;
     }
     /// An application passed without being countered  ApplicationPassed(AccountId)
     case "ApplicationPassed": {
-      applicationData = await api.query.pkiTcr.members(accountId);
+      applicationData = await api.query.pkiTcr.members(accountAddress);
       applicationStatus = ApplicationStatus.accepted;
       break;
     }
     /// A member's application is being challenged ApplicationChallenged(AccountId, AccountId, Balance)
     case "ApplicationChallenged": {
-      const challengedAcc = event.data[0].toString();
-      const challengerAcc = event.data[1].toString();
-      const challengerDeposit = event.data[2] as Balance;
-      const challengedAppData = ((await api.query.pkiTcr.members(
-        accountId
-      )) as undefined) as ApplicationType;
-      addChallenger(
-        challengedAcc,
-        challengerAcc,
-        challengerDeposit.toNumber(),
-        blockId,
-        challengedAppData
-      );
-      return;
+      //const challengedAcc = event.data[0].toString();
+      //const challengerAcc = event.data[1].toString();
+      //const challengerDeposit = event.data[2] as Balance;
+      applicationData = await api.query.pkiTcr.challenges(accountAddress);
+      applicationStatus = ApplicationStatus.challenged;
+      //addChallenger(challengedAcc,challengerAcc,challengerDeposit.toNumber(),blockId,challengedAppData);
+      break;
     }
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
-      const counteredAcc = event.data[0].toString();
-      //applicationData = await api.query.pkiTcr.members(counteredAcc);
-      changeApplicationStatus(
-        connection,
-        counteredAcc,
-        ApplicationStatus.countered
-      );
-      return;
+      applicationData = await api.query.pkiTcr.challenges(accountAddress);
+      applicationStatus = ApplicationStatus.challenged;
+      break;
     }
-
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
     case "VoteRecorded": {
-      const voteTarget = event.data[0] as AccountId;
-      const voteInitiator = event.data[1] as AccountId;
-      const voteValue = event.data[3].toHuman() as boolean;
-
-      const targetData = ((await api.query.pki.members(
-        voteTarget.toString()
-      )) as undefined) as ApplicationType;
-      recordVote(
-        connection,
-        voteInitiator,
-        voteTarget,
-        voteValue,
-        blockId,
-        targetData
-      );
+      //const voteTarget = event.data[0].toString();
+      //const voteInitiator = event.data[1];
+      //const voteValue = event.data[3].toHuman() as boolean;
+      applicationData = await api.query.pkiTcr.challenges(accountAddress);
+      applicationStatus = ApplicationStatus.challenged;
+      // recordVote(connection,voteInitiator,voteTarget,voteValue,blockId,targetData);
       break;
     }
     /* 
@@ -384,7 +362,7 @@ async function handleApplication(
   }
   await upsertApplication(
     connection,
-    accountId,
+    accountAddress,
     (applicationData as undefined) as ApplicationType,
     blockId,
     applicationStatus

@@ -134,7 +134,7 @@ function transformApplicationData(
     candidate: candidate.toString(),
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
-    challenger: challenger.unwrapOr(null),
+    challenger: challenger?.toString() || null,
     challengerDeposit: challenger_deposit?.toNumber() || null,
     votesFor: votes_for?.toString() || null,
     votersFor: voters_for.map((v) => JSON.stringify(v)),
