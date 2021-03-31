@@ -1,11 +1,12 @@
-import { Field } from "type-graphql";
-import { Index, Column, Entity, BaseEntity } from "typeorm";
+import { Field, ID, ObjectType } from "type-graphql";
+import { Index, Column, Entity, BaseEntity, PrimaryGeneratedColumn } from "typeorm";
 
+@ObjectType()
 @Index("backfill_progress_pkey", ["backfillProgressId"], { unique: true })
 @Entity("backfill_progress", { schema: "public" })
 export default class BackfillProgress extends BaseEntity {
-  @Field(()=> Number)
-  @Column("integer", { primary: true, name: "backfill_progress_id" })
+  @Field(()=> ID)
+  @PrimaryGeneratedColumn({ type: "integer", name: "backfill_progress_id" })
   public backfillProgressId: number;
 
   @Field(()=> String)
