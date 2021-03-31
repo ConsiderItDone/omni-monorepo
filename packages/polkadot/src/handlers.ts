@@ -465,9 +465,9 @@ async function backfillApplication(
       else applicationStatus = ApplicationStatus.accepted;
       break;
     }
-    case "ApplicationCountered": {
+    case "ApplicationCountered": { //TODO check logic
       const counteredAcc = event.data[0].toString();
-      const acceptedApplication = ((await api.query.pkiTcr.members(
+      const acceptedApplication = ((await api.query.pkiTcr.challenges(
         accountId
       )) as undefined) as ApplicationType;
       const existingApp = await applicationRepository.findCandidate(
@@ -484,37 +484,19 @@ async function backfillApplication(
       return;
     }
     case "ApplicationChallenged": {
-      const challengedAcc = event.data[0].toString();
-      const challengerAcc = event.data[1].toString();
-      const challengerDeposit = event.data[2] as Balance;
-      const challengedAppData = ((await api.query.pkiTcr.members(
-        accountId
-      )) as undefined) as ApplicationType;
-      addChallenger(
-        challengedAcc,
-        challengerAcc,
-        challengerDeposit.toNumber(),
-        blockId,
-        challengedAppData
-      );
-      return;
+      //const challengedAcc = event.data[0].toString();
+      //const challengerAcc = event.data[1].toString();
+      //const challengerDeposit = event.data[2] as Balance;
+      applicationData = await api.query.pkiTcr.challenges(accountId);
+      applicationStatus = ApplicationStatus.challenged;
+      break;
     }
     case "VoteRecorded": {
-      const voteTarget = event.data[0] as AccountId;
-      const voteInitiator = event.data[1] as AccountId;
-      const voteValue = event.data[3].toHuman() as boolean;
-
-      const targetData = ((await api.query.pki.members(
-        voteTarget.toString()
-      )) as undefined) as ApplicationType;
-      recordVote(
-        connection,
-        voteInitiator,
-        voteTarget,
-        voteValue,
-        blockId,
-        targetData
-      );
+      //const voteTarget = event.data[0] as AccountId;
+      //const voteInitiator = event.data[1] as AccountId;
+      //const voteValue = event.data[3].toHuman() as boolean;
+      applicationData = await api.query.pki.challenges(accountId);
+      applicationStatus = ApplicationStatus.challenged
       break;
     }
     /* 
