@@ -35,7 +35,7 @@ export async function backfiller(connection: Connection): Promise<void> {
       },
     } = await api.rpc.chain.getBlock();
 
-    const startBlock = parseInt(backfillProgress.lastBlockNumber); // Block number to search from; TODO handle bigInt
+    const startBlock = parseInt(backfillProgress.lastBlockNumber as string, 10); // Block number to search from; TODO handle bigInt
     const limit = backfillProgress.perPage; // Amount of block to check
     const endBlock = await getEndBlock(
       blockRepository,
@@ -120,8 +120,8 @@ async function getEndBlock(
   let endBlock = startBlock + limit;
   // will increase last block to check, so if limit is 1000 blocks, will make so AT LEAST 1000 block should be backfilled
   for (let i = 1; ; i++) {
-    if (startBlock + limit * i >= parseInt(lastBlockInAChainNumber))
-      return parseInt(lastBlockInAChainNumber);
+    if (startBlock + limit * i >= parseInt(lastBlockInAChainNumber, 10))
+      return parseInt(lastBlockInAChainNumber, 10);
     const blocks = await blockRepository.find({
       number: Between(startBlock, startBlock + limit * i),
     });

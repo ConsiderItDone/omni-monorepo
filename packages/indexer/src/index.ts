@@ -11,7 +11,7 @@ const start = async function (): Promise<void> {
     port: Number(process.env.TYPEORM_PORT || 54321),
     username: process.env.TYPEORM_USERNAME || "nodle",
     password: process.env.TYPEORM_PASSWORD || "password",
-    database: process.env.TYPEORM_DATABASE || "nodle",
+    database: process.env.TYPEORM_DATABASE || "mike",
     logging: false,
     entities: ["../../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
