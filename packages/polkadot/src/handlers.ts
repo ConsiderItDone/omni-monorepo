@@ -332,7 +332,7 @@ async function handleApplication(
     /// Someone countered an application ApplicationCountered(AccountId, AccountId, Balance)
     case "ApplicationCountered": {
       applicationData = await api.query.pkiTcr.challenges(accountAddress);
-      applicationStatus = ApplicationStatus.challenged;
+      applicationStatus = ApplicationStatus.countered;
       break;
     }
     /// A new vote for an application has been recorded VoteRecorded(AccountId, AccountId, Balance, bool)
