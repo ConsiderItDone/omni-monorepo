@@ -308,7 +308,8 @@ export function transformVestingSchedules(
 export async function saveAccount(
   connection: Connection,
   accountAddress: AccountId,
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo,
+  blockId: number
 ): Promise<void> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
   const balanceRepository = connection.getCustomRepository(BalanceRepository);
@@ -326,13 +327,11 @@ export async function saveAccount(
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
     accountId: savedAccount.accountId,
-    free: free.toNumber(),
-    reserved: reserved.toNumber(),
-    miscFrozen: miscFrozen.toNumber(),
-    feeFrozen: feeFrozen.toNumber(),
+    free: free.toString(),
+    reserved: reserved.toString(),
+    miscFrozen: miscFrozen.toString(),
+    feeFrozen: feeFrozen.toString(),
+    blockId,
   };
-  await balanceRepository.upsertByAccountAddress(
-    savedAccount.address,
-    balanceData
-  );
+  await balanceRepository.add(balanceData);
 }

@@ -8,6 +8,7 @@ import type {
 } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
+import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { u8aToHex } from "@polkadot/util";
 import { AccountInfo } from "@polkadot/types/interfaces/system";
 
@@ -197,7 +198,8 @@ export async function handleTrackedEvents(
   connection: Connection,
   trackedEvents: Event[],
   api: ApiPromise,
-  blockId: number
+  blockId: number,
+  blockHash: BlockHash
 ): Promise<void> {
   if (trackedEvents.length < 1) {
     return;
@@ -214,7 +216,7 @@ export async function handleTrackedEvents(
         handleApplication(connection, event, blockId, api);
         break;
       case CustomEventSection.Balance:
-        handleBalance(connection, event, blockId, api);
+        handleBalance(connection, event, blockId, api, blockHash);
         break;
       default:
         return;
@@ -372,24 +374,33 @@ async function handleBalance(
   connection: Connection,
   event: Event,
   blockId: number,
-  api: ApiPromise
+  api: ApiPromise,
+  blockHash: BlockHash
 ): Promise<void> {
   switch (event.method) {
     case "Transfer": {
       const accFrom = [
         event.data[0],
-        await api.query.system.account(event.data[0]),
+        await api.query.system.account.at(blockHash, event.data[0]),
       ];
       const accTo = [
         event.data[1],
-        await api.query.system.account(event.data[1]),
+        await api.query.system.account.at(blockHash, event.data[1]),
       ];
       saveAccount(
         connection,
         accFrom[0] as AccountId,
-        accFrom[1] as AccountInfo
+        accFrom[1] as AccountInfo,
+        blockId
       );
-      saveAccount(connection, accTo[0] as AccountId, accTo[1] as AccountInfo);
+      saveAccount(
+        connection,
+        accTo[0] as AccountId,
+        accTo[1] as AccountInfo,
+        blockId
+      );
+
+      const balance = await api.query.system.account.at;
       break;
     }
     default:
@@ -402,7 +413,8 @@ export async function backfillTrackedEvents(
   connection: Connection,
   trackedEvents: Event[],
   api: ApiPromise,
-  blockId: number
+  blockId: number,
+  blockHash: BlockHash,
 ): Promise<void> {
   if (trackedEvents.length < 1) {
     return;
@@ -419,7 +431,7 @@ export async function backfillTrackedEvents(
         backfillApplication(connection, event, blockId, api);
         break;
       case CustomEventSection.Balance:
-        handleBalance(connection, event, blockId, api);
+        handleBalance(connection, event, blockId, api, blockHash);
         break;
       default:
         return;
@@ -465,7 +477,8 @@ async function backfillApplication(
       else applicationStatus = ApplicationStatus.accepted;
       break;
     }
-    case "ApplicationCountered": { //TODO check logic
+    case "ApplicationCountered": {
+      //TODO check logic
       const counteredAcc = event.data[0].toString();
       const acceptedApplication = ((await api.query.pkiTcr.challenges(
         accountId
@@ -496,7 +509,7 @@ async function backfillApplication(
       //const voteInitiator = event.data[1] as AccountId;
       //const voteValue = event.data[3].toHuman() as boolean;
       applicationData = await api.query.pki.challenges(accountId);
-      applicationStatus = ApplicationStatus.challenged
+      applicationStatus = ApplicationStatus.challenged;
       break;
     }
     /* 

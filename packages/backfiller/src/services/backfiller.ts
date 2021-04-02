@@ -104,7 +104,7 @@ export async function backfiller(connection: Connection): Promise<void> {
       );
 
       //5. Backfilling custom events
-      backfillTrackedEvents(connection, trackedEvents, api, newBlockId);
+      backfillTrackedEvents(connection, trackedEvents, api, newBlockId, blockHash);
     }
     console.log(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());
