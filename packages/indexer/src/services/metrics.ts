@@ -23,7 +23,7 @@ export const blockProcessingHistogram = new Histogram({
   name: `${prefix}block_time`,
   help: "Time to process block",
   labelNames: ["code"],
-  buckets: [1, 3, 5, 7, 10],
+  buckets: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
 });
 //blockProcessingHistogram.observe(10)
 
@@ -42,11 +42,11 @@ new Counter({
   },
 });
 
-/* const g = new Gauge({
-  name: "test_gauge",
-  help: "Example of a gauge",
-  labelNames: ["method", "code"],
-}); */
+ const g = new Gauge({
+  name: `${prefix}processed_block_number`,
+  help: "Processed blocks gauge",
+  //labelNames: ["method", "code"],
+}); 
 
 // Set metric values to some random values for demonstration
 
