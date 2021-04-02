@@ -62,7 +62,7 @@ export async function subscribe(connection: Connection): Promise<void> {
     //5. Handling custom events
     await handleTrackedEvents(connection, trackedEvents, api, newBlockId);
 
-    addBlockToCounter(blockNumber.toString())
-    endMetricsTimer();
+    const seconds = endMetricsTimer();
+    addBlockToCounter(blockNumber.toString(), seconds)
   });
 }

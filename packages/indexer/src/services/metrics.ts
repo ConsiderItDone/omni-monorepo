@@ -2,15 +2,20 @@ const express = require("express");
 const cluster = require("cluster");
 const server = express();
 const register = require("prom-client").register;
-const { collectDefaultMetrics, Histogram, Counter, Gauge} = require("prom-client")
+const {
+  collectDefaultMetrics,
+  Histogram,
+  Counter,
+  Gauge,
+} = require("prom-client");
 // Enable collection of default metrics
 
-const prefix = "nodle_"
+const prefix = "nodle_";
 
 collectDefaultMetrics({
-	timeout:1000,
-    gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
-    //prefix, 
+  timeout: 1000,
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
+  //prefix,
 });
 
 // Create custom metrics
@@ -25,7 +30,7 @@ export const blockProcessingHistogram = new Histogram({
 export const blockCounter = new Counter({
   name: `${prefix}processed_block`,
   help: "Processed blocks counter",
-  labelNames: ["block_number"],
+  labelNames: ["block_number", "time"],
 });
 
 new Counter({
@@ -54,8 +59,8 @@ new Counter({
   histo.labels("300").observe(Math.random());
 }, 10);
  */
-export function addBlockToCounter(blockNumber:any) {
-  blockCounter.inc({block_number: blockNumber})
+export function addBlockToCounter(blockNumber: string, time: number) {
+  blockCounter.inc({ block_number: blockNumber, time: time });
 }
 
 /* setInterval(() => {
