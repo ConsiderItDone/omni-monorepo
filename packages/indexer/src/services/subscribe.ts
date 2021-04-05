@@ -16,9 +16,7 @@ import {
   blockProcessingHistogram,
   setGauge,
 } from "./metrics";
-import Logger from "@nodle/utils/src/logger";
-
-const logger = new Logger();
+import { logger } from "@nodle/utils/src/logger";
 
 export async function subscribe(connection: Connection): Promise<void> {
   startMetricsServer();

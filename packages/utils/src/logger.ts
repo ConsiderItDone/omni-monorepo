@@ -16,6 +16,8 @@ export default class Logger {
   }
 }
 
+export const logger = new Logger();
+
 type savedDataParams = {
   length?: number;
   savedLength?: number;

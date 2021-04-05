@@ -11,6 +11,7 @@ import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 
 const { CronJob } = require("cron");
+import { logger } from "@nodle/utils/src/logger";
 
 export async function backfiller(connection: Connection): Promise<void> {
   const api = await getApi();
@@ -18,7 +19,7 @@ export async function backfiller(connection: Connection): Promise<void> {
   // "00 00 00 * * *" to start every midnight
   // "00 */5 * * * *" to start every 5 minutes
   const job = new CronJob("00 00 00 * * *", backfill);
-  console.log("Backfiller started");
+  logger.info("Backfiller started");
   job.start();
 
   async function backfill() {
@@ -56,13 +57,13 @@ export async function backfiller(connection: Connection): Promise<void> {
       (v, i) => i + startBlock
     ).filter((i: number) => !blockNumbers.includes(i));
 
-    console.log(
+    logger.info(
       `Going to backfill ${missingBlocksNumbers.length} missing blocks from ${startBlock} to ${endBlock}`
     );
-    //console.log(missingBlocksNumbers);
 
     for (const blockNum of missingBlocksNumbers) {
-      console.log("Backfilling block: ", blockNum);
+      logger.info(`Backfilling block №: ${blockNum}`);
+
       const blockHash = await api.rpc.chain.getBlockHash(blockNum);
       const [
         { block },
@@ -116,7 +117,7 @@ export async function backfiller(connection: Connection): Promise<void> {
         blockNumber
       );
     }
-    console.log(`Backfiller finished succesfully with last block ${endBlock}`);
+    logger.info(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());
   }
 }

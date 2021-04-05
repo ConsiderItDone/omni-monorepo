@@ -45,7 +45,8 @@ import {
 } from "@nodle/utils/src/types";
 
 import AccountId from "@polkadot/types/generic/AccountId";
-import Logger, {
+import {
+  logger,
   LOGGER_INFO_CONST,
   LOGGER_ERROR_CONST,
 } from "@nodle/utils/src/logger";
@@ -56,7 +57,6 @@ import Block from "@nodle/db/src/models/public/block";
 import * as EventModel from "@nodle/db/src/models/public/event";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 
-const logger = new Logger();
 /******************** BASE HANDLERS **********************/
 
 export async function handleNewBlock(
@@ -491,7 +491,6 @@ async function handleApplication(
       case "NewApplication": {
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Applications,
           accountAddress,
           blockNumber
@@ -502,7 +501,6 @@ async function handleApplication(
       case "ApplicationPassed": {
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Members,
           accountAddress,
           blockNumber
@@ -516,7 +514,6 @@ async function handleApplication(
         //const challengerDeposit = event.data[2] as Balance;
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountAddress,
           blockNumber
@@ -528,7 +525,6 @@ async function handleApplication(
       case "ApplicationCountered": {
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountAddress,
           blockNumber
@@ -542,7 +538,6 @@ async function handleApplication(
         //const voteValue = event.data[3].toHuman() as boolean;
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountAddress,
           blockNumber
@@ -602,7 +597,6 @@ async function handleBalance(
           event.data[0],
           await tryFetchAccount(
             api,
-            logger,
             event.data[0] as AccountId,
             blockHash,
             blockNumber
@@ -612,7 +606,6 @@ async function handleBalance(
           event.data[1],
           await tryFetchAccount(
             api,
-            logger,
             event.data[1] as AccountId,
             blockHash,
             blockNumber
@@ -708,7 +701,6 @@ async function backfillApplication(
       case "NewApplication": {
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Applications,
           accountId,
           blockNumber
@@ -723,7 +715,6 @@ async function backfillApplication(
       case "ApplicationPassed": {
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Members,
           accountId,
           blockNumber
@@ -742,7 +733,6 @@ async function backfillApplication(
         const counteredAcc = event.data[0].toString();
         const acceptedApplication = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountId,
           blockNumber
@@ -766,7 +756,6 @@ async function backfillApplication(
         //const challengerDeposit = event.data[2] as Balance;
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountId,
           blockNumber
@@ -780,7 +769,6 @@ async function backfillApplication(
         //const voteValue = event.data[3].toHuman() as boolean;
         applicationData = await tryFetchApplication(
           api,
-          logger,
           ApplicationFetchMethods.Challenges,
           accountId,
           blockNumber

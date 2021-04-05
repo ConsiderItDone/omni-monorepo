@@ -26,7 +26,7 @@ import {
   VestingSchedule as VestingScheduleModel,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
-import Logger, { LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -100,7 +100,6 @@ export enum ApplicationFetchMethods {
 }
 export async function tryFetchApplication(
   api: ApiPromise,
-  logger: Logger,
   method: string,
   accountAddress: string,
   blockNumber: BlockNumber
@@ -346,7 +345,6 @@ export function transformVestingSchedules(
 
 export async function tryFetchAccount(
   api: ApiPromise,
-  logger: Logger,
   accountAddress: AccountId,
   blockHash: BlockHash,
   blockNumber: BlockNumber
