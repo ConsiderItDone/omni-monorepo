@@ -10,29 +10,37 @@ import {
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
 
-import { startMetricsServer, addBlockToCounter, blockProcessingHistogram, setGauge } from './metrics'
+import {
+  startMetricsServer,
+  addBlockToCounter,
+  blockProcessingHistogram,
+  setGauge,
+} from "./metrics";
+import Logger from "@nodle/utils/src/logger";
+
+const logger = new Logger();
 
 export async function subscribe(connection: Connection): Promise<void> {
-
   startMetricsServer();
 
   const api = await getApi();
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
-    console.log(`Chain is at block: #${header.number.toString()}`);
+    logger.info(`Chain is at block: #${header.number.toString()}`);
+
     const endMetricsTimer = blockProcessingHistogram.startTimer();
-    
+
     const blockNumber: BlockNumber = header.number.unwrap();
     const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNumber);
-    
+
     const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
       api.rpc.chain.getBlock(blockHash),
       api.query.timestamp.now.at(blockHash),
       api.query.system.events.at(blockHash),
       api.rpc.state.getRuntimeVersion(blockHash),
     ]);
-    
+
     // 1. Block
     const newBlockId = await handleNewBlock(
       connection,
@@ -46,25 +54,40 @@ export async function subscribe(connection: Connection): Promise<void> {
       connection,
       block.extrinsics,
       events,
-      newBlockId
+      newBlockId,
+      blockNumber
     );
     // 3.Logs
-    await handleLogs(connection, block.header.digest.logs, newBlockId);
+    await handleLogs(
+      connection,
+      block.header.digest.logs,
+      newBlockId,
+      blockNumber
+    );
 
     // 4.Events
     const trackedEvents = await handleEvents(
       connection,
       events,
       extrinsicsWithBoundedEvents,
-      newBlockId
+      newBlockId,
+      blockNumber
     );
 
     //5. Handling custom events
-    await handleTrackedEvents(connection, trackedEvents, api, newBlockId, blockHash);
+    await handleTrackedEvents(
+      connection,
+      trackedEvents,
+      api,
+      newBlockId,
+      blockHash,
+      blockNumber
+    );
 
-    const seconds = endMetricsTimer();
+    //const seconds = endMetricsTimer();
     //addBlockToCounter(blockNumber.toString(), seconds)
-    addBlockToCounter()
-    setGauge(blockNumber.toNumber())
+    endMetricsTimer();
+    addBlockToCounter();
+    setGauge(blockNumber.toNumber());
   });
 }

@@ -7,7 +7,7 @@ type NewBalanceParam = {
   miscFrozen: string;
   feeFrozen: string;
   accountId: number;
-  blockId:number;
+  blockId: number;
 };
 
 @EntityRepository(Balance)
@@ -26,7 +26,7 @@ export default class BalanceRepository extends Repository<Balance> {
       miscFrozen,
       feeFrozen,
       accountId,
-      blockId
+      blockId,
     });
   }
 

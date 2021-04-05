@@ -8,7 +8,7 @@ const progressDefaults = {
 };
 @EntityRepository(BackfillProgress)
 export default class BackfillProgressRepository extends Repository<BackfillProgress> {
-  public async init() {
+  public async init(): Promise<BackfillProgress> {
     return this.save(progressDefaults);
   }
   public async getProgress(): Promise<BackfillProgress> {

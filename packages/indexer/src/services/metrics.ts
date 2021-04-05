@@ -1,20 +1,19 @@
-const express = require("express");
-const cluster = require("cluster");
-const server = express();
-const register = require("prom-client").register;
-const {
-  collectDefaultMetrics,
+import express from "express";
+import {
+  register,
   Histogram,
   Counter,
   Gauge,
-} = require("prom-client");
+  collectDefaultMetrics,
+} from "prom-client";
+
+//const cluster = require("cluster");
+const server = express();
+
 // Enable collection of default metrics
-
 const prefix = "nodle_";
-
 collectDefaultMetrics({
-  timeout: 1000,
-  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
   //prefix,
 });
 
@@ -39,7 +38,7 @@ const g = new Gauge({
   //labelNames: ["method", "code"],
 });
 
-export function setGauge(blockNumber: number) {
+export function setGauge(blockNumber: number): void {
   g.set(blockNumber);
 }
 
@@ -52,13 +51,13 @@ new Counter({
   },
 });
 
-export function addBlockToCounter(blockNumber?: string, time?: number) {
+export function addBlockToCounter(blockNumber?: string, time?: number): void {
   blockCounter.inc(
     blockNumber && time ? { block_number: blockNumber, time: time } : null
   );
 }
 
-const t: any[] = [];
+const t: Date[] = [];
 setInterval(() => {
   for (let i = 0; i < 100; i++) {
     t.push(new Date());
@@ -103,6 +102,6 @@ console.log(
   `Server listening to ${port}, metrics exposed on /metrics endpoint`
 );
 
-export function startMetricsServer() {
+export function startMetricsServer(): void {
   server.listen(port);
 }

@@ -4,8 +4,9 @@ import type {
   AccountInfo,
 } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
-import { AccountId } from "@polkadot/types/interfaces/runtime";
+import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { EventData } from "@polkadot/types/generic/Event";
+import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -24,6 +25,8 @@ import {
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
 } from "@nodle/db/src/models";
+import { ApiPromise } from "@polkadot/api";
+import Logger, { LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -90,6 +93,42 @@ export function transformEventData(method: string, data: EventData): string {
 }
 
 /******************* Application utils *************************************/
+export enum ApplicationFetchMethods {
+  Applications = "applications",
+  Members = "members",
+  Challenges = "challenges",
+}
+export async function tryFetchApplication(
+  api: ApiPromise,
+  logger: Logger,
+  method: string,
+  accountAddress: string,
+  blockNumber: BlockNumber
+): Promise<ApplicationType> {
+  try {
+    switch (method) {
+      case ApplicationFetchMethods.Applications:
+        return (await api.query.pkiTcr.applications(
+          accountAddress
+        )) as undefined;
+      case ApplicationFetchMethods.Members:
+        return (await api.query.pkiTcr.members(accountAddress)) as undefined;
+      case ApplicationFetchMethods.Challenges:
+        return (await api.query.pkiTcr.challenges(accountAddress)) as undefined;
+      default:
+        return;
+    }
+  } catch (applicationFetchError) {
+    logger.error(
+      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(
+        method,
+        accountAddress,
+        blockNumber.toNumber()
+      ),
+      applicationFetchError
+    );
+  }
+}
 export async function upsertApplication(
   connection: Connection,
   accountId: string,
@@ -305,6 +344,25 @@ export function transformVestingSchedules(
 
 /******************* Account utils ****************************/
 
+export async function tryFetchAccount(
+  api: ApiPromise,
+  logger: Logger,
+  accountAddress: AccountId,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber
+): Promise<AccountInfo> {
+  try {
+    return await api.query.system.account.at(blockHash, accountAddress);
+  } catch (accountFetchError) {
+    logger.error(
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
+        accountAddress.toString(),
+        blockNumber.toNumber()
+      ),
+      accountFetchError
+    );
+  }
+}
 export async function saveAccount(
   connection: Connection,
   accountAddress: AccountId,

@@ -10,7 +10,7 @@ import {
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 
-const CronJob = require("cron").CronJob;
+const { CronJob } = require("cron");
 
 export async function backfiller(connection: Connection): Promise<void> {
   const api = await getApi();
@@ -61,9 +61,9 @@ export async function backfiller(connection: Connection): Promise<void> {
     );
     //console.log(missingBlocksNumbers);
 
-    for (const blockNumber of missingBlocksNumbers) {
-      console.log("Backfilling block: ", blockNumber);
-      const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+    for (const blockNum of missingBlocksNumbers) {
+      console.log("Backfilling block: ", blockNum);
+      const blockHash = await api.rpc.chain.getBlockHash(blockNum);
       const [
         { block },
         timestamp,
@@ -75,6 +75,7 @@ export async function backfiller(connection: Connection): Promise<void> {
         api.query.system.events.at(blockHash),
         api.rpc.state.getRuntimeVersion(blockHash),
       ]);
+      const blockNumber = block.header.number.unwrap();
 
       // 1. Block
       const newBlockId = await handleNewBlock(
@@ -89,22 +90,31 @@ export async function backfiller(connection: Connection): Promise<void> {
         connection,
         block.extrinsics,
         events,
-        newBlockId
+        newBlockId,
+        blockNumber
       );
 
       // 3.Logs
-      handleLogs(connection, block.header.digest.logs, newBlockId);
+      handleLogs(connection, block.header.digest.logs, newBlockId, blockNumber);
 
       // 4.Events
       const trackedEvents = await handleEvents(
         connection,
         events,
         extrinsicsWithBoundedEvents,
-        newBlockId
+        newBlockId,
+        blockNumber
       );
 
       //5. Backfilling custom events
-      backfillTrackedEvents(connection, trackedEvents, api, newBlockId, blockHash);
+      backfillTrackedEvents(
+        connection,
+        trackedEvents,
+        api,
+        newBlockId,
+        blockHash,
+        blockNumber
+      );
     }
     console.log(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());
