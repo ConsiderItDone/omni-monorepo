@@ -10,7 +10,7 @@ import {
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
 
-import { startMetricsServer, addBlockToCounter, blockProcessingHistogram } from './metrics'
+import { startMetricsServer, addBlockToCounter, blockProcessingHistogram, setGauge } from './metrics'
 
 export async function subscribe(connection: Connection): Promise<void> {
 
@@ -63,6 +63,8 @@ export async function subscribe(connection: Connection): Promise<void> {
     await handleTrackedEvents(connection, trackedEvents, api, newBlockId, blockHash);
 
     const seconds = endMetricsTimer();
-    addBlockToCounter(blockNumber.toString(), seconds)
+    //addBlockToCounter(blockNumber.toString(), seconds)
+    addBlockToCounter()
+    setGauge(blockNumber.toNumber())
   });
 }

@@ -81,7 +81,7 @@ export function transformEventData(method: string, data: EventData): string {
       return JSON.stringify({
         from: data[0],
         to: data[1],
-        balance: data[2],
+        amount: data[2],
       });
     }
     default:

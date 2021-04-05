@@ -28,10 +28,20 @@ export const blockProcessingHistogram = new Histogram({
 //blockProcessingHistogram.observe(10)
 
 export const blockCounter = new Counter({
-  name: `${prefix}processed_block`,
+  name: `${prefix}processed_blocks`,
   help: "Processed blocks counter",
   labelNames: ["block_number", "time"],
 });
+
+const g = new Gauge({
+  name: `${prefix}last_processed_block_number`,
+  help: "Processed blocks gauge",
+  //labelNames: ["method", "code"],
+});
+
+export function setGauge(blockNumber: number) {
+  g.set(blockNumber);
+}
 
 new Counter({
   name: "scrape_counter",
@@ -42,38 +52,10 @@ new Counter({
   },
 });
 
- const g = new Gauge({
-  name: `${prefix}processed_block_number`,
-  help: "Processed blocks gauge",
-  //labelNames: ["method", "code"],
-}); 
-
-// Set metric values to some random values for demonstration
-
-/* export function histoObserve(seconds:any) {
-  blockProcessingHistogram.labels("201").observe(seconds)
-} */
-
-/*  setTimeout(() => {
-  histo.labels("200").observe(Math.random());
-  histo.labels("300").observe(Math.random());
-}, 10);
- */
-export function addBlockToCounter(blockNumber: string, time: number) {
-  blockCounter.inc({ block_number: blockNumber, time: time });
-}
-
-/* setInterval(() => {
-  g.set({ method: "get", code: 200 }, Math.random());
-  g.set(Math.random());
-  g.labels("post", "300").inc();
-}, 100);
-
- if (cluster.isWorker) {
-  // Expose some worker-specific metric as an example
-  setInterval(() => {
-    blockCounter.inc({ code: `worker_${cluster.worker.id}` });
-  }, 2000);
+export function addBlockToCounter(blockNumber?: string, time?: number) {
+  blockCounter.inc(
+    blockNumber && time ? { block_number: blockNumber, time: time } : null
+  );
 }
 
 const t: any[] = [];
@@ -86,10 +68,9 @@ setInterval(() => {
   while (t.length > 0) {
     t.pop();
   }
-}); */
+});
 
 // Setup server to Prometheus scrapes:
-
 server.get("/metrics", async (req: any, res: any) => {
   try {
     res.set("Content-Type", register.contentType);
