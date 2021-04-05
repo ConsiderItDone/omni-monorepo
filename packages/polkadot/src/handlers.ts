@@ -18,8 +18,6 @@ import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepo
 import LogRepository from "@nodle/db/src/repositories/public/logRepository";
 import VestingScheduleRepository from "@nodle/db/src/repositories/public/vestingScheduleRepository";
 
-import MQ from "@nodle/utils/src/mq";
-
 import {
   findExtrinsicsWithEventsHash,
   getExtrinsicSuccess,
@@ -54,7 +52,7 @@ import {
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Log from "@nodle/db/src/models/public/log";
 import Block from "@nodle/db/src/models/public/block";
-import * as EventModel from "@nodle/db/src/models/public/event";
+import { default as EventModel } from "@nodle/db/src/models/public/event";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 
 /******************** BASE HANDLERS **********************/
@@ -64,7 +62,7 @@ export async function handleNewBlock(
   blockHeader: Header,
   timestamp: Moment,
   specVersion: number
-): Promise<number> {
+): Promise<Block> {
   try {
     logger.info(
       LOGGER_INFO_CONST.BLOCK_RECEIVED(blockHeader.number.toNumber())
@@ -85,8 +83,6 @@ export async function handleNewBlock(
         finalized: false,
       });
 
-      MQ.getMQ().emit<Block>("newBlock", block);
-
       logger.info(
         LOGGER_INFO_CONST.BLOCK_SAVED({
           blockId: block.blockId,
@@ -94,7 +90,7 @@ export async function handleNewBlock(
         })
       );
 
-      return block.blockId;
+      return block;
     } catch (blockSaveError) {
       logger.error(
         LOGGER_ERROR_CONST.BLOCK_SAVE_ERROR(number.toNumber()),
@@ -112,7 +108,7 @@ export async function handleEvents(
   extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number,
   blockNumber: BlockNumber
-): Promise<Event[]> {
+): Promise<[EventModel[], Event[]]> {
   try {
     logger.info(
       LOGGER_INFO_CONST.EVENTS_RECEIVED(events.length, blockNumber?.toNumber())
@@ -124,7 +120,8 @@ export async function handleEvents(
     );
 
     const trackedEvents: Event[] = [];
-    let savedEventsLength = 0;
+    const newEvents: EventModel[] = [];
+
     for (const [index, eventRecord] of events.entries()) {
       const { method, section, data } = eventRecord.event;
       if (
@@ -149,9 +146,7 @@ export async function handleEvents(
           eventName: method,
           blockId,
         });
-        savedEventsLength++;
-
-        MQ.getMQ().emit<EventModel.default>("newEvent", event);
+        newEvents.push(event);
       } catch (eventSaveError) {
         logger.error(
           LOGGER_ERROR_CONST.EVENT_SAVE_ERROR(
@@ -167,11 +162,11 @@ export async function handleEvents(
         blockId,
         blockNumber: blockNumber.toNumber(),
         length: events.length,
-        savedLength: savedEventsLength,
+        savedLength: newEvents.length,
       })
     );
 
-    return trackedEvents;
+    return [newEvents, trackedEvents];
   } catch (error) {
     logger.error(error);
   }
@@ -182,7 +177,7 @@ export async function handleLogs(
   logs: Vec<DigestItem>,
   blockId: number,
   blockNumber: BlockNumber
-): Promise<void> {
+): Promise<Log[]> {
   try {
     logger.info(
       LOGGER_INFO_CONST.LOGS_RECEIVED(logs.length, blockNumber?.toNumber())
@@ -203,9 +198,6 @@ export async function handleLogs(
         })
       );
 
-      for (const log of newLogs) {
-        MQ.getMQ().emit<Log>("newLog", log);
-      }
       logger.info(
         LOGGER_INFO_CONST.LOGS_SAVED({
           blockId,
@@ -214,6 +206,8 @@ export async function handleLogs(
           savedLength: newLogs.length,
         })
       );
+
+      return newLogs;
     } catch (logsSaveError) {
       logger.error(
         LOGGER_ERROR_CONST.LOGS_SAVE_ERROR(blockNumber?.toNumber()),
@@ -231,7 +225,7 @@ export async function handleExtrinsics(
   events: Vec<EventRecord>,
   blockId: number,
   blockNumber: BlockNumber
-): Promise<ExtrinsicWithBoundedEvents[]> {
+): Promise<[Extrinsic[], ExtrinsicWithBoundedEvents[]]> {
   logger.info(
     LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(
       extrinsics.length,
@@ -273,10 +267,6 @@ export async function handleExtrinsics(
       const newExtrinsics = await extrinsicRepository.addList(
         processedExtrinsics
       );
-
-      for (const extrinsic of newExtrinsics) {
-        MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
-      }
       logger.info(
         LOGGER_INFO_CONST.EXTRINSICS_SAVED({
           blockId,
@@ -285,13 +275,13 @@ export async function handleExtrinsics(
           savedLength: newExtrinsics.length,
         })
       );
+      return [newExtrinsics, extrinsicsWithBoundedEvents];
     } catch (extrinsicsSaveError) {
       logger.error(
         LOGGER_ERROR_CONST.EXTRINSICS_SAVE_ERROR(blockNumber?.toNumber()),
         extrinsicsSaveError
       );
     }
-    return extrinsicsWithBoundedEvents;
   } catch (error) {
     logger.error(error);
   }

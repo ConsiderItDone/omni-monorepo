@@ -79,31 +79,31 @@ export async function backfiller(connection: Connection): Promise<void> {
       const blockNumber = block.header.number.unwrap();
 
       // 1. Block
-      const newBlockId = await handleNewBlock(
+      const newBlock = await handleNewBlock(
         connection,
         block.header,
         timestamp,
         specVersion.toNumber()
       );
-
+      const { blockId } = newBlock;
       // 2. Extrinsics
-      const extrinsicsWithBoundedEvents = await handleExtrinsics(
+      const [, extrinsicsWithBoundedEvents] = await handleExtrinsics(
         connection,
         block.extrinsics,
         events,
-        newBlockId,
+        blockId,
         blockNumber
       );
 
       // 3.Logs
-      handleLogs(connection, block.header.digest.logs, newBlockId, blockNumber);
+      handleLogs(connection, block.header.digest.logs, blockId, blockNumber);
 
       // 4.Events
-      const trackedEvents = await handleEvents(
+      const [, trackedEvents] = await handleEvents(
         connection,
         events,
         extrinsicsWithBoundedEvents,
-        newBlockId,
+        blockId,
         blockNumber
       );
 
@@ -112,7 +112,7 @@ export async function backfiller(connection: Connection): Promise<void> {
         connection,
         trackedEvents,
         api,
-        newBlockId,
+        blockId,
         blockHash,
         blockNumber
       );
