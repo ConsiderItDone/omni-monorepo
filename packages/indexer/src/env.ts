@@ -1,14 +1,14 @@
 const envalid = require("envalid"); // eslint-disable-line
 
-console.log('5556');
+console.log("5556");
 
 import * as dotenv from "dotenv";
 dotenv.config({
-    debug: true,
-    path: '../../..'
+  debug: true,
+  path: "../../..",
 });
 
-console.log('6667');
+console.log("6667");
 
 console.log(process.env);
 

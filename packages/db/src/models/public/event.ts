@@ -10,7 +10,7 @@ import {
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Extrinsic from "./extrinsic";
-import { GraphQLJSON } from 'graphql-type-json';
+import { GraphQLJSON } from "graphql-type-json";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })

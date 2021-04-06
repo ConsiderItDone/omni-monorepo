@@ -32,7 +32,7 @@ export default class Account extends BaseEntity {
   @Column("integer", { name: "refcount" })
   public refcount: number;
 
-  @Field(() => Balance, { nullable: true})
+  @Field(() => Balance, { nullable: true })
   @OneToOne(() => Balance, (balance) => balance.account)
   // @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
   public balance: Balance;
