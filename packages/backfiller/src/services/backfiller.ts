@@ -10,11 +10,14 @@ import {
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 
-const { CronJob } = require("cron");
+const { CronJob } = require("cron"); // eslint-disable-line
 import { logger } from "@nodle/utils/src/logger";
 
-export async function backfiller(connection: Connection): Promise<void> {
-  const api = await getApi();
+export async function backfiller(
+  ws: string,
+  connection: Connection
+): Promise<void> {
+  const api = await getApi(ws);
 
   // "00 00 00 * * *" to start every midnight
   // "00 */5 * * * *" to start every 5 minutes

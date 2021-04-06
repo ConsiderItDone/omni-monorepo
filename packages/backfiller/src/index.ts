@@ -1,3 +1,10 @@
+import * as dotenv from "dotenv";
+const fs = require("fs"); // eslint-disable-line
+const path = require("path"); // eslint-disable-line
+const envConfig = dotenv.parse(
+  fs.readFileSync(path.resolve(__dirname) + "/../../../.env")
+);
+
 import { backfiller } from "./services/backfiller";
 import { connect } from "@nodle/db";
 import MQ from "@nodle/utils/src/mq";
@@ -7,20 +14,20 @@ const start = async function (): Promise<void> {
   const connectionOptions = {
     name: "default",
     type: "postgres",
-    host: process.env.TYPEORM_HOST || "3.217.156.114",
-    port: Number(process.env.TYPEORM_PORT || 54321),
-    username: process.env.TYPEORM_USERNAME || "nodle",
-    password: process.env.TYPEORM_PASSWORD || "password",
-    database: process.env.TYPEORM_DATABASE || "nodle",
+    host: envConfig.TYPEORM_HOST,
+    port: Number(envConfig.TYPEORM_PORT),
+    username: envConfig.TYPEORM_USERNAME,
+    password: envConfig.TYPEORM_PASSWORD,
+    database: envConfig.TYPEORM_DATABASE,
     logging: false,
     entities: ["../../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
 
   const connection = await connect(connectionOptions);
 
-  await MQ.init(); // init MQ connection
+  await MQ.init(envConfig.RABBIT_MQ_URL); // init MQ connection
 
-  backfiller(connection); // run service
+  backfiller(envConfig.WS_PROVIDER, connection); // run service
 };
 
 export const Backfiller = {

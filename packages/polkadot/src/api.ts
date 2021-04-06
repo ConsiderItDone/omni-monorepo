@@ -1,11 +1,8 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 
-// TODO: fix param
-const provider = new WsProvider(
-  process.env.WS_PROVIDER || "ws://3.217.156.114:9944"
-);
+export async function getApi(ws: string): Promise<ApiPromise> {
+  const provider = new WsProvider(ws);
 
-export async function getApi(): Promise<ApiPromise> {
   return ApiPromise.create({
     provider,
     types: {

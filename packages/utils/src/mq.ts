@@ -6,17 +6,17 @@ export default class MQ {
 
   private pubsub: AMQPPubSub;
 
-  private constructor() {
-    amqp.connect(process.env.RABBIT_MQ_URL).then((connection) => {
+  private constructor(mqUrl: string) {
+    amqp.connect(mqUrl).then((connection) => {
       this.pubsub = new AMQPPubSub({
         connection,
       });
     });
   }
 
-  public static async init(): Promise<MQ> {
+  public static async init(mqUrl: string): Promise<MQ> {
     if (!MQ.mq) {
-      MQ.mq = new MQ();
+      MQ.mq = new MQ(mqUrl);
     }
 
     // wait for 2 seconds for init connection with rabbitmq
@@ -29,7 +29,7 @@ export default class MQ {
 
   public static getMQ(): MQ {
     if (!MQ.mq) {
-      MQ.mq = new MQ();
+      throw new Error("MQ is not initialized properly");
     }
 
     return MQ.mq;

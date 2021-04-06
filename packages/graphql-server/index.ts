@@ -1,3 +1,10 @@
+import * as dotenv from "dotenv";
+const fs = require("fs"); // eslint-disable-line
+const path = require("path"); // eslint-disable-line
+const envConfig = dotenv.parse(
+  fs.readFileSync(path.resolve(__dirname) + "/../../.env")
+);
+
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
 import { ConnectionOptions } from "typeorm";
@@ -13,18 +20,17 @@ import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 
-const PORT = 4000; // env.GRAPHQL_SERVER_PORT
+const PORT = envConfig.GRAPHQL_SERVER_PORT || 4000;
 
 (async (): Promise<void> => {
   const connectionOptions = {
-    // TODO: use env
     name: "default",
     type: "postgres",
-    host: process.env.TYPEORM_HOST || "3.217.156.114",
-    port: Number(process.env.TYPEORM_PORT || 54321),
-    username: process.env.TYPEORM_USERNAME || "nodle",
-    password: process.env.TYPEORM_PASSWORD || "password",
-    database: process.env.TYPEORM_DATABASE || "nodle",
+    host: envConfig.TYPEORM_HOST,
+    port: Number(envConfig.TYPEORM_PORT),
+    username: envConfig.TYPEORM_USERNAME,
+    password: envConfig.TYPEORM_PASSWORD,
+    database: envConfig.TYPEORM_DATABASE,
     logging: false,
     entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;

@@ -22,10 +22,13 @@ import { default as EventModel } from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { logger } from "@nodle/utils/src/logger";
 
-export async function subscribe(connection: Connection): Promise<void> {
+export async function subscribe(
+  ws: string,
+  connection: Connection
+): Promise<void> {
   startMetricsServer();
 
-  const api = await getApi();
+  const api = await getApi(ws);
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
