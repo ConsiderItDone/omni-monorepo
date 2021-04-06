@@ -32,14 +32,14 @@ const blockCounter = new Counter({
   labelNames: ["block_number", "time"],
 });
 
-const g = new Gauge({
+const blockNumberGauge = new Gauge({
   name: `${prefix}last_processed_block_number`,
   help: "Processed blocks gauge",
   //labelNames: ["method", "code"],
 });
 
-export function setGauge(blockNumber: number): void {
-  g.set(blockNumber);
+export function setBlockNumber(blockNumber: number): void {
+  blockNumberGauge.set(blockNumber);
 }
 
 export function addBlockToCounter(blockNumber?: string, time?: number): void {

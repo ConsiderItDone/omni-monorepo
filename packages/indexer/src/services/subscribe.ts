@@ -14,7 +14,7 @@ import {
   startMetricsServer,
   addBlockToCounter,
   blockProcessingHistogram,
-  setGauge,
+  setBlockNumber,
 } from "./metrics";
 import Block from "@nodle/db/src/models/public/block";
 import Log from "@nodle/db/src/models/public/log";
@@ -105,6 +105,6 @@ export async function subscribe(
     //addBlockToCounter(blockNumber.toString(), seconds)
     endMetricsTimer();
     addBlockToCounter();
-    setGauge(blockNumber.toNumber());
+    setBlockNumber(blockNumber.toNumber());
   });
 }
