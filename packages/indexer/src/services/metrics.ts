@@ -70,6 +70,7 @@ setInterval(() => {
 });
 
 // Setup server to Prometheus scrapes:
+// eslint-disable-next-line
 server.get("/metrics", async (req: any, res: any) => {
   try {
     res.set("Content-Type", register.contentType);
@@ -79,6 +80,7 @@ server.get("/metrics", async (req: any, res: any) => {
   }
 });
 
+// eslint-disable-next-line
 server.get("/metrics/counter", async (req: any, res: any) => {
   try {
     res.set("Content-Type", register.contentType);
@@ -88,6 +90,7 @@ server.get("/metrics/counter", async (req: any, res: any) => {
   }
 });
 
+// eslint-disable-next-line
 server.get("/metrics/histogram", async (req: any, res: any) => {
   try {
     res.set("Content-Type", register.contentType);
