@@ -59,7 +59,7 @@ server.get("/metrics", async (req: any, res: any) => {
   }
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.METRICS_PORT || 9100;
 console.log(
   `Server listening to ${port}, metrics exposed on /metrics endpoint`
 );

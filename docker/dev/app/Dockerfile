@@ -6,4 +6,6 @@ WORKDIR /app
 RUN apk add --no-cache \
     python make g++ git ca-certificates
 
-#RUN npm config set unsafe-perm true && npm install -g typescript ts-node
+RUN npm install -g typescript ts-node
+
+USER node
