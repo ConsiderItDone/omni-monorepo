@@ -6,8 +6,9 @@ export default class MQ {
 
   private pubsub: AMQPPubSub;
 
-  private constructor(mqUrl: string) {
-    amqp.connect(mqUrl).then((connection) => {
+  private constructor() {
+    const defaultValue = 'amqps://bxeqnybs:mWgk06St1xygCfY7tTTA9-kunar71hCX@jellyfish.rmq.cloudamqp.com/bxeqnybs';
+    amqp.connect(process.env.RABBIT_MQ_URL || defaultValue).then((connection) => {
       this.pubsub = new AMQPPubSub({
         connection,
       });

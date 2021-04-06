@@ -10,6 +10,7 @@ import {
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Extrinsic from "./extrinsic";
+import { GraphQLJSON } from 'graphql-type-json';
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -23,7 +24,7 @@ export default class Event extends BaseEntity {
   @Column("smallint", { name: "index" })
   public index: number;
 
-  @Field(() => String)
+  @Field(() => GraphQLJSON)
   @Column("jsonb", { name: "data" })
   public data: string;
 
