@@ -7,3 +7,4 @@ export * as VestingScheduleRepository from "./public/vestingScheduleRepository";
 export * as ApplicationRepository from "./public/applicationRepository";
 export * as AccountRepository from "./public/accountRepository";
 export * as BalanceRepository from "./public/balanceRepository";
+export * as BackfillProgressRepository from "./public/backfillProgressRepository";

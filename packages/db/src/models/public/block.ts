@@ -14,6 +14,7 @@ import Log from "./log";
 import Extrinsic from "./extrinsic";
 import RootCertificate from "./rootCertificate";
 import VestingSchedule from "./vestingSchedule";
+import Balance from "./balance";
 
 @ObjectType()
 @Index("block_pk", ["blockId"], { unique: true })
@@ -58,6 +59,11 @@ export default class Block extends BaseEntity {
   @Field(() => Boolean)
   @Column("boolean", { name: "finalized", default: () => false })
   public finalized: boolean;
+
+  @Field(() => [Balance], { nullable: true })
+  @OneToMany(() => Balance, (balance) => balance.block)
+  @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
+  public balances: Balance[];
 
   @Field(() => [Event], { nullable: true, defaultValue: [] })
   @OneToMany(() => Event, (event) => event.block)

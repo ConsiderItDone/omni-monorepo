@@ -2,11 +2,12 @@ import { EntityRepository, Repository } from "typeorm";
 import { Balance } from "../../models";
 
 type NewBalanceParam = {
-  free: number;
-  reserved: number;
-  miscFrozen: number;
-  feeFrozen: number;
+  free: string;
+  reserved: string;
+  miscFrozen: string;
+  feeFrozen: string;
   accountId: number;
+  blockId: number;
 };
 
 @EntityRepository(Balance)
@@ -17,6 +18,7 @@ export default class BalanceRepository extends Repository<Balance> {
     miscFrozen,
     feeFrozen,
     accountId,
+    blockId,
   }: NewBalanceParam): Promise<Balance> {
     return await this.save({
       free,
@@ -24,6 +26,7 @@ export default class BalanceRepository extends Repository<Balance> {
       miscFrozen,
       feeFrozen,
       accountId,
+      blockId,
     });
   }
 

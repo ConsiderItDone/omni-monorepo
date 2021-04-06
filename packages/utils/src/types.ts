@@ -27,10 +27,10 @@ export type Application = {
   candidate_deposit: Balance;
   metadata: Vec<u8>;
   challenger: Option<AccountId>;
-  challenger_deposit: Option<Balance>;
-  votes_for: Option<Balance>;
+  challenger_deposit: Balance;
+  votes_for: Balance;
   voters_for: Vec<ITuple<[AccountId, Balance]>>;
-  votes_against: Option<Balance>;
+  votes_against: Balance;
   voters_against: Vec<ITuple<[AccountId, Balance]>>;
   created_block: BlockNumber;
   challenged_block: BlockNumber;
@@ -40,6 +40,7 @@ export enum ApplicationStatus {
   pending = "application",
   accepted = "member",
   countered = "countered",
+  challenged = "challenged",
 }
 
 export type VestingScheduleOf = {

@@ -1,11 +1,8 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 
-// TODO: fix param
-const provider = new WsProvider(
-  process.env.WS_PROVIDER || "ws://3.217.156.114:9944"
-);
+export async function getApi(ws: string): Promise<ApiPromise> {
+  const provider = new WsProvider(ws);
 
-export async function getApi(): Promise<ApiPromise> {
   return ApiPromise.create({
     provider,
     types: {
@@ -15,10 +12,10 @@ export async function getApi(): Promise<ApiPromise> {
         candidate_deposit: "Balance",
         metadata: "Vec<u8>",
         challenger: "Option<AccountId>",
-        challenger_deposit: "Option<Balance>",
-        votes_for: "Option<Balance>",
+        challenger_deposit: "Balance",
+        votes_for: "Balance",
         voters_for: "Vec<(AccountId, Balance)>",
-        votes_against: "Option<Balance>",
+        votes_against: "Balance",
         voters_against: "Vec<(AccountId, Balance)>",
         created_block: "BlockNumber",
         challenged_block: "BlockNumber",
@@ -33,13 +30,20 @@ export async function getApi(): Promise<ApiPromise> {
         child_revocations: "Vec<CertificateId>",
       },
       Amendment: "Call",
+      // TODO VestingScheduleOf again changed to VestingSchedule after update 05.04
+      VestingScheduleOf: {
+        // May be outdated
+        start: "BlockNumber",
+        period: "BlockNumber",
+        period_count: "u32",
+        per_period: "Balance",
+      },
       VestingSchedule: {
         start: "BlockNumber",
         period: "BlockNumber",
         period_count: "u32",
         per_period: "Balance",
       },
-      VestingScheduleOf: "VestingSchedule",
     },
     rpc: {
       rootOfTrust: {

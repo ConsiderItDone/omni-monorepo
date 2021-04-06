@@ -14,12 +14,12 @@
     "start:backfiller": "npm exec -- ts-node src/run.ts"
   },
   "dependencies": {
+    "cron": "^1.8.2",
     "@polkadot/api": "2.3.2-2",
     "@nodle/db": "^1.0.0",
     "@nodle/utils": "^1.0.0",
     "@nodle/polkadot": "^1.0.0",
     "dotenv": "^8.2.0",
-    "envalid": "^7.0.0",
     "ts-node": "^9.1.1",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.31",

@@ -7,3 +7,4 @@ export { default as Extrinsic } from "./public/extrinsic";
 export { default as Log } from "./public/log";
 export { default as RootCertificate } from "./public/rootCertificate";
 export { default as VestingSchedule } from "./public/vestingSchedule";
+export { default as BackfillProgress } from "./public/backfillProgress";

@@ -4,11 +4,13 @@ import {
   Entity,
   Index,
   OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
+import Block from "./block";
 
 @ObjectType()
 @Index("balance_pk", ["balanceId"], { unique: true })
@@ -18,26 +20,34 @@ export default class Balance extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 
-  // Bigints ?? like '1 189 999 611 450 410'
   @Field(() => Number)
-  @Column("numeric", { name: "free" })
-  public free: number;
+  @Column("bigint", { name: "free" })
+  public free: string;
 
   @Field(() => Number)
-  @Column("numeric", { name: "reserved" })
-  public reserved: number;
+  @Column("bigint", { name: "reserved" })
+  public reserved: string;
 
   @Field(() => Number)
-  @Column("numeric", { name: "misc_frozen" })
-  public miscFrozen: number;
+  @Column("bigint", { name: "misc_frozen" })
+  public miscFrozen: string;
 
   @Field(() => Number)
-  @Column("numeric", { name: "fee_frozen" })
-  public feeFrozen: number;
+  @Column("bigint", { name: "fee_frozen" })
+  public feeFrozen: string;
 
   @Field(() => Int)
   @Column("integer", { name: "account_id" })
   public accountId: number;
+
+  @Field(() => Int)
+  @Column("integer", { name: "block_id" })
+  public blockId: number;
+
+  @Field(() => Block)
+  @ManyToOne(() => Block, (block) => block.events)
+  @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  public block: Block;
 
   @Field(() => Account, { nullable: true })
   @OneToOne(() => Account, (account) => account.balance)

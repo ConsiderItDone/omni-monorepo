@@ -9,13 +9,32 @@ import {
   handleExtrinsics,
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
+import MQ from "@nodle/utils/src/mq";
+import {
+  startMetricsServer,
+  addBlockToCounter,
+  blockProcessingHistogram,
+  setGauge,
+} from "./metrics";
+import Block from "@nodle/db/src/models/public/block";
+import Log from "@nodle/db/src/models/public/log";
+import { default as EventModel } from "@nodle/db/src/models/public/event";
+import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import { logger } from "@nodle/utils/src/logger";
 
-export async function subscribe(connection: Connection): Promise<void> {
-  const api = await getApi();
+export async function subscribe(
+  ws: string,
+  connection: Connection
+): Promise<void> {
+  startMetricsServer();
+
+  const api = await getApi(ws);
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
-    console.log(`Chain is at block: #${header.number.toString()}`);
+    logger.info(`Chain is at block: #${header.number.toString()}`);
+
+    const endMetricsTimer = blockProcessingHistogram.startTimer();
 
     const blockNumber: BlockNumber = header.number.unwrap();
     const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNumber);
@@ -28,32 +47,64 @@ export async function subscribe(connection: Connection): Promise<void> {
     ]);
 
     // 1. Block
-    const newBlockId = await handleNewBlock(
+    const newBlock = await handleNewBlock(
       connection,
       block.header,
       timestamp,
       specVersion.toNumber()
     );
+    MQ.getMQ().emit<Block>("newBlock", newBlock);
 
+    const { blockId } = newBlock;
     // 2. Extrinsics
-    const extrinsicsWithBoundedEvents = await handleExtrinsics(
+    const [newExtrinsics, extrinsicsWithBoundedEvents] = await handleExtrinsics(
       connection,
       block.extrinsics,
       events,
-      newBlockId
+      blockId,
+      blockNumber
     );
+    for (const extrinsic of newExtrinsics) {
+      MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
+    }
+
     // 3.Logs
-    handleLogs(connection, block.header.digest.logs, newBlockId);
+    const newLogs = await handleLogs(
+      connection,
+      block.header.digest.logs,
+      blockId,
+      blockNumber
+    );
+    for (const log of newLogs) {
+      MQ.getMQ().emit<Log>("newLog", log);
+    }
 
     // 4.Events
-    const trackedEvents = await handleEvents(
+    const [newEvents, trackedEvents] = await handleEvents(
       connection,
       events,
       extrinsicsWithBoundedEvents,
-      newBlockId
+      blockId,
+      blockNumber
     );
+    for (const event of newEvents) {
+      MQ.getMQ().emit<EventModel>("newEvent", event);
+    }
 
     //5. Handling custom events
-    handleTrackedEvents(connection, trackedEvents, api, newBlockId);
+    await handleTrackedEvents(
+      connection,
+      trackedEvents,
+      api,
+      blockId,
+      blockHash,
+      blockNumber
+    );
+
+    //const seconds = endMetricsTimer();
+    //addBlockToCounter(blockNumber.toString(), seconds)
+    endMetricsTimer();
+    addBlockToCounter();
+    setGauge(blockNumber.toNumber());
   });
 }

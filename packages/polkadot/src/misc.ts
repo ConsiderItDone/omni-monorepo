@@ -1,6 +1,12 @@
-import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
+import type {
+  EventRecord,
+  Event,
+  AccountInfo,
+} from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
-import { AccountId } from "@polkadot/types/interfaces/runtime";
+import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
+import { EventData } from "@polkadot/types/generic/Event";
+import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -14,13 +20,13 @@ import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCer
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import { AccountInfo } from "@polkadot/types/interfaces/system";
-
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
 } from "@nodle/db/src/models";
+import { ApiPromise } from "@polkadot/api";
+import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -72,7 +78,56 @@ export function getExtrinsicSuccess(
       .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
 
+export function transformEventData(method: string, data: EventData): string {
+  switch (method) {
+    case "Transfer": {
+      return JSON.stringify({
+        from: data[0],
+        to: data[1],
+        amount: data[2],
+      });
+    }
+    default:
+      return data.toHuman() as string;
+  }
+}
+
 /******************* Application utils *************************************/
+export enum ApplicationFetchMethods {
+  Applications = "applications",
+  Members = "members",
+  Challenges = "challenges",
+}
+export async function tryFetchApplication(
+  api: ApiPromise,
+  method: string,
+  accountAddress: string,
+  blockNumber: BlockNumber
+): Promise<ApplicationType> {
+  try {
+    switch (method) {
+      case ApplicationFetchMethods.Applications:
+        return (await api.query.pkiTcr.applications(
+          accountAddress
+        )) as undefined;
+      case ApplicationFetchMethods.Members:
+        return (await api.query.pkiTcr.members(accountAddress)) as undefined;
+      case ApplicationFetchMethods.Challenges:
+        return (await api.query.pkiTcr.challenges(accountAddress)) as undefined;
+      default:
+        return;
+    }
+  } catch (applicationFetchError) {
+    logger.error(
+      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(
+        method,
+        accountAddress,
+        blockNumber.toNumber()
+      ),
+      applicationFetchError
+    );
+  }
+}
 export async function upsertApplication(
   connection: Connection,
   accountId: string,
@@ -117,14 +172,11 @@ function transformApplicationData(
     candidate: candidate.toString(),
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
-    challenger: challenger.unwrapOr(null),
-    challengerDeposit:
-      challenger_deposit.unwrapOr(null) &&
-      challenger_deposit.unwrap().toNumber(),
-    votesFor: votes_for.unwrapOr(null) && votes_for.unwrap().toString(),
+    challenger: challenger?.toString() || null,
+    challengerDeposit: challenger_deposit?.toNumber() || null,
+    votesFor: votes_for?.toString() || null,
     votersFor: voters_for.map((v) => JSON.stringify(v)),
-    votesAgainst:
-      votes_against.unwrapOr(null) && votes_against.unwrap().toString(),
+    votesAgainst: votes_against?.toString() || null,
     votersAgainst: voters_against.map((v) => JSON.stringify(v)),
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
@@ -291,10 +343,29 @@ export function transformVestingSchedules(
 
 /******************* Account utils ****************************/
 
+export async function tryFetchAccount(
+  api: ApiPromise,
+  accountAddress: AccountId,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber
+): Promise<AccountInfo> {
+  try {
+    return await api.query.system.account.at(blockHash, accountAddress);
+  } catch (accountFetchError) {
+    logger.error(
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
+        accountAddress.toString(),
+        blockNumber.toNumber()
+      ),
+      accountFetchError
+    );
+  }
+}
 export async function saveAccount(
   connection: Connection,
   accountAddress: AccountId,
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo,
+  blockId: number
 ): Promise<void> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
   const balanceRepository = connection.getCustomRepository(BalanceRepository);
@@ -312,13 +383,11 @@ export async function saveAccount(
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
     accountId: savedAccount.accountId,
-    free: free.toNumber(),
-    reserved: reserved.toNumber(),
-    miscFrozen: miscFrozen.toNumber(),
-    feeFrozen: feeFrozen.toNumber(),
+    free: free.toString(),
+    reserved: reserved.toString(),
+    miscFrozen: miscFrozen.toString(),
+    feeFrozen: feeFrozen.toString(),
+    blockId,
   };
-  await balanceRepository.upsertByAccountAddress(
-    savedAccount.address,
-    balanceData
-  );
+  await balanceRepository.add(balanceData);
 }
