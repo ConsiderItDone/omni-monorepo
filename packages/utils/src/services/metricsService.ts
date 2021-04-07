@@ -20,7 +20,7 @@ export default class MetricsService {
 
   constructor(
     server: Express = express(),
-    port: number = parseInt(process.env.PORT) || 3000,
+    port: number = parseInt(process.env.METRICS_PORT) || 9100,
     prefix: string = "nodle_"
   ) {
     this.server = server;

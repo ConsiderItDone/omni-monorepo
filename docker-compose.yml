@@ -13,27 +13,48 @@ services:
     ports:
      - "127.0.0.1:54321:5432"
 
+  prometheus:
+    image: prom/prometheus:v2.26.0
+    volumes:
+      - ./docker/dev/prometheus/config.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:7.5.2
+    depends_on:
+      - prometheus
+    env_file:
+      - ./docker/dev/grafana/grafana.env
+    volumes:
+      - ./docker/dev/grafana/provisioning/:/etc/grafana/provisioning/
+      - ./docker/dev/grafana/dashboards/:/var/lib/grafana/dashboards
+    ports:
+      - 3000:3000
+
   indexer:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: docker/dev/Dockerfile
+      dockerfile: docker/dev/app/Dockerfile
     env_file:
       - .env
     volumes:
       - ./:/app  # only dev
-    command: ["sh", "-c", "npm ci && npm run build && npm run start:indexer"]
+    command: ["sh", "-c", "npm ci && npm run start:indexer"]
+    ports:
+      - 9100:9100
 
-  server:
+  graphql-server:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: docker/dev/Dockerfile
+      dockerfile: docker/dev/app/Dockerfile
     env_file:
       - .env
     volumes:
       - ./:/app  # only dev
-    command: ["sh", "-c", "npm ci && npm run build &&  npm run start:server"]
+    command: ["sh", "-c", "npm ci &&  npm run start:server"]
     ports:
       - "4000:4000"
 
