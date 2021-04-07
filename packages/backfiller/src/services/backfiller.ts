@@ -13,6 +13,10 @@ import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfi
 const { CronJob } = require("cron"); // eslint-disable-line
 import { logger } from "@nodle/utils/src/logger";
 import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
+import MetricsService from "@nodle/utils/src/services/metricsService";
+import express from "express";
+
+const backfillServer = express();
 
 export async function backfiller(
   ws: string,
@@ -30,6 +34,8 @@ export async function backfiller(
   logger.info("Backfiller started");
   backfillJob.start();
   blockFinalizerJob.start();
+
+  backfill();
 
   async function backfill() {
     logger.info("Backfill started");
@@ -71,8 +77,17 @@ export async function backfiller(
       `Going to backfill ${missingBlocksNumbers.length} missing blocks from ${startBlock} to ${endBlock}`
     );
 
+    const metrics = new MetricsService(
+      backfillServer,
+      3001,
+      "nodle_backfiller_"
+    );
+
     for (const blockNum of missingBlocksNumbers) {
       logger.info(`Backfilling block №: ${blockNum}`);
+
+      //Metrics timer start
+      metrics.startTimer();
 
       const blockHash = await api.rpc.chain.getBlockHash(blockNum);
       const [
@@ -126,6 +141,11 @@ export async function backfiller(
         blockHash,
         blockNumber
       );
+
+      //Metrics after block process
+      metrics.endTimer();
+      metrics.addBlockToCounter();
+      metrics.setBlockNumber(blockNumber.toNumber());
     }
     logger.info(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());

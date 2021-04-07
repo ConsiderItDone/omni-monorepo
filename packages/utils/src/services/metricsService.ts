@@ -1,0 +1,147 @@
+import express, { Express } from "express";
+import {
+  register,
+  Histogram,
+  Counter,
+  Gauge,
+  collectDefaultMetrics,
+} from "prom-client";
+
+export default class MetricsService {
+  server: Express;
+  port: number;
+  prefix: string;
+
+  blockCounter: Counter<any>;
+  blockProcessingHistogram: Histogram<any>;
+  blockNumberGauge: Gauge<any>;
+
+  endTimer: Function;
+
+  constructor(
+    server: Express = express(),
+    port: number = parseInt(process.env.PORT) || 3000,
+    prefix: string = "nodle_"
+  ) {
+    this.server = server;
+    this.port = port;
+    this.init();
+    this.start();
+    this.prefix = "nodle_indexer_";
+
+    collectDefaultMetrics({
+      gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+      prefix,
+    });
+
+    this.blockCounter = new Counter({
+        name: `${prefix}processed_blocks`,
+        help: "Processed blocks counter",
+        labelNames: ["block_number", "time"],
+    });
+    
+    this.blockNumberGauge = new Gauge({
+        name: `${prefix}last_processed_block_number`,
+        help: "Processed blocks gauge",
+    });
+
+    this.blockProcessingHistogram = new Histogram({
+      name: `${prefix}block_time`,
+      help: "Time to process block",
+      labelNames: ["code"],
+      buckets: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+    });
+  }
+
+  init(): void {
+    this.server.get("/metrics", async (req: any, res: any) => {
+      try {
+        res.set("Content-Type", register.contentType);
+        res.end(await register.metrics());
+      } catch (ex) {
+        res.status(500).end(ex);
+      }
+    });
+  }
+  // eslint-disable-next-line
+  start(): void {
+    this.server.listen(this.port);
+  }
+
+  startTimer() {
+    this.endTimer = this.blockProcessingHistogram.startTimer()
+    //this.blockProcessingHistogram.startTimer()
+  }
+
+  setBlockNumber(blockNumber: number): void {
+    this.blockNumberGauge.set(blockNumber);
+  }
+
+  addBlockToCounter(blockNumber?: string, time?: number): void {
+    this.blockCounter.inc(
+      blockNumber && time ? { block_number: blockNumber, time: time } : null
+    );
+  }
+}
+/* 
+//const cluster = require("cluster");
+const server = express();
+
+// Enable collection of default metrics
+const prefix = "nodle_indexer_";
+collectDefaultMetrics({
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+  prefix,
+});
+
+// Create custom metrics
+export const blockProcessingHistogram = new Histogram({
+  name: `${prefix}block_time`,
+  help: "Time to process block",
+  labelNames: ["code"],
+  buckets: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+});
+//blockProcessingHistogram.observe(10)
+
+const blockCounter = new Counter({
+  name: `${prefix}processed_blocks`,
+  help: "Processed blocks counter",
+  labelNames: ["block_number", "time"],
+});
+
+const blockNumberGauge = new Gauge({
+  name: `${prefix}last_processed_block_number`,
+  help: "Processed blocks gauge",
+  //labelNames: ["method", "code"],
+});
+
+export function setBlockNumber(blockNumber: number): void {
+  blockNumberGauge.set(blockNumber);
+}
+
+export function addBlockToCounter(blockNumber?: string, time?: number): void {
+  blockCounter.inc(
+    blockNumber && time ? { block_number: blockNumber, time: time } : null
+  );
+}
+
+// Setup server to Prometheus scrapes:
+// eslint-disable-next-line
+server.get("/metrics", async (req: any, res: any) => {
+  try {
+    res.set("Content-Type", register.contentType);
+    res.end(await register.metrics());
+  } catch (ex) {
+    res.status(500).end(ex);
+  }
+});
+
+const port = process.env.PORT || 3000;
+console.log(
+  `Server listening to ${port}, metrics exposed on /metrics endpoint`
+);
+
+export function startMetricsServer(): void {
+  server.listen(port);
+}
+ */
