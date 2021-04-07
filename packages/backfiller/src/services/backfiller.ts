@@ -35,8 +35,6 @@ export async function backfiller(
   backfillJob.start();
   blockFinalizerJob.start();
 
-  backfill();
-
   async function backfill() {
     logger.info("Backfill started");
     const backfillProgressRepository = connection.getCustomRepository(

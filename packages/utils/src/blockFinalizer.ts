@@ -21,7 +21,7 @@ export async function finalizeBlocks(
       finalized: false,
       number: LessThanOrEqual(lastFinalizedBlockNumber.toNumber()),
     },
-    take: 500, // 50 unfinalized blocks in 5 minutes comes from chain (1 block per 6 second). Finalizing with limit of 500 // finalization rate is ~2 blocks/second 
+    take: 500, // 50 unfinalized blocks in 5 minutes comes from chain (1 block per 6 second). Finalizing with limit of 500 // finalization rate is ~2 blocks/second
   });
   logger.info(
     `Found ${unfinalizedBlocks.length} unfinalized block. Finalization started`
