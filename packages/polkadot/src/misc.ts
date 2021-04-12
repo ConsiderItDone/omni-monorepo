@@ -3,9 +3,12 @@ import type {
   Event,
   AccountInfo,
 } from "@polkadot/types/interfaces/system";
-import type { GenericExtrinsic, Vec } from "@polkadot/types";
-import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
-import { GenericEventData } from "@polkadot/types";
+import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
+import {
+  AccountId,
+  BlockNumber,
+  Balance,
+} from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import {
   ExtrinsicWithBoundedEvents,
@@ -89,6 +92,9 @@ export function transformEventData(
         to: data[1],
         amount: data[2],
       });
+    }
+    case "Deposit": {
+      return data[0].toString();
     }
     default:
       return data.toHuman() as string;
