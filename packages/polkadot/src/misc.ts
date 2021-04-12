@@ -274,7 +274,7 @@ export async function addChallenger(
 export function applicationIsEmpty(applicationData: ApplicationType): boolean {
   return (
     applicationData.candidate.toString() ===
-    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
+    "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC"
   );
 }
 
