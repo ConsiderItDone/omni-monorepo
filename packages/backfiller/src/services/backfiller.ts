@@ -9,7 +9,6 @@ import {
 } from "@nodle/polkadot/src";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
-
 const { CronJob } = require("cron"); // eslint-disable-line
 import { logger } from "@nodle/utils/src/logger";
 import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";

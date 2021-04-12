@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
-const fs = require("fs"); // eslint-disable-line
-const path = require("path"); // eslint-disable-line
+import fs from 'fs';
+import path from 'path'
 const envConfig = dotenv.parse(
   fs.readFileSync(path.resolve(__dirname) + "/../../../.env")
 );

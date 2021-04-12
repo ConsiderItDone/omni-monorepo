@@ -42,7 +42,7 @@ import {
   RootCertificate,
 } from "@nodle/utils/src/types";
 
-import AccountId from "@polkadot/types/generic/AccountId";
+import {GenericAccountId} from "@polkadot/types";
 import {
   logger,
   LOGGER_INFO_CONST,
@@ -365,7 +365,6 @@ async function handleRootOfTrust(
       certificateData = ((await api.query.pkiRootOfTrust.slots(
         certificateId
       )) as undefined) as RootCertificate;
-      console.log(certificateData);
     } catch (fetchError) {
       logger.error(
         LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateId),
@@ -587,7 +586,7 @@ async function handleBalance(
           event.data[0],
           await tryFetchAccount(
             api,
-            event.data[0] as AccountId,
+            event.data[0] as GenericAccountId,
             blockHash,
             blockNumber
           ),
@@ -596,7 +595,7 @@ async function handleBalance(
           event.data[1],
           await tryFetchAccount(
             api,
-            event.data[1] as AccountId,
+            event.data[1] as GenericAccountId,
             blockHash,
             blockNumber
           ),
@@ -604,13 +603,13 @@ async function handleBalance(
         try {
           saveAccount(
             connection,
-            accFrom[0] as AccountId,
+            accFrom[0] as GenericAccountId,
             accFrom[1] as AccountInfo,
             blockId
           );
           saveAccount(
             connection,
-            accTo[0] as AccountId,
+            accTo[0] as GenericAccountId,
             accTo[1] as AccountInfo,
             blockId
           );

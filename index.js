@@ -1,7 +1,7 @@
 // Required imports
-const {ApiPromise, WsProvider} = require('@polkadot/api');
-const { u8aToHex, u8aToString, compactToU8a } = require('@polkadot/util');
-const { blake2AsU8a } =require('@polkadot/util-crypto');
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import { u8aToHex, u8aToString, compactToU8a } from '@polkadot/util';
+import { blake2AsU8a } from '@polkadot/util-crypto'
 
 async function main() {
     // Initialise the provider to connect to the local node
@@ -56,7 +56,7 @@ async function main() {
 
         const blockHash = await api.rpc.chain.getBlockHash(header.number);
 
-        const [{block}, events] = await Promise.all([
+        const [{ block }, events] = await Promise.all([
             api.rpc.chain.getBlock(blockHash),
             fetchEvents(api, blockHash),
         ]);
@@ -64,25 +64,25 @@ async function main() {
         // console.log(block, events);
 
 
-        const {parentHash, number, stateRoot, extrinsicsRoot} = block.header;
+        const { parentHash, number, stateRoot, extrinsicsRoot } = block.header;
 
         console.log(number.toString(), parentHash.toString(), u8aToHex(parentHash), u8aToHex(stateRoot), u8aToHex(extrinsicsRoot));
         return;
 
         const logs = block.header.digest.logs.map((log) => {
-            const {type, index, value, data} = log;
+            const { type, index, value, data } = log;
 
-            return {type, index, value};
+            return { type, index, value };
         });
 
         const defaultSuccess = typeof events === 'string' ? events : false;
         const extrinsics = block.extrinsics.map((extrinsic) => {
-            const {method, nonce, signature, signer, isSigned, tip, args} = extrinsic;
+            const { method, nonce, signature, signer, isSigned, tip, args } = extrinsic;
             const hash = u8aToString(blake2AsU8a(extrinsic.toU8a(), 256));
 
             return {
                 method,
-                signature: isSigned ? {signature, signer} : null,
+                signature: isSigned ? { signature, signer } : null,
                 nonce,
                 args,
                 tip,
