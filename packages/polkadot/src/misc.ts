@@ -78,7 +78,10 @@ export function getExtrinsicSuccess(
       .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
 
-export function transformEventData(method: string, data: GenericEventData): string {
+export function transformEventData(
+  method: string,
+  data: GenericEventData
+): string {
   switch (method) {
     case "Transfer": {
       return JSON.stringify({

@@ -42,7 +42,7 @@ import {
   RootCertificate,
 } from "@nodle/utils/src/types";
 
-import {GenericAccountId} from "@polkadot/types";
+import { GenericAccountId } from "@polkadot/types";
 import {
   logger,
   LOGGER_INFO_CONST,

@@ -1,4 +1,4 @@
-import amqp from 'amqplib';
+import amqp from "amqplib";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
 
 export default class MQ {
