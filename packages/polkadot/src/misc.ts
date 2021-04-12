@@ -4,11 +4,7 @@ import type {
   AccountInfo,
 } from "@polkadot/types/interfaces/system";
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
-import {
-  AccountId,
-  BlockNumber,
-  Balance,
-} from "@polkadot/types/interfaces/runtime";
+import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import {
   ExtrinsicWithBoundedEvents,
@@ -383,8 +379,8 @@ export async function saveAccount(
 
   const accountData = {
     address: address,
-    nonce: nonce.toNumber(),
-    refcount: refcount.toNumber(),
+    nonce: nonce?.toNumber(),
+    refcount: refcount?.toNumber(),
   };
   const savedAccount = await accountRepository.upsert(address, accountData);
 
