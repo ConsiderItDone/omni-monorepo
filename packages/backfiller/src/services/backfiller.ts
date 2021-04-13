@@ -5,8 +5,8 @@ import {
   handleEvents,
   handleLogs,
   handleExtrinsics,
-  backfillTrackedEvents,
 } from "@nodle/polkadot/src";
+import { backfillTrackedEvents } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
