@@ -52,6 +52,7 @@ export async function subscribe(
       timestamp,
       specVersion.toNumber()
     );
+    if (!newBlock) return;
     MQ.getMQ().emit<Block>("newBlock", newBlock);
 
     const { blockId } = newBlock;
@@ -105,5 +106,8 @@ export async function subscribe(
     metrics.endTimer();
     metrics.addBlockToCounter();
     metrics.setBlockNumber(blockNumber.toNumber());
+    logger.info(
+      `------Finished processing block №: ${header.number.toString()}------`
+    );
   });
 }

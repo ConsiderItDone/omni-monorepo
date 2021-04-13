@@ -23,7 +23,35 @@ export default class BlockRepository extends Repository<Block> {
     specVersion: number;
     finalized: boolean;
   }): Promise<Block> {
-    const block = await this.save({
+    const q = await this.createQueryBuilder()
+      .insert()
+      .into(Block)
+      .values({
+        number,
+        timestamp,
+        hash,
+        parentHash,
+        stateRoot,
+        extrinsicsRoot,
+        specVersion,
+        finalized,
+      })
+      .onConflict(`("number") DO NOTHING`)
+      .returning([
+        "number",
+        "block_id",
+        "timestamp",
+        "hash",
+        "parent_hash",
+        "state_root",
+        "extrinsics_root",
+        "spec_version",
+        "finalized",
+      ])
+      .execute();
+    return q.generatedMaps[0] as Block;
+
+    /* const block = await this.save({
       number,
       timestamp,
       hash,
@@ -34,7 +62,8 @@ export default class BlockRepository extends Repository<Block> {
       finalized,
     });
 
-    return block;
+    console.log("block", block);
+    return block; */
   }
 
   public findByNumber(number: number): Promise<Block> {
