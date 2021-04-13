@@ -1,28 +1,34 @@
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
-import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
+import type {
+  AccountId,
+  BlockNumber,
+} from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
+import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
 import VestingScheduleRepository from "@nodle/db/src/repositories/public/vestingScheduleRepository";
 import { VestingScheduleOf } from "@nodle/utils/src/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { saveAccount, tryFetchAccount } from "@nodle/polkadot/src/misc";
 
 export async function handleVestingSchedule(
   connection: Connection,
   event: Event,
   blockId: number,
   api: ApiPromise,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
-    let targetAccount: string = event.data[0].toString(); // default
+    let targetAccount = event.data[0];
     const vestingScheduleRepository = connection.getCustomRepository(
       VestingScheduleRepository
     );
 
     switch (event.method) {
       case "VestingScheduleAdded": {
-        targetAccount = event.data[1].toString();
+        targetAccount = event.data[1];
         // const vestingScheduleData = (event.data[2] as undefined) as VestingScheduleOf;
         break;
       }
@@ -35,6 +41,20 @@ export async function handleVestingSchedule(
         return;
     }
     let grants: VestingScheduleOf[];
+
+    const accountInfo = await tryFetchAccount(
+      api,
+      targetAccount as AccountId,
+      blockHash,
+      blockNumber
+    );
+    const { accountId } = await saveAccount(
+      connection,
+      targetAccount as AccountId,
+      accountInfo,
+      blockId
+    );
+
     try {
       grants = ((await api.query.grants.vestingSchedules(
         targetAccount
@@ -42,7 +62,7 @@ export async function handleVestingSchedule(
     } catch (grantsFetchError) {
       logger.error(
         LOGGER_ERROR_CONST.VESTING_SCHEDULE_FETCH_ERROR(
-          targetAccount,
+          targetAccount.toString(),
           blockNumber.toNumber()
         ),
         grantsFetchError
@@ -50,13 +70,13 @@ export async function handleVestingSchedule(
     }
 
     if (grants) {
-      await vestingScheduleRepository.removeSchedulesByAccount(targetAccount);
+      await vestingScheduleRepository.removeSchedulesByAccount(accountId);
 
       for (const grant of grants) {
         const { start, period, period_count, per_period } = grant;
         try {
           await vestingScheduleRepository.add({
-            accountAddress: targetAccount,
+            accountId,
             start: start.toString(),
             period: period.toString(),
             periodCount: period_count.toNumber(),
@@ -67,7 +87,7 @@ export async function handleVestingSchedule(
         } catch (grantSaveError) {
           logger.error(
             LOGGER_ERROR_CONST.VESTING_SCHEDULE_SAVE_ERROR(
-              targetAccount,
+              targetAccount.toString(),
               blockNumber.toNumber()
             ),
             grantSaveError
