@@ -43,8 +43,9 @@ export function createBaseResolver<T extends ClassType>(
   abstract class BaseResolver {
     @Query(() => objectTypeCls, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}ById`,
+      nullable: true,
     })
-    async block(@Arg("id") id: number): Promise<T> {
+    async getById(@Arg("id") id: number): Promise<T> {
       const entity = await (objectTypeCls as any).findOne(id); // eslint-disable-line
       if (entity === undefined) {
         throw new Error(`${suffix} ${id} not found`);

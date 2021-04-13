@@ -24,7 +24,7 @@ export default class Event extends BaseEntity {
   @Column("smallint", { name: "index" })
   public index: number;
 
-  @Field(() => GraphQLJSON)
+  @Field(() => GraphQLJSON, { nullable: true })
   @Column("jsonb", { name: "data" })
   public data: string;
 
@@ -44,7 +44,7 @@ export default class Event extends BaseEntity {
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
-  @Field(() => Block)
+  @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
