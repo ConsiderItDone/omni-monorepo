@@ -8,6 +8,7 @@ import {
   Field,
   Int,
   Arg,
+  Subscription,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Event from "@nodle/db/src/models/public/event";
@@ -15,6 +16,8 @@ import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
+import MQ from "@nodle/utils/src/mq";
+import { withFilter } from "graphql-subscriptions";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -29,6 +32,12 @@ class GetEventByNameArgs {
   @Max(100)
   take = 25;
 
+  @Field(() => String)
+  eventName: string;
+}
+
+@ArgsType()
+class SubscribeEventsByNameArgs {
   @Field(() => String)
   eventName: string;
 }
@@ -71,5 +80,18 @@ export default class EventResolver extends EventBaseResolver {
   @FieldResolver()
   extrinsic(@Root() source: Event): Promise<Extrinsic> {
     return singleFieldResolver(source, Extrinsic, "blockId");
+  }
+
+  @Subscription(() => Event, {
+    subscribe: withFilter(
+      () => MQ.getMQ().on(`newEvent`),
+      (payload, variables) => payload.eventName === variables.eventName
+    ),
+  })
+  newEventByName(
+    @Root() entity: Event,
+    @Args() args: SubscribeEventsByNameArgs // eslint-disable-line
+  ): Event {
+    return entity;
   }
 }
