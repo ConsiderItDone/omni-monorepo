@@ -1,0 +1,47 @@
+{{- if .Values.graphql.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+{{- if .Values.graphql.service.annotations }}
+  annotations:
+{{ toYaml .Values.graphql.service.annotations | indent 4 }}
+{{- end }}
+  labels:
+    {{- include "nodle.graphql.labels" . | nindent 4 }}
+{{- if .Values.graphql.service.labels }}
+{{ toYaml .Values.graphql.service.labels | indent 4 }}
+{{- end }}
+  name: {{ template "nodle.graphql.fullname" . }}
+{{ include "nodle.namespace" . | indent 2 }}
+spec:
+{{- if .Values.graphql.service.clusterIP }}
+  clusterIP: {{ .Values.graphql.service.clusterIP }}
+{{- end }}
+{{- if .Values.graphql.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.graphql.service.externalIPs | indent 4 }}
+{{- end }}
+{{- if .Values.graphql.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.graphql.service.loadBalancerIP }}
+{{- end }}
+{{- if .Values.graphql.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range $cidr := .Values.graphql.service.loadBalancerSourceRanges }}
+    - {{ $cidr }}
+  {{- end }}
+{{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.graphql.service.servicePort }}
+      protocol: TCP
+      targetPort: 4000
+    {{- if .Values.graphql.service.nodePort }}
+      nodePort: {{ .Values.graphql.service.nodePort }}
+    {{- end }}
+  selector:
+    {{- include "nodle.graphql.matchLabels" . | nindent 4 }}
+{{- if .Values.graphql.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.graphql.service.sessionAffinity }}
+{{- end }}
+  type: "{{ .Values.graphql.service.type }}"
+{{- end }}
