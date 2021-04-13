@@ -24,7 +24,7 @@ export default class Event extends BaseEntity {
   @Column("smallint", { name: "index" })
   public index: number;
 
-  @Field(() => GraphQLJSON)
+  @Field(() => GraphQLJSON, { nullable: true })
   @Column("jsonb", { name: "data" })
   public data: string;
 
