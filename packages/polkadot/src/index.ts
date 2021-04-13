@@ -9,5 +9,8 @@ export {
   handleLogs,
   handleExtrinsics,
   handleTrackedEvents,
-  backfillTrackedEvents,
+  handleApplication,
+  handleBalance,
+  handleRootOfTrust,
+  handleVestingSchedule,
 } from "./handlers";
