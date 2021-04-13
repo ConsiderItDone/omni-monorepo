@@ -79,7 +79,7 @@ export default class EventResolver extends EventBaseResolver {
 
   @FieldResolver()
   extrinsic(@Root() source: Event): Promise<Extrinsic> {
-    return singleFieldResolver(source, Extrinsic, "blockId");
+    return singleFieldResolver(source, Extrinsic, "extrinsicId");
   }
 
   @Subscription(() => Event, {
