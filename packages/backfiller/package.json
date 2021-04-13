@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "cron": "^1.8.2",
-    "@polkadot/api": "2.3.2-2",
+    "@polkadot/api": "^3.11.1",
     "@nodle/db": "^1.0.0",
     "@nodle/utils": "^1.0.0",
     "@nodle/polkadot": "^1.0.0",
