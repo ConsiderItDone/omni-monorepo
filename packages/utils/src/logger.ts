@@ -55,6 +55,8 @@ export const LOGGER_INFO_CONST = {
     getReceivedString("block", null, blockNumber),
   BLOCK_SAVED: (params: savedDataParams): string =>
     getSavedString("block", params),
+  BLOCK_DUPLICATE: (params: savedDataParams): string =>
+    `Block №: ${params.blockNumber} already in DB, skipping`,
 
   EVENTS_RECEIVED: (length: number, blockNumber: number): string =>
     getReceivedString("events", length, blockNumber),

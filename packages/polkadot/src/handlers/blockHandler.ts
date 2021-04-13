@@ -35,15 +35,19 @@ export async function handleNewBlock(
         specVersion,
         finalized: false,
       });
-
-      logger.info(
-        LOGGER_INFO_CONST.BLOCK_SAVED({
-          blockId: block.blockId,
-          blockNumber: number.toNumber(),
-        })
-      );
-
-      return block;
+      if (block.blockId) {
+        logger.info(
+          LOGGER_INFO_CONST.BLOCK_SAVED({
+            blockId: block.blockId,
+            blockNumber: number.toNumber(),
+          })
+        );
+        return block;
+      } else {
+        logger.info(
+          LOGGER_INFO_CONST.BLOCK_DUPLICATE({ blockNumber: number.toNumber() })
+        );
+      }
     } catch (blockSaveError) {
       logger.error(
         LOGGER_ERROR_CONST.BLOCK_SAVE_ERROR(number.toNumber()),
