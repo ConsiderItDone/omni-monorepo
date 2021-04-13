@@ -83,7 +83,7 @@ export function transformEventData(
 ): string {
   switch (method) {
     case "Transfer": {
-      const amount = data[2] as any // eslint-disable-line
+      const amount = data[2] as any; // eslint-disable-line
       return JSON.stringify({
         from: data[0],
         to: data[1],

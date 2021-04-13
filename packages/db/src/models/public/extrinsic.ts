@@ -88,7 +88,7 @@ export default class Extrinsic extends BaseEntity {
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
-  @Field(() => Block)
+  @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.extrinsics)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
