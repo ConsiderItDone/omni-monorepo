@@ -10,31 +10,30 @@ import {
   handleTrackedEvents,
 } from "@nodle/polkadot/src";
 import MQ from "@nodle/utils/src/mq";
-import {
-  startMetricsServer,
-  addBlockToCounter,
-  blockProcessingHistogram,
-  setBlockNumber,
-} from "./metrics";
+
 import Block from "@nodle/db/src/models/public/block";
 import Log from "@nodle/db/src/models/public/log";
 import { default as EventModel } from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { logger } from "@nodle/utils/src/logger";
+import MetricsService from "@nodle/utils/src/services/metricsService";
+import express from "express";
+
+const indexerServer = express();
 
 export async function subscribe(
   ws: string,
   connection: Connection
 ): Promise<void> {
-  startMetricsServer();
-
   const api = await getApi(ws);
+
+  const metrics = new MetricsService(indexerServer, 3050, "nodle_indexer_");
 
   await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
     logger.info(`Chain is at block: #${header.number.toString()}`);
 
-    const endMetricsTimer = blockProcessingHistogram.startTimer();
+    metrics.startTimer();
 
     const blockNumber: BlockNumber = header.number.unwrap();
     const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNumber);
@@ -103,8 +102,8 @@ export async function subscribe(
 
     //const seconds = endMetricsTimer();
     //addBlockToCounter(blockNumber.toString(), seconds)
-    endMetricsTimer();
-    addBlockToCounter();
-    setBlockNumber(blockNumber.toNumber());
+    metrics.endTimer();
+    metrics.addBlockToCounter();
+    metrics.setBlockNumber(blockNumber.toNumber());
   });
 }

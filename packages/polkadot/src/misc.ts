@@ -3,9 +3,8 @@ import type {
   Event,
   AccountInfo,
 } from "@polkadot/types/interfaces/system";
-import type { GenericExtrinsic, Vec } from "@polkadot/types";
+import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
-import { EventData } from "@polkadot/types/generic/Event";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import {
   ExtrinsicWithBoundedEvents,
@@ -78,7 +77,10 @@ export function getExtrinsicSuccess(
       .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
 }
 
-export function transformEventData(method: string, data: EventData): string {
+export function transformEventData(
+  method: string,
+  data: GenericEventData
+): string {
   switch (method) {
     case "Transfer": {
       return JSON.stringify({
@@ -86,6 +88,9 @@ export function transformEventData(method: string, data: EventData): string {
         to: data[1],
         amount: data[2],
       });
+    }
+    case "Deposit": {
+      return data[0].toString();
     }
     default:
       return data.toHuman() as string;
@@ -215,7 +220,7 @@ export async function recordVote(
   );
 
   if (!targetInDB && !targetData) {
-    console.log(
+    logger.error(
       "Error! Trying to record vote with no data about target(in db and from response)"
     );
   }
@@ -267,10 +272,9 @@ export async function addChallenger(
 }
 
 export function applicationIsEmpty(applicationData: ApplicationType): boolean {
-  console.log("application is empty");
   return (
     applicationData.candidate.toString() ===
-    "5C4hrfjw9DjXZTzV3MwzrrAr9P1MJhSrvWGWqi1eSuyUpnhM"
+    "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC"
   );
 }
 
@@ -375,8 +379,8 @@ export async function saveAccount(
 
   const accountData = {
     address: address,
-    nonce: nonce.toNumber(),
-    refcount: refcount.toNumber(),
+    nonce: nonce?.toNumber(),
+    refcount: refcount?.toNumber(),
   };
   const savedAccount = await accountRepository.upsert(address, accountData);
 

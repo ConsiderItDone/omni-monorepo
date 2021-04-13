@@ -1,4 +1,4 @@
-import amqp = require("amqplib"); // eslint-disable-line
+import amqp from "amqplib";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
 
 export default class MQ {

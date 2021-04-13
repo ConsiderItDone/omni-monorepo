@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
-const fs = require("fs"); // eslint-disable-line
-const path = require("path"); // eslint-disable-line
+import fs from "fs";
+import path from "path";
 const envConfig = dotenv.parse(
   fs.readFileSync(path.resolve(__dirname) + "/../../.env")
 );
@@ -19,6 +19,7 @@ import AccountResolver from "./src/resolvers/accountResolver";
 import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
+import MQ from "@nodle/utils/src/mq";
 
 const PORT = envConfig.GRAPHQL_SERVER_PORT || 4000;
 
@@ -36,6 +37,8 @@ const PORT = envConfig.GRAPHQL_SERVER_PORT || 4000;
   } as ConnectionOptions;
 
   await connect(connectionOptions);
+
+  await MQ.init(envConfig.RABBIT_MQ_URL); // init MQ connection
 
   const schema = await buildSchema({
     resolvers: [
