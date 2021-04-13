@@ -41,7 +41,9 @@ export function createBaseResolver<T extends ClassType>(
 
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
-    @Query(() => objectTypeCls, { name: `get${suffix}ById` })
+    @Query(() => objectTypeCls, {
+      name: `${Utils.lowerCaseFirstLetter(suffix)}ById`,
+    })
     async block(@Arg("id") id: number): Promise<T> {
       const entity = await (objectTypeCls as any).findOne(id); // eslint-disable-line
       if (entity === undefined) {
@@ -51,7 +53,9 @@ export function createBaseResolver<T extends ClassType>(
       return entity;
     }
 
-    @Query(() => [objectTypeCls], { name: `getAll${suffix}s` })
+    @Query(() => [objectTypeCls], {
+      name: `${Utils.lowerCaseFirstLetter(suffix)}s`,
+    })
     protected async getAll(
       @Args() { take, skip, first, last }: PaginationArgs
     ): Promise<T[]> {
