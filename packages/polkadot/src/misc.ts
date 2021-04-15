@@ -68,14 +68,7 @@ export function getExtrinsicSuccess(
   );
   return extr.boundedEvents.some(
     (event) => event.method === "ExtrinsicSuccess"
-  ); // !!! DANGER ZONE
-
-  /* return events  // TODO find a new way to find extrinsic success
-      .filter(
-        ({ phase }: EventRecord) =>
-          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
-      )
-      .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
+  );
 }
 
 export function transformEventData(

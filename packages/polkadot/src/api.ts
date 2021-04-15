@@ -30,9 +30,7 @@ export async function getApi(ws: string): Promise<ApiPromise> {
         child_revocations: "Vec<CertificateId>",
       },
       Amendment: "Call",
-      // TODO VestingScheduleOf again changed to VestingSchedule after update 05.04
       VestingScheduleOf: {
-        // May be outdated
         start: "BlockNumber",
         period: "BlockNumber",
         period_count: "u32",

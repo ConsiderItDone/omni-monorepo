@@ -48,7 +48,7 @@ export async function handleExtrinsics(
           callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
           callModule: extrinsic.method.section,
           callModuleFunction: extrinsic.method.method,
-          params: JSON.stringify(extrinsic.method.args), // TODO changed after downgrade
+          params: JSON.stringify(extrinsic.method.args),
           nonce: extrinsic.nonce.toNumber(),
           era: extrinsic.era.toString(),
           hash: extrinsic.hash.toHex(),

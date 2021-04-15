@@ -49,7 +49,7 @@ export async function backfiller(
       },
     } = await api.rpc.chain.getBlock();
 
-    const startBlock = parseInt(backfillProgress.lastBlockNumber as string, 10); // Block number to search from; TODO handle bigInt
+    const startBlock = parseInt(backfillProgress.lastBlockNumber as string, 10);
     const limit = backfillProgress.perPage; // Amount of block to check
     const endBlock = await getEndBlock(
       blockRepository,
