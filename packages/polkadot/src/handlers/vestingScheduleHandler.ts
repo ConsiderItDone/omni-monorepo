@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
@@ -8,7 +8,7 @@ import { VestingScheduleOf } from "@nodle/utils/src/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 export async function handleVestingSchedule(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
@@ -16,7 +16,7 @@ export async function handleVestingSchedule(
 ): Promise<void> {
   try {
     let targetAccount: string = event.data[0].toString(); // default
-    const vestingScheduleRepository = connection.getCustomRepository(
+    const vestingScheduleRepository = manager.getCustomRepository(
       VestingScheduleRepository
     );
 

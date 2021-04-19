@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
@@ -17,7 +17,7 @@ import {
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 export async function handleApplication(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
@@ -104,7 +104,7 @@ export async function handleApplication(
     }
     try {
       await upsertApplication(
-        connection,
+        manager,
         accountAddress,
         (applicationData as undefined) as ApplicationType,
         blockId,

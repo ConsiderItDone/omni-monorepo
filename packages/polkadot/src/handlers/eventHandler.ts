@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { Vec } from "@polkadot/types";
@@ -21,7 +21,7 @@ import {
 import { default as EventModel } from "@nodle/db/src/models/public/event";
 
 export async function handleEvents(
-  connection: Connection,
+  manager: EntityManager,
   events: Vec<EventRecord>,
   extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],
   blockId: number,
@@ -32,8 +32,8 @@ export async function handleEvents(
       LOGGER_INFO_CONST.EVENTS_RECEIVED(events.length, blockNumber?.toNumber())
     );
 
-    const eventRepository = connection.getCustomRepository(EventRepository);
-    const extrinsicRepository = connection.getCustomRepository(
+    const eventRepository = manager.getCustomRepository(EventRepository);
+    const extrinsicRepository = manager.getCustomRepository(
       ExtrinsicRepository
     );
 
