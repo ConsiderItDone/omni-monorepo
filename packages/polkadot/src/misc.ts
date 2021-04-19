@@ -23,7 +23,7 @@ import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
-  Account as AccountModel
+  Account as AccountModel,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
@@ -389,5 +389,5 @@ export async function saveAccount(
     blockId,
   };
   await balanceRepository.add(balanceData);
-  return savedAccount
+  return savedAccount;
 }

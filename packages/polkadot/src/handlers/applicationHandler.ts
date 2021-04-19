@@ -108,7 +108,7 @@ export async function handleApplication(
         );
         applicationStatus = ApplicationStatus.accepted;
         break;
-      } 
+      }
       default:
         return;
     }
