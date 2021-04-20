@@ -35,7 +35,7 @@ export default class VestingSchedule extends BaseEntity {
   public perPeriod: string;
 
   @Field(() => Number)
-  @Column("character varying", { name: "account_id" })
+  @Column("integer", { name: "account_id" })
   public accountId: number;
 
   @Field(() => Account, { nullable: true })
