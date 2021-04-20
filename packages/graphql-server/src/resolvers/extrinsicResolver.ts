@@ -3,7 +3,7 @@ import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Event from "@nodle/db/src/models/public/event";
 import { createBaseResolver } from "../baseResolver";
-import { singleFieldResolver } from "../fieldsResolver";
+import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -28,6 +28,6 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
 
   @FieldResolver()
   events(@Root() source: Extrinsic): Promise<Event[]> {
-    return singleFieldResolver(source, Event, "eventId");
+    return arrayFieldResolver(source, Event, "extrinsicId");
   }
 }

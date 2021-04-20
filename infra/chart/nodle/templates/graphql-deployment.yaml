@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nodle.graphql.fullname" . }}
+  labels:
+    {{- include "nodle.graphql.labels" . | nindent 4 }}
+{{ include "nodle.namespace" . | indent 2 }}
+spec:
+  replicas: {{ .Values.graphql.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "chart.graphqlSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "nodle.graphql.labels" . | nindent 8 }}
+      {{- if .Values.graphql.podLabels}}
+      {{ toYaml .Values.graphql.podLabels | nindent 8 }}
+      {{- end}}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ template "nodle.name" . }}-{{ .Values.graphql.name }}
+          image: "{{ .Values.graphql.image.repository }}:{{ .Values.graphql.image.tag }}"
+          imagePullPolicy: {{ .Values.graphql.image.pullPolicy }}
+          env:
+            # database
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: database_host
+                  name: {{ template "nodle.graphql.fullname" . }}
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: database_name
+                  name: {{ template "nodle.graphql.fullname" . }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database_username
+                  name: {{ template "nodle.graphql.fullname" . }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database_password
+                  name: {{ template "nodle.graphql.fullname" . }}
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: database_port
+                  name: {{ template "nodle.graphql.fullname" . }}
+          readinessProbe:
+            httpGet:
+              path: /v1/ready
+              port: 9000
+          resources:
+{{ toYaml .Values.graphql.resources | indent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
