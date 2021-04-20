@@ -23,6 +23,7 @@ import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
+  Account as AccountModel,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
@@ -67,14 +68,7 @@ export function getExtrinsicSuccess(
   );
   return extr.boundedEvents.some(
     (event) => event.method === "ExtrinsicSuccess"
-  ); // !!! DANGER ZONE
-
-  /* return events  // TODO find a new way to find extrinsic success
-      .filter(
-        ({ phase }: EventRecord) =>
-          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
-      )
-      .some(({ event }: EventRecord) => api.events.system.ExtrinsicSuccess.is(event)); */
+  );
 }
 
 export function transformEventData(
@@ -329,14 +323,14 @@ function transformCertificateData(
 /******************* Vesting Schedules utils *************************************/
 
 export function transformVestingSchedules(
-  accountId: string,
+  accountId: number,
   schedulesData: VestingScheduleType[],
   blockId: number
 ): VestingScheduleModel[] {
   return schedulesData.map((schedule) => {
     const { start, period, period_count, per_period } = schedule;
     return {
-      accountAddress: accountId,
+      accountId,
       start: start.toString(),
       period: period.toString(),
       periodCount: period_count.toNumber(),
@@ -371,7 +365,7 @@ export async function saveAccount(
   accountAddress: AccountId,
   accountInfo: AccountInfo,
   blockId: number
-): Promise<void> {
+): Promise<AccountModel> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
   const balanceRepository = connection.getCustomRepository(BalanceRepository);
 
@@ -395,4 +389,5 @@ export async function saveAccount(
     blockId,
   };
   await balanceRepository.add(balanceData);
+  return savedAccount;
 }

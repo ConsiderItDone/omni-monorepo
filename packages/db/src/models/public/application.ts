@@ -29,7 +29,7 @@ export default class Application extends BaseEntity {
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
 
-  @Field(() => String, { defaultValue: ApplicationStatus.pending }) //TODO add default
+  @Field(() => String, { defaultValue: ApplicationStatus.pending })
   @Column("character varying", {
     name: "status",
     default: ApplicationStatus.pending,

@@ -34,15 +34,13 @@ export default class VestingSchedule extends BaseEntity {
   @Column("bigint", { name: "per_period", default: () => "0" })
   public perPeriod: string;
 
-  @Field(() => String)
-  @Column("character varying", { name: "account_address" })
-  public accountAddress: string;
-
-  // TODO: use account_id instead of address
+  @Field(() => Number)
+  @Column("integer", { name: "account_id" })
+  public accountId: number;
 
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.vestingSchedules)
-  @JoinColumn([{ name: "account_address", referencedColumnName: "address" }])
+  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 
   @Field(() => Int)

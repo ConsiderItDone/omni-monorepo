@@ -36,7 +36,14 @@ export async function handleTrackedEvents(
           handleRootOfTrust(connection, event, api, blockId, blockNumber);
           break;
         case CustomEventSection.VestingSchedule:
-          handleVestingSchedule(connection, event, blockId, api, blockNumber);
+          handleVestingSchedule(
+            connection,
+            event,
+            blockId,
+            api,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.Application:
           handleApplication(connection, event, blockId, api, blockNumber);
