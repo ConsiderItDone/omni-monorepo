@@ -7,7 +7,7 @@ type NewBalanceParam = {
   miscFrozen: string;
   feeFrozen: string;
   accountId: number;
-  blockId: number;
+  blockId?: number;
 };
 
 @EntityRepository(Balance)

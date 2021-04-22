@@ -364,7 +364,7 @@ export async function saveAccount(
   connection: Connection,
   accountAddress: AccountId,
   accountInfo: AccountInfo,
-  blockId: number
+  blockId?: number
 ): Promise<AccountModel> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
   const balanceRepository = connection.getCustomRepository(BalanceRepository);

@@ -6,7 +6,10 @@ import {
   handleLogs,
   handleExtrinsics,
 } from "@nodle/polkadot/src";
-import { backfillTrackedEvents } from "@nodle/backfiller/src/utils/backfillers";
+import {
+  backfillAccounts,
+  backfillTrackedEvents,
+} from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
@@ -29,10 +32,14 @@ export async function backfiller(
   const blockFinalizerJob = new CronJob("00 */5 * * * *", () =>
     finalizeBlocks(api, connection)
   );
+  const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
+    backfillAccounts(connection, api)
+  );
 
   logger.info("Backfiller started");
   backfillJob.start();
   blockFinalizerJob.start();
+  backfillAccountsJob.start();
 
   async function backfill() {
     logger.info("Backfill started");

@@ -41,7 +41,7 @@ export default class Balance extends BaseEntity {
   public accountId: number;
 
   @Field(() => Int)
-  @Column("integer", { name: "block_id" })
+  @Column("integer", { name: "block_id", nullable: true })
   public blockId: number;
 
   @Field(() => Block, { nullable: true })

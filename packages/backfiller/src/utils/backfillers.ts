@@ -1,6 +1,9 @@
 import { Connection } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
-import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
+import type {
+  AccountId,
+  BlockNumber,
+} from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
@@ -10,6 +13,7 @@ import {
   applicationIsEmpty,
   tryFetchApplication,
   ApplicationFetchMethods,
+  saveAccount,
 } from "@nodle/polkadot/src/misc";
 import {
   CustomEventSection,
@@ -166,18 +170,30 @@ export async function backfillApplication(
         applicationStatus = ApplicationStatus.challenged;
         break;
       }
-      /* 
-    /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
-    case "ChallengeRefusedApplication": {
-      const acc = event.data[0];
-      break;
-    }
-    /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
-    case "ChallengeAcceptedApplication": {
-      const acc = event.data[0];
-      break;
-    } 
-    */
+
+      /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
+      case "ChallengeRefusedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountId,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.refused;
+        break;
+      }
+      /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
+      case "ChallengeAcceptedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountId,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.accepted;
+        break;
+      }
+
       default:
         return;
     }
@@ -190,5 +206,16 @@ export async function backfillApplication(
     );
   } catch (error) {
     logger.error(error);
+  }
+}
+
+export async function backfillAccounts(
+  connection: Connection,
+  api: ApiPromise
+): Promise<void> {
+  const accounts = await api.query.system.account.entries();
+
+  for (const account of accounts) {
+    saveAccount(connection, account[0] as AccountId, account[1]);
   }
 }
