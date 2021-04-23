@@ -9,6 +9,7 @@ import {
 import {
   backfillAccounts,
   backfillTrackedEvents,
+  backfillValidators,
 } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
@@ -35,11 +36,15 @@ export async function backfiller(
   const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
     backfillAccounts(connection, api)
   );
+  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () =>
+    backfillValidators(connection, api)
+  );
 
   logger.info("Backfiller started");
   backfillJob.start();
   blockFinalizerJob.start();
   backfillAccountsJob.start();
+  backfillValidatorsJob.start();
 
   async function backfill() {
     logger.info("Backfill started");

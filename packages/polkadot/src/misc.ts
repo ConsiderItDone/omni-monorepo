@@ -2,6 +2,7 @@ import type {
   EventRecord,
   Event,
   AccountInfo,
+  AccountInfoWithProviders,
 } from "@polkadot/types/interfaces/system";
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
@@ -18,12 +19,14 @@ import ApplicationRepository from "@nodle/db/src/repositories/public/application
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
+import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
   Account as AccountModel,
+  Validator,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
@@ -370,7 +373,7 @@ export async function saveAccount(
   const balanceRepository = connection.getCustomRepository(BalanceRepository);
 
   const address = accountAddress.toString();
-  const { nonce, refcount, data: balance } = accountInfo;
+  const { nonce, refcount = null, data: balance } = accountInfo;
 
   const accountData = {
     address: address,
@@ -390,4 +393,22 @@ export async function saveAccount(
   };
   await balanceRepository.add(balanceData);
   return savedAccount;
+}
+
+export async function saveValidator(
+  connection: Connection,
+  accountId: number,
+  accountAddress: AccountId,
+  accountInfo: AccountInfoWithProviders
+): Promise<Validator> {
+  const validatorRepository = connection.getCustomRepository(
+    ValidatorRepository
+  );
+  const { consumers, providers } = accountInfo;
+
+  return await validatorRepository.upsert(accountAddress.toString(), {
+    accountId,
+    consumers: consumers.toNumber(),
+    providers: providers.toNumber(),
+  });
 }

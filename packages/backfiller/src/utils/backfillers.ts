@@ -4,7 +4,10 @@ import type {
   AccountId,
   BlockNumber,
 } from "@polkadot/types/interfaces/runtime";
-import type { Event } from "@polkadot/types/interfaces/system";
+import type {
+  Event,
+  AccountInfoWithProviders,
+} from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
 import {
@@ -14,6 +17,7 @@ import {
   tryFetchApplication,
   ApplicationFetchMethods,
   saveAccount,
+  saveValidator,
 } from "@nodle/polkadot/src/misc";
 import {
   CustomEventSection,
@@ -217,5 +221,31 @@ export async function backfillAccounts(
 
   for (const account of accounts) {
     saveAccount(connection, account[0] as AccountId, account[1]);
+  }
+}
+
+export async function backfillValidators(
+  connection: Connection,
+  api: ApiPromise
+): Promise<void> {
+  const validators = await api.query.session.validators();
+
+  if (validators && validators.length > 0) {
+    const validatorDatas = await Promise.all(
+      validators.map((authorityId) => api.query.system.account(authorityId))
+    );
+    for (const [index, validator] of validators.entries()) {
+      const validatorAccount = await saveAccount(
+        connection,
+        validator as AccountId,
+        validatorDatas[index]
+      );
+      await saveValidator(
+        connection,
+        validatorAccount.accountId,
+        validator as AccountId,
+        (validatorDatas[index] as unknown) as AccountInfoWithProviders
+      );
+    }
   }
 }
