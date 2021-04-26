@@ -42,7 +42,14 @@ export async function backfillTrackedEvents(
           handleRootOfTrust(manager, event, api, blockId, blockNumber);
           break;
         case CustomEventSection.VestingSchedule:
-          handleVestingSchedule(manager, event, blockId, api, blockNumber);
+          handleVestingSchedule(
+            manager,
+            event,
+            blockId,
+            api,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.Application:
           backfillApplication(manager, event, blockId, api, blockNumber);

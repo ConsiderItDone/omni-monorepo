@@ -29,7 +29,7 @@ export default class Event extends BaseEntity {
   public data: string;
 
   @Field(() => String, { nullable: true })
-  @Column("character varying", { name: "extrinsic_hash", nullable: true }) // TODO check length
+  @Column("character varying", { name: "extrinsic_hash", nullable: true })
   public extrinsicHash: string | null;
 
   @Field(() => String)

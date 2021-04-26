@@ -2,7 +2,7 @@ import { EntityRepository, Repository } from "typeorm";
 import VestingSchedule from "../../models/public/vestingSchedule";
 
 type NewVestingSchedule = {
-  accountAddress: string;
+  accountId: number;
   start: string;
   period: string;
   periodCount: number;
@@ -14,7 +14,7 @@ type NewVestingSchedule = {
 @EntityRepository(VestingSchedule)
 export default class VestingScheduleRepository extends Repository<VestingSchedule> {
   public add({
-    accountAddress,
+    accountId,
     start,
     period,
     periodCount,
@@ -23,7 +23,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
     status = "active",
   }: NewVestingSchedule): Promise<VestingSchedule> {
     return this.save({
-      accountAddress,
+      accountId,
       start,
       period,
       periodCount,
@@ -39,6 +39,7 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
     vestingSchedule.status = status;
     return await this.save(vestingSchedule);
   }
+  /* 
   public async cancelSchedules(accountAddress: string): Promise<void> {
     const schedules = await this.find({
       accountAddress: accountAddress,
@@ -47,9 +48,10 @@ export default class VestingScheduleRepository extends Repository<VestingSchedul
       await this.changeStatus(schedule, "canceled");
     }
   }
-  public async removeSchedulesByAccount(accountAddress: string): Promise<void> {
+  */
+  public async removeSchedulesByAccount(accountId: number): Promise<void> {
     const schedules = await this.find({
-      accountAddress: accountAddress,
+      account: { accountId: accountId },
     });
     await this.remove(schedules);
   }

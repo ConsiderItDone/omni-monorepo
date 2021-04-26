@@ -4,7 +4,6 @@ import Block from "../../models/public/block";
 @EntityRepository(Block)
 export default class BlockRepository extends Repository<Block> {
   public async add({
-    // TODO: support all fields
     number,
     timestamp,
     hash,

@@ -46,7 +46,7 @@ export async function handleApplication(
           accountAddress,
           blockNumber
         );
-        applicationStatus = ApplicationStatus.accepted;
+        applicationStatus = ApplicationStatus.passed;
         break;
       }
       case "ApplicationChallenged": {
@@ -87,18 +87,28 @@ export async function handleApplication(
         // recordVote(connection,voteInitiator,voteTarget,voteValue,blockId,targetData);
         break;
       }
-      /* 
-    /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
-    case "ChallengeRefusedApplication": {
-      const acc = event.data[0];
-      break;
-    }
-    /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
-    case "ChallengeAcceptedApplication": {
-      const acc = event.data[0];
-      break;
-    } 
-    */
+      /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
+      case "ChallengeRefusedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountAddress,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.refused;
+        break;
+      }
+      /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
+      case "ChallengeAcceptedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountAddress,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.accepted;
+        break;
+      }
       default:
         return;
     }
