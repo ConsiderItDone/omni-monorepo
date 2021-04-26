@@ -82,7 +82,6 @@ export async function handleVestingSchedule(
             periodCount: period_count.toNumber(),
             perPeriod: per_period.toString(),
             blockId,
-            status: "active",
           });
         } catch (grantSaveError) {
           logger.error(

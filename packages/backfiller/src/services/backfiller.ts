@@ -31,10 +31,17 @@ export async function backfiller(
   );
 
   logger.info("Backfiller started");
+  let backfillJobStatus = "waiting";
   backfillJob.start();
   blockFinalizerJob.start();
 
   async function backfill() {
+    if (backfillJobStatus !== "waiting") {
+      console.log("Backfill cron already running");
+      return;
+    }
+    backfillJobStatus = "running";
+
     logger.info("Backfill started");
     const backfillProgressRepository = connection.getCustomRepository(
       BackfillProgressRepository
@@ -161,6 +168,7 @@ export async function backfiller(
     }
     logger.info(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());
+    backfillJobStatus = "waiting";
   }
 }
 
