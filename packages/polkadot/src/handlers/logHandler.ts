@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type {
   DigestItem,
   BlockNumber,
@@ -14,7 +14,7 @@ import {
 import Log from "@nodle/db/src/models/public/log";
 
 export async function handleLogs(
-  connection: Connection,
+  manager: EntityManager,
   logs: Vec<DigestItem>,
   blockId: number,
   blockNumber: BlockNumber
@@ -23,7 +23,7 @@ export async function handleLogs(
     logger.info(
       LOGGER_INFO_CONST.LOGS_RECEIVED(logs.length, blockNumber?.toNumber())
     );
-    const logRepository = connection.getCustomRepository(LogRepository);
+    const logRepository = manager.getCustomRepository(LogRepository);
 
     try {
       const newLogs = await logRepository.addList(

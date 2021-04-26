@@ -45,69 +45,85 @@ export async function subscribe(
       api.rpc.state.getRuntimeVersion(blockHash),
     ]);
 
-    // 1. Block
-    const newBlock = await handleNewBlock(
-      connection,
-      block.header,
-      timestamp,
-      specVersion.toNumber()
-    );
-    if (!newBlock) return;
-    MQ.getMQ().emit<Block>("newBlock", newBlock);
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const { blockId } = newBlock;
-    // 2. Extrinsics
-    const [newExtrinsics, extrinsicsWithBoundedEvents] = await handleExtrinsics(
-      connection,
-      block.extrinsics,
-      events,
-      blockId,
-      blockNumber
-    );
-    for (const extrinsic of newExtrinsics) {
-      MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
+    try {
+      // 1. Block
+      const newBlock = await handleNewBlock(
+        queryRunner.manager,
+        block.header,
+        timestamp,
+        specVersion.toNumber()
+      );
+      if (!newBlock) return;
+
+      const { blockId } = newBlock;
+      // 2. Extrinsics
+      const [
+        newExtrinsics,
+        extrinsicsWithBoundedEvents,
+      ] = await handleExtrinsics(
+        queryRunner.manager,
+        block.extrinsics,
+        events,
+        blockId,
+        blockNumber
+      );
+
+      // 3.Logs
+      const newLogs = await handleLogs(
+        queryRunner.manager,
+        block.header.digest.logs,
+        blockId,
+        blockNumber
+      );
+
+      // 4.Events
+      const [newEvents, trackedEvents] = await handleEvents(
+        queryRunner.manager,
+        events,
+        extrinsicsWithBoundedEvents,
+        blockId,
+        blockNumber
+      );
+
+      //5. Handling custom events
+      await handleTrackedEvents(
+        queryRunner.manager,
+        trackedEvents,
+        api,
+        blockId,
+        blockHash,
+        blockNumber
+      );
+
+      await queryRunner.commitTransaction();
+
+      MQ.getMQ().emit<Block>("newBlock", newBlock);
+      for (const extrinsic of newExtrinsics) {
+        MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
+      }
+      for (const log of newLogs) {
+        MQ.getMQ().emit<Log>("newLog", log);
+      }
+      for (const event of newEvents) {
+        MQ.getMQ().emit<EventModel>("newEvent", event);
+      }
+
+      //const seconds = endMetricsTimer();
+      //addBlockToCounter(blockNumber.toString(), seconds)
+      metrics.endTimer();
+      metrics.addBlockToCounter();
+      metrics.setBlockNumber(blockNumber.toNumber());
+      logger.info(
+        `------Finished processing block №: ${header.number.toString()}------`
+      );
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
-
-    // 3.Logs
-    const newLogs = await handleLogs(
-      connection,
-      block.header.digest.logs,
-      blockId,
-      blockNumber
-    );
-    for (const log of newLogs) {
-      MQ.getMQ().emit<Log>("newLog", log);
-    }
-
-    // 4.Events
-    const [newEvents, trackedEvents] = await handleEvents(
-      connection,
-      events,
-      extrinsicsWithBoundedEvents,
-      blockId,
-      blockNumber
-    );
-    for (const event of newEvents) {
-      MQ.getMQ().emit<EventModel>("newEvent", event);
-    }
-
-    //5. Handling custom events
-    await handleTrackedEvents(
-      connection,
-      trackedEvents,
-      api,
-      blockId,
-      blockHash,
-      blockNumber
-    );
-
-    //const seconds = endMetricsTimer();
-    //addBlockToCounter(blockNumber.toString(), seconds)
-    metrics.endTimer();
-    metrics.addBlockToCounter();
-    metrics.setBlockNumber(blockNumber.toNumber());
-    logger.info(
-      `------Finished processing block №: ${header.number.toString()}------`
-    );
   });
 }

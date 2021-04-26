@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -13,7 +13,7 @@ import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 
 export async function handleTrackedEvents(
-  connection: Connection,
+  manager: EntityManager,
   trackedEvents: Event[],
   api: ApiPromise,
   blockId: number,
@@ -33,11 +33,11 @@ export async function handleTrackedEvents(
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          handleRootOfTrust(connection, event, api, blockId, blockNumber);
+          handleRootOfTrust(manager, event, api, blockId, blockNumber);
           break;
         case CustomEventSection.VestingSchedule:
           handleVestingSchedule(
-            connection,
+            manager,
             event,
             blockId,
             api,
@@ -46,17 +46,10 @@ export async function handleTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          handleApplication(connection, event, blockId, api, blockNumber);
+          handleApplication(manager, event, blockId, api, blockNumber);
           break;
         case CustomEventSection.Balance:
-          handleBalance(
-            connection,
-            event,
-            blockId,
-            api,
-            blockHash,
-            blockNumber
-          );
+          handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           break;
         default:
           return;
