@@ -5,4 +5,4 @@ docker-build-dev:
 
 .PHONY: docker-build-prod
 docker-build-prod:
-	docker build -f docker/prod/Dockerfile .
+	docker build -t nodle:prod -f docker/prod/Dockerfile .
