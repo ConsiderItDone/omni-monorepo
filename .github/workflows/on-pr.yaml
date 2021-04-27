@@ -1,9 +1,7 @@
 name: Docker build
 
 on:
-  push:
-    branches:
-      - master
+  pull_request:
 
 jobs:
   test:
@@ -29,25 +27,3 @@ jobs:
         run: make docker-build-dev
       - name: Run docker build prod
         run: make docker-build-prod
-  publish:
-    name: Publish docker image to Google Container Registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get the version
-        id: vars
-        run: echo ::set-output name=sha::$(echo ${GITHUB_SHA:0:7})
-      - uses: actions/checkout@v2
-      - name: Run docker build dev
-        run: make docker-build-dev
-      - name: Run docker build prod
-        run: make docker-build-prod
-      - name: Login to GCP
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_email: ${{ secrets.GCP_EMAIL }}
-          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
-      - name: Configure Docker
-        run: gcloud auth configure-docker --quiet
-      - name: Push Docker image
-        run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/app:${{steps.vars.outputs.tag}}
