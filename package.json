@@ -12,9 +12,9 @@
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
     "build": "npm run build:db && npm run build:indexer && npm run build:utils && npm run build:server && npm run build:backfiller",
-    "start:indexer": "npm run start:indexer --prefix packages/indexer",
-    "start:server": "npm run start:server --prefix packages/graphql-server",
-    "start:backfiller": "npm run start:backfiller --prefix packages/backfiller",
+    "start:indexer": "npm_config_yes=true npm run start:indexer --prefix packages/indexer",
+    "start:server": "npm_config_yes=true npm run start:server --prefix packages/graphql-server",
+    "start:backfiller": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
   },

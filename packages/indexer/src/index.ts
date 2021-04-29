@@ -1,9 +1,11 @@
 import * as dotenv from "dotenv";
-import fs from "fs";
 import path from "path";
-const envConfig = dotenv.parse(
-  fs.readFileSync(path.resolve(__dirname) + "/../../../.env")
-);
+
+try {
+  dotenv.config({ path: path.resolve(__dirname) + "/../../../.env"});
+} catch (e) {
+  //nop
+}
 
 import { subscribe } from "./services/subscribe";
 import { connect } from "@nodle/db";
@@ -14,20 +16,20 @@ const start = async function (): Promise<void> {
   const connectionOptions = {
     name: "default",
     type: "postgres",
-    host: envConfig.TYPEORM_HOST,
-    port: Number(envConfig.TYPEORM_PORT),
-    username: envConfig.TYPEORM_USERNAME,
-    password: envConfig.TYPEORM_PASSWORD,
-    database: envConfig.TYPEORM_DATABASE,
+    host: process.env.TYPEORM_HOST,
+    port: Number(process.env.TYPEORM_PORT),
+    username: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD,
+    database: process.env.TYPEORM_DATABASE,
     logging: false,
     entities: ["../../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
 
   const connection = await connect(connectionOptions);
 
-  await MQ.init(envConfig.RABBIT_MQ_URL); // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection
 
-  subscribe(envConfig.WS_PROVIDER, connection); // run subscription
+  subscribe(process.env.WS_PROVIDER, connection); // run subscription
 };
 
 export const Indexer = {

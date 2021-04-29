@@ -1,9 +1,11 @@
 const dotenv = require('dotenv');
-const fs = require('fs');
 const path = require('path');
-const envConfig = dotenv.parse(
-    fs.readFileSync(path.resolve(__dirname) + "/.env")
-);
+
+try {
+    dotenv.config({ path: path.resolve(__dirname) + "/.env" });
+} catch (e) {
+    //nop
+}
 
 module.exports = {
     'type': 'postgres',
