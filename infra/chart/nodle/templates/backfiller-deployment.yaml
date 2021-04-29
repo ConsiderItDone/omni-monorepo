@@ -54,10 +54,10 @@ spec:
                 secretKeyRef:
                   key: database_port
                   name: {{ template "nodle.backfiller.fullname" . }}
-          readinessProbe:
-            httpGet:
-              path: /v1/ready
-              port: 9000
+{{/*          readinessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /v1/ready*/}}
+{{/*              port: 9000*/}}
           resources:
 {{ toYaml .Values.backfiller.resources | indent 12 }}
       {{- with .Values.nodeSelector }}

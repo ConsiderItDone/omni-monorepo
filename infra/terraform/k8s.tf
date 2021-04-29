@@ -51,28 +51,37 @@ resource "helm_release" "promtail" {
 
 }
 
-//resource "helm_release" "app" {
-//  name       = "app"
-//  chart      = "../chart/nodle"
-//
-//  values = [
-//    file("k8s/app-values.yaml")
-//  ]
-//
-//  set_sensitive {
-//    name  = "secrets.databaseHost"
-//    value = google_sql_database_instance.main.private_ip_address
-//  }
-//  set_sensitive {
-//    name  = "secrets.databaseUser"
-//    value = var.db_user
-//  }
-//  set_sensitive {
-//    name  = "secrets.databaseName"
-//    value = var.db_name
-//  }
-//  set_sensitive {
-//    name  = "secrets.databasePassword"
-//    value = var.db_password
-//  }
-//}
+resource "helm_release" "app" {
+  name       = "app2"
+  chart      = "../chart/nodle"
+//  reuse_values = true
+
+  values = [
+    file("k8s/app-values.yaml")
+  ]
+
+  set_sensitive {
+    name  = "secrets.databaseHost"
+    value = google_sql_database_instance.main.private_ip_address
+  }
+  set_sensitive {
+    name  = "secrets.databaseUser"
+    value = var.db_user
+  }
+  set_sensitive {
+    name  = "secrets.databaseName"
+    value = var.db_name
+  }
+  set_sensitive {
+    name  = "secrets.databasePassword"
+    value = var.db_password
+  }
+  set_sensitive {
+    name  = "secrets.rabbitMQURL"
+    value = var.k8s_rabbitmq_url
+  }
+  set_sensitive {
+    name  = "secrets.chainNode"
+    value = var.k8s_chain_node
+  }
+}

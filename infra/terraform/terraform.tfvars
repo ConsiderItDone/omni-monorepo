@@ -16,3 +16,6 @@ db_password = "uf7HWNVuqYhoj27gD9hC05"
 
 // GKE
 app_node_count = 2
+
+k8s_rabbitmq_url = "amqps://bxeqnybs:mWgk06St1xygCfY7tTTA9-kunar71hCX@jellyfish.rmq.cloudamqp.com/bxeqnybs"
+k8s_chain_node = "ws://3.217.156.114:9944"

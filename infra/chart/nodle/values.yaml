@@ -32,7 +32,7 @@ indexer:
   ##
   image:
     repository: gcr.io/nodle-demo/app
-    tag: 722daec
+    tag: c71b5ff
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -64,8 +64,8 @@ backfiller:
   ## backfiller container image
   ##
   image:
-    repository: nodle/backfiller
-    tag: v0.0.1
+    repository: gcr.io/nodle-demo/app
+    tag: c71b5ff
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -88,7 +88,7 @@ backfiller:
 graphql:
   ## If false, graphql will not be installed
   ##
-  enabled: true
+  enabled: false
 
   ## graphql container name
   ##
@@ -97,8 +97,8 @@ graphql:
   ## graphql container image
   ##
   image:
-    repository: nodle/graphql
-    tag: v0.0.1
+    repository: gcr.io/nodle-demo/app
+    tag: c71b5ff
     pullPolicy: IfNotPresent
 
   replicaCount: 1

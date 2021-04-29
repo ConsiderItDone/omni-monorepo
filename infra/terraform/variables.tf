@@ -52,3 +52,10 @@ variable "app_node_count" {
 
 # google_client_config and kubernetes provider must be explicitly specified like the following.
 data "google_client_config" "gke" {}
+
+variable "k8s_rabbitmq_url" {
+  type = string
+}
+variable "k8s_chain_node" {
+  type = string
+}
