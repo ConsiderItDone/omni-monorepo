@@ -1,3 +1,4 @@
+{{- if .Values.graphql.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +10,7 @@ spec:
   replicas: {{ .Values.graphql.replicaCount }}
   selector:
     matchLabels:
-      {{- include "chart.graphqlSelectorLabels" . | nindent 6 }}
+      {{- include "nodle.graphql.matchLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
@@ -26,37 +27,51 @@ spec:
         - name: {{ template "nodle.name" . }}-{{ .Values.graphql.name }}
           image: "{{ .Values.graphql.image.repository }}:{{ .Values.graphql.image.tag }}"
           imagePullPolicy: {{ .Values.graphql.image.pullPolicy }}
+          command:
+            - npm
+            - run
+            - start:server
           env:
             # database
-            - name: DB_HOST
+            - name: TYPEORM_HOST
               valueFrom:
                 secretKeyRef:
                   key: database_host
-                  name: {{ template "nodle.graphql.fullname" . }}
-            - name: DB_NAME
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_DATABASE
               valueFrom:
                 secretKeyRef:
                   key: database_name
-                  name: {{ template "nodle.graphql.fullname" . }}
-            - name: DB_USERNAME
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_USERNAME
               valueFrom:
                 secretKeyRef:
                   key: database_username
-                  name: {{ template "nodle.graphql.fullname" . }}
-            - name: DB_PASSWORD
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: database_password
-                  name: {{ template "nodle.graphql.fullname" . }}
-            - name: DB_PORT
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_PORT
               valueFrom:
                 secretKeyRef:
                   key: database_port
-                  name: {{ template "nodle.graphql.fullname" . }}
-          readinessProbe:
-            httpGet:
-              path: /v1/ready
-              port: 9000
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: RABBIT_MQ_URL
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_url
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: WS_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  key: chain_node
+                  name: {{ template "nodle.indexer.fullname" . }}
+{{/*          readinessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /v1/ready*/}}
+{{/*              port: 9000*/}}
           resources:
 {{ toYaml .Values.graphql.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
@@ -71,3 +86,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

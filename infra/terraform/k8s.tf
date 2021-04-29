@@ -50,3 +50,29 @@ resource "helm_release" "promtail" {
   ]
 
 }
+
+//resource "helm_release" "app" {
+//  name       = "app"
+//  chart      = "../chart/nodle"
+//
+//  values = [
+//    file("k8s/app-values.yaml")
+//  ]
+//
+//  set_sensitive {
+//    name  = "secrets.databaseHost"
+//    value = google_sql_database_instance.main.private_ip_address
+//  }
+//  set_sensitive {
+//    name  = "secrets.databaseUser"
+//    value = var.db_user
+//  }
+//  set_sensitive {
+//    name  = "secrets.databaseName"
+//    value = var.db_name
+//  }
+//  set_sensitive {
+//    name  = "secrets.databasePassword"
+//    value = var.db_password
+//  }
+//}

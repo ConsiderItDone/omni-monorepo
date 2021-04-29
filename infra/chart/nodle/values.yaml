@@ -7,10 +7,11 @@ secrets:
   databasePort: "5432"
 
   # RabbitMQ credentials
-  rabbitMQHost: ""
-  rabbitMQPort: ""
-  rabbitMQUser: ""
-  rabbitMQPassword: ""
+  rabbitMQURL: ""
+
+  # Nodle Chain Node
+  chainNode: ""
+
 
 #nodeSelector: {}
 #
@@ -30,8 +31,8 @@ indexer:
   ## indexer container image
   ##
   image:
-    repository: nodle/indexer
-    tag: v0.0.1
+    repository: gcr.io/nodle-demo/app
+    tag: 722daec
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -54,7 +55,7 @@ indexer:
 backfiller:
   ## If false, backfiller will not be installed
   ##
-  enabled: true
+  enabled: false
 
   ## backfiller container name
   ##
@@ -105,7 +106,7 @@ graphql:
   ingress:
     ## If true, graphql Ingress will be created
     ##
-    enabled: true
+    enabled: false
 
     ## graphql Ingress annotations
     ##

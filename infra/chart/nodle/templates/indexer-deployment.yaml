@@ -1,3 +1,4 @@
+{{- if .Values.indexer.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +10,7 @@ spec:
   replicas: {{ .Values.indexer.replicaCount }}
   selector:
     matchLabels:
-      {{- include "chart.indexerSelectorLabels" . | nindent 6 }}
+      {{- include "nodle.indexer.matchLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
@@ -25,38 +26,52 @@ spec:
       containers:
         - name: {{ template "nodle.name" . }}-{{ .Values.indexer.name }}
           image: "{{ .Values.indexer.image.repository }}:{{ .Values.indexer.image.tag }}"
+          command:
+            - npm
+            - run
+            - start:indexer
           imagePullPolicy: {{ .Values.indexer.image.pullPolicy }}
           env:
             # database
-            - name: DB_HOST
+            - name: TYPEORM_HOST
               valueFrom:
                 secretKeyRef:
                   key: database_host
                   name: {{ template "nodle.indexer.fullname" . }}
-            - name: DB_NAME
+            - name: TYPEORM_DATABASE
               valueFrom:
                 secretKeyRef:
                   key: database_name
                   name: {{ template "nodle.indexer.fullname" . }}
-            - name: DB_USERNAME
+            - name: TYPEORM_USERNAME
               valueFrom:
                 secretKeyRef:
                   key: database_username
                   name: {{ template "nodle.indexer.fullname" . }}
-            - name: DB_PASSWORD
+            - name: TYPEORM_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: database_password
                   name: {{ template "nodle.indexer.fullname" . }}
-            - name: DB_PORT
+            - name: TYPEORM_PORT
               valueFrom:
                 secretKeyRef:
                   key: database_port
                   name: {{ template "nodle.indexer.fullname" . }}
+            - name: RABBIT_MQ_URL
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq_url
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: WS_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  key: chain_node
+                  name: {{ template "nodle.indexer.fullname" . }}
           readinessProbe:
             httpGet:
               path: /v1/ready
-              port: 9000
+              port: 9100
           resources:
 {{ toYaml .Values.indexer.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
@@ -71,3 +86,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

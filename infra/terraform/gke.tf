@@ -30,10 +30,11 @@ resource "google_container_node_pool" "app_nodes" {
   node_count = var.app_node_count
 
   node_config {
-//    oauth_scopes = [
-//      "https://www.googleapis.com/auth/logging.write",
-//      "https://www.googleapis.com/auth/monitoring",
-//    ]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
 
 //    labels = {
 //      env = var.project_id
