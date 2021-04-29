@@ -40,7 +40,6 @@ CREATE TABLE public.account (
 );
 
 
-ALTER TABLE public.account OWNER TO nodle;
 
 --
 -- TOC entry 201 (class 1259 OID 24882)
@@ -56,7 +55,6 @@ CREATE SEQUENCE public.account_account_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.account_account_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3104 (class 0 OID 0)
@@ -90,7 +88,6 @@ CREATE TABLE public.application (
 );
 
 
-ALTER TABLE public.application OWNER TO nodle;
 
 --
 -- TOC entry 203 (class 1259 OID 24890)
@@ -106,7 +103,6 @@ CREATE SEQUENCE public.application_application_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.application_application_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3105 (class 0 OID 0)
@@ -129,7 +125,6 @@ CREATE TABLE public.backfill_progress (
 );
 
 
-ALTER TABLE public.backfill_progress OWNER TO nodle;
 
 --
 -- TOC entry 205 (class 1259 OID 24895)
@@ -145,7 +140,6 @@ CREATE SEQUENCE public.backfill_progress_backfill_progress_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.backfill_progress_backfill_progress_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3106 (class 0 OID 0)
@@ -172,7 +166,6 @@ CREATE TABLE public.balance (
 );
 
 
-ALTER TABLE public.balance OWNER TO nodle;
 
 --
 -- TOC entry 207 (class 1259 OID 24903)
@@ -188,7 +181,6 @@ CREATE SEQUENCE public.balance_balance_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.balance_balance_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3107 (class 0 OID 0)
@@ -217,7 +209,6 @@ CREATE TABLE public.block (
 );
 
 
-ALTER TABLE public.block OWNER TO nodle;
 
 --
 -- TOC entry 209 (class 1259 OID 24909)
@@ -233,7 +224,6 @@ CREATE SEQUENCE public.block_block_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.block_block_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3108 (class 0 OID 0)
@@ -262,7 +252,6 @@ CREATE TABLE public.event (
 );
 
 
-ALTER TABLE public.event OWNER TO nodle;
 
 --
 -- TOC entry 211 (class 1259 OID 24917)
@@ -278,7 +267,6 @@ CREATE SEQUENCE public.event_event_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.event_event_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3109 (class 0 OID 0)
@@ -314,7 +302,6 @@ CREATE TABLE public.extrinsic (
 );
 
 
-ALTER TABLE public.extrinsic OWNER TO nodle;
 
 --
 -- TOC entry 213 (class 1259 OID 24927)
@@ -330,7 +317,6 @@ CREATE SEQUENCE public.extrinsic_extrinsic_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.extrinsic_extrinsic_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3110 (class 0 OID 0)
@@ -356,7 +342,6 @@ CREATE TABLE public.log (
 );
 
 
-ALTER TABLE public.log OWNER TO nodle;
 
 --
 -- TOC entry 3111 (class 0 OID 0)
@@ -381,7 +366,6 @@ CREATE SEQUENCE public.log_log_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.log_log_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3112 (class 0 OID 0)
@@ -410,8 +394,6 @@ CREATE TABLE public.root_certificate (
 );
 
 
-ALTER TABLE public.root_certificate OWNER TO nodle;
-
 --
 -- TOC entry 217 (class 1259 OID 24953)
 -- Name: root_certificate_root_certificate_id_seq; Type: SEQUENCE; Schema: public; Owner: nodle
@@ -426,7 +408,6 @@ CREATE SEQUENCE public.root_certificate_root_certificate_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.root_certificate_root_certificate_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3114 (class 0 OID 0)
@@ -454,7 +435,6 @@ CREATE TABLE public.vesting_schedule (
 );
 
 
-ALTER TABLE public.vesting_schedule OWNER TO nodle;
 
 --
 -- TOC entry 3115 (class 0 OID 0)
@@ -479,7 +459,6 @@ CREATE SEQUENCE public.vesting_schedule_vesting_schedule_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.vesting_schedule_vesting_schedule_id_seq OWNER TO nodle;
 
 --
 -- TOC entry 3116 (class 0 OID 0)
