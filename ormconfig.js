@@ -9,17 +9,17 @@ try {
 
 module.exports = {
     'type': 'postgres',
-    'host': envConfig.TYPEORM_HOST,
-    'port': envConfig.TYPEORM_PORT,
-    'username': envConfig.TYPEORM_USERNAME,
-    'password': envConfig.TYPEORM_PASSWORD,
-    'database': envConfig.TYPEORM_DATABASE,
-    'logging': envConfig.TYPEORM_LOGGING,
+    'host': process.env.TYPEORM_HOST,
+    'port': process.env.TYPEORM_PORT,
+    'username': process.env.TYPEORM_USERNAME,
+    'password': process.env.TYPEORM_PASSWORD,
+    'database': process.env.TYPEORM_DATABASE,
+    'logging': process.env.TYPEORM_LOGGING,
     'schema': "public",
-    "entities": envConfig.NODE_ENV === 'production' ?
+    "entities": process.env.NODE_ENV === 'production' ?
         [__dirname + "/packages/db/dist/models/public/*.js",] :
         ["packages/db/src/models/public/*.ts"],
-    "migrations": envConfig.NODE_ENV === 'production' ?
+    "migrations": process.env.NODE_ENV === 'production' ?
         [__dirname + "/packages/db/dist/migrations/*.js"] :
         ["packages/db/src/migrations/*.ts"],
     'cli': {
