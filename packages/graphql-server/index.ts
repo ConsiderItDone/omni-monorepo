@@ -56,7 +56,11 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     ],
   });
 
-  await new ApolloServer({ schema }).listen(PORT);
+  await new ApolloServer({
+    schema,
+    introspection: true,
+    playground: true,
+  }).listen(PORT);
 
   console.info(`GraphQL server running on port ${PORT}`);
 })();
