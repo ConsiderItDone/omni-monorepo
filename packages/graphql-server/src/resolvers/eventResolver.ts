@@ -18,6 +18,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
+import { FindManyOptions } from "typeorm";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -31,6 +32,9 @@ class GetEventByNameArgs {
   @Min(1)
   @Max(100)
   take = 25;
+
+  @Field(() => String, { defaultValue: "All", nullable: true })
+  callModule?: string;
 
   @Field(() => String)
   eventName: string;
@@ -46,18 +50,33 @@ class SubscribeEventsByNameArgs {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => [Event])
   protected eventsByName(
-    @Args() { take, skip, eventName }: GetEventByNameArgs
+    @Args() { take, skip, callModule, eventName }: GetEventByNameArgs
   ): Promise<Event[]> {
-    return Event.find({
+    const findOptions: FindManyOptions<Event> = {
       take,
       skip,
-      where: {
-        eventName,
-      },
       order: {
         eventId: "DESC",
       },
-    }); // TODO: use repository for real models
+    };
+    if (callModule === "All" && eventName === "All") {
+      return Event.find(findOptions);
+    }
+    if (eventName === "All") {
+      return Event.find({
+        ...findOptions,
+        where: {
+          moduleName: callModule,
+        },
+      });
+    }
+    return Event.find({
+      ...findOptions,
+      where: {
+        moduleName: callModule,
+        eventName,
+      },
+    });
   }
 
   @Query(() => [Event])

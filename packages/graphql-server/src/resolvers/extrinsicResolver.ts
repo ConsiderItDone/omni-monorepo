@@ -8,7 +8,6 @@ import {
   ArgsType,
   Field,
   Int,
-  Subscription,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
@@ -16,7 +15,7 @@ import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Event from "@nodle/db/src/models/public/event";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindConditions, FindManyOptions } from "typeorm";
+import { FindManyOptions } from "typeorm";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -31,14 +30,14 @@ class GetExtrinsicsByType {
   @Max(100)
   take = 25;
 
-  @Field(() => String)
-  module: string;
+  @Field(() => String, { defaultValue: "All", nullable: true })
+  callModule?: string;
 
-  @Field(() => String)
-  call: string;
+  @Field(() => String, { defaultValue: "All", nullable: true })
+  callFunction?: string;
 
-  @Field(() => Boolean)
-  signedOnly: boolean;
+  @Field(() => Boolean, { defaultValue: false, nullable: true })
+  signedOnly?: boolean;
 }
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
@@ -57,28 +56,36 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => [Extrinsic])
   async getExtrinsicByType(
     @Args()
-    { take, skip, module, call, signedOnly = false }: GetExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly }: GetExtrinsicsByType
   ): Promise<Extrinsic[]> {
-    const searchOptions: FindManyOptions<Extrinsic> = {
+    const findOptions: FindManyOptions<Extrinsic> = {
       take,
       skip,
-      where: {
-        callModule: module,
-        callModuleFunction: call,
-      },
       order: {
         extrinsicId: "DESC",
       },
     };
-    return signedOnly
-      ? Extrinsic.find({
-          ...searchOptions,
-          where: {
-            ...(searchOptions.where as FindConditions<Extrinsic>),
-            isSigned: true,
-          },
-        })
-      : Extrinsic.find(searchOptions);
+    if (signedOnly) {
+      findOptions.where = { isSigned: true };
+    }
+    if (callModule === "All" && callFunction === "All") {
+      return Extrinsic.find(findOptions);
+    }
+    if (callFunction === "All") {
+      return Extrinsic.find({
+        ...findOptions,
+        where: {
+          callModule,
+        },
+      });
+    }
+    return Extrinsic.find({
+      ...findOptions,
+      where: {
+        callModule,
+        callModuleFunction: callFunction,
+      },
+    });
   }
 
   @FieldResolver()
