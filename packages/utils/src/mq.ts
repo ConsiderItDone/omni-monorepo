@@ -36,10 +36,10 @@ export default class MQ {
   }
 
   public on(eventName: string): AsyncIterator<undefined> {
-    return MQ.getMQ()?.pubsub?.asyncIterator(eventName);
+    return MQ.getMQ().pubsub.asyncIterator(eventName);
   }
 
   public emit<T>(eventName: string, payload: T): Promise<void> {
-    return MQ.getMQ()?.pubsub?.publish(eventName, payload);
+    return MQ.getMQ().pubsub.publish(eventName, payload);
   }
 }
