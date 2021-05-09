@@ -8,6 +8,7 @@ import {
   ArgsType,
   Field,
   Int,
+  ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
@@ -19,6 +20,14 @@ import { FindManyOptions } from "typeorm";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
+@ObjectType()
+class ExtrinsicsResponse {
+  @Field(() => [Extrinsic])
+  items: Extrinsic[];
+
+  @Field(() => Int)
+  totalCount: number;
+}
 @ArgsType()
 class GetExtrinsicsByType {
   @Field(() => Int, { defaultValue: 0 })
@@ -53,11 +62,11 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     return extrinsics || [];
   }
 
-  @Query(() => [Extrinsic])
-  async getExtrinsicByType(
+  @Query(() => ExtrinsicsResponse)
+  async getExtrinsics(
     @Args()
     { take, skip, callModule, callFunction, signedOnly }: GetExtrinsicsByType
-  ): Promise<Extrinsic[]> {
+  ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
       skip,
@@ -68,24 +77,35 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     if (signedOnly) {
       findOptions.where = { isSigned: true };
     }
+
+    let result;
+
     if (callModule === "All" && callFunction === "All") {
-      return Extrinsic.find(findOptions);
-    }
-    if (callFunction === "All") {
-      return Extrinsic.find({
+      result = await Extrinsic.findAndCount(findOptions);
+    } else if (callFunction === "All") {
+      result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
           callModule,
         },
       });
+    } else if (callModule === "All") {
+      result = await Extrinsic.findAndCount({
+        ...findOptions,
+        where: {
+          callModuleFunction: callFunction,
+        },
+      });
+    } else {
+      result = await Extrinsic.findAndCount({
+        ...findOptions,
+        where: {
+          callModule,
+          callModuleFunction: callFunction,
+        },
+      });
     }
-    return Extrinsic.find({
-      ...findOptions,
-      where: {
-        callModule,
-        callModuleFunction: callFunction,
-      },
-    });
+    return { items: result[0], totalCount: result[1] };
   }
 
   @FieldResolver()
