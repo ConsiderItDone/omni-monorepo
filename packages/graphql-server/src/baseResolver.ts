@@ -48,7 +48,7 @@ export function createBaseResolver<T extends ClassType>(
     async getById(@Arg("id") id: number): Promise<T> {
       const entity = await (objectTypeCls as any).findOne(id); // eslint-disable-line
       if (entity === undefined) {
-        throw new Error(`${suffix} ${id} not found`);
+        return null;
       }
 
       return entity;
