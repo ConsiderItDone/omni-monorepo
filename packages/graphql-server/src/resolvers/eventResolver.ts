@@ -9,6 +9,7 @@ import {
   Int,
   Arg,
   Subscription,
+  ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Event from "@nodle/db/src/models/public/event";
@@ -18,6 +19,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
+import { FindManyOptions } from "typeorm";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -32,8 +34,11 @@ class GetEventByNameArgs {
   @Max(100)
   take = 25;
 
-  @Field(() => String)
-  eventName: string;
+  @Field(() => String, { defaultValue: "All", nullable: true })
+  callModule?: string;
+
+  @Field(() => String, { defaultValue: "All", nullable: true })
+  eventName?: string;
 }
 
 @ArgsType()
@@ -42,22 +47,57 @@ class SubscribeEventsByNameArgs {
   eventName: string;
 }
 
+@ObjectType()
+class EventsResponse {
+  @Field(() => [Event])
+  items: Event[];
+
+  @Field(() => Int)
+  totalCount: number;
+}
+
 @Resolver(Event)
 export default class EventResolver extends EventBaseResolver {
-  @Query(() => [Event])
-  protected eventsByName(
-    @Args() { take, skip, eventName }: GetEventByNameArgs
-  ): Promise<Event[]> {
-    return Event.find({
+  @Query(() => EventsResponse)
+  protected async getEvents(
+    @Args() { take, skip, callModule, eventName }: GetEventByNameArgs
+  ): Promise<EventsResponse> {
+    const findOptions: FindManyOptions<Event> = {
       take,
       skip,
-      where: {
-        eventName,
-      },
       order: {
         eventId: "DESC",
       },
-    }); // TODO: use repository for real models
+    };
+
+    let result;
+
+    if (callModule === "All" && eventName === "All") {
+      result = await Event.findAndCount(findOptions);
+    } else if (eventName === "All") {
+      result = await Event.findAndCount({
+        ...findOptions,
+        where: {
+          moduleName: callModule,
+        },
+      });
+    } else if (callModule === "All") {
+      result = await Event.findAndCount({
+        ...findOptions,
+        where: {
+          eventName,
+        },
+      });
+    } else {
+      result = await Event.findAndCount({
+        ...findOptions,
+        where: {
+          moduleName: callModule,
+          eventName,
+        },
+      });
+    }
+    return { items: result[0], totalCount: result[1] };
   }
 
   @Query(() => [Event])
