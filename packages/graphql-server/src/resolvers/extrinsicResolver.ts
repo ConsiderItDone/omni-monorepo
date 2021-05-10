@@ -21,6 +21,17 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     return extrinsics || [];
   }
 
+  @Query(() => Block, { nullable: true })
+  async getExtrinsicByHash(
+    @Arg("hash") hash: string
+  ): Promise<Extrinsic | null> {
+    const extrinsic = await Extrinsic.findOne({
+      hash,
+    });
+
+    return extrinsic;
+  }
+
   @FieldResolver()
   block(@Root() source: Extrinsic): Promise<Block> {
     return singleFieldResolver(source, Block, "blockId");

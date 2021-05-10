@@ -8,7 +8,7 @@ const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 
 @Resolver(Balance)
 export default class BalanceResolver extends BalanceBaseResolver {
-  @Query(() => Balance)
+  @Query(() => Balance, { nullable: true })
   async getBalanceByAddress(@Arg("address") address: string): Promise<Balance> {
     const account = await Account.findOne({
       where: {
@@ -16,10 +16,6 @@ export default class BalanceResolver extends BalanceBaseResolver {
       },
       relations: ["balance"],
     });
-
-    if (account === undefined) {
-      throw new Error(`Account #${address} not found`);
-    }
 
     return account.balance;
   }

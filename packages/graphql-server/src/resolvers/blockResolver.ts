@@ -13,15 +13,13 @@ const BlockBaseResolver = createBaseResolver("Block", Block);
 
 @Resolver(Block)
 export default class BlockResolver extends BlockBaseResolver {
-  @Query(() => Block)
-  async getBlockByBlockNumber(@Arg("number") number: string): Promise<Block> {
+  @Query(() => Block, { nullable: true })
+  async getBlockByBlockNumber(
+    @Arg("number") number: string
+  ): Promise<Block | null> {
     const block = await Block.findOne({
       number,
     });
-
-    if (block === undefined) {
-      throw new Error(`Block #${number} not found`);
-    }
 
     return block;
   }
