@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -11,7 +11,7 @@ import { GenericAccountId } from "@polkadot/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 export async function handleBalance(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
@@ -40,14 +40,14 @@ export async function handleBalance(
           ),
         ];
         try {
-          saveAccount(
-            connection,
+          await saveAccount(
+            manager,
             accFrom[0] as GenericAccountId,
             accFrom[1] as AccountInfo,
             blockId
           );
-          saveAccount(
-            connection,
+          await saveAccount(
+            manager,
             accTo[0] as GenericAccountId,
             accTo[1] as AccountInfo,
             blockId

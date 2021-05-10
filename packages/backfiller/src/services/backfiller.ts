@@ -41,12 +41,19 @@ export async function backfiller(
   );
 
   logger.info("Backfiller started");
+  let backfillJobStatus = "waiting";
   backfillJob.start();
   blockFinalizerJob.start();
   backfillAccountsJob.start();
   backfillValidatorsJob.start();
 
   async function backfill() {
+    if (backfillJobStatus !== "waiting") {
+      console.log("Backfill cron already running");
+      return;
+    }
+    backfillJobStatus = "running";
+
     logger.info("Backfill started");
     const backfillProgressRepository = connection.getCustomRepository(
       BackfillProgressRepository
@@ -112,52 +119,68 @@ export async function backfiller(
       ]);
       const blockNumber = block.header.number.unwrap();
 
-      // 1. Block
-      const newBlock = await handleNewBlock(
-        connection,
-        block.header,
-        timestamp,
-        specVersion.toNumber()
-      );
-      const { blockId } = newBlock;
-      // 2. Extrinsics
-      const [, extrinsicsWithBoundedEvents] = await handleExtrinsics(
-        connection,
-        block.extrinsics,
-        events,
-        blockId,
-        blockNumber
-      );
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-      // 3.Logs
-      handleLogs(connection, block.header.digest.logs, blockId, blockNumber);
+      try {
+        // 1. Block
+        const newBlock = await handleNewBlock(
+          queryRunner.manager,
+          block.header,
+          timestamp,
+          specVersion.toNumber()
+        );
+        const { blockId } = newBlock;
+        // 2. Extrinsics
+        const [, extrinsicsWithBoundedEvents] = await handleExtrinsics(
+          queryRunner.manager,
+          block.extrinsics,
+          events,
+          blockId,
+          blockNumber
+        );
 
-      // 4.Events
-      const [, trackedEvents] = await handleEvents(
-        connection,
-        events,
-        extrinsicsWithBoundedEvents,
-        blockId,
-        blockNumber
-      );
+        // 3.Logs
+        await handleLogs(
+          queryRunner.manager,
+          block.header.digest.logs,
+          blockId,
+          blockNumber
+        );
 
-      //5. Backfilling custom events
-      backfillTrackedEvents(
-        connection,
-        trackedEvents,
-        api,
-        blockId,
-        blockHash,
-        blockNumber
-      );
+        // 4.Events
+        const [, trackedEvents] = await handleEvents(
+          queryRunner.manager,
+          events,
+          extrinsicsWithBoundedEvents,
+          blockId,
+          blockNumber
+        );
 
-      //Metrics after block process
-      metrics.endTimer();
-      metrics.addBlockToCounter();
-      metrics.setBlockNumber(blockNumber.toNumber());
+        //5. Backfilling custom events
+        await backfillTrackedEvents(
+          queryRunner.manager,
+          trackedEvents,
+          api,
+          blockId,
+          blockHash,
+          blockNumber
+        );
+
+        // Metrics after block process
+        metrics.endTimer();
+        metrics.addBlockToCounter();
+        metrics.setBlockNumber(blockNumber.toNumber());
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+      } finally {
+        await queryRunner.release();
+      }
     }
     logger.info(`Backfiller finished succesfully with last block ${endBlock}`);
     backfillProgressRepository.updateProgress(endBlock.toString());
+    backfillJobStatus = "waiting";
   }
 }
 

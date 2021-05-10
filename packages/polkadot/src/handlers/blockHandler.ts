@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { Header, Moment } from "@polkadot/types/interfaces/runtime";
 import { u8aToHex } from "@polkadot/util";
 
@@ -11,7 +11,7 @@ import {
 } from "@nodle/utils/src/logger";
 
 export async function handleNewBlock(
-  connection: Connection,
+  manager: EntityManager,
   blockHeader: Header,
   timestamp: Moment,
   specVersion: number
@@ -21,7 +21,7 @@ export async function handleNewBlock(
       LOGGER_INFO_CONST.BLOCK_RECEIVED(blockHeader.number.toNumber())
     );
 
-    const blockRepository = connection.getCustomRepository(BlockRepository);
+    const blockRepository = manager.getCustomRepository(BlockRepository);
 
     const { parentHash, number, stateRoot, extrinsicsRoot, hash } = blockHeader;
     try {

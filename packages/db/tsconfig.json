@@ -18,6 +18,5 @@
     "paths": {
       "*": ["node_modules/*"]
     }
-  },
-  "files": ["index.ts"]
+  }
 }

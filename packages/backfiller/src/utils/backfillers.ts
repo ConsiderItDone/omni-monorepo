@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
 import type {
   AccountId,
@@ -33,7 +33,7 @@ import {
 } from "@nodle/polkadot/src/handlers";
 
 export async function backfillTrackedEvents(
-  connection: Connection,
+  manager: EntityManager,
   trackedEvents: Event[],
   api: ApiPromise,
   blockId: number,
@@ -47,11 +47,11 @@ export async function backfillTrackedEvents(
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          handleRootOfTrust(connection, event, api, blockId, blockNumber);
+          handleRootOfTrust(manager, event, api, blockId, blockNumber);
           break;
         case CustomEventSection.VestingSchedule:
           handleVestingSchedule(
-            connection,
+            manager,
             event,
             blockId,
             api,
@@ -60,17 +60,10 @@ export async function backfillTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          backfillApplication(connection, event, blockId, api, blockNumber);
+          backfillApplication(manager, event, blockId, api, blockNumber);
           break;
         case CustomEventSection.Balance:
-          handleBalance(
-            connection,
-            event,
-            blockId,
-            api,
-            blockHash,
-            blockNumber
-          );
+          handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           break;
         default:
           return;
@@ -82,7 +75,7 @@ export async function backfillTrackedEvents(
 }
 
 export async function backfillApplication(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
@@ -92,7 +85,7 @@ export async function backfillApplication(
     const accountId = event.data[0].toString();
     let applicationData: ApplicationType;
     let applicationStatus = ApplicationStatus.pending;
-    const applicationRepository = connection.getCustomRepository(
+    const applicationRepository = manager.getCustomRepository(
       ApplicationRepository
     );
     switch (event.method) {
@@ -141,7 +134,7 @@ export async function backfillApplication(
         if (!applicationIsEmpty(acceptedApplication)) return;
         if (existingApp.status === ApplicationStatus.pending) {
           changeApplicationStatus(
-            connection,
+            manager,
             counteredAcc,
             ApplicationStatus.countered
           );
@@ -202,7 +195,7 @@ export async function backfillApplication(
         return;
     }
     await upsertApplication(
-      connection,
+      manager,
       accountId,
       (applicationData as undefined) as ApplicationType,
       blockId,

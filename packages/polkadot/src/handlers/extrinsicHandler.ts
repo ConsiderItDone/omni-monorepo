@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
@@ -17,7 +17,7 @@ import {
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 
 export async function handleExtrinsics(
-  connection: Connection,
+  manager: EntityManager,
   extrinsics: Vec<GenericExtrinsic>,
   events: Vec<EventRecord>,
   blockId: number,
@@ -35,7 +35,7 @@ export async function handleExtrinsics(
       events
     );
 
-    const extrinsicRepository = connection.getCustomRepository(
+    const extrinsicRepository = manager.getCustomRepository(
       ExtrinsicRepository
     );
 

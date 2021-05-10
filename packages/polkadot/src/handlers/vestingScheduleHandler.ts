@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type {
   AccountId,
   BlockNumber,
@@ -13,7 +13,7 @@ import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { saveAccount, tryFetchAccount } from "@nodle/polkadot/src/misc";
 
 export async function handleVestingSchedule(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
@@ -22,7 +22,7 @@ export async function handleVestingSchedule(
 ): Promise<void> {
   try {
     let targetAccount = event.data[0];
-    const vestingScheduleRepository = connection.getCustomRepository(
+    const vestingScheduleRepository = manager.getCustomRepository(
       VestingScheduleRepository
     );
 
@@ -49,7 +49,7 @@ export async function handleVestingSchedule(
       blockNumber
     );
     const { accountId } = await saveAccount(
-      connection,
+      manager,
       targetAccount as AccountId,
       accountInfo,
       blockId
@@ -82,7 +82,6 @@ export async function handleVestingSchedule(
             periodCount: period_count.toNumber(),
             perPeriod: per_period.toString(),
             blockId,
-            status: "active",
           });
         } catch (grantSaveError) {
           logger.error(

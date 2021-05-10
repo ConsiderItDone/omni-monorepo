@@ -66,7 +66,7 @@ export default class MetricsService {
   }
 
   start(): void {
-    this.server.listen(this.port);
+    this.server.listen(this.port, "0.0.0.0");
   }
 
   startTimer(): void {

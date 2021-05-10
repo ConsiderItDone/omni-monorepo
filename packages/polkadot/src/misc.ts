@@ -14,7 +14,7 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { Connection, getCustomRepository } from "typeorm";
+import { getCustomRepository, EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
@@ -132,13 +132,13 @@ export async function tryFetchApplication(
   }
 }
 export async function upsertApplication(
-  connection: Connection,
+  manager: EntityManager,
   accountId: string,
   applicationData: ApplicationType,
   blockId: number,
   status?: string
 ): Promise<void> {
-  const applicationRepository = connection.getCustomRepository(
+  const applicationRepository = manager.getCustomRepository(
     ApplicationRepository
   );
 
@@ -187,11 +187,11 @@ function transformApplicationData(
 }
 
 export async function changeApplicationStatus(
-  connection: Connection,
+  manager: EntityManager,
   accountId: string,
   status: ApplicationStatus
 ): Promise<void> {
-  const applicationRepository = connection.getCustomRepository(
+  const applicationRepository = manager.getCustomRepository(
     ApplicationRepository
   );
   const existingApplication = await applicationRepository.findCandidate(
@@ -204,7 +204,7 @@ export async function changeApplicationStatus(
 }
 
 export async function recordVote(
-  connection: Connection,
+  manager: EntityManager,
   initiatorId: AccountId,
   targetId: AccountId,
   value: boolean,
@@ -224,7 +224,7 @@ export async function recordVote(
   }
   if (targetData) {
     await upsertApplication(
-      connection,
+      manager,
       targetId.toString(),
       (targetData as undefined) as ApplicationType,
       blockId,
@@ -278,12 +278,12 @@ export function applicationIsEmpty(applicationData: ApplicationType): boolean {
 
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
-  connection: Connection,
+  manager: EntityManager,
   certificateId: string,
   certificateData: RootCertificateType,
   blockId: number
 ): Promise<void> {
-  const rootCertificateRepository = connection.getCustomRepository(
+  const rootCertificateRepository = manager.getCustomRepository(
     RootCertificateRepository
   );
   const transformedCertificateData = transformCertificateData(
@@ -364,13 +364,13 @@ export async function tryFetchAccount(
   }
 }
 export async function saveAccount(
-  connection: Connection,
+  manager: EntityManager,
   accountAddress: AccountId,
   accountInfo: AccountInfo,
   blockId?: number
 ): Promise<AccountModel> {
-  const accountRepository = connection.getCustomRepository(AccountRepository);
-  const balanceRepository = connection.getCustomRepository(BalanceRepository);
+  const accountRepository = manager.getCustomRepository(AccountRepository);
+  const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = accountAddress.toString();
   const { nonce, refcount = null, data: balance } = accountInfo;

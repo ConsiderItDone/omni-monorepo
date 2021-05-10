@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection } from "typeorm";
+import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
@@ -12,7 +12,7 @@ import {
 } from "@nodle/utils/src/logger";
 
 export async function handleRootOfTrust(
-  connection: Connection,
+  manager: EntityManager,
   event: Event,
   api: ApiPromise,
   blockId: number,
@@ -47,7 +47,7 @@ export async function handleRootOfTrust(
     }
     try {
       await upsertRootCertificate(
-        connection,
+        manager,
         certificateId,
         certificateData,
         blockId
