@@ -23,6 +23,14 @@ export default class BlockResolver extends BlockBaseResolver {
 
     return block;
   }
+  @Query(() => Block, { nullable: true })
+  async getBlockByHash(@Arg("hash") hash: string): Promise<Block | null> {
+    const block = await Block.findOne({
+      hash,
+    });
+
+    return block;
+  }
 
   @FieldResolver()
   events(@Root() source: Block): Promise<Event[]> {

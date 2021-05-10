@@ -9,6 +9,7 @@ import {
   Subscription,
   Root,
   Arg,
+  ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import MQ from "@nodle/utils/src/mq";
@@ -39,6 +40,15 @@ export function createBaseResolver<T extends ClassType>(
     last = 0;
   }
 
+  @ObjectType(`${suffix}Response`)
+  class BaseResponse {
+    @Field(() => [objectTypeCls])
+    items: T[];
+
+    @Field(() => Int)
+    totalCount: number;
+  }
+
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
     @Query(() => objectTypeCls, {
@@ -54,12 +64,12 @@ export function createBaseResolver<T extends ClassType>(
       return entity;
     }
 
-    @Query(() => [objectTypeCls], {
+    @Query(() => BaseResponse, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}s`,
     })
     protected async getAll(
       @Args() { take, skip, first, last }: PaginationArgs
-    ): Promise<T[]> {
+    ): Promise<BaseResponse> {
       if (first && last) {
         throw new Error("Bad request");
       }
@@ -78,11 +88,12 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       // eslint-disable-next-line
-      return (objectTypeCls as any).find({
+      const result = await (objectTypeCls as any).findAndCount({
         take,
         skip,
         order,
       });
+      return { items: result[0], totalCount: result[1] };
     }
 
     @Subscription(() => objectTypeCls, {

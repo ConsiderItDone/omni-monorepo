@@ -62,7 +62,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     return extrinsics || [];
   }
 
-  @Query(() => Block, { nullable: true })
+  @Query(() => Extrinsic, { nullable: true })
   async getExtrinsicByHash(
     @Arg("hash") hash: string
   ): Promise<Extrinsic | null> {
