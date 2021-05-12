@@ -396,12 +396,12 @@ export async function saveAccount(
 }
 
 export async function saveValidator(
-  connection: Connection,
+  entityManager: EntityManager,
   accountId: number,
   accountAddress: AccountId,
   accountInfo: AccountInfoWithProviders
 ): Promise<Validator> {
-  const validatorRepository = connection.getCustomRepository(
+  const validatorRepository = entityManager.getCustomRepository(
     ValidatorRepository
   );
   const { consumers, providers } = accountInfo;

@@ -31,6 +31,7 @@ import {
   handleRootOfTrust,
   handleVestingSchedule,
 } from "@nodle/polkadot/src/handlers";
+import { Connection } from "typeorm";
 
 export async function backfillTrackedEvents(
   manager: EntityManager,
@@ -213,7 +214,8 @@ export async function backfillAccounts(
   const accounts = await api.query.system.account.entries();
 
   for (const account of accounts) {
-    saveAccount(connection, account[0] as AccountId, account[1]);
+    const entityManager = await connection.createEntityManager();
+    saveAccount(entityManager, account[0] as AccountId, account[1]);
   }
 }
 
@@ -228,13 +230,14 @@ export async function backfillValidators(
       validators.map((authorityId) => api.query.system.account(authorityId))
     );
     for (const [index, validator] of validators.entries()) {
+      const entityManager = await connection.createEntityManager();
       const validatorAccount = await saveAccount(
-        connection,
+        entityManager,
         validator as AccountId,
         validatorDatas[index]
       );
       await saveValidator(
-        connection,
+        entityManager,
         validatorAccount.accountId,
         validator as AccountId,
         (validatorDatas[index] as unknown) as AccountInfoWithProviders

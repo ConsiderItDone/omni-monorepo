@@ -36,6 +36,7 @@ export async function backfiller(
   const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
     backfillAccounts(connection, api)
   );
+
   const backfillValidatorsJob = new CronJob("00 */30 * * * *", () =>
     backfillValidators(connection, api)
   );
