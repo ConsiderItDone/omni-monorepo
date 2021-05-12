@@ -17,6 +17,15 @@ export default class BlockResolver extends BlockBaseResolver {
   async getBlockByBlockNumber(
     @Arg("number") number: string
   ): Promise<Block | null> {
+    try {
+      if (BigInt(number) > Number.MAX_SAFE_INTEGER) {
+        // wrong number
+        return null;
+      }
+    } catch (e) {
+      // not a number
+      return null;
+    }
     const block = await Block.findOne({
       number,
     });
