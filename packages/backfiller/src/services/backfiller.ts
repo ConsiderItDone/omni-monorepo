@@ -163,6 +163,7 @@ export async function backfiller(
       } catch (error) {
         await queryRunner.rollbackTransaction();
       } finally {
+        await queryRunner.commitTransaction();
         await queryRunner.release();
       }
     }
