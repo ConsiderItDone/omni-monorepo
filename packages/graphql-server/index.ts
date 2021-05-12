@@ -22,6 +22,7 @@ import AccountResolver from "./src/resolvers/accountResolver";
 import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
+import ValidatorResolver from "./src/resolvers/validatorResolver";
 import MQ from "@nodle/utils/src/mq";
 const PORT = envConfig.GRAPHQL_SERVER_PORT || 4000;
 (async (): Promise<void> => {
@@ -49,6 +50,7 @@ const PORT = envConfig.GRAPHQL_SERVER_PORT || 4000;
       RootCertificateResolver,
       ExtrinsicResolver,
       VestingScheduleResolver,
+      ValidatorResolver,
     ],
   });
   await new ApolloServer({
