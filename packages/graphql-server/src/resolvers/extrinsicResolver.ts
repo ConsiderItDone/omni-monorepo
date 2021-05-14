@@ -16,7 +16,7 @@ import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Event from "@nodle/db/src/models/public/event";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindManyOptions } from "typeorm";
+import { FindManyOptions, getRepository } from "typeorm";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -71,6 +71,27 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     });
 
     return extrinsic;
+  }
+  @Query(() => Extrinsic, { nullable: true })
+  async getExtrinsic(@Arg("id") id: string): Promise<Extrinsic | null> {
+    if (id.length === 66) {
+      return await Extrinsic.findOne({
+        hash: id,
+      });
+    }
+
+    const [blockNumber, index] = id.split("-");
+    return await getRepository(Extrinsic).findOne({
+      join: {
+        alias: "extrinsic",
+        innerJoin: { block: "extrinsic.block" },
+      },
+      where: (qb: any) => {
+        qb.where("block.number = :blockNumber", { blockNumber }).andWhere({
+          index,
+        });
+      },
+    });
   }
 
   @Query(() => ExtrinsicsResponse)
