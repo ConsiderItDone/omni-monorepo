@@ -20,6 +20,7 @@ import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
 import { FindManyOptions } from "typeorm";
+import EventType from "@nodle/db/dist/src/models/public/eventType";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -72,6 +73,13 @@ export default class EventResolver extends EventBaseResolver {
 
     let result;
 
+    let type: EventType;
+    if (eventName !== "All") {
+      type = await EventType.findOne({
+        name: eventName,
+      });
+    }
+
     if (callModule === "All" && eventName === "All") {
       result = await Event.findAndCount(findOptions);
     } else if (eventName === "All") {
@@ -85,7 +93,7 @@ export default class EventResolver extends EventBaseResolver {
       result = await Event.findAndCount({
         ...findOptions,
         where: {
-          eventName,
+          eventTypeId: type.eventTypeId,
         },
       });
     } else {
@@ -93,7 +101,7 @@ export default class EventResolver extends EventBaseResolver {
         ...findOptions,
         where: {
           moduleName: callModule,
-          eventName,
+          eventTypeId: type.eventTypeId,
         },
       });
     }
@@ -125,7 +133,7 @@ export default class EventResolver extends EventBaseResolver {
   @Subscription(() => Event, {
     subscribe: withFilter(
       () => MQ.getMQ().on(`newEvent`),
-      (payload, variables) => payload.eventName === variables.eventName
+      (payload, variables) => payload.eventTypeId === variables.eventTypeId
     ),
   })
   newEventByName(

@@ -66,10 +66,12 @@ export async function subscribe(
         extrinsicsWithBoundedEvents,
       ] = await handleExtrinsics(
         queryRunner.manager,
+        api,
         block.extrinsics,
         events,
         blockId,
-        blockNumber
+        blockNumber,
+        blockHash
       );
 
       // 3.Logs

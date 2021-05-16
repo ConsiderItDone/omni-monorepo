@@ -4,9 +4,11 @@ import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
+import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import {
   getExtrinsicSuccess,
   boundEventsToExtrinsics,
+  tryFetchAccount,
 } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
 import {
@@ -15,13 +17,17 @@ import {
   LOGGER_ERROR_CONST,
 } from "@nodle/utils/src/logger";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import { ApiPromise } from "@polkadot/api";
+import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleExtrinsics(
   manager: EntityManager,
+  api: ApiPromise,
   extrinsics: Vec<GenericExtrinsic>,
   events: Vec<EventRecord>,
   blockId: number,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<[Extrinsic[], ExtrinsicWithBoundedEvents[]]> {
   logger.info(
     LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(
@@ -30,6 +36,8 @@ export async function handleExtrinsics(
     )
   );
   try {
+    const accountRepository = manager.getCustomRepository(AccountRepository);
+
     const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
       extrinsics,
       events
@@ -39,8 +47,29 @@ export async function handleExtrinsics(
       ExtrinsicRepository
     );
 
-    const processedExtrinsics = extrinsics.map(
-      (extrinsic: GenericExtrinsic, index: number) => {
+    const processedExtrinsics = await Promise.all(
+      extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
+        let signerId: number = null;
+
+        if (extrinsic.isSigned) {
+          const account = await accountRepository.findByAddress(
+            extrinsic.signer.toString()
+          );
+          if (account) {
+            signerId = account.accountId;
+          } else {
+            // TODO
+            // const account = await tryFetchAccount(
+            //   api,
+            //   extrinsic.signer.toString() as any,
+            //   blockHash,
+            //   blockNumber
+            // )
+            console.log("no signer");
+            throw new Error("No signer");
+          }
+        }
+
         return {
           index,
           length: extrinsic.length,
@@ -55,10 +84,10 @@ export async function handleExtrinsics(
           isSigned: extrinsic.isSigned,
           signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
           success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents),
-          signer: extrinsic.isSigned ? extrinsic.signer.toString() : null,
+          signerId,
           blockId,
         };
-      }
+      })
     );
     try {
       const newExtrinsics = await extrinsicRepository.addList(

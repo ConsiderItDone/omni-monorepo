@@ -9,7 +9,7 @@ export default class EventRepository extends Repository<Event> {
     extrinsicHash,
     extrinsicId,
     moduleName,
-    eventName,
+    eventTypeId,
     blockId,
   }: {
     index: number;
@@ -17,7 +17,7 @@ export default class EventRepository extends Repository<Event> {
     extrinsicHash: string | null;
     extrinsicId: number | null;
     moduleName: string;
-    eventName: string;
+    eventTypeId: number;
     blockId: number;
   }): Promise<Event> {
     const event = await this.save({
@@ -26,7 +26,7 @@ export default class EventRepository extends Repository<Event> {
       extrinsicHash,
       extrinsicId,
       moduleName,
-      eventName,
+      eventTypeId,
       blockId,
     });
 

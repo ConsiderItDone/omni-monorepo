@@ -11,6 +11,7 @@ import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Extrinsic from "./extrinsic";
 import { GraphQLJSON } from "graphql-type-json";
+import EventType from "./eventType";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -36,9 +37,14 @@ export default class Event extends BaseEntity {
   @Column("character varying", { name: "module_name" })
   public moduleName: string;
 
-  @Field(() => String)
-  @Column("character varying", { name: "event_name" })
-  public eventName: string;
+  @Field(() => Int)
+  @Column("integer", { name: "event_type_id", nullable: true })
+  public eventTypeId: number;
+
+  @Field(() => EventType, { nullable: true })
+  @ManyToOne(() => EventType, (type) => type.eventTypeId)
+  @JoinColumn([{ name: "event_type_id", referencedColumnName: "eventTypeId" }])
+  public eventType: EventType;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
