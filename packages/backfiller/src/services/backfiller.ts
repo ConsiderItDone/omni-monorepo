@@ -136,10 +136,12 @@ export async function backfiller(
         // 2. Extrinsics
         const [, extrinsicsWithBoundedEvents] = await handleExtrinsics(
           queryRunner.manager,
+          api,
           block.extrinsics,
           events,
           blockId,
-          blockNumber
+          blockNumber,
+          blockHash
         );
 
         // 3.Logs

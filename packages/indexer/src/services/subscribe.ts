@@ -66,10 +66,12 @@ export async function subscribe(
         extrinsicsWithBoundedEvents,
       ] = await handleExtrinsics(
         queryRunner.manager,
+        api,
         block.extrinsics,
         events,
         blockId,
-        blockNumber
+        blockNumber,
+        blockHash
       );
 
       // 3.Logs
@@ -120,10 +122,11 @@ export async function subscribe(
       logger.info(
         `------Finished processing block №: ${header.number.toString()}------`
       );
+
+      await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
     } finally {
-      await queryRunner.commitTransaction();
       await queryRunner.release();
     }
   });

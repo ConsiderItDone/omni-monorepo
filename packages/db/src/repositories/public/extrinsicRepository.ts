@@ -9,7 +9,7 @@ type NewExtrinsicParam = {
   callModuleFunction: string;
   callModule: string;
   params: string;
-  signer: string | null;
+  signerId: number | null;
   signature: string | null;
   nonce: number | null;
   era: string | null;
@@ -29,7 +29,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     callModuleFunction,
     callModule,
     params,
-    signer,
+    signerId,
     signature,
     nonce,
     era,
@@ -46,7 +46,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
       callModuleFunction,
       callModule,
       params,
-      signer,
+      signerId,
       signature,
       nonce,
       era,

@@ -40,6 +40,11 @@ export default class Balance extends BaseEntity {
   @Column("integer", { name: "account_id" })
   public accountId: number;
 
+  @Field(() => Account, { nullable: true })
+  @OneToOne(() => Account, (account) => account.balance)
+  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  public account: Account;
+
   @Field(() => Int)
   @Column("integer", { name: "block_id", nullable: true })
   public blockId: number;
@@ -48,9 +53,4 @@ export default class Balance extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
-
-  @Field(() => Account, { nullable: true })
-  @OneToOne(() => Account, (account) => account.balance)
-  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
-  public account: Account;
 }

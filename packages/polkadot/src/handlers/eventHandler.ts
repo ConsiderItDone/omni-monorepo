@@ -19,6 +19,7 @@ import {
   LOGGER_ERROR_CONST,
 } from "@nodle/utils/src/logger";
 import { default as EventModel } from "@nodle/db/src/models/public/event";
+import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepository";
 
 export async function handleEvents(
   manager: EntityManager,
@@ -33,6 +34,9 @@ export async function handleEvents(
     );
 
     const eventRepository = manager.getCustomRepository(EventRepository);
+    const eventTypeRepository = manager.getCustomRepository(
+      EventTypeRepository
+    );
     const extrinsicRepository = manager.getCustomRepository(
       ExtrinsicRepository
     );
@@ -55,13 +59,17 @@ export async function handleEvents(
       );
       const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
       try {
+        const type = await eventTypeRepository.addOrIgnore({
+          name: method,
+        });
+
         const event = await eventRepository.add({
           index,
           data: transformEventData(method, data),
           extrinsicHash,
           extrinsicId: extrinsic?.extrinsicId || null,
           moduleName: section,
-          eventName: method,
+          eventTypeId: type.eventTypeId,
           blockId,
         });
         newEvents.push(event);
