@@ -20,7 +20,7 @@ import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
 import { FindManyOptions } from "typeorm";
-import EventType from "@nodle/db/dist/src/models/public/eventType";
+import EventType from "@nodle/db/src/models/public/eventType";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
