@@ -47,6 +47,9 @@ class GetExtrinsicsByType {
 
   @Field(() => Boolean, { defaultValue: false, nullable: true })
   signedOnly?: boolean;
+
+  @Field(() => String, { nullable: true })
+  signer?: string;
 }
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
@@ -97,7 +100,14 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async getExtrinsics(
     @Args()
-    { take, skip, callModule, callFunction, signedOnly }: GetExtrinsicsByType
+    {
+      take,
+      skip,
+      callModule,
+      callFunction,
+      signedOnly,
+      signer,
+    }: GetExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
