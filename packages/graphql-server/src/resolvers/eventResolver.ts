@@ -129,6 +129,11 @@ export default class EventResolver extends EventBaseResolver {
   extrinsic(@Root() source: Event): Promise<Extrinsic> {
     return singleFieldResolver(source, Extrinsic, "extrinsicId");
   }
+  
+  @FieldResolver()
+  eventType(@Root() source: Extrinsic): Promise<EventType> {
+    return singleFieldResolver(source, EventType, "eventTypeId");
+  }
 
   @Subscription(() => Event, {
     subscribe: withFilter(
