@@ -19,7 +19,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
-import { FindManyOptions } from "typeorm";
+import { FindManyOptions, getConnection } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
@@ -55,6 +55,18 @@ class EventsResponse {
 
   @Field(() => Int)
   totalCount: number;
+}
+
+@ObjectType()
+class TransferChartData {
+  @Field(() => Date)
+  date: Date;
+
+  @Field(() => Int, { defaultValue: 0 })
+  quantity: number;
+
+  @Field(() => Int, { defaultValue: 0 })
+  amount: number;
 }
 
 @Resolver(Event)
@@ -120,6 +132,32 @@ export default class EventResolver extends EventBaseResolver {
     return events || [];
   }
 
+  @Query(() => [TransferChartData])
+  async getTransfersChartData(): Promise<Event[]> {
+    const eventType = await EventType.findOne({
+      name: "Transfer",
+    });
+
+    if (!eventType) {
+      return [];
+    }
+
+    const data = await getConnection().query(`
+      select
+        date_trunc('hour', b."timestamp") as date,
+        count(1) as quantity,
+        sum(
+          ceil(CAST((e."data"->0)->>'amount' as BIGINT) / 10^18)
+        ) as amount
+      from public."event" e 
+      left join public.block b on b.block_id = e.block_id 
+      where e.event_type_id = 14
+      group by 1
+    `);
+
+    return data || [];
+  }
+  
   @FieldResolver()
   block(@Root() source: Event): Promise<Block> {
     return singleFieldResolver(source, Block, "blockId");
@@ -129,7 +167,7 @@ export default class EventResolver extends EventBaseResolver {
   extrinsic(@Root() source: Event): Promise<Extrinsic> {
     return singleFieldResolver(source, Extrinsic, "extrinsicId");
   }
-  
+
   @FieldResolver()
   eventType(@Root() source: Extrinsic): Promise<EventType> {
     return singleFieldResolver(source, EventType, "eventTypeId");
