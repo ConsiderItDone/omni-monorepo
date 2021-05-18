@@ -122,10 +122,12 @@ export async function subscribe(
       logger.info(
         `------Finished processing block №: ${header.number.toString()}------`
       );
-
-      await queryRunner.commitTransaction();
+      // await queryRunner.commitTransaction();
     } catch (error) {
-      await queryRunner.rollbackTransaction();
+      console.log(error)
+      if (queryRunner.isTransactionActive) {
+        await queryRunner.rollbackTransaction();
+      }
     } finally {
       await queryRunner.release();
     }
