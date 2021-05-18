@@ -147,7 +147,7 @@ export default class EventResolver extends EventBaseResolver {
         date_trunc('hour', b."timestamp") as date,
         count(1) as quantity,
         sum(
-          ceil(CAST((e."data"->0)->>'amount' as BIGINT) / 10^18)
+          CAST((e."data"->0)->>'amount' as BIGINT)
         ) as amount
       from public."event" e 
       left join public.block b on b.block_id = e.block_id 
