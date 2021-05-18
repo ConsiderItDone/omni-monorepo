@@ -105,7 +105,7 @@ export default class EventResolver extends EventBaseResolver {
       result = await Event.findAndCount({
         ...findOptions,
         where: {
-          eventTypeId: type.eventTypeId,
+          eventTypeId: type ? type.eventTypeId : null,
         },
       });
     } else {
@@ -113,7 +113,7 @@ export default class EventResolver extends EventBaseResolver {
         ...findOptions,
         where: {
           moduleName: callModule,
-          eventTypeId: type.eventTypeId,
+          eventTypeId: type ? type.eventTypeId : null,
         },
       });
     }
