@@ -97,23 +97,23 @@ resource "google_compute_instance" "bastion" {
     }
   }
 }
-resource "google_compute_instance" "privatevm" {
-  name         = "private-vm"
-  machine_type = "f1-micro"
-
-  boot_disk {
-    initialize_params {
-      size = 10
-      image = "ubuntu-os-cloud/ubuntu-2004-lts"
-    }
-  }
-
-  tags = ["external-ssh"]
-
-  network_interface {
-    subnetwork = google_compute_subnetwork.private.self_link
-  }
-}
+//resource "google_compute_instance" "privatevm" {
+//  name         = "private-vm"
+//  machine_type = "f1-micro"
+//
+//  boot_disk {
+//    initialize_params {
+//      size = 10
+//      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+//    }
+//  }
+//
+//  tags = ["external-ssh"]
+//
+//  network_interface {
+//    subnetwork = google_compute_subnetwork.private.self_link
+//  }
+//}
 
 // Private Service Connection
 resource "google_compute_global_address" "private_ip_alloc" {

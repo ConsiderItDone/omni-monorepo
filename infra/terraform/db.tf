@@ -5,7 +5,7 @@ resource "google_sql_database_instance" "main" {
   depends_on = [google_service_networking_connection.private]
 
   settings {
-    tier = var.db_tier
+    tier = local.db_tier
     availability_type = "ZONAL"
     ip_configuration {
       ipv4_enabled    = false
@@ -25,7 +25,7 @@ resource "google_sql_database" "nodle" {
 
 resource "google_sql_user" "nodle" {
   name     = var.db_user
-  password = var.db_password
+  password = local.db_password
   instance = google_sql_database_instance.main.name
 //  type     = "BUILT_IN"
 }
