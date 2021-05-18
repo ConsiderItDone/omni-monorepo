@@ -24,8 +24,8 @@ export default class Account extends BaseEntity {
   @Column("character varying", { name: "address" })
   public address: string;
 
-  @Field(() => Number)
-  @Column("integer", { name: "nonce" })
+  @Field(() => Number, { nullable: true })
+  @Column("integer", { name: "nonce", nullable: true })
   public nonce: number;
 
   @Field(() => Number, { nullable: true })
