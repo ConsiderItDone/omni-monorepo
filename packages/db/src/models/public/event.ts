@@ -27,7 +27,7 @@ export default class Event extends BaseEntity {
 
   @Field(() => GraphQLJSON, { nullable: true })
   @Column("jsonb", { name: "data" })
-  public data: string;
+  public data: string | unknown;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", { name: "extrinsic_hash", nullable: true })

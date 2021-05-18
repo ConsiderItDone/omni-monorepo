@@ -157,7 +157,7 @@ export default class EventResolver extends EventBaseResolver {
 
     return data || [];
   }
-  
+
   @FieldResolver()
   block(@Root() source: Event): Promise<Block> {
     return singleFieldResolver(source, Block, "blockId");
