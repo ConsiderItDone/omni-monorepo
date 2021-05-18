@@ -77,15 +77,15 @@ export function getExtrinsicSuccess(
 export function transformEventData(
   method: string,
   data: GenericEventData
-): string {
+): string | object | object[] {
   switch (method) {
     case "Transfer": {
       const amount = data[2] as any; // eslint-disable-line
-      return JSON.stringify({
+      return [{
         from: data[0],
         to: data[1],
         amount: amount.toNumber(),
-      });
+      }];
     }
     case "Deposit": {
       return data[0].toString();

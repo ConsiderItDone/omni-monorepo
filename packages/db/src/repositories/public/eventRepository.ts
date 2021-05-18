@@ -13,7 +13,7 @@ export default class EventRepository extends Repository<Event> {
     blockId,
   }: {
     index: number;
-    data: string;
+    data: string | object | object[];
     extrinsicHash: string | null;
     extrinsicId: number | null;
     moduleName: string;
