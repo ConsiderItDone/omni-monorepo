@@ -7,7 +7,7 @@ try {
   //nop
 }
 
-import express = require('express');
+import express = require("express");
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ConnectionOptions } from "typeorm";
@@ -65,12 +65,14 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
   await server.start();
 
   const app = express();
-  app.get('/', function (req: express.Request, res: express.Response) {
+  app.get("/", function (req: express.Request, res: express.Response) {
     res.status(200).end();
-  })
+  });
   server.applyMiddleware({ app });
 
-  await new Promise(resolve => app.listen({ port: PORT }, resolve as () => void));
+  await new Promise((resolve) =>
+    app.listen({ port: PORT }, resolve as () => void)
+  );
 
   console.info(`GraphQL server running on port ${PORT}`);
 })();
