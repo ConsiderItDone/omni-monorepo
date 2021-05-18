@@ -89,6 +89,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
         alias: "extrinsic",
         innerJoin: { block: "extrinsic.block" },
       },
+      // eslint-disable-next-line
       where: (qb: any) => {
         qb.where("block.number = :blockNumber", { blockNumber }).andWhere({
           index,
@@ -118,6 +119,10 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     };
     if (signedOnly) {
       findOptions.where = { isSigned: true };
+    }
+
+    if (signerId) {
+      findOptions.where = Object.assign(findOptions.where || {}, { signerId });
     }
 
     let result;

@@ -77,15 +77,17 @@ export function getExtrinsicSuccess(
 export function transformEventData(
   method: string,
   data: GenericEventData
-): string | object | object[] {
+): string | unknown {
   switch (method) {
     case "Transfer": {
       const amount = data[2] as any; // eslint-disable-line
-      return [{
-        from: data[0],
-        to: data[1],
-        amount: amount.toNumber(),
-      }];
+      return [
+        {
+          from: data[0],
+          to: data[1],
+          amount: amount.toNumber(),
+        },
+      ];
     }
     case "Deposit": {
       return data[0].toString();
@@ -347,7 +349,7 @@ export function transformVestingSchedules(
 
 export async function tryFetchAccount(
   api: ApiPromise,
-  accountAddress: AccountId,
+  accountAddress: AccountId | string,
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<AccountInfo> {
@@ -365,7 +367,7 @@ export async function tryFetchAccount(
 }
 export async function saveAccount(
   manager: EntityManager,
-  accountAddress: AccountId,
+  accountAddress: AccountId | string,
   accountInfo: AccountInfo,
   blockId?: number
 ): Promise<AccountModel> {

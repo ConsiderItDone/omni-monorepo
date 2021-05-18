@@ -9,6 +9,7 @@ import {
   getExtrinsicSuccess,
   boundEventsToExtrinsics,
   tryFetchAccount,
+  saveAccount,
 } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
 import {
@@ -58,15 +59,21 @@ export async function handleExtrinsics(
           if (account) {
             signerId = account.accountId;
           } else {
-            // TODO
-            // const account = await tryFetchAccount(
-            //   api,
-            //   extrinsic.signer.toString() as any,
-            //   blockHash,
-            //   blockNumber
-            // )
-            console.log("no signer");
-            throw new Error("No signer");
+            const accountInfo = await tryFetchAccount(
+              api,
+              extrinsic.signer.toString(),
+              blockHash,
+              blockNumber
+            );
+
+            const { accountId } = await saveAccount(
+              manager,
+              extrinsic.signer.toString(),
+              accountInfo,
+              blockId
+            );
+
+            signerId = accountId;
           }
         }
 
