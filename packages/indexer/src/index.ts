@@ -22,7 +22,7 @@ const start = async function (): Promise<void> {
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: false,
-    entities: ["../../../db/src/models/*.ts", "../../../db/src/models/**/*.ts"],
+    entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
 
   const connection = await connect(connectionOptions);
