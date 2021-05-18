@@ -1,9 +1,18 @@
 variable "gcp_project" {
-  type = string
+  type = map(string)
 }
 
 variable "credentials" {
   type = string
+}
+
+variable "environment" {
+  type = map(string)
+
+  default = {
+    default = "test"
+    prod    = "prod"
+  }
 }
 
 variable "private_cidr" {
@@ -33,13 +42,13 @@ variable "db_name" {
   type = string
 }
 variable "db_tier" {
-  type = string
+  type = map(string)
 }
 variable "db_user" {
   type = string
 }
 variable "db_password" {
-  type = string
+  type = map(string)
 }
 
 // gke
