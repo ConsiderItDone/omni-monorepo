@@ -19,7 +19,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
-import { FindManyOptions, getConnection } from "typeorm";
+import { FindConditions, FindManyOptions, getConnection, Raw } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
@@ -40,6 +40,12 @@ class GetEventByNameArgs {
 
   @Field(() => String, { defaultValue: "All", nullable: true })
   eventName?: string;
+
+  @Field(() => String, { nullable: true })
+  from?: string;
+
+  @Field(() => String, { nullable: true })
+  to?: string;
 }
 
 @ArgsType()
@@ -73,7 +79,7 @@ class TransferChartData {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => EventsResponse)
   protected async getEvents(
-    @Args() { take, skip, callModule, eventName }: GetEventByNameArgs
+    @Args() { take, skip, callModule, eventName, from, to }: GetEventByNameArgs
   ): Promise<EventsResponse> {
     const findOptions: FindManyOptions<Event> = {
       take,
@@ -92,12 +98,28 @@ export default class EventResolver extends EventBaseResolver {
       });
     }
 
+    const where: FindConditions<Event> = {};
+    if (from && to) {
+      where.data = Raw(
+        (data) =>
+          `${data} @> '[{"from":"${from}"}]' and ${data} @> '[{"to":"${to}"}]'`
+      );
+    } else if (from) {
+      where.data = Raw((data) => `${data} @> '[{"from":"${from}"}]'`);
+    } else if (to) {
+      where.data = Raw((data) => `${data} @> '[{"to":"${to}"}]'`);
+    }
+
     if (callModule === "All" && eventName === "All") {
-      result = await Event.findAndCount(findOptions);
+      result = await Event.findAndCount({
+        ...findOptions,
+        where,
+      });
     } else if (eventName === "All") {
       result = await Event.findAndCount({
         ...findOptions,
         where: {
+          ...where,
           moduleName: callModule,
         },
       });
@@ -105,6 +127,7 @@ export default class EventResolver extends EventBaseResolver {
       result = await Event.findAndCount({
         ...findOptions,
         where: {
+          ...where,
           eventTypeId: type ? type.eventTypeId : null,
         },
       });
@@ -112,6 +135,7 @@ export default class EventResolver extends EventBaseResolver {
       result = await Event.findAndCount({
         ...findOptions,
         where: {
+          ...where,
           moduleName: callModule,
           eventTypeId: type ? type.eventTypeId : null,
         },
