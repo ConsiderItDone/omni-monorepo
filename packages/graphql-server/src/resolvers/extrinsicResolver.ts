@@ -16,7 +16,7 @@ import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Event from "@nodle/db/src/models/public/event";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindManyOptions, getRepository } from "typeorm";
+import { FindManyOptions, getConnection, getRepository } from "typeorm";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -28,6 +28,16 @@ class ExtrinsicsResponse {
   @Field(() => Int)
   totalCount: number;
 }
+
+@ObjectType()
+class ExtrinsicChartData {
+  @Field(() => Date)
+  date: Date;
+
+  @Field(() => Int, { defaultValue: 0 })
+  quantity: number;
+}
+
 @ArgsType()
 class GetExtrinsicsByType {
   @Field(() => Int, { defaultValue: 0 })
@@ -153,6 +163,20 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       });
     }
     return { items: result[0], totalCount: result[1] };
+  }
+
+  @Query(() => [ExtrinsicChartData])
+  async getExtrinsicsChartData(): Promise<ExtrinsicChartData[]> {
+    const data = await getConnection().query(`
+      select
+        date_trunc('hour', b."timestamp") as date,
+        count(1) as quantity
+      from public."extrinsic" e 
+      left join public.block b on b.block_id = e.block_id 
+      group by 1
+    `);
+
+    return data || [];
   }
 
   @FieldResolver()

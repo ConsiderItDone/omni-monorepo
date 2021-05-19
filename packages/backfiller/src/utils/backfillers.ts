@@ -215,7 +215,11 @@ export async function backfillAccounts(
 
   for (const account of accounts) {
     const entityManager = await connection.createEntityManager();
-    saveAccount(entityManager, account[0].toHuman() as undefined as AccountId, account[1]);
+    saveAccount(
+      entityManager,
+      (account[0].toHuman() as undefined) as AccountId,
+      account[1]
+    );
   }
 }
 

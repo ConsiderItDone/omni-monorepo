@@ -133,7 +133,7 @@ export default class EventResolver extends EventBaseResolver {
   }
 
   @Query(() => [TransferChartData])
-  async getTransfersChartData(): Promise<Event[]> {
+  async getTransfersChartData(): Promise<TransferChartData[]> {
     const eventType = await EventType.findOne({
       name: "Transfer",
     });

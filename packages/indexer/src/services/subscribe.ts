@@ -123,7 +123,7 @@ export async function subscribe(
         `------Finished processing block №: ${header.number.toString()}------`
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
       }
