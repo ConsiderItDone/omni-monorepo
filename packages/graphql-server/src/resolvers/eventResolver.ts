@@ -21,6 +21,7 @@ import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
 import { FindConditions, FindManyOptions, getConnection, Raw } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
+import { GraphQLJSON } from "graphql-type-json";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -41,11 +42,8 @@ class GetEventByNameArgs {
   @Field(() => String, { defaultValue: "All", nullable: true })
   eventName?: string;
 
-  @Field(() => String, { nullable: true })
-  from?: string;
-
-  @Field(() => String, { nullable: true })
-  to?: string;
+  @Field(() => GraphQLJSON, { nullable: true })
+  filters?: any; // eslint-disable-line
 }
 
 @ArgsType()
@@ -79,7 +77,7 @@ class TransferChartData {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => EventsResponse)
   protected async getEvents(
-    @Args() { take, skip, callModule, eventName, from, to }: GetEventByNameArgs
+    @Args() { take, skip, callModule, eventName, filters }: GetEventByNameArgs
   ): Promise<EventsResponse> {
     const findOptions: FindManyOptions<Event> = {
       take,
@@ -99,15 +97,12 @@ export default class EventResolver extends EventBaseResolver {
     }
 
     const where: FindConditions<Event> = {};
-    if (from && to) {
-      where.data = Raw(
-        (data) =>
-          `${data} @> '[{"from":"${from}"}]' and ${data} @> '[{"to":"${to}"}]'`
+    if (filters) {
+      where.data = Raw((data) =>
+        Object.keys(filters)
+          .map((filter) => `${data} @> '[{"${filter}":"${filters[filter]}"}]'`)
+          .join(" and ")
       );
-    } else if (from) {
-      where.data = Raw((data) => `${data} @> '[{"from":"${from}"}]'`);
-    } else if (to) {
-      where.data = Raw((data) => `${data} @> '[{"to":"${to}"}]'`);
     }
 
     if (callModule === "All" && eventName === "All") {
