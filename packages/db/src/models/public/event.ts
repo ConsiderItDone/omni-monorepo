@@ -12,6 +12,7 @@ import Block from "./block";
 import Extrinsic from "./extrinsic";
 import { GraphQLJSON } from "graphql-type-json";
 import EventType from "./eventType";
+import Module from "./module";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -33,9 +34,14 @@ export default class Event extends BaseEntity {
   @Column("character varying", { name: "extrinsic_hash", nullable: true })
   public extrinsicHash: string | null;
 
-  @Field(() => String)
-  @Column("character varying", { name: "module_name" })
-  public moduleName: string;
+  @Field(() => Int)
+  @Column("integer", { name: "module_id", nullable: true })
+  public moduleId: number;
+
+  @Field(() => Module, { nullable: true })
+  @ManyToOne(() => Module, (m) => m.moduleId)
+  @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  public module: Module;
 
   @Field(() => Int)
   @Column("integer", { name: "event_type_id", nullable: true })

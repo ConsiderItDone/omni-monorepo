@@ -20,6 +20,8 @@ import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 import ValidatorResolver from "./src/resolvers/validatorResolver";
 import MQ from "@nodle/utils/src/mq";
+import EventTypeResolver from "./src/resolvers/eventTypeResolver";
+import ModuleResolver from "./src/resolvers/moduleResolver";
 const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
 (async (): Promise<void> => {
   const connectionOptions = {
@@ -47,6 +49,8 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       ExtrinsicResolver,
       VestingScheduleResolver,
       ValidatorResolver,
+      EventTypeResolver,
+      ModuleResolver,
     ],
   });
   await new ApolloServer({

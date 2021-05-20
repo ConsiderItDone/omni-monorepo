@@ -8,7 +8,7 @@ export default class EventRepository extends Repository<Event> {
     data,
     extrinsicHash,
     extrinsicId,
-    moduleName,
+    moduleId,
     eventTypeId,
     blockId,
   }: {
@@ -16,7 +16,7 @@ export default class EventRepository extends Repository<Event> {
     data: string | unknown;
     extrinsicHash: string | null;
     extrinsicId: number | null;
-    moduleName: string;
+    moduleId: number | null;
     eventTypeId: number;
     blockId: number;
   }): Promise<Event> {
@@ -25,7 +25,7 @@ export default class EventRepository extends Repository<Event> {
       data,
       extrinsicHash,
       extrinsicId,
-      moduleName,
+      moduleId,
       eventTypeId,
       blockId,
     });
