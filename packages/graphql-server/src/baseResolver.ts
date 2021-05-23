@@ -14,6 +14,7 @@ import {
 import { Min, Max } from "class-validator";
 import MQ from "@nodle/utils/src/mq";
 import { Utils } from "@nodle/utils/src";
+import { withFilter } from "apollo-server";
 
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
@@ -98,7 +99,17 @@ export function createBaseResolver<T extends ClassType>(
 
     @Subscription(() => objectTypeCls, {
       name: `new${suffix}`,
-      subscribe: () => MQ.getMQ().on(`new${suffix}`),
+      subscribe: withFilter(
+        () => MQ.getMQ().on(`new${suffix}`),
+        (payload) => {
+          if (payload.timestamp) {
+            // NOD-128 Unable to serialize value as it's not an instance of 'Date'"
+            payload.timestamp = new Date(payload.timestamp);
+          }
+
+          return true;
+        }
+      ),
     })
     newEntity(@Root() entity: T): T {
       return entity;
