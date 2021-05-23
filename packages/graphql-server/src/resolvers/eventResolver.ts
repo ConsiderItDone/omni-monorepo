@@ -22,6 +22,7 @@ import { withFilter } from "graphql-subscriptions";
 import { FindConditions, FindManyOptions, getConnection, Raw } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
+import Module from "@nodle/db/src/models/public/module";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -89,6 +90,12 @@ export default class EventResolver extends EventBaseResolver {
 
     let result;
 
+    let module: Module;
+    if (callModule !== "All") {
+      module = await Module.findOne({
+        name: callModule,
+      });
+    }
     let type: EventType;
     if (eventName !== "All") {
       type = await EventType.findOne({
@@ -115,7 +122,7 @@ export default class EventResolver extends EventBaseResolver {
         ...findOptions,
         where: {
           ...where,
-          moduleName: callModule,
+          moduleId: module ? module.moduleId : null,
         },
       });
     } else if (callModule === "All") {
@@ -131,7 +138,7 @@ export default class EventResolver extends EventBaseResolver {
         ...findOptions,
         where: {
           ...where,
-          moduleName: callModule,
+          moduleId: module ? module.moduleId : null,
           eventTypeId: type ? type.eventTypeId : null,
         },
       });
@@ -188,8 +195,13 @@ export default class EventResolver extends EventBaseResolver {
   }
 
   @FieldResolver()
-  eventType(@Root() source: Extrinsic): Promise<EventType> {
+  eventType(@Root() source: Event): Promise<EventType> {
     return singleFieldResolver(source, EventType, "eventTypeId");
+  }
+
+  @FieldResolver()
+  module(@Root() source: Event): Promise<Module> {
+    return singleFieldResolver(source, Module, "moduleId");
   }
 
   @Subscription(() => Event, {
