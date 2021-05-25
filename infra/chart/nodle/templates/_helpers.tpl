@@ -152,6 +152,44 @@ component: {{ .Values.graphql.name | quote }}
 
 
 {{/*
+Create a fully qualified frontend name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+
+{{- define "nodle.frontend.fullname" -}}
+{{- if .Values.frontend.fullnameOverride -}}
+{{- .Values.frontend.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.frontend.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.frontend.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Frontend selector labels
+*/}}
+{{- define "chart.frontendSelectorLabels" -}}
+app.kubernetes.io/app: {{ include "nodle.name" . }}
+app.kubernetes.io/name: frontend
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "nodle.frontend.labels" -}}
+{{ include "nodle.frontend.matchLabels" . }}
+{{ include "nodle.common.metaLabels" . }}
+{{- end -}}
+
+{{- define "nodle.frontend.matchLabels" -}}
+component: {{ .Values.frontend.name | quote }}
+{{ include "nodle.common.matchLabels" . }}
+{{- end -}}
+
+
+{{/*
 Create a fully qualified backfiller name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}

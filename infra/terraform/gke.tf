@@ -52,6 +52,12 @@ resource "google_compute_global_address" "api" {
   address_type = "EXTERNAL"
 }
 
+// static IP address for UI LB
+resource "google_compute_global_address" "frontend" {
+  name = "frontend"
+  address_type = "EXTERNAL"
+}
+
 //output "gke-name" {
 //  value = google_container_cluster.main.id
 //}

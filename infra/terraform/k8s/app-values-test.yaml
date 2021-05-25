@@ -8,6 +8,16 @@ graphql:
     hosts:
       - api.test.nodleprotocol.io
 
+frontend:
+  image:
+    repository: gcr.io/block-explorer-testnet/frontend
+    tag: "4569691"
+
+  ingress:
+    enabled: true
+    hosts:
+      - ui.test.nodleprotocol.io
+
 indexer:
   image:
     repository: gcr.io/block-explorer-testnet/app

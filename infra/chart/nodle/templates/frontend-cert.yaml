@@ -1,0 +1,9 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: frontend
+spec:
+  domains:
+    {{- range .Values.frontend.ingress.hosts }}
+    - {{ . }}
+  {{- end -}}
