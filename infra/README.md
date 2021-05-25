@@ -33,7 +33,6 @@ or create a new one. Next, download the JSON key file. Name it `key.json`, and s
 
 ## Github Actions setup
 
-Create secrets:
-1. `GCP_CREDENTIALS` with json content from `ci-service-account-key` output
-2. `GCP_EMAIL` is the email from the `ci-service-account-email` output 
-3. `GCP_PROJECT_ID` is your $PROJECT_ID, for example `nodle-demo`
+Create secrets for test environment:
+1. `GCP_CREDENTIALS_TEST` with json content from `ci-service-account-key` output
+2. `GCP_PROJECT_ID_TEST` is your $PROJECT_ID, for example `nodle-demo`

@@ -1,0 +1,15 @@
+graphql:
+  image:
+    repository: gcr.io/block-explorer-testnet/app
+    tag: 0ad6416
+
+  ingress:
+    enabled: true
+    hosts:
+      - api.test.nodleprotocol.io
+
+indexer:
+  image:
+    repository: gcr.io/block-explorer-testnet/app
+    tag: 0ad6416
+

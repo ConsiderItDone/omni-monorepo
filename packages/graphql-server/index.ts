@@ -1,11 +1,13 @@
 import * as dotenv from "dotenv";
 import path from "path";
 try {
-  dotenv.config({ path: path.resolve(__dirname) + "../../../.env" });
+  dotenv.config({ path: path.resolve(__dirname) + "/../../.env" });
 } catch (e) {
   //nop
 }
-import { ApolloServer } from "apollo-server";
+
+import express = require("express");
+import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
@@ -53,10 +55,23 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       ModuleResolver,
     ],
   });
-  await new ApolloServer({
+
+  const server = new ApolloServer({
     schema,
     introspection: true,
     playground: true,
-  }).listen(PORT);
+  });
+  await server.start();
+
+  const app = express();
+  app.get("/", function (req: express.Request, res: express.Response) {
+    res.status(200).end();
+  });
+  server.applyMiddleware({ app });
+
+  await new Promise((resolve) =>
+    app.listen({ port: PORT }, resolve as () => void)
+  );
+
   console.info(`GraphQL server running on port ${PORT}`);
 })();

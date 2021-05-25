@@ -1,0 +1,51 @@
+name: Publish release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+  build:
+    name: Run docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run docker build dev
+        run: make docker-build-dev
+      - name: Run docker build prod
+        run: make docker-build-prod
+  publish:
+    name: Publish docker image to Google Container Registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/})
+      - uses: actions/checkout@v2
+      - name: Run docker build prod
+        run: make docker-build-prod
+      - run: docker tag nodle:prod gcr.io/${{ secrets.GCP_PROJECT_ID_PROD }}/app:${{steps.vars.outputs.tag}}
+      - name: Login to GCP
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_PROD }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS_PROD }}
+          export_default_credentials: true
+      - name: Configure Docker
+        run: gcloud auth configure-docker --quiet
+      - name: Push Docker image
+        run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID_PROD }}/app:${{steps.vars.outputs.tag}}

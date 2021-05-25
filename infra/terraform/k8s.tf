@@ -14,6 +14,8 @@ provider "helm" {
 }
 
 resource "helm_release" "prometheus-stack" {
+  count = local.environment == "prod" ? 1 : 0
+
   name       = "prometheus-community"
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
@@ -27,6 +29,8 @@ resource "helm_release" "prometheus-stack" {
 }
 
 resource "helm_release" "loki" {
+  count = local.environment == "prod" ? 1 : 0
+
   name       = "loki"
   repository = "https://grafana.github.io/loki/charts"
   chart      = "loki"
@@ -39,6 +43,8 @@ resource "helm_release" "loki" {
 
 }
 resource "helm_release" "promtail" {
+  count = local.environment == "prod" ? 1 : 0
+
   name       = "promtail"
   repository = "https://grafana.github.io/loki/charts"
   chart      = "promtail"
@@ -52,12 +58,13 @@ resource "helm_release" "promtail" {
 }
 
 resource "helm_release" "app" {
-  name       = "app2"
+  name       = "app"
   chart      = "../chart/nodle"
+  wait = false
 //  reuse_values = true
 
   values = [
-    file("k8s/app-values.yaml")
+    local.environment == "test" ? file("k8s/app-values-test.yaml") : file("k8s/app-values-prod.yaml")
   ]
 
   set_sensitive {
@@ -74,7 +81,7 @@ resource "helm_release" "app" {
   }
   set_sensitive {
     name  = "secrets.databasePassword"
-    value = var.db_password
+    value = local.db_password
   }
   set_sensitive {
     name  = "secrets.rabbitMQURL"

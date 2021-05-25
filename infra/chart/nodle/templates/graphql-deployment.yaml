@@ -68,10 +68,13 @@ spec:
                 secretKeyRef:
                   key: chain_node
                   name: {{ template "nodle.indexer.fullname" . }}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: /v1/ready*/}}
-{{/*              port: 9000*/}}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 4000
+              httpHeaders:
+                - name: Accept
+                  value: text/html
           resources:
 {{ toYaml .Values.graphql.resources | indent 12 }}
       {{- with .Values.nodeSelector }}

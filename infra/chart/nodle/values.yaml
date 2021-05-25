@@ -32,7 +32,7 @@ indexer:
   ##
   image:
     repository: gcr.io/nodle-demo/app
-    tag: c71b5ff
+    tag: 0ad6416
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -65,7 +65,7 @@ backfiller:
   ##
   image:
     repository: gcr.io/nodle-demo/app
-    tag: c71b5ff
+    tag: 0ad6416
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -88,7 +88,7 @@ backfiller:
 graphql:
   ## If false, graphql will not be installed
   ##
-  enabled: false
+  enabled: true
 
   ## graphql container name
   ##
@@ -98,7 +98,7 @@ graphql:
   ##
   image:
     repository: gcr.io/nodle-demo/app
-    tag: c71b5ff
+    tag: 0ad6416
     pullPolicy: IfNotPresent
 
   replicaCount: 1
@@ -150,7 +150,7 @@ graphql:
     servicePort: 80
     # nodePort: 30000
     sessionAffinity: None
-    type: ClusterIP
+    type: NodePort
 
   ## graphql resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/

@@ -46,6 +46,12 @@ resource "google_container_node_pool" "app_nodes" {
   }
 }
 
+// static IP address for graphql LB
+resource "google_compute_global_address" "api" {
+  name = "api"
+  address_type = "EXTERNAL"
+}
+
 //output "gke-name" {
 //  value = google_container_cluster.main.id
 //}

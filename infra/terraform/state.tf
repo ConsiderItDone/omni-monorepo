@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket  = "cidt-nodle-demo-terraform"
+    bucket  = "nodle-terraform"
     credentials = "./key.json"
   }
 }
