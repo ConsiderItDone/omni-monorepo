@@ -52,6 +52,8 @@ export function createBaseResolver<T extends ClassType>(
 
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
+    private lastNumber = -1;
+
     @Query(() => objectTypeCls, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}ById`,
       nullable: true,
@@ -102,12 +104,22 @@ export function createBaseResolver<T extends ClassType>(
       subscribe: withFilter(
         () => MQ.getMQ().on(`new${suffix}`),
         (payload) => {
+          let isValid = true;
+          if (payload.number) {
+            // NOD-140 Subscription: ID filtering
+            if (Number(payload.number) <= this.lastNumber) {
+              isValid = false;
+            }
+
+            this.lastNumber = Number(payload.number);
+          }
+
           if (payload.timestamp) {
             // NOD-128 Unable to serialize value as it's not an instance of 'Date'"
             payload.timestamp = new Date(payload.timestamp);
           }
 
-          return true;
+          return isValid;
         }
       ),
     })
