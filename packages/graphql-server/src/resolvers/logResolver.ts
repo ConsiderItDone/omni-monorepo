@@ -9,7 +9,7 @@ const LogBaseResolver = createBaseResolver("Log", Log);
 @Resolver(Log)
 export default class LogResolver extends LogBaseResolver {
   @Query(() => [Log])
-  async getLogsByBlockNumber(@Arg("number") number: string): Promise<Log[]> {
+  async logsByBlockNumber(@Arg("number") number: string): Promise<Log[]> {
     const logs = await Log.createQueryBuilder("log")
       .leftJoin(Block, "block", "block.blockId = log.blockId")
       .where(`block.number = :number`, { number })

@@ -9,7 +9,7 @@ const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 @Resolver(Balance)
 export default class BalanceResolver extends BalanceBaseResolver {
   @Query(() => Balance, { nullable: true })
-  async getBalanceByAddress(@Arg("address") address: string): Promise<Balance> {
+  async balanceByAddress(@Arg("address") address: string): Promise<Balance> {
     const account = await Account.findOne({
       where: {
         address,

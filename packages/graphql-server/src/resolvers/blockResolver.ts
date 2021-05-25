@@ -14,7 +14,7 @@ const BlockBaseResolver = createBaseResolver("Block", Block);
 @Resolver(Block)
 export default class BlockResolver extends BlockBaseResolver {
   @Query(() => Block, { nullable: true })
-  async getBlockByBlockNumber(
+  async blockByBlockNumber(
     @Arg("number") number: string
   ): Promise<Block | null> {
     try {
@@ -33,7 +33,7 @@ export default class BlockResolver extends BlockBaseResolver {
     return block;
   }
   @Query(() => Block, { nullable: true })
-  async getBlockByHash(@Arg("hash") hash: string): Promise<Block | null> {
+  async blockByHash(@Arg("hash") hash: string): Promise<Block | null> {
     const block = await Block.findOne({
       hash,
     });

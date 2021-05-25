@@ -39,7 +39,7 @@ class ExtrinsicChartData {
 }
 
 @ArgsType()
-class GetExtrinsicsByType {
+class ExtrinsicsByType {
   @Field(() => Int, { defaultValue: 0 })
   @Min(0)
   skip: number;
@@ -64,7 +64,7 @@ class GetExtrinsicsByType {
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => [Extrinsic])
-  async getExtrinsicsByBlockNumber(
+  async extrinsicsByBlockNumber(
     @Arg("number") number: string
   ): Promise<Extrinsic[]> {
     const extrinsics = await Extrinsic.createQueryBuilder("log")
@@ -76,9 +76,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @Query(() => Extrinsic, { nullable: true })
-  async getExtrinsicByHash(
-    @Arg("hash") hash: string
-  ): Promise<Extrinsic | null> {
+  async extrinsicByHash(@Arg("hash") hash: string): Promise<Extrinsic | null> {
     const extrinsic = await Extrinsic.findOne({
       hash,
     });
@@ -86,7 +84,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     return extrinsic;
   }
   @Query(() => Extrinsic, { nullable: true })
-  async getExtrinsic(@Arg("id") id: string): Promise<Extrinsic | null> {
+  async extrinsicById(@Arg("id") id: string): Promise<Extrinsic | null> {
     if (id.length === 66) {
       return await Extrinsic.findOne({
         hash: id,
@@ -109,7 +107,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @Query(() => ExtrinsicsResponse)
-  async getExtrinsics(
+  async extrinsics(
     @Args()
     {
       take,
@@ -118,7 +116,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       callFunction,
       signedOnly,
       signerId,
-    }: GetExtrinsicsByType
+    }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
@@ -166,7 +164,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @Query(() => [ExtrinsicChartData])
-  async getExtrinsicsChartData(): Promise<ExtrinsicChartData[]> {
+  async extrinsicsChartData(): Promise<ExtrinsicChartData[]> {
     const data = await getConnection().query(`
       select
         date_trunc('hour', b."timestamp") as date,
