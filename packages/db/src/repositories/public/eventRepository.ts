@@ -8,16 +8,16 @@ export default class EventRepository extends Repository<Event> {
     data,
     extrinsicHash,
     extrinsicId,
-    moduleName,
-    eventName,
+    moduleId,
+    eventTypeId,
     blockId,
   }: {
     index: number;
-    data: string;
+    data: string | unknown;
     extrinsicHash: string | null;
     extrinsicId: number | null;
-    moduleName: string;
-    eventName: string;
+    moduleId: number | null;
+    eventTypeId: number;
     blockId: number;
   }): Promise<Event> {
     const event = await this.save({
@@ -25,8 +25,8 @@ export default class EventRepository extends Repository<Event> {
       data,
       extrinsicHash,
       extrinsicId,
-      moduleName,
-      eventName,
+      moduleId,
+      eventTypeId,
       blockId,
     });
 

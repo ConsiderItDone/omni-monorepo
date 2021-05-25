@@ -9,10 +9,12 @@ import {
   Subscription,
   Root,
   Arg,
+  ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import MQ from "@nodle/utils/src/mq";
 import { Utils } from "@nodle/utils/src";
+import { withFilter } from "apollo-server";
 
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
@@ -39,8 +41,19 @@ export function createBaseResolver<T extends ClassType>(
     last = 0;
   }
 
+  @ObjectType(`${suffix}Response`)
+  class BaseResponse {
+    @Field(() => [objectTypeCls])
+    items: T[];
+
+    @Field(() => Int)
+    totalCount: number;
+  }
+
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
+    private lastNumber = -1;
+
     @Query(() => objectTypeCls, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}ById`,
       nullable: true,
@@ -48,18 +61,18 @@ export function createBaseResolver<T extends ClassType>(
     async getById(@Arg("id") id: number): Promise<T> {
       const entity = await (objectTypeCls as any).findOne(id); // eslint-disable-line
       if (entity === undefined) {
-        throw new Error(`${suffix} ${id} not found`);
+        return null;
       }
 
       return entity;
     }
 
-    @Query(() => [objectTypeCls], {
+    @Query(() => BaseResponse, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}s`,
     })
     protected async getAll(
       @Args() { take, skip, first, last }: PaginationArgs
-    ): Promise<T[]> {
+    ): Promise<BaseResponse> {
       if (first && last) {
         throw new Error("Bad request");
       }
@@ -78,16 +91,37 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       // eslint-disable-next-line
-      return (objectTypeCls as any).find({
+      const result = await (objectTypeCls as any).findAndCount({
         take,
         skip,
         order,
       });
+      return { items: result[0], totalCount: result[1] };
     }
 
     @Subscription(() => objectTypeCls, {
       name: `new${suffix}`,
-      subscribe: () => MQ.getMQ().on(`new${suffix}`),
+      subscribe: withFilter(
+        () => MQ.getMQ().on(`new${suffix}`),
+        (payload) => {
+          let isValid = true;
+          if (payload.number) {
+            // NOD-140 Subscription: ID filtering
+            if (Number(payload.number) <= this.lastNumber) {
+              isValid = false;
+            }
+
+            this.lastNumber = Number(payload.number);
+          }
+
+          if (payload.timestamp) {
+            // NOD-128 Unable to serialize value as it's not an instance of 'Date'"
+            payload.timestamp = new Date(payload.timestamp);
+          }
+
+          return isValid;
+        }
+      ),
     })
     newEntity(@Root() entity: T): T {
       return entity;

@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
 import path from "path";
-
 try {
   dotenv.config({ path: path.resolve(__dirname) + "/../../.env" });
 } catch (e) {
@@ -12,7 +11,6 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
-
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
 import LogResolver from "./src/resolvers/logResolver";
@@ -22,10 +20,11 @@ import AccountResolver from "./src/resolvers/accountResolver";
 import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
+import ValidatorResolver from "./src/resolvers/validatorResolver";
 import MQ from "@nodle/utils/src/mq";
-
+import EventTypeResolver from "./src/resolvers/eventTypeResolver";
+import ModuleResolver from "./src/resolvers/moduleResolver";
 const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
-
 (async (): Promise<void> => {
   const connectionOptions = {
     name: "default",
@@ -38,11 +37,8 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     logging: false,
     entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
-
   await connect(connectionOptions);
-
   await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection
-
   const schema = await buildSchema({
     resolvers: [
       AccountResolver,
@@ -54,6 +50,9 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       RootCertificateResolver,
       ExtrinsicResolver,
       VestingScheduleResolver,
+      ValidatorResolver,
+      EventTypeResolver,
+      ModuleResolver,
     ],
   });
 

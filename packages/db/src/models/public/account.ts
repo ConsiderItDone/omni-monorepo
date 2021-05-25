@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
-import { Balance } from "..";
+import { Balance, Validator } from "..";
 
 @ObjectType()
 @Index("account_pk", ["accountId"], { unique: true })
@@ -24,16 +24,16 @@ export default class Account extends BaseEntity {
   @Column("character varying", { name: "address" })
   public address: string;
 
-  @Field(() => Number)
-  @Column("integer", { name: "nonce" })
+  @Field(() => Number, { nullable: true })
+  @Column("integer", { name: "nonce", nullable: true })
   public nonce: number;
 
-  @Field(() => Number)
-  @Column("integer", { name: "refcount" })
+  @Field(() => Number, { nullable: true })
+  @Column("integer", { name: "refcount", nullable: true })
   public refcount: number;
 
   @Field(() => Balance, { nullable: true })
-  @OneToOne(() => Balance, (balance) => balance.account)
+  @OneToOne(() => Balance, (balance) => balance.account, { nullable: true })
   // @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
   public balance: Balance;
 
@@ -44,4 +44,8 @@ export default class Account extends BaseEntity {
   )
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public vestingSchedules: VestingSchedule[];
+
+  @Field(() => Validator, { nullable: true })
+  @OneToOne(() => Validator, (validator) => validator.account)
+  public validator: Validator;
 }

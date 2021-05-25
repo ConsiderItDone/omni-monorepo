@@ -2,6 +2,7 @@ import type {
   EventRecord,
   Event,
   AccountInfo,
+  AccountInfoWithProviders,
 } from "@polkadot/types/interfaces/system";
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
@@ -18,12 +19,14 @@ import ApplicationRepository from "@nodle/db/src/repositories/public/application
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
+import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
   Account as AccountModel,
+  Validator,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
@@ -74,15 +77,17 @@ export function getExtrinsicSuccess(
 export function transformEventData(
   method: string,
   data: GenericEventData
-): string {
+): string | unknown {
   switch (method) {
     case "Transfer": {
       const amount = data[2] as any; // eslint-disable-line
-      return JSON.stringify({
-        from: data[0],
-        to: data[1],
-        amount: amount.toNumber(),
-      });
+      return [
+        {
+          from: data[0],
+          to: data[1],
+          amount: amount.toNumber(),
+        },
+      ];
     }
     case "Deposit": {
       return data[0].toString();
@@ -344,7 +349,7 @@ export function transformVestingSchedules(
 
 export async function tryFetchAccount(
   api: ApiPromise,
-  accountAddress: AccountId,
+  accountAddress: AccountId | string,
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<AccountInfo> {
@@ -362,15 +367,15 @@ export async function tryFetchAccount(
 }
 export async function saveAccount(
   manager: EntityManager,
-  accountAddress: AccountId,
+  accountAddress: AccountId | string,
   accountInfo: AccountInfo,
-  blockId: number
+  blockId?: number
 ): Promise<AccountModel> {
   const accountRepository = manager.getCustomRepository(AccountRepository);
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = accountAddress.toString();
-  const { nonce, refcount, data: balance } = accountInfo;
+  const { nonce, refcount = null, data: balance } = accountInfo;
 
   const accountData = {
     address: address,
@@ -390,4 +395,22 @@ export async function saveAccount(
   };
   await balanceRepository.add(balanceData);
   return savedAccount;
+}
+
+export async function saveValidator(
+  entityManager: EntityManager,
+  accountId: number,
+  accountAddress: AccountId,
+  accountInfo: AccountInfoWithProviders
+): Promise<Validator> {
+  const validatorRepository = entityManager.getCustomRepository(
+    ValidatorRepository
+  );
+  const { consumers, providers } = accountInfo;
+
+  return await validatorRepository.upsert(accountAddress.toString(), {
+    accountId,
+    consumers: consumers.toNumber(),
+    providers: providers.toNumber(),
+  });
 }

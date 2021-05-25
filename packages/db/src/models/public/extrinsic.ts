@@ -48,13 +48,9 @@ export default class Extrinsic extends BaseEntity {
   @Column("text", { name: "params" })
   public params: string;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "signer",
-    nullable: true,
-    default: null,
-  })
-  public signer: string | null;
+  @Field(() => Int, { nullable: true })
+  @Column("integer", { name: "signer_id", nullable: true })
+  public signerId: number;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {

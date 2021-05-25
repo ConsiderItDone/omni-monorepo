@@ -1,7 +1,13 @@
 import { EntityManager } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
-import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
-import type { Event } from "@polkadot/types/interfaces/system";
+import type {
+  AccountId,
+  BlockNumber,
+} from "@polkadot/types/interfaces/runtime";
+import type {
+  Event,
+  AccountInfoWithProviders,
+} from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
 import {
@@ -10,6 +16,8 @@ import {
   applicationIsEmpty,
   tryFetchApplication,
   ApplicationFetchMethods,
+  saveAccount,
+  saveValidator,
 } from "@nodle/polkadot/src/misc";
 import {
   CustomEventSection,
@@ -23,6 +31,7 @@ import {
   handleRootOfTrust,
   handleVestingSchedule,
 } from "@nodle/polkadot/src/handlers";
+import { Connection } from "typeorm";
 
 export async function backfillTrackedEvents(
   manager: EntityManager,
@@ -159,18 +168,30 @@ export async function backfillApplication(
         applicationStatus = ApplicationStatus.challenged;
         break;
       }
-      /* 
-    /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
-    case "ChallengeRefusedApplication": {
-      const acc = event.data[0];
-      break;
-    }
-    /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
-    case "ChallengeAcceptedApplication": {
-      const acc = event.data[0];
-      break;
-    } 
-    */
+
+      /// A challenge killed the given application ChallengeRefusedApplication(AccountId),
+      case "ChallengeRefusedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountId,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.refused;
+        break;
+      }
+      /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
+      case "ChallengeAcceptedApplication": {
+        applicationData = await tryFetchApplication(
+          api,
+          ApplicationFetchMethods.Challenges,
+          accountId,
+          blockNumber
+        );
+        applicationStatus = ApplicationStatus.accepted;
+        break;
+      }
+
       default:
         return;
     }
@@ -183,5 +204,48 @@ export async function backfillApplication(
     );
   } catch (error) {
     logger.error(error);
+  }
+}
+
+export async function backfillAccounts(
+  connection: Connection,
+  api: ApiPromise
+): Promise<void> {
+  const accounts = await api.query.system.account.entries();
+
+  for (const account of accounts) {
+    const entityManager = await connection.createEntityManager();
+    saveAccount(
+      entityManager,
+      (account[0].toHuman() as undefined) as AccountId,
+      account[1]
+    );
+  }
+}
+
+export async function backfillValidators(
+  connection: Connection,
+  api: ApiPromise
+): Promise<void> {
+  const validators = await api.query.session.validators();
+
+  if (validators && validators.length > 0) {
+    const validatorDatas = await Promise.all(
+      validators.map((authorityId) => api.query.system.account(authorityId))
+    );
+    for (const [index, validator] of validators.entries()) {
+      const entityManager = await connection.createEntityManager();
+      const validatorAccount = await saveAccount(
+        entityManager,
+        validator as AccountId,
+        validatorDatas[index]
+      );
+      await saveValidator(
+        entityManager,
+        validatorAccount.accountId,
+        validator as AccountId,
+        (validatorDatas[index] as unknown) as AccountInfoWithProviders
+      );
+    }
   }
 }

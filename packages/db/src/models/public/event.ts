@@ -11,6 +11,8 @@ import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Extrinsic from "./extrinsic";
 import { GraphQLJSON } from "graphql-type-json";
+import EventType from "./eventType";
+import Module from "./module";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -26,19 +28,29 @@ export default class Event extends BaseEntity {
 
   @Field(() => GraphQLJSON, { nullable: true })
   @Column("jsonb", { name: "data" })
-  public data: string;
+  public data: string | unknown;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", { name: "extrinsic_hash", nullable: true })
   public extrinsicHash: string | null;
 
-  @Field(() => String)
-  @Column("character varying", { name: "module_name" })
-  public moduleName: string;
+  @Field(() => Int)
+  @Column("integer", { name: "module_id", nullable: true })
+  public moduleId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "event_name" })
-  public eventName: string;
+  @Field(() => Module, { nullable: true })
+  @ManyToOne(() => Module, (m) => m.moduleId)
+  @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  public module: Module;
+
+  @Field(() => Int)
+  @Column("integer", { name: "event_type_id", nullable: true })
+  public eventTypeId: number;
+
+  @Field(() => EventType, { nullable: true })
+  @ManyToOne(() => EventType, (type) => type.eventTypeId)
+  @JoinColumn([{ name: "event_type_id", referencedColumnName: "eventTypeId" }])
+  public eventType: EventType;
 
   @Field(() => Int)
   @Column("integer", { name: "block_id" })
