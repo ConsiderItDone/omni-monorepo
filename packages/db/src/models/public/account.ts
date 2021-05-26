@@ -11,6 +11,7 @@ import {
 import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
 import { Balance, Validator } from "..";
+import Extrinsic from "./extrinsic";
 
 @ObjectType()
 @Index("account_pk", ["accountId"], { unique: true })
@@ -48,4 +49,9 @@ export default class Account extends BaseEntity {
   @Field(() => Validator, { nullable: true })
   @OneToOne(() => Validator, (validator) => validator.account)
   public validator: Validator;
+
+  @Field(() => [Extrinsic], { nullable: true })
+  @OneToMany(() => Extrinsic, (extrinsic) => extrinsic.signer)
+  @JoinColumn([{ name: "signer_id", referencedColumnName: "signerId" }])
+  public extrinsics: Extrinsic[];
 }

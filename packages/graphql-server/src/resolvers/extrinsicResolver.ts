@@ -14,6 +14,7 @@ import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import Event from "@nodle/db/src/models/public/event";
+import Account from "@nodle/db/src/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { FindManyOptions, getConnection, getRepository } from "typeorm";
@@ -185,5 +186,10 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @FieldResolver()
   events(@Root() source: Extrinsic): Promise<Event[]> {
     return arrayFieldResolver(source, Event, "extrinsicId");
+  }
+
+  @FieldResolver()
+  signer(@Root() source: Extrinsic): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId", "signerId");
   }
 }

@@ -2,6 +2,7 @@ import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
 import Account from "@nodle/db/src/models/public/account";
 import Balance from "@nodle/db/src/models/public/balance";
 import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
+import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver, singleFieldResolver } from "../fieldsResolver";
 
@@ -28,5 +29,10 @@ export default class AccountResolver extends AccountBaseResolver {
   @FieldResolver()
   vestingSchedules(@Root() source: Account): Promise<VestingSchedule[]> {
     return arrayFieldResolver(source, VestingSchedule, "accountId");
+  }
+
+  @FieldResolver()
+  extrinsics(@Root() source: Extrinsic): Promise<Extrinsic[]> {
+    return arrayFieldResolver(source, Extrinsic, "signerId", "accountId");
   }
 }

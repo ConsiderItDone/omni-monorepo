@@ -5,11 +5,12 @@ import { ClassType } from "type-graphql";
 export async function arrayFieldResolver<T>(
   parent: T,
   child: ClassType,
-  field: string
+  field: string,
+  field2?: string
 ): Promise<any[]> {
   const array = await (child as any).find({
     where: {
-      [field]: (parent as any)[field],
+      [field]: (parent as any)[field2 || field],
     },
   });
 
@@ -19,11 +20,12 @@ export async function arrayFieldResolver<T>(
 export async function singleFieldResolver<T>(
   parent: T,
   child: ClassType,
-  field: string
+  field: string,
+  field2?: string
 ): Promise<any> {
   const obj = await (child as any).findOne({
     where: {
-      [field]: (parent as any)[field],
+      [field]: (parent as any)[field2 || field],
     },
   });
 

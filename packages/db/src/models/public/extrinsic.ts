@@ -11,6 +11,7 @@ import {
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Event from "./event";
+import Account from "./account";
 
 @ObjectType()
 @Index("extrinsic_pk", ["extrinsicId"], { unique: true })
@@ -51,6 +52,11 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Int, { nullable: true })
   @Column("integer", { name: "signer_id", nullable: true })
   public signerId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.extrinsics)
+  @JoinColumn([{ name: "signer_id", referencedColumnName: "accountId" }])
+  public signer: Block;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
