@@ -71,7 +71,7 @@ export async function handleEvents(
 
         const event = await eventRepository.add({
           index,
-          data: transformEventData(method, data),
+          data: transformEventData(data),
           extrinsicHash,
           extrinsicId: extrinsic?.extrinsicId || null,
           moduleId: module.moduleId,

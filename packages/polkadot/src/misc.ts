@@ -74,27 +74,29 @@ export function getExtrinsicSuccess(
   );
 }
 
+export function extractArgs(data: GenericEventData) {
+  const {
+    meta: { documentation },
+  } = data;
+  const args = documentation[0]
+    ?.toString()
+    ?.match(/(?<=\[)(.*?)(?=\])/g)[0]
+    ?.split(",")
+    ?.map((i) => i.replace(/\\/g, ""));
+  return args;
+}
+
 export function transformEventData(
-  method: string,
   data: GenericEventData
 ): string | unknown {
-  switch (method) {
-    case "Transfer": {
-      const amount = data[2] as any; // eslint-disable-line
-      return [
-        {
-          from: data[0],
-          to: data[1],
-          amount: amount.toNumber(),
-        },
-      ];
-    }
-    case "Deposit": {
-      return data[0].toString();
-    }
-    default:
-      return data.toHuman() as string;
+  const args = extractArgs(data);
+  if (args) {
+    //eslint-disable-next-line
+    const res: any = {};
+    args.map((arg, index) => (res[arg] = data[index].toHuman()));
+    return res;
   }
+  return data.toHuman();
 }
 
 /******************* Application utils *************************************/
