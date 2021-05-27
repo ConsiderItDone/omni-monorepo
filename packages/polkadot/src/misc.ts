@@ -82,7 +82,7 @@ export function extractArgs(data: GenericEventData) {
     ?.toString()
     ?.match(/(?<=\[)(.*?)(?=\])/g)[0]
     ?.split(",")
-    ?.map((i) => i.replace(/\\/g, ""));
+    ?.map((i) => i.replace(/\\/g, "").trim());
   return args;
 }
 
