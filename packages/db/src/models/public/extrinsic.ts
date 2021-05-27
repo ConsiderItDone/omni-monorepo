@@ -56,7 +56,7 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.extrinsics)
   @JoinColumn([{ name: "signer_id", referencedColumnName: "accountId" }])
-  public signer: Block;
+  public signer: Account;
 
   @Field(() => String, { nullable: true })
   @Column("character varying", {
