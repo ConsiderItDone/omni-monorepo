@@ -17,7 +17,8 @@ import Event from "@nodle/db/src/models/public/event";
 import Account from "@nodle/db/src/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindManyOptions, getConnection, getRepository } from "typeorm";
+import { FindManyOptions, getConnection, getRepository, In } from "typeorm";
+import EventType from "@nodle/db/src/models/public/eventType";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -184,8 +185,19 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @FieldResolver()
-  events(@Root() source: Extrinsic): Promise<Event[]> {
-    return arrayFieldResolver(source, Event, "extrinsicId");
+  async events(
+    @Root() source: Extrinsic,
+    @Arg("eventNames", () => [String]) eventNames?: [string]
+  ): Promise<Event[]> {
+    const where = {} as any; // eslint-disable-line
+    if (eventNames && !eventNames.includes("All")) {
+      const types = await EventType.find({
+        name: In(eventNames),
+      });
+      where.eventTypeId = In(types.map((t) => t.eventTypeId));
+    }
+
+    return arrayFieldResolver(source, Event, "extrinsicId", null, where);
   }
 
   @FieldResolver()
