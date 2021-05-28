@@ -229,7 +229,7 @@ export async function backfillAccounts(
   });
 
   for (const account of accounts) {
-    saveAccount(
+    await saveAccount(
       entityManager,
       (account[0].toHuman() as undefined) as AccountId,
       account[1],
