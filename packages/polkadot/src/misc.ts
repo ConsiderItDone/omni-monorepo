@@ -149,7 +149,7 @@ export async function upsertApplication(
     applicationData,
     status
   );
-  applicationRepository.upsert(accountId, transformedApplicationData);
+  await applicationRepository.upsert(accountId, transformedApplicationData);
 }
 
 function transformApplicationData(
@@ -295,7 +295,10 @@ export async function upsertRootCertificate(
     blockId,
     certificateData
   );
-  rootCertificateRepository.upsert(certificateId, transformedCertificateData);
+  await rootCertificateRepository.upsert(
+    certificateId,
+    transformedCertificateData
+  );
 }
 function transformCertificateData(
   blockId: number,
