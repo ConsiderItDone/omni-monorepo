@@ -32,6 +32,7 @@ import {
   handleVestingSchedule,
 } from "@nodle/polkadot/src/handlers";
 import { Connection } from "typeorm";
+import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 
 export async function backfillTrackedEvents(
   manager: EntityManager,
@@ -212,13 +213,20 @@ export async function backfillAccounts(
   api: ApiPromise
 ): Promise<void> {
   const accounts = await api.query.system.account.entries();
+  const { number } = await api.rpc.chain.getHeader();
+
+  const entityManager = connection.createEntityManager();
+  const blockRepository = entityManager.getCustomRepository(BlockRepository);
+  const { blockId } = await blockRepository.findOne({
+    number: number.toString(),
+  });
 
   for (const account of accounts) {
-    const entityManager = await connection.createEntityManager();
     saveAccount(
       entityManager,
       (account[0].toHuman() as undefined) as AccountId,
-      account[1]
+      account[1],
+      blockId
     );
   }
 }
