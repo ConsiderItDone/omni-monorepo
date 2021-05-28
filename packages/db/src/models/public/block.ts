@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Unique,
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, GraphQLTimestamp, ID, ObjectType } from "type-graphql";
 import Event from "./event";
 import Log from "./log";
 import Extrinsic from "./extrinsic";
@@ -32,7 +32,7 @@ export default class Block extends BaseEntity {
   })
   public number: string | number;
 
-  @Field(() => Date)
+  @Field(() => GraphQLTimestamp)
   @Column("timestamp without time zone", { name: "timestamp" })
   public timestamp: Date;
 
