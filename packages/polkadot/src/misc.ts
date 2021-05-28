@@ -78,17 +78,21 @@ export function extractArgs(data: GenericEventData): string[] {
   const {
     meta: { documentation },
   } = data;
-  const args = documentation[0]
-    ?.toString()
-    ?.match(/(?<=\[)(.*?)(?=\])/g)[0]
-    ?.split(",")
-    ?.map((i) => i.replace(/\\/g, "").trim());
+
+  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+
+  if (!args) {
+    return [];
+  }
+
+  args = args[0]?.split(",")?.map((i) => i.replace(/\\/g, "").trim());
+
   return args;
 }
 
 export function transformEventData(data: GenericEventData): string | unknown {
   const args = extractArgs(data);
-  if (args) {
+  if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
     args.map((arg, index) => (res[arg] = data[index].toHuman()));
