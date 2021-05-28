@@ -74,23 +74,25 @@ export function getExtrinsicSuccess(
   );
 }
 
-export function extractArgs(data: GenericEventData) {
+export function extractArgs(data: GenericEventData): string[] {
   const {
     meta: { documentation },
   } = data;
-  const args = documentation[0]
-    ?.toString()
-    ?.match(/(?<=\[)(.*?)(?=\])/g)[0]
-    ?.split(",")
-    ?.map((i) => i.replace(/\\/g, "").trim());
+
+  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+
+  if (!args) {
+    return [];
+  }
+
+  args = args[0]?.split(",")?.map((i) => i.replace(/\\/g, "").trim());
+
   return args;
 }
 
-export function transformEventData(
-  data: GenericEventData
-): string | unknown {
+export function transformEventData(data: GenericEventData): string | unknown {
   const args = extractArgs(data);
-  if (args) {
+  if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
     args.map((arg, index) => (res[arg] = data[index].toHuman()));
@@ -257,7 +259,7 @@ export async function addChallenger(
   });
   if (candidate) {
     const challengedBlock = await blockRepository.findOne({ blockId: blockId });
-    applicationRepository.addChallenger(
+    await applicationRepository.addChallenger(
       challengedAcc,
       challengerAcc,
       challengerDeposit,
@@ -269,7 +271,10 @@ export async function addChallenger(
       challengedAppData,
       ApplicationStatus.accepted
     );
-    applicationRepository.upsert(challengedAcc, transformedApplicationData);
+    await applicationRepository.upsert(
+      challengedAcc,
+      transformedApplicationData
+    );
   }
 }
 

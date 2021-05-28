@@ -17,7 +17,7 @@ export default class BalanceResolver extends BalanceBaseResolver {
       relations: ["balance"],
     });
 
-    return account.balance;
+    return account?.balance;
   }
 
   @FieldResolver()
