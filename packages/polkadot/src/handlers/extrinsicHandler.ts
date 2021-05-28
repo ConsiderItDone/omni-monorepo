@@ -5,18 +5,9 @@ import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import {
-  getExtrinsicSuccess,
-  boundEventsToExtrinsics,
-  tryFetchAccount,
-  saveAccount,
-} from "@nodle/polkadot/src/misc";
+import { getExtrinsicSuccess, boundEventsToExtrinsics, tryFetchAccount, saveAccount } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -30,48 +21,26 @@ export async function handleExtrinsics(
   blockNumber: BlockNumber,
   blockHash: BlockHash
 ): Promise<[Extrinsic[], ExtrinsicWithBoundedEvents[]]> {
-  logger.info(
-    LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(
-      extrinsics.length,
-      blockNumber.toNumber()
-    )
-  );
+  logger.info(LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(extrinsics.length, blockNumber.toNumber()));
   try {
     const accountRepository = manager.getCustomRepository(AccountRepository);
 
-    const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
-      extrinsics,
-      events
-    );
+    const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(extrinsics, events);
 
-    const extrinsicRepository = manager.getCustomRepository(
-      ExtrinsicRepository
-    );
+    const extrinsicRepository = manager.getCustomRepository(ExtrinsicRepository);
 
     const processedExtrinsics = await Promise.all(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
         let signerId: number = null;
 
         if (extrinsic.isSigned) {
-          const account = await accountRepository.findByAddress(
-            extrinsic.signer.toString()
-          );
+          const account = await accountRepository.findByAddress(extrinsic.signer.toString());
           if (account) {
             signerId = account.accountId;
           } else {
-            const accountInfo = await tryFetchAccount(
-              api,
-              extrinsic.signer.toString(),
-              blockHash,
-              blockNumber
-            );
+            const accountInfo = await tryFetchAccount(api, extrinsic.signer.toString(), blockHash, blockNumber);
 
-            const { accountId } = await saveAccount(
-              manager,
-              extrinsic.signer.toString(),
-              accountInfo,
-              blockId
-            );
+            const { accountId } = await saveAccount(manager, extrinsic.signer.toString(), accountInfo, blockId);
 
             signerId = accountId;
           }
@@ -97,9 +66,7 @@ export async function handleExtrinsics(
       })
     );
     try {
-      const newExtrinsics = await extrinsicRepository.addList(
-        processedExtrinsics
-      );
+      const newExtrinsics = await extrinsicRepository.addList(processedExtrinsics);
       logger.info(
         LOGGER_INFO_CONST.EXTRINSICS_SAVED({
           blockId,
@@ -110,10 +77,7 @@ export async function handleExtrinsics(
       );
       return [newExtrinsics, extrinsicsWithBoundedEvents];
     } catch (extrinsicsSaveError) {
-      logger.error(
-        LOGGER_ERROR_CONST.EXTRINSICS_SAVE_ERROR(blockNumber?.toNumber()),
-        extrinsicsSaveError
-      );
+      logger.error(LOGGER_ERROR_CONST.EXTRINSICS_SAVE_ERROR(blockNumber?.toNumber()), extrinsicsSaveError);
     }
   } catch (error) {
     logger.error(error);

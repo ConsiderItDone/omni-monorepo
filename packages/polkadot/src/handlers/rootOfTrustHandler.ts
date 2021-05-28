@@ -5,11 +5,7 @@ import type { Event } from "@polkadot/types/interfaces/system";
 
 import { upsertRootCertificate } from "@nodle/polkadot/src/misc";
 import { RootCertificate } from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 export async function handleRootOfTrust(
   manager: EntityManager,
@@ -19,9 +15,7 @@ export async function handleRootOfTrust(
   blockNumber: BlockNumber
 ): Promise<void> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber()));
 
     let certificateId = event?.data[0]?.toString() || "";
     switch (event.method) {
@@ -36,29 +30,14 @@ export async function handleRootOfTrust(
     }
     let certificateData: RootCertificate;
     try {
-      certificateData = ((await api.query.pkiRootOfTrust.slots(
-        certificateId
-      )) as undefined) as RootCertificate;
+      certificateData = ((await api.query.pkiRootOfTrust.slots(certificateId)) as undefined) as RootCertificate;
     } catch (fetchError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateId),
-        fetchError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateId), fetchError);
     }
     try {
-      await upsertRootCertificate(
-        manager,
-        certificateId,
-        certificateData,
-        blockId
-      );
+      await upsertRootCertificate(manager, certificateId, certificateData, blockId);
     } catch (upsertingError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(
-          blockNumber.toNumber()
-        ),
-        upsertingError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(blockNumber.toNumber()), upsertingError);
     }
   } catch (error) {
     logger.error(error);

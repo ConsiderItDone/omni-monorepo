@@ -69,9 +69,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
   });
   server.applyMiddleware({ app });
 
-  await new Promise((resolve) =>
-    app.listen({ port: PORT }, resolve as () => void)
-  );
+  await new Promise((resolve) => app.listen({ port: PORT }, resolve as () => void));
 
   console.info(`GraphQL server running on port ${PORT}`);
 })();

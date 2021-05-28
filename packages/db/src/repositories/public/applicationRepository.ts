@@ -50,23 +50,14 @@ export default class ApplicationRepository extends Repository<Application> {
       challengedBlock,
     });
   }
-  public replace(
-    applicationId: number,
-    applicationData: NewApplicationParams
-  ): Promise<UpdateResult> {
+  public replace(applicationId: number, applicationData: NewApplicationParams): Promise<UpdateResult> {
     return this.update(applicationId, applicationData);
   }
-  public async upsert(
-    accountId: string,
-    applicationData: Application
-  ): Promise<UpdateResult | Application> {
+  public async upsert(accountId: string, applicationData: Application): Promise<UpdateResult | Application> {
     const existingApplication = await this.findCandidate(accountId);
 
     if (existingApplication) {
-      return await this.replace(
-        existingApplication.applicationId,
-        applicationData
-      );
+      return await this.replace(existingApplication.applicationId, applicationData);
     } else {
       return await this.add(applicationData);
     }
@@ -74,11 +65,7 @@ export default class ApplicationRepository extends Repository<Application> {
   public async findCandidate(accountId: string): Promise<Application> {
     return await this.findOne({ candidate: accountId });
   }
-  public async changeCandidateVote(
-    initiatorId: string,
-    targetId: string,
-    value: boolean
-  ): Promise<void> {
+  public async changeCandidateVote(initiatorId: string, targetId: string, value: boolean): Promise<void> {
     const initiator = await this.findCandidate(initiatorId);
     // Change's initiator data only if he is in DB, otherwise all data will be empty (he is not applicant)
     if (initiator) {

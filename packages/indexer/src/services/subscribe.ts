@@ -2,13 +2,7 @@ import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { Header, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
-import {
-  handleNewBlock,
-  handleEvents,
-  handleLogs,
-  handleExtrinsics,
-  handleTrackedEvents,
-} from "@nodle/polkadot/src";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, handleTrackedEvents } from "@nodle/polkadot/src";
 import MQ from "@nodle/utils/src/mq";
 
 import Block from "@nodle/db/src/models/public/block";
@@ -21,10 +15,7 @@ import express from "express";
 
 const indexerServer = express();
 
-export async function subscribe(
-  ws: string,
-  connection: Connection
-): Promise<void> {
+export async function subscribe(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   const metrics = new MetricsService(indexerServer, 3050, "nodle_indexer_");
@@ -51,20 +42,12 @@ export async function subscribe(
 
     try {
       // 1. Block
-      const newBlock = await handleNewBlock(
-        queryRunner.manager,
-        block.header,
-        timestamp,
-        specVersion.toNumber()
-      );
+      const newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
       if (!newBlock) return;
 
       const { blockId } = newBlock;
       // 2. Extrinsics
-      const [
-        newExtrinsics,
-        extrinsicsWithBoundedEvents,
-      ] = await handleExtrinsics(
+      const [newExtrinsics, extrinsicsWithBoundedEvents] = await handleExtrinsics(
         queryRunner.manager,
         api,
         block.extrinsics,
@@ -75,12 +58,7 @@ export async function subscribe(
       );
 
       // 3.Logs
-      const newLogs = await handleLogs(
-        queryRunner.manager,
-        block.header.digest.logs,
-        blockId,
-        blockNumber
-      );
+      const newLogs = await handleLogs(queryRunner.manager, block.header.digest.logs, blockId, blockNumber);
 
       // 4.Events
       const [newEvents, trackedEvents] = await handleEvents(
@@ -92,14 +70,7 @@ export async function subscribe(
       );
 
       //5. Handling custom events
-      await handleTrackedEvents(
-        queryRunner.manager,
-        trackedEvents,
-        api,
-        blockId,
-        blockHash,
-        blockNumber
-      );
+      await handleTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
 
       await queryRunner.commitTransaction();
 
@@ -119,9 +90,7 @@ export async function subscribe(
       metrics.endTimer();
       metrics.addBlockToCounter();
       metrics.setBlockNumber(blockNumber.toNumber());
-      logger.info(
-        `------Finished processing block №: ${header.number.toString()}------`
-      );
+      logger.info(`------Finished processing block №: ${header.number.toString()}------`);
     } catch (error) {
       console.log(error);
       if (queryRunner.isTransactionActive) {

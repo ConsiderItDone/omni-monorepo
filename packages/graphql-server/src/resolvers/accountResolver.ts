@@ -11,9 +11,7 @@ const AccountBaseResolver = createBaseResolver("Account", Account);
 @Resolver(Account)
 export default class AccountResolver extends AccountBaseResolver {
   @Query(() => Account, { nullable: true })
-  async accountByAddress(
-    @Arg("address") address: string
-  ): Promise<Account | null> {
+  async accountByAddress(@Arg("address") address: string): Promise<Account | null> {
     const account = await Account.findOne({
       address,
     });

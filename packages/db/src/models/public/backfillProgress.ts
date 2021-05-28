@@ -1,11 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import {
-  Index,
-  Column,
-  Entity,
-  BaseEntity,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Index, Column, Entity, BaseEntity, PrimaryGeneratedColumn } from "typeorm";
 
 @ObjectType()
 @Index("backfill_progress_pkey", ["backfillProgressId"], { unique: true })

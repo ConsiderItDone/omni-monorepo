@@ -3,16 +3,9 @@ import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
-import {
-  upsertApplication,
-  tryFetchApplication,
-  ApplicationFetchMethods,
-} from "../misc";
+import { upsertApplication, tryFetchApplication, ApplicationFetchMethods } from "../misc";
 
-import {
-  Application as ApplicationType,
-  ApplicationStatus,
-} from "@nodle/utils/src/types";
+import { Application as ApplicationType, ApplicationStatus } from "@nodle/utils/src/types";
 
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
@@ -40,12 +33,7 @@ export async function handleApplication(
         break;
       }
       case "ApplicationPassed": {
-        applicationData = await tryFetchApplication(
-          api,
-          ApplicationFetchMethods.Members,
-          accountAddress,
-          blockNumber
-        );
+        applicationData = await tryFetchApplication(api, ApplicationFetchMethods.Members, accountAddress, blockNumber);
         applicationStatus = ApplicationStatus.passed;
         break;
       }
@@ -122,10 +110,7 @@ export async function handleApplication(
       );
     } catch (applicationUpsertError) {
       logger.error(
-        LOGGER_ERROR_CONST.APPLICATION_UPSERT_ERROR(
-          accountAddress,
-          blockNumber.toNumber()
-        ),
+        LOGGER_ERROR_CONST.APPLICATION_UPSERT_ERROR(accountAddress, blockNumber.toNumber()),
         applicationUpsertError
       );
     }

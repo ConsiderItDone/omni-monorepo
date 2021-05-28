@@ -11,13 +11,7 @@ type NewLogParam = {
 
 @EntityRepository(Log)
 export default class LogRepository extends Repository<Log> {
-  public async add({
-    index,
-    type,
-    data,
-    isFinalized,
-    blockId,
-  }: NewLogParam): Promise<Log> {
+  public async add({ index, type, data, isFinalized, blockId }: NewLogParam): Promise<Log> {
     const log = await this.save({
       index,
       type,

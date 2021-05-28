@@ -12,14 +12,7 @@ type NewBalanceParam = {
 
 @EntityRepository(Balance)
 export default class BalanceRepository extends Repository<Balance> {
-  public async add({
-    free,
-    reserved,
-    miscFrozen,
-    feeFrozen,
-    accountId,
-    blockId,
-  }: NewBalanceParam): Promise<Balance> {
+  public async add({ free, reserved, miscFrozen, feeFrozen, accountId, blockId }: NewBalanceParam): Promise<Balance> {
     return await this.save({
       free,
       reserved,
@@ -34,20 +27,14 @@ export default class BalanceRepository extends Repository<Balance> {
     return await this.findOne({ account: { address: accountAddress } });
   }
 
-  public async replace(
-    balanceId: number,
-    balanceData: NewBalanceParam
-  ): Promise<Balance> {
+  public async replace(balanceId: number, balanceData: NewBalanceParam): Promise<Balance> {
     return await this.save({
       balanceId,
       ...balanceData,
     });
   }
 
-  public async upsertByAccountAddress(
-    accountAddress: string,
-    balanceData: NewBalanceParam
-  ): Promise<Balance> {
+  public async upsertByAccountAddress(accountAddress: string, balanceData: NewBalanceParam): Promise<Balance> {
     const existingBalance = await this.findByAccountAddress(accountAddress);
 
     if (existingBalance) {

@@ -70,9 +70,7 @@ export function createBaseResolver<T extends ClassType>(
     @Query(() => BaseResponse, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}s`,
     })
-    protected async getAll(
-      @Args() { take, skip, first, last }: PaginationArgs
-    ): Promise<BaseResponse> {
+    protected async getAll(@Args() { take, skip, first, last }: PaginationArgs): Promise<BaseResponse> {
       if (first && last) {
         throw new Error("Bad request");
       }

@@ -1,9 +1,4 @@
-import type {
-  EventRecord,
-  Event,
-  AccountInfo,
-  AccountInfoWithProviders,
-} from "@polkadot/types/interfaces/system";
+import type { EventRecord, Event, AccountInfo, AccountInfoWithProviders } from "@polkadot/types/interfaces/system";
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -38,10 +33,7 @@ export function boundEventsToExtrinsics(
 ): ExtrinsicWithBoundedEvents[] {
   return extrinsics.map(({ hash }, index) => {
     const boundedEvents: Event[] = events
-      .filter(
-        ({ phase }: EventRecord) =>
-          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
-      )
+      .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
       .map(({ event }: EventRecord) => event);
 
     return { hash: hash.toHex(), boundedEvents };
@@ -53,9 +45,7 @@ export function findExtrinsicsWithEventsHash(
 ): string | null {
   return (
     extrinsicsWithBoundedEvents.find((extrinsic) =>
-      extrinsic.boundedEvents.some(
-        (event) => event.hash.toHex() === eventRecord.event.hash.toHex()
-      )
+      extrinsic.boundedEvents.some((event) => event.hash.toHex() === eventRecord.event.hash.toHex())
     )?.hash || null
   );
 }
@@ -66,12 +56,8 @@ export function getExtrinsicSuccess(
   //events: EventRecord[],
   //api: ApiPromise
 ): boolean {
-  const extr = extrinsicsWithBoundedEvents.find(
-    (e) => e.hash === extrinsic.hash.toHex()
-  );
-  return extr.boundedEvents.some(
-    (event) => event.method === "ExtrinsicSuccess"
-  );
+  const extr = extrinsicsWithBoundedEvents.find((e) => e.hash === extrinsic.hash.toHex());
+  return extr.boundedEvents.some((event) => event.method === "ExtrinsicSuccess");
 }
 
 export function extractArgs(data: GenericEventData): string[] {
@@ -112,9 +98,7 @@ export async function tryFetchApplication(
   try {
     switch (method) {
       case ApplicationFetchMethods.Applications:
-        return (await api.query.pkiTcr.applications(
-          accountAddress
-        )) as undefined;
+        return (await api.query.pkiTcr.applications(accountAddress)) as undefined;
       case ApplicationFetchMethods.Members:
         return (await api.query.pkiTcr.members(accountAddress)) as undefined;
       case ApplicationFetchMethods.Challenges:
@@ -124,11 +108,7 @@ export async function tryFetchApplication(
     }
   } catch (applicationFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(
-        method,
-        accountAddress,
-        blockNumber.toNumber()
-      ),
+      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(method, accountAddress, blockNumber.toNumber()),
       applicationFetchError
     );
   }
@@ -140,23 +120,13 @@ export async function upsertApplication(
   blockId: number,
   status?: string
 ): Promise<void> {
-  const applicationRepository = manager.getCustomRepository(
-    ApplicationRepository
-  );
+  const applicationRepository = manager.getCustomRepository(ApplicationRepository);
 
-  const transformedApplicationData = transformApplicationData(
-    blockId,
-    applicationData,
-    status
-  );
+  const transformedApplicationData = transformApplicationData(blockId, applicationData, status);
   applicationRepository.upsert(accountId, transformedApplicationData);
 }
 
-function transformApplicationData(
-  blockId: number,
-  application: ApplicationType,
-  status?: string
-): ApplicationModel {
+function transformApplicationData(blockId: number, application: ApplicationType, status?: string): ApplicationModel {
   const {
     candidate,
     candidate_deposit,
@@ -193,12 +163,8 @@ export async function changeApplicationStatus(
   accountId: string,
   status: ApplicationStatus
 ): Promise<void> {
-  const applicationRepository = manager.getCustomRepository(
-    ApplicationRepository
-  );
-  const existingApplication = await applicationRepository.findCandidate(
-    accountId
-  );
+  const applicationRepository = manager.getCustomRepository(ApplicationRepository);
+  const existingApplication = await applicationRepository.findCandidate(accountId);
   if (existingApplication) {
     existingApplication.status = status;
     applicationRepository.save(existingApplication);
@@ -215,14 +181,10 @@ export async function recordVote(
 ): Promise<void> {
   const applicationRepository = getCustomRepository(ApplicationRepository);
 
-  const targetInDB = await applicationRepository.findCandidate(
-    targetId.toString()
-  );
+  const targetInDB = await applicationRepository.findCandidate(targetId.toString());
 
   if (!targetInDB && !targetData) {
-    logger.error(
-      "Error! Trying to record vote with no data about target(in db and from response)"
-    );
+    logger.error("Error! Trying to record vote with no data about target(in db and from response)");
   }
   if (targetData) {
     await upsertApplication(
@@ -234,11 +196,7 @@ export async function recordVote(
     );
   }
 
-  await applicationRepository.changeCandidateVote(
-    initiatorId.toString(),
-    targetId.toString(),
-    value
-  );
+  await applicationRepository.changeCandidateVote(initiatorId.toString(), targetId.toString(), value);
 }
 
 export async function addChallenger(
@@ -262,23 +220,13 @@ export async function addChallenger(
       challengedBlock?.number as string
     );
   } else {
-    const transformedApplicationData = transformApplicationData(
-      blockId,
-      challengedAppData,
-      ApplicationStatus.accepted
-    );
-    await applicationRepository.upsert(
-      challengedAcc,
-      transformedApplicationData
-    );
+    const transformedApplicationData = transformApplicationData(blockId, challengedAppData, ApplicationStatus.accepted);
+    await applicationRepository.upsert(challengedAcc, transformedApplicationData);
   }
 }
 
 export function applicationIsEmpty(applicationData: ApplicationType): boolean {
-  return (
-    applicationData.candidate.toString() ===
-    "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC"
-  );
+  return applicationData.candidate.toString() === "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC";
 }
 
 /******************* Root Certificate utils *************************************/
@@ -288,28 +236,12 @@ export async function upsertRootCertificate(
   certificateData: RootCertificateType,
   blockId: number
 ): Promise<void> {
-  const rootCertificateRepository = manager.getCustomRepository(
-    RootCertificateRepository
-  );
-  const transformedCertificateData = transformCertificateData(
-    blockId,
-    certificateData
-  );
+  const rootCertificateRepository = manager.getCustomRepository(RootCertificateRepository);
+  const transformedCertificateData = transformCertificateData(blockId, certificateData);
   rootCertificateRepository.upsert(certificateId, transformedCertificateData);
 }
-function transformCertificateData(
-  blockId: number,
-  certificateData: RootCertificateType
-): RootCertificateModel {
-  const {
-    owner,
-    key,
-    revoked,
-    renewed,
-    created,
-    validity,
-    child_revocations,
-  } = certificateData;
+function transformCertificateData(blockId: number, certificateData: RootCertificateType): RootCertificateModel {
+  const { owner, key, revoked, renewed, created, validity, child_revocations } = certificateData;
 
   return {
     owner: owner.toHuman(),
@@ -319,11 +251,7 @@ function transformCertificateData(
     revoked: revoked.toHuman(),
     validity: validity.toNumber(),
     childRevocations:
-      child_revocations.length > 0
-        ? child_revocations.map((revokation: AccountId) =>
-            revokation.toString()
-          )
-        : null,
+      child_revocations.length > 0 ? child_revocations.map((revokation: AccountId) => revokation.toString()) : null,
     blockId,
   } as RootCertificateModel;
 }
@@ -360,10 +288,7 @@ export async function tryFetchAccount(
     return await api.query.system.account.at(blockHash, accountAddress);
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
-        accountAddress.toString(),
-        blockNumber.toNumber()
-      ),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
       accountFetchError
     );
   }
@@ -406,9 +331,7 @@ export async function saveValidator(
   accountAddress: AccountId,
   accountInfo: AccountInfoWithProviders
 ): Promise<Validator> {
-  const validatorRepository = entityManager.getCustomRepository(
-    ValidatorRepository
-  );
+  const validatorRepository = entityManager.getCustomRepository(ValidatorRepository);
   const { consumers, providers } = accountInfo;
 
   return await validatorRepository.upsert(accountAddress.toString(), {
