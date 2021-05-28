@@ -1,0 +1,10 @@
+image:
+  repository: eteissonniere/nodle-chain
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+persistence:
+  enabled: true
+  dataSize: 100Gi
+  accessModes: [ "ReadWriteOnce" ]

@@ -29,8 +29,7 @@ spec:
           command:
             - /bin/sh
             - '-ec'
-          args:
-            - npm run migrate:up
+            - 'npm run migrate:up'
           env:
               # database
               - name: TYPEORM_HOST
