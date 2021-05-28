@@ -74,7 +74,7 @@ export function getExtrinsicSuccess(
   );
 }
 
-export function extractArgs(data: GenericEventData) {
+export function extractArgs(data: GenericEventData): string[] {
   const {
     meta: { documentation },
   } = data;
@@ -86,9 +86,7 @@ export function extractArgs(data: GenericEventData) {
   return args;
 }
 
-export function transformEventData(
-  data: GenericEventData
-): string | unknown {
+export function transformEventData(data: GenericEventData): string | unknown {
   const args = extractArgs(data);
   if (args) {
     //eslint-disable-next-line
