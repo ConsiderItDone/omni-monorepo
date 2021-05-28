@@ -45,7 +45,7 @@ export default class Balance extends BaseEntity {
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column("integer", { name: "block_id", nullable: true })
   public blockId: number;
 
