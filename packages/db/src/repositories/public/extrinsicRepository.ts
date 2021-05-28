@@ -15,6 +15,7 @@ type NewExtrinsicParam = {
   era: string | null;
   hash: string;
   isSigned: boolean;
+  fee: string | unknown;
   success: boolean;
   blockId: number;
 };
@@ -33,6 +34,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     signature,
     nonce,
     era,
+    fee,
     hash,
     isSigned,
     success,
@@ -50,6 +52,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
       signature,
       nonce,
       era,
+      fee,
       hash,
       isSigned,
       success,

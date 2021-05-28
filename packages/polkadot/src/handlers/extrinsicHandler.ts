@@ -52,6 +52,11 @@ export async function handleExtrinsics(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
         let signerId: number = null;
 
+        const queryFeeDetails = await api.rpc.payment.queryFeeDetails(
+          extrinsic.toHex(),
+          blockHash
+        );
+
         if (extrinsic.isSigned) {
           const account = await accountRepository.findByAddress(
             extrinsic.signer.toString()
@@ -88,6 +93,7 @@ export async function handleExtrinsics(
           nonce: extrinsic.nonce.toNumber(),
           era: extrinsic.era.toString(),
           hash: extrinsic.hash.toHex(),
+          fee: queryFeeDetails,
           isSigned: extrinsic.isSigned,
           signature: extrinsic.isSigned ? extrinsic.signature.toString() : null,
           success: getExtrinsicSuccess(extrinsic, extrinsicsWithBoundedEvents),
