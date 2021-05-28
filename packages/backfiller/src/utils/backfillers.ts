@@ -48,10 +48,10 @@ export async function backfillTrackedEvents(
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          handleRootOfTrust(manager, event, api, blockId, blockNumber);
+          await handleRootOfTrust(manager, event, api, blockId, blockNumber);
           break;
         case CustomEventSection.VestingSchedule:
-          handleVestingSchedule(
+          await handleVestingSchedule(
             manager,
             event,
             blockId,
@@ -61,10 +61,10 @@ export async function backfillTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          backfillApplication(manager, event, blockId, api, blockNumber);
+          await backfillApplication(manager, event, blockId, api, blockNumber);
           break;
         case CustomEventSection.Balance:
-          handleBalance(manager, event, blockId, api, blockHash, blockNumber);
+          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           break;
         default:
           return;
@@ -134,7 +134,7 @@ export async function backfillApplication(
         );
         if (!applicationIsEmpty(acceptedApplication)) return;
         if (existingApp.status === ApplicationStatus.pending) {
-          changeApplicationStatus(
+          await changeApplicationStatus(
             manager,
             counteredAcc,
             ApplicationStatus.countered
@@ -215,7 +215,7 @@ export async function backfillAccounts(
 
   for (const account of accounts) {
     const entityManager = await connection.createEntityManager();
-    saveAccount(
+    await saveAccount(
       entityManager,
       (account[0].toHuman() as undefined) as AccountId,
       account[1]
