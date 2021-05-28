@@ -222,13 +222,13 @@ export async function backfillAccounts(
   const accounts = await api.query.system.account.entries();
   const { number } = await api.rpc.chain.getHeader();
 
-  const entityManager = connection.createEntityManager();
-  const blockRepository = entityManager.getCustomRepository(BlockRepository);
+  const blockRepository = connection.getCustomRepository(BlockRepository);
   const { blockId } = await blockRepository.findOne({
     number: number.toString(),
   });
 
   for (const account of accounts) {
+    const entityManager = await connection.createEntityManager();
     await saveAccount(
       entityManager,
       (account[0].toHuman() as undefined) as AccountId,
