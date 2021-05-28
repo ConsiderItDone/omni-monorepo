@@ -84,7 +84,7 @@ export default class Extrinsic extends BaseEntity {
   public isSigned: boolean;
 
   @Field(() => GraphQLJSON, { nullable: true })
-  @Column("jsonb", { name: "fee" })
+  @Column("jsonb", { name: "fee", nullable: true })
   public fee: string | unknown;
 
   @Field(() => Boolean)
