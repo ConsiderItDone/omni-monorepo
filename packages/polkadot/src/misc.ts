@@ -255,7 +255,7 @@ export async function addChallenger(
   });
   if (candidate) {
     const challengedBlock = await blockRepository.findOne({ blockId: blockId });
-    applicationRepository.addChallenger(
+    await applicationRepository.addChallenger(
       challengedAcc,
       challengerAcc,
       challengerDeposit,
@@ -267,7 +267,10 @@ export async function addChallenger(
       challengedAppData,
       ApplicationStatus.accepted
     );
-    applicationRepository.upsert(challengedAcc, transformedApplicationData);
+    await applicationRepository.upsert(
+      challengedAcc,
+      transformedApplicationData
+    );
   }
 }
 
