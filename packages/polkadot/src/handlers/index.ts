@@ -49,7 +49,14 @@ export async function handleTrackedEvents(
           await handleApplication(manager, event, blockId, api, blockNumber);
           break;
         case CustomEventSection.Balance:
-          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
+          await handleBalance(
+            manager,
+            event,
+            blockId,
+            api,
+            blockHash,
+            blockNumber
+          );
           break;
         default:
           return;

@@ -267,7 +267,10 @@ export async function addChallenger(
       challengedAppData,
       ApplicationStatus.accepted
     );
-    await applicationRepository.upsert(challengedAcc, transformedApplicationData);
+    await applicationRepository.upsert(
+      challengedAcc,
+      transformedApplicationData
+    );
   }
 }
 
