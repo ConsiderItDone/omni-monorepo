@@ -30,9 +30,7 @@ jobs:
       - name: Run docker build prod
         run: make docker-build-prod
   publish:
-    env:
-      NOT_CIDT_ENV: ${{ secrets.CIDT_ENV == '' }}
-    if: ${{ env.NOT_CIDT_ENV }}
+    if: ${{ github.repository_owner == 'NodleCode' }}
     name: Publish docker image to Google Container Registry
     runs-on: ubuntu-latest
     steps:
