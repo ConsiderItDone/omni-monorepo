@@ -33,7 +33,7 @@ spec:
           args:
             - --ws-external
             - --rpc-cors=all
-            - --chain=arcadia
+            - --chain={{ .Values.chain }}
             - --wasm-execution=compiled
             - --pruning=archive
             - -d=/data

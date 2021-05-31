@@ -8,3 +8,7 @@ persistence:
   enabled: true
   dataSize: 100Gi
   accessModes: [ "ReadWriteOnce" ]
+
+# testnet - arcadia
+# mainnet - main
+chain: main
