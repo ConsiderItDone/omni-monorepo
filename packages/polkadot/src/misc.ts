@@ -101,7 +101,7 @@ export function transformEventData(
       (arg, index) =>
         (res[arg] =
           data?.typeDef[index]?.type === "Balance"
-            ? data[index]?.toNumber()
+            ? data[index]?.toString(10)
             : data[index].toHuman())
     );
     return res;
