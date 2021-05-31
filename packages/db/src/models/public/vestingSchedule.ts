@@ -34,7 +34,7 @@ export default class VestingSchedule extends BaseEntity {
   @Column("bigint", { name: "per_period", default: () => "0" })
   public perPeriod: string;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "account_id" })
   public accountId: number;
 

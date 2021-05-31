@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, Int, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
@@ -20,7 +20,7 @@ export default class Application extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "application_id" })
   public applicationId: number;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
 

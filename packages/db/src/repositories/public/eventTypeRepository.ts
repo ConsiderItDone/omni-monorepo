@@ -3,7 +3,13 @@ import EventType from "../../models/public/eventType";
 
 @EntityRepository(EventType)
 export default class EventTypeRepository extends Repository<EventType> {
-  public async addOrIgnore({ name }: { name: string }): Promise<EventType> {
+  public async addOrIgnore({
+    name,
+    moduleId,
+  }: {
+    name: string;
+    moduleId: number;
+  }): Promise<EventType> {
     const type = await this.findOne({
       name,
     });
@@ -14,6 +20,7 @@ export default class EventTypeRepository extends Repository<EventType> {
 
     const newType = await this.save({
       name,
+      moduleId,
     });
 
     return newType;

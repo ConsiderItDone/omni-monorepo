@@ -61,12 +61,13 @@ export async function handleEvents(
       );
       const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
       try {
-        const type = await eventTypeRepository.addOrIgnore({
-          name: method,
-        });
-
         const module = await moduleRepository.addOrIgnore({
           name: section,
+        });
+
+        const type = await eventTypeRepository.addOrIgnore({
+          name: method,
+          moduleId: module.moduleId,
         });
 
         const event = await eventRepository.add({
