@@ -32,7 +32,7 @@ jobs:
   publish:
     env:
       NOT_CIDT_ENV: ${{ secrets.CIDT_ENV == '' }}
-    if: ${{ secrets.NOT_CIDT_ENV }}
+    if: ${{ env.NOT_CIDT_ENV }}
     name: Publish docker image to Google Container Registry
     runs-on: ubuntu-latest
     steps:
