@@ -90,12 +90,20 @@ export function extractArgs(data: GenericEventData): string[] {
   return args;
 }
 
-export function transformEventData(data: GenericEventData): string | unknown {
+export function transformEventData(
+  data: GenericEventData | any //eslint-disable-line
+): string | unknown {
   const args = extractArgs(data);
   if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
-    args.map((arg, index) => (res[arg] = data[index].toHuman()));
+    args.map(
+      (arg, index) =>
+        (res[arg] =
+          data?.typeDef[index]?.type === "Balance"
+            ? data[index]?.toString(10)
+            : data[index].toHuman())
+    );
     return res;
   }
   return data.toHuman();
