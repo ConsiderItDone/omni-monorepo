@@ -63,11 +63,6 @@ spec:
                 secretKeyRef:
                   key: rabbitmq_url
                   name: {{ template "nodle.indexer.fullname" . }}
-            - name: WS_PROVIDER
-              valueFrom:
-                secretKeyRef:
-                  key: chain_node
-                  name: {{ template "nodle.indexer.fullname" . }}
           readinessProbe:
             httpGet:
               path: /

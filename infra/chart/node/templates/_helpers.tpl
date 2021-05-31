@@ -60,3 +60,9 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/* Returns the external websockets service name */}}
+{{- define "node.websocketService" -}}
+{{ include "node.fullname" . }}-external-websockets
+{{- end }}

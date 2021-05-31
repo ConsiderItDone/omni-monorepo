@@ -87,8 +87,4 @@ resource "helm_release" "app" {
     name  = "secrets.rabbitMQURL"
     value = var.k8s_rabbitmq_url
   }
-  set_sensitive {
-    name  = "secrets.chainNode"
-    value = var.k8s_chain_node
-  }
 }

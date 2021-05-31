@@ -6,9 +6,10 @@ image:
 
 persistence:
   enabled: true
-  dataSize: 100Gi
+  dataSize: 300Gi
   accessModes: [ "ReadWriteOnce" ]
 
 # testnet - arcadia
 # mainnet - main
+#chain: arcadia
 chain: main

@@ -98,14 +98,7 @@ spec:
                   key: rabbitmq_url
                   name: {{ template "nodle.indexer.fullname" . }}
             - name: WS_PROVIDER
-              valueFrom:
-                secretKeyRef:
-                  key: chain_node
-                  name: {{ template "nodle.indexer.fullname" . }}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: /v1/ready*/}}
-{{/*              port: 9100*/}}
+              value: "ws://chain-node-external-websockets.chain:9944"
           resources:
 {{ toYaml .Values.indexer.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
