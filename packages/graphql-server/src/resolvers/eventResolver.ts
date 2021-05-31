@@ -107,7 +107,7 @@ export default class EventResolver extends EventBaseResolver {
     if (filters) {
       where.data = Raw((data) =>
         Object.keys(filters)
-          .map((filter) => `${data} @> '[{"${filter}":"${filters[filter]}"}]'`)
+          .map((filter) => `${data} @> '{"${filter}":"${filters[filter]}"}'`)
           .join(" and ")
       );
     }
