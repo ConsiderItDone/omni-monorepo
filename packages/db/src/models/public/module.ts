@@ -3,9 +3,12 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
+import EventType from "./eventType";
 
 @ObjectType()
 @Index("module_pk", ["moduleId"], { unique: true })
@@ -18,4 +21,9 @@ export default class Module extends BaseEntity {
   @Field(() => String)
   @Column("character varying", { name: "name" })
   public name: string;
+
+  @Field(() => [EventType], { nullable: true, defaultValue: [] })
+  @OneToMany(() => EventType, (type) => type.module)
+  @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  public eventTypes: EventType[];
 }

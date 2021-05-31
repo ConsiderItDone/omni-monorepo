@@ -50,7 +50,7 @@ export default class EventTypeResolver extends EventTypeBaseResolver {
 
     const items = await EventType.find({
       where: {
-        moduleId,
+        moduleId: moduleId ? moduleId : null,
       },
     });
 
