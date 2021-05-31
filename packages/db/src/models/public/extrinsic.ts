@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import { GraphQLJSON } from "graphql-type-json";
 import Event from "./event";
 import Account from "./account";
 
@@ -81,6 +82,10 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Boolean)
   @Column("boolean", { name: "is_signed", default: () => "false" })
   public isSigned: boolean;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  @Column("jsonb", { name: "fee", nullable: true })
+  public fee: string | unknown;
 
   @Field(() => Boolean)
   @Column("boolean", { name: "success", default: () => "false" })
