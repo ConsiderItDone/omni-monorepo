@@ -20,20 +20,20 @@ export default class Balance extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 
-  @Field(() => Number)
-  @Column("bigint", { name: "free" })
+  @Field(() => String)
+  @Column("character varying", { name: "free" })
   public free: string;
 
-  @Field(() => Number)
-  @Column("bigint", { name: "reserved" })
+  @Field(() => String)
+  @Column("character varying", { name: "reserved" })
   public reserved: string;
 
-  @Field(() => Number)
-  @Column("bigint", { name: "misc_frozen" })
+  @Field(() => String)
+  @Column("character varying", { name: "misc_frozen" })
   public miscFrozen: string;
 
-  @Field(() => Number)
-  @Column("bigint", { name: "fee_frozen" })
+  @Field(() => String)
+  @Column("character varying", { name: "fee_frozen" })
   public feeFrozen: string;
 
   @Field(() => Int)
