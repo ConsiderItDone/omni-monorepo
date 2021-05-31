@@ -91,7 +91,7 @@ export function extractArgs(data: GenericEventData): string[] {
 }
 
 export function transformEventData(
-  data: GenericEventData | any
+  data: GenericEventData | any //eslint-disable-line
 ): string | unknown {
   const args = extractArgs(data);
   if (args.length > 0) {
