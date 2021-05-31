@@ -11,14 +11,15 @@ const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 export default class BalanceResolver extends BalanceBaseResolver {
   @Query(() => Balance, { nullable: true })
   async balanceByAddress(@Arg("address") address: string): Promise<Balance> {
-    const account = await Account.findOne({
-      where: {
-        address,
-      },
-      relations: ["balance"],
-    });
+    const balance = await Balance.createQueryBuilder("balance")
+      .leftJoin(Account, "account", "account.accountId = balance.accountId")
+      .leftJoinAndSelect(Block, "block", "block.blockId = balance.blockId")
+      .where("balance.blockId is not null")
+      .andWhere(`account.address = :address`, { address })
+      .addOrderBy("block.number", "DESC")
+      .getOne();
 
-    return account?.balance;
+    return balance;
   }
 
   @FieldResolver()
