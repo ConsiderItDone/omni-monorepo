@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
 import EventType from "./eventType";
+import ExtrinsicType from "./extrinsicType";
 
 @ObjectType()
 @Index("module_pk", ["moduleId"], { unique: true })
@@ -26,4 +27,9 @@ export default class Module extends BaseEntity {
   @OneToMany(() => EventType, (type) => type.module)
   @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
   public eventTypes: EventType[];
+
+  @Field(() => [ExtrinsicType], { nullable: true, defaultValue: [] })
+  @OneToMany(() => ExtrinsicType, (type) => type.module)
+  @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  public extrinsicTypes: ExtrinsicType[];
 }
