@@ -77,6 +77,7 @@ export async function handleEvents(
           moduleId: module.moduleId,
           eventTypeId: type.eventTypeId,
           blockId,
+          accountId: null, // TODO: use accountId
         });
         newEvents.push(event);
       } catch (eventSaveError) {

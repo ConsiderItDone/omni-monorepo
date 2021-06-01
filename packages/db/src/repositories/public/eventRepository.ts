@@ -11,6 +11,7 @@ export default class EventRepository extends Repository<Event> {
     moduleId,
     eventTypeId,
     blockId,
+    accountId,
   }: {
     index: number;
     data: string | unknown;
@@ -19,6 +20,7 @@ export default class EventRepository extends Repository<Event> {
     moduleId: number | null;
     eventTypeId: number;
     blockId: number;
+    accountId: number;
   }): Promise<Event> {
     const event = await this.save({
       index,
@@ -28,6 +30,7 @@ export default class EventRepository extends Repository<Event> {
       moduleId,
       eventTypeId,
       blockId,
+      accountId,
     });
 
     return event;

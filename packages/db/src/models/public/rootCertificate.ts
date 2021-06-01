@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import Account from "./account";
 
 @ObjectType()
 @Index("root_certificate_pk", ["rootCertificateId"], { unique: true })
@@ -54,4 +55,13 @@ export default class RootCertificate extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.rootCertificates)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => Int)
+  @Column("integer", { name: "account_id" })
+  public accountId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.balance)
+  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  public account: Account;
 }

@@ -139,7 +139,7 @@ export async function tryFetchApplication(
 }
 export async function upsertApplication(
   manager: EntityManager,
-  accountId: string,
+  accountAddress: string,
   applicationData: ApplicationType,
   blockId: number,
   status?: string
@@ -148,21 +148,26 @@ export async function upsertApplication(
     ApplicationRepository
   );
 
+  const accountRepository = manager.getCustomRepository(AccountRepository);
+
+  const account = await accountRepository.findByAddress(accountAddress);
+
   const transformedApplicationData = transformApplicationData(
     blockId,
+    account.accountId,
     applicationData,
     status
   );
-  applicationRepository.upsert(accountId, transformedApplicationData);
+  applicationRepository.upsert(transformedApplicationData);
 }
 
 function transformApplicationData(
   blockId: number,
+  accountId: number,
   application: ApplicationType,
   status?: string
 ): ApplicationModel {
   const {
-    candidate,
     candidate_deposit,
     metadata,
     challenger,
@@ -178,7 +183,7 @@ function transformApplicationData(
   return {
     blockId,
     status,
-    candidate: candidate.toString(),
+    accountId,
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
     challenger: challenger?.toString() || null,
@@ -194,7 +199,7 @@ function transformApplicationData(
 
 export async function changeApplicationStatus(
   manager: EntityManager,
-  accountId: string,
+  accountId: number,
   status: ApplicationStatus
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(
@@ -211,17 +216,16 @@ export async function changeApplicationStatus(
 
 export async function recordVote(
   manager: EntityManager,
-  initiatorId: AccountId,
-  targetId: AccountId,
+  initiatorId: number,
+  targetId: number,
+  targetAddress: AccountId,
   value: boolean,
   blockId: number,
   targetData?: ApplicationType
 ): Promise<void> {
   const applicationRepository = getCustomRepository(ApplicationRepository);
 
-  const targetInDB = await applicationRepository.findCandidate(
-    targetId.toString()
-  );
+  const targetInDB = await applicationRepository.findCandidate(targetId);
 
   if (!targetInDB && !targetData) {
     logger.error(
@@ -231,18 +235,14 @@ export async function recordVote(
   if (targetData) {
     await upsertApplication(
       manager,
-      targetId.toString(),
+      targetAddress.toString(),
       (targetData as undefined) as ApplicationType,
       blockId,
       ApplicationStatus.accepted
     );
   }
 
-  await applicationRepository.changeCandidateVote(
-    initiatorId.toString(),
-    targetId.toString(),
-    value
-  );
+  await applicationRepository.changeCandidateVote(initiatorId, targetId, value);
 }
 
 export async function addChallenger(
@@ -253,14 +253,17 @@ export async function addChallenger(
   challengedAppData: ApplicationType
 ): Promise<void> {
   const applicationRepository = getCustomRepository(ApplicationRepository);
+  const accountRepository = getCustomRepository(AccountRepository);
   const blockRepository = getCustomRepository(BlockRepository);
-  const candidate = await applicationRepository.findOne({
-    candidate: challengedAcc,
-  });
+
+  const account = await accountRepository.findByAddress(challengedAcc);
+  const candidate = await applicationRepository.findCandidate(
+    account.accountId
+  );
   if (candidate) {
     const challengedBlock = await blockRepository.findOne({ blockId: blockId });
     await applicationRepository.addChallenger(
-      challengedAcc,
+      account.accountId,
       challengerAcc,
       challengerDeposit,
       challengedBlock?.number as string
@@ -268,13 +271,11 @@ export async function addChallenger(
   } else {
     const transformedApplicationData = transformApplicationData(
       blockId,
+      account.accountId,
       challengedAppData,
       ApplicationStatus.accepted
     );
-    await applicationRepository.upsert(
-      challengedAcc,
-      transformedApplicationData
-    );
+    await applicationRepository.upsert(transformedApplicationData);
   }
 }
 

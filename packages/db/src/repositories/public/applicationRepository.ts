@@ -3,8 +3,8 @@ import { Application } from "../../models";
 
 type NewApplicationParams = {
   blockId: number;
+  accountId: number;
   status: string;
-  candidate: string;
   candidateDeposit: number;
   metadata: string;
   challenger: string;
@@ -21,8 +21,8 @@ type NewApplicationParams = {
 export default class ApplicationRepository extends Repository<Application> {
   public add({
     blockId,
+    accountId,
     status,
-    candidate,
     candidateDeposit,
     metadata,
     challenger,
@@ -36,8 +36,8 @@ export default class ApplicationRepository extends Repository<Application> {
   }: NewApplicationParams): Promise<Application> {
     return this.save({
       blockId,
+      accountId,
       status,
-      candidate,
       candidateDeposit,
       metadata,
       challenger,
@@ -57,47 +57,57 @@ export default class ApplicationRepository extends Repository<Application> {
     return this.update(applicationId, applicationData);
   }
   public async upsert(
-    accountId: string,
     applicationData: Application
   ): Promise<UpdateResult | Application> {
-    const existingApplication = await this.findCandidate(accountId);
+    const existingApplication = await this.findCandidate(
+      applicationData.accountId
+    );
 
     if (existingApplication) {
       return await this.replace(
         existingApplication.applicationId,
         applicationData
       );
-    } else {
-      return await this.add(applicationData);
     }
+
+    return await this.add(applicationData);
   }
-  public async findCandidate(accountId: string): Promise<Application> {
-    return await this.findOne({ candidate: accountId });
+  public async findCandidate(accountId: number): Promise<Application> {
+    return await this.findOne({ accountId });
   }
   public async changeCandidateVote(
-    initiatorId: string,
-    targetId: string,
+    initiatorId: number,
+    targetId: number,
     value: boolean
   ): Promise<void> {
     const initiator = await this.findCandidate(initiatorId);
     // Change's initiator data only if he is in DB, otherwise all data will be empty (he is not applicant)
     if (initiator) {
-      if (value) initiator.votesFor = targetId;
-      else initiator.votesAgainst = targetId;
+      if (value) {
+        initiator.votesFor = String(targetId); // TODO: check it
+      } else {
+        initiator.votesAgainst = String(targetId); // TODO: check it
+      }
       await this.save(initiator);
     }
     const target = await this.findCandidate(targetId);
-    if (value) target.votersFor = [...target.votersFor, initiatorId];
-    else target.votersAgainst = [...target.votersAgainst, initiatorId];
+    if (value) {
+      target.votersFor = [String(...target.votersFor), String(initiatorId)];
+    } else {
+      target.votersAgainst = [
+        String(...target.votersAgainst),
+        String(initiatorId),
+      ];
+    }
     await this.save(target);
   }
   public async addChallenger(
-    challengedAcc: string,
+    challengedId: number,
     challengerAcc: string,
     challengerDeposit: number,
     blockNumber: string
   ): Promise<void> {
-    const candidate = await this.findCandidate(challengedAcc);
+    const candidate = await this.findCandidate(challengedId);
     candidate.challenger = challengerAcc;
     candidate.challengerDeposit = challengerDeposit;
     candidate.challengedBlock = blockNumber;

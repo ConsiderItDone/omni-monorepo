@@ -3,6 +3,7 @@ import RootCertificate from "@nodle/db/src/models/public/rootCertificate";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
+import { Account } from "@nodle/db/src/models";
 
 const RootCertificateBaseResolver = createBaseResolver(
   "RootCertificate",
@@ -14,5 +15,10 @@ export default class RootCertificateResolver extends RootCertificateBaseResolver
   @FieldResolver()
   block(@Root() source: RootCertificate): Promise<Block> {
     return singleFieldResolver(source, Block, "blockId");
+  }
+
+  @FieldResolver()
+  account(@Root() source: RootCertificate): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId");
   }
 }

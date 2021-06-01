@@ -7,10 +7,11 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, Int, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
+import { Account } from "../index";
 
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })
@@ -29,16 +30,21 @@ export default class Application extends BaseEntity {
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
 
+  @Field(() => Int)
+  @Column("integer", { name: "account_id" })
+  public accountId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.balance)
+  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  public account: Account;
+
   @Field(() => String, { defaultValue: ApplicationStatus.pending })
   @Column("character varying", {
     name: "status",
     default: ApplicationStatus.pending,
   })
   public status: string;
-
-  @Field(() => String)
-  @Column("character varying", { name: "candidate" })
-  public candidate: string;
 
   @Field(() => Number)
   @Column("numeric", { name: "candidate_deposit" })
