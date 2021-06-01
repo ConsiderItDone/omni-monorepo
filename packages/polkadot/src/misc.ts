@@ -232,24 +232,35 @@ export function applicationIsEmpty(applicationData: ApplicationType): boolean {
 
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
+  api: ApiPromise,
   manager: EntityManager,
-  certificateId: string,
+  certificateId: number,
   certificateData: RootCertificateType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number
 ): Promise<void> {
   const rootCertificateRepository = manager.getCustomRepository(
     RootCertificateRepository
   );
-  const transformedCertificateData = transformCertificateData(
+  const transformedCertificateData = await transformCertificateData(
+    api,
+    manager,
+    blockHash,
+    blockNumber,
     blockId,
     certificateData
   );
   rootCertificateRepository.upsert(certificateId, transformedCertificateData);
 }
-function transformCertificateData(
+async function transformCertificateData(
+  api: ApiPromise,
+  manager: EntityManager,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   certificateData: RootCertificateType
-): RootCertificateModel {
+): Promise<RootCertificateModel> {
   const {
     owner,
     key,
@@ -260,9 +271,27 @@ function transformCertificateData(
     child_revocations,
   } = certificateData;
 
+  const keyAccount = await getOrCreateAccount(
+    api,
+    manager,
+    key.toHuman(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+
+  const ownerAccount = await getOrCreateAccount(
+    api,
+    manager,
+    owner.toHuman(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+
   return {
-    owner: owner.toHuman(),
-    key: key.toHuman(),
+    ownerId: ownerAccount.accountId,
+    keyId: keyAccount.accountId,
     created: created.toString(),
     renewed: renewed.toString(),
     revoked: revoked.toHuman(),

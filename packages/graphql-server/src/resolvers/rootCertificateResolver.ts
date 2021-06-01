@@ -18,7 +18,12 @@ export default class RootCertificateResolver extends RootCertificateBaseResolver
   }
 
   @FieldResolver()
-  account(@Root() source: RootCertificate): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId");
+  owner(@Root() source: RootCertificate): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId", "ownerId");
+  }
+
+  @FieldResolver()
+  key(@Root() source: RootCertificate): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId", "keyId");
   }
 }
