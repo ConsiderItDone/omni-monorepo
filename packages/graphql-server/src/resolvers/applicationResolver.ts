@@ -15,7 +15,12 @@ export default class ApplicationResolver extends ApplicationBaseResolver {
   }
 
   @FieldResolver()
-  account(@Root() source: Application): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId");
+  candidate(@Root() source: Application): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId", "candidateId");
+  }
+
+  @FieldResolver()
+  challenger(@Root() source: Application): Promise<Account> {
+    return singleFieldResolver(source, Account, "accountId", "challengerId");
   }
 }

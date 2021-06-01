@@ -63,7 +63,14 @@ export async function backfillTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          await backfillApplication(manager, event, blockId, api, blockNumber);
+          await backfillApplication(
+            manager,
+            event,
+            blockId,
+            api,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.Balance:
           await handleBalance(
@@ -89,7 +96,8 @@ export async function backfillApplication(
   event: Event,
   blockId: number,
   api: ApiPromise,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
     const accountId = event.data[0].toString();
@@ -214,9 +222,12 @@ export async function backfillApplication(
         return;
     }
     await upsertApplication(
+      api,
       manager,
       accountId,
       (applicationData as undefined) as ApplicationType,
+      blockHash,
+      blockNumber,
       blockId,
       applicationStatus
     );

@@ -14,10 +14,9 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { getCustomRepository, EntityManager } from "typeorm";
+import { EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
@@ -138,23 +137,41 @@ export async function tryFetchApplication(
   }
 }
 export async function upsertApplication(
+  api: ApiPromise,
   manager: EntityManager,
   accountAddress: string,
   applicationData: ApplicationType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   status?: string
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(
     ApplicationRepository
   );
+  const { candidate, challenger } = applicationData;
 
-  const accountRepository = manager.getCustomRepository(AccountRepository);
-
-  const account = await accountRepository.findByAddress(accountAddress);
+  const candidateAccount = await getOrCreateAccount(
+    api,
+    manager,
+    candidate.toString(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+  const challengerAccount = await getOrCreateAccount(
+    api,
+    manager,
+    challenger.toString(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
 
   const transformedApplicationData = transformApplicationData(
     blockId,
-    account.accountId,
+    candidateAccount.accountId,
+    challengerAccount.accountId,
     applicationData,
     status
   );
@@ -163,19 +180,15 @@ export async function upsertApplication(
 
 function transformApplicationData(
   blockId: number,
-  accountId: number,
+  candidateId: number,
+  challengerId: number,
   application: ApplicationType,
   status?: string
 ): ApplicationModel {
   const {
     candidate_deposit,
     metadata,
-    challenger,
     challenger_deposit,
-    votes_for,
-    voters_for,
-    votes_against,
-    voters_against,
     created_block,
     challenged_block,
   } = application;
@@ -183,15 +196,11 @@ function transformApplicationData(
   return {
     blockId,
     status,
-    accountId,
+    candidateId,
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
-    challenger: challenger?.toString() || null,
+    challengerId,
     challengerDeposit: challenger_deposit?.toNumber() || null,
-    votesFor: votes_for?.toString() || null,
-    votersFor: voters_for.map((v) => JSON.stringify(v)),
-    votesAgainst: votes_against?.toString() || null,
-    votersAgainst: voters_against.map((v) => JSON.stringify(v)),
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
@@ -211,71 +220,6 @@ export async function changeApplicationStatus(
   if (existingApplication) {
     existingApplication.status = status;
     applicationRepository.save(existingApplication);
-  }
-}
-
-export async function recordVote(
-  manager: EntityManager,
-  initiatorId: number,
-  targetId: number,
-  targetAddress: AccountId,
-  value: boolean,
-  blockId: number,
-  targetData?: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-
-  const targetInDB = await applicationRepository.findCandidate(targetId);
-
-  if (!targetInDB && !targetData) {
-    logger.error(
-      "Error! Trying to record vote with no data about target(in db and from response)"
-    );
-  }
-  if (targetData) {
-    await upsertApplication(
-      manager,
-      targetAddress.toString(),
-      (targetData as undefined) as ApplicationType,
-      blockId,
-      ApplicationStatus.accepted
-    );
-  }
-
-  await applicationRepository.changeCandidateVote(initiatorId, targetId, value);
-}
-
-export async function addChallenger(
-  challengedAcc: string,
-  challengerAcc: string,
-  challengerDeposit: number,
-  blockId: number,
-  challengedAppData: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-  const accountRepository = getCustomRepository(AccountRepository);
-  const blockRepository = getCustomRepository(BlockRepository);
-
-  const account = await accountRepository.findByAddress(challengedAcc);
-  const candidate = await applicationRepository.findCandidate(
-    account.accountId
-  );
-  if (candidate) {
-    const challengedBlock = await blockRepository.findOne({ blockId: blockId });
-    await applicationRepository.addChallenger(
-      account.accountId,
-      challengerAcc,
-      challengerDeposit,
-      challengedBlock?.number as string
-    );
-  } else {
-    const transformedApplicationData = transformApplicationData(
-      blockId,
-      account.accountId,
-      challengedAppData,
-      ApplicationStatus.accepted
-    );
-    await applicationRepository.upsert(transformedApplicationData);
   }
 }
 
@@ -421,4 +365,36 @@ export async function saveValidator(
     consumers: consumers.toNumber(),
     providers: providers.toNumber(),
   });
+}
+
+export async function getOrCreateAccount(
+  api: ApiPromise,
+  entityManager: EntityManager,
+  accountAddress: string,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
+  blockId: number
+): Promise<AccountModel> {
+  const accountRepository = entityManager.getCustomRepository(
+    AccountRepository
+  );
+
+  const account = await accountRepository.findByAddress(accountAddress);
+  if (account) {
+    return account;
+  } else {
+    const accountInfo = await tryFetchAccount(
+      api,
+      accountAddress,
+      blockHash,
+      blockNumber
+    );
+
+    return await saveAccount(
+      entityManager,
+      accountAddress.toString(),
+      accountInfo,
+      blockId
+    );
+  }
 }

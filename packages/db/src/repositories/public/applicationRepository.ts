@@ -3,16 +3,12 @@ import { Application } from "../../models";
 
 type NewApplicationParams = {
   blockId: number;
-  accountId: number;
+  candidateId: number;
   status: string;
   candidateDeposit: number;
   metadata: string;
-  challenger: string;
+  challengerId: number;
   challengerDeposit: number;
-  votesFor: string;
-  votersFor: string[];
-  votesAgainst: string;
-  votersAgainst: string[];
   createdBlock: string;
   challengedBlock: string;
 };
@@ -21,50 +17,37 @@ type NewApplicationParams = {
 export default class ApplicationRepository extends Repository<Application> {
   public add({
     blockId,
-    accountId,
+    candidateId,
     status,
     candidateDeposit,
     metadata,
-    challenger,
+    challengerId,
     challengerDeposit,
-    votesFor,
-    votersFor,
-    votesAgainst,
-    votersAgainst,
     createdBlock,
     challengedBlock,
   }: NewApplicationParams): Promise<Application> {
     return this.save({
       blockId,
-      accountId,
+      candidateId,
       status,
       candidateDeposit,
       metadata,
-      challenger,
+      challengerId,
       challengerDeposit,
-      votesFor,
-      votersFor,
-      votesAgainst,
-      votersAgainst,
       createdBlock,
       challengedBlock,
     });
   }
-  public replace(
-    applicationId: number,
-    applicationData: NewApplicationParams
-  ): Promise<UpdateResult> {
-    return this.update(applicationId, applicationData);
-  }
+
   public async upsert(
     applicationData: Application
   ): Promise<UpdateResult | Application> {
     const existingApplication = await this.findCandidate(
-      applicationData.accountId
+      applicationData.candidateId
     );
 
     if (existingApplication) {
-      return await this.replace(
+      return await this.update(
         existingApplication.applicationId,
         applicationData
       );
@@ -72,43 +55,18 @@ export default class ApplicationRepository extends Repository<Application> {
 
     return await this.add(applicationData);
   }
-  public async findCandidate(accountId: number): Promise<Application> {
-    return await this.findOne({ accountId });
+  public async findCandidate(candidateId: number): Promise<Application> {
+    return await this.findOne({ candidateId });
   }
-  public async changeCandidateVote(
-    initiatorId: number,
-    targetId: number,
-    value: boolean
-  ): Promise<void> {
-    const initiator = await this.findCandidate(initiatorId);
-    // Change's initiator data only if he is in DB, otherwise all data will be empty (he is not applicant)
-    if (initiator) {
-      if (value) {
-        initiator.votesFor = String(targetId); // TODO: check it
-      } else {
-        initiator.votesAgainst = String(targetId); // TODO: check it
-      }
-      await this.save(initiator);
-    }
-    const target = await this.findCandidate(targetId);
-    if (value) {
-      target.votersFor = [String(...target.votersFor), String(initiatorId)];
-    } else {
-      target.votersAgainst = [
-        String(...target.votersAgainst),
-        String(initiatorId),
-      ];
-    }
-    await this.save(target);
-  }
+
   public async addChallenger(
     challengedId: number,
-    challengerAcc: string,
+    challengerId: number,
     challengerDeposit: number,
     blockNumber: string
   ): Promise<void> {
     const candidate = await this.findCandidate(challengedId);
-    candidate.challenger = challengerAcc;
+    candidate.challengerId = challengerId;
     candidate.challengerDeposit = challengerDeposit;
     candidate.challengedBlock = blockNumber;
     await this.save(candidate);

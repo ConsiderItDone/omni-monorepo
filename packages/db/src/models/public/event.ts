@@ -13,7 +13,6 @@ import Extrinsic from "./extrinsic";
 import { GraphQLJSON } from "graphql-type-json";
 import EventType from "./eventType";
 import Module from "./module";
-import Account from "./account";
 
 @ObjectType()
 @Index("event_pk", ["eventId"], { unique: true })
@@ -70,13 +69,4 @@ export default class Event extends BaseEntity {
   @ManyToOne(() => Extrinsic, (extrinsic) => extrinsic.extrinsicId)
   @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
   public extrinsic: Extrinsic;
-
-  @Field(() => Int)
-  @Column("integer", { name: "account_id" })
-  public accountId: number;
-
-  @Field(() => Account, { nullable: true })
-  @ManyToOne(() => Account, (account) => account.balance)
-  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
-  public account: Account;
 }

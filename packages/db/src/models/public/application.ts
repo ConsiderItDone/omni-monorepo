@@ -31,13 +31,17 @@ export default class Application extends BaseEntity {
   public block: Block;
 
   @Field(() => Int)
-  @Column("integer", { name: "account_id" })
-  public accountId: number;
+  @Column("integer", { name: "candidate_id", nullable: true })
+  public candidateId: number;
 
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.balance)
-  @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
-  public account: Account;
+  @JoinColumn([{ name: "candidate_id", referencedColumnName: "accountId" }])
+  public candidate: Account;
+
+  @Field(() => Number)
+  @Column("numeric", { name: "candidate_deposit" })
+  public candidateDeposit: number;
 
   @Field(() => String, { defaultValue: ApplicationStatus.pending })
   @Column("character varying", {
@@ -46,21 +50,18 @@ export default class Application extends BaseEntity {
   })
   public status: string;
 
-  @Field(() => Number)
-  @Column("numeric", { name: "candidate_deposit" })
-  public candidateDeposit: number;
-
   @Field(() => String)
   @Column("character varying", { name: "metadata", default: "" })
   public metadata: string;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "challenger",
-    nullable: true,
-    default: null,
-  })
-  public challenger: string | null;
+  @Field(() => Int)
+  @Column("integer", { name: "challenger_id", nullable: true })
+  public challengerId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.balance)
+  @JoinColumn([{ name: "challenger_id", referencedColumnName: "accountId" }])
+  public challenger: Account;
 
   @Field(() => Number, { nullable: true })
   @Column("numeric", {
@@ -70,45 +71,11 @@ export default class Application extends BaseEntity {
   })
   public challengerDeposit: number | null;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "votes_for",
-    nullable: true,
-    default: null,
-  })
-  public votesFor: string | null;
-
-  @Field(() => [String])
-  // TODO change to 'simple-array'
-  @Column("character varying", {
-    name: "voters_for",
-    array: true,
-    nullable: true,
-  })
-  public votersFor: string[];
-
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "votes_against",
-    nullable: true,
-    default: null,
-  })
-  public votesAgainst: string | null;
-
-  @Field(() => [String])
-  // TODO change to 'simple-array'
-  @Column("character varying", {
-    name: "voters_against",
-    array: true,
-    nullable: true,
-  })
-  public votersAgainst: string[];
+  @Field(() => String)
+  @Column("bigint", { name: "created_block", nullable: true })
+  public createdBlock: string; // TODO: id block
 
   @Field(() => String)
-  @Column("bigint", { name: "created_block" })
-  public createdBlock: string;
-
-  @Field(() => String)
-  @Column("bigint", { name: "challenged_block" })
-  public challengedBlock: string;
+  @Column("bigint", { name: "challenged_block", nullable: true })
+  public challengedBlock: string; // TODO: id block
 }

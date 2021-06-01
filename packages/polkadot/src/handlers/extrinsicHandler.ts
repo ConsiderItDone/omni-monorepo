@@ -4,12 +4,10 @@ import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import {
   getExtrinsicSuccess,
   boundEventsToExtrinsics,
-  tryFetchAccount,
-  saveAccount,
+  getOrCreateAccount,
 } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
 import {
@@ -37,8 +35,6 @@ export async function handleExtrinsics(
     )
   );
   try {
-    const accountRepository = manager.getCustomRepository(AccountRepository);
-
     const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
       extrinsics,
       events
@@ -50,36 +46,22 @@ export async function handleExtrinsics(
 
     const processedExtrinsics = await Promise.all(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
-        let signerId: number = null;
-
         const queryFeeDetails = await api.rpc.payment.queryFeeDetails(
           extrinsic.toHex(),
           blockHash
         );
 
+        let signerId: number = null;
         if (extrinsic.isSigned) {
-          const account = await accountRepository.findByAddress(
-            extrinsic.signer.toString()
+          const account = await getOrCreateAccount(
+            api,
+            manager,
+            extrinsic.signer.toString(),
+            blockHash,
+            blockNumber,
+            blockId
           );
-          if (account) {
-            signerId = account.accountId;
-          } else {
-            const accountInfo = await tryFetchAccount(
-              api,
-              extrinsic.signer.toString(),
-              blockHash,
-              blockNumber
-            );
-
-            const { accountId } = await saveAccount(
-              manager,
-              extrinsic.signer.toString(),
-              accountInfo,
-              blockId
-            );
-
-            signerId = accountId;
-          }
+          signerId = account.accountId;
         }
 
         return {

@@ -23,7 +23,6 @@ import { FindConditions, FindManyOptions, getConnection, Raw } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
-import { Account } from "@nodle/db/src/models";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -201,11 +200,6 @@ export default class EventResolver extends EventBaseResolver {
   @FieldResolver()
   module(@Root() source: Event): Promise<Module> {
     return singleFieldResolver(source, Module, "moduleId");
-  }
-
-  @FieldResolver()
-  account(@Root() source: Event): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId");
   }
 
   @Subscription(() => Event, {
