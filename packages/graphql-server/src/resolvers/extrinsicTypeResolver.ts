@@ -13,6 +13,7 @@ import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 import { createBaseResolver } from "../baseResolver";
 import Module from "@nodle/db/src/models/public/module";
 import { singleFieldResolver } from "../fieldsResolver";
+import { FindConditions } from "typeorm";
 
 const ExtrinsicTypeBaseResolver = createBaseResolver(
   "ExtrinsicType",
@@ -51,10 +52,13 @@ export default class ExtrinsicTypeResolver extends ExtrinsicTypeBaseResolver {
       moduleId = module.moduleId;
     }
 
+    const where = {} as FindConditions<ExtrinsicType>;
+    if (moduleId) {
+      where.moduleId = moduleId;
+    }
+
     const items = await ExtrinsicType.find({
-      where: {
-        moduleId: moduleId ? moduleId : null,
-      },
+      where,
     });
 
     return {
