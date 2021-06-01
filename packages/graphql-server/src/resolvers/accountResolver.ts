@@ -5,6 +5,7 @@ import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver, singleFieldResolver } from "../fieldsResolver";
+import { RootCertificate, Application } from "@nodle/db/src/models";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 
@@ -32,7 +33,37 @@ export default class AccountResolver extends AccountBaseResolver {
   }
 
   @FieldResolver()
-  extrinsics(@Root() source: Extrinsic): Promise<Extrinsic[]> {
+  extrinsics(@Root() source: Account): Promise<Extrinsic[]> {
     return arrayFieldResolver(source, Extrinsic, "signerId", "accountId");
+  }
+
+  @FieldResolver()
+  rootCertificatesByOwner(@Root() source: Account): Promise<RootCertificate[]> {
+    return arrayFieldResolver(source, RootCertificate, "ownerId", "accountId");
+  }
+
+  @FieldResolver()
+  rootCertificatesByKey(@Root() source: Account): Promise<RootCertificate[]> {
+    return arrayFieldResolver(source, RootCertificate, "keyId", "accountId");
+  }
+
+  @FieldResolver()
+  applicationsByChallenger(@Root() source: Account): Promise<Application[]> {
+    return arrayFieldResolver(
+      source,
+      Application,
+      "challengerId",
+      "applicationId"
+    );
+  }
+
+  @FieldResolver()
+  applicationsByCandidate(@Root() source: Account): Promise<Application[]> {
+    return arrayFieldResolver(
+      source,
+      Application,
+      "candidateId",
+      "applicationId"
+    );
   }
 }
