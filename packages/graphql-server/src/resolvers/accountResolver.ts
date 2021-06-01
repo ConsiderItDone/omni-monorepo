@@ -53,7 +53,7 @@ export default class AccountResolver extends AccountBaseResolver {
       source,
       Application,
       "challengerId",
-      "applicationId"
+      "accountId"
     );
   }
 
@@ -63,7 +63,7 @@ export default class AccountResolver extends AccountBaseResolver {
       source,
       Application,
       "candidateId",
-      "applicationId"
+      "accountId"
     );
   }
 }
