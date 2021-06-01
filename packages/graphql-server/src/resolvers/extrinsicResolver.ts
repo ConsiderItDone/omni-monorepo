@@ -19,6 +19,8 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { FindManyOptions, getConnection, getRepository, In } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
+import Module from "@nodle/db/src/models/public/module";
+import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -135,6 +137,19 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       findOptions.where = Object.assign(findOptions.where || {}, { signerId });
     }
 
+    let module: Module;
+    if (callModule !== "All") {
+      module = await Module.findOne({
+        name: callModule,
+      });
+    }
+    let type: ExtrinsicType;
+    if (callFunction !== "All") {
+      type = await ExtrinsicType.findOne({
+        name: callFunction,
+      });
+    }
+
     let result;
 
     if (callModule === "All" && callFunction === "All") {
@@ -143,25 +158,26 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModule,
+          moduleId: module ? module.moduleId : null,
         },
       });
     } else if (callModule === "All") {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModuleFunction: callFunction,
+          extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
       });
     } else {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModule,
-          callModuleFunction: callFunction,
+          moduleId: module ? module.moduleId : null,
+          extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
       });
     }
+
     return { items: result[0], totalCount: result[1] };
   }
 

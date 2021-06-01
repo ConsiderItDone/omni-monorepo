@@ -11,12 +11,12 @@ import { Field, Int, ObjectType } from "type-graphql";
 import Module from "./module";
 
 @ObjectType()
-@Index("event_type_pk", ["eventTypeId"], { unique: true })
-@Entity("event_type", { schema: "public" })
-export default class EventType extends BaseEntity {
+@Index("extrinsic_type_pk", ["extrinsicTypeId"], { unique: true })
+@Entity("extrinsic_type", { schema: "public" })
+export default class ExtrinsicType extends BaseEntity {
   @Field(() => Int)
-  @PrimaryGeneratedColumn({ type: "integer", name: "event_type_id" })
-  public eventTypeId: number;
+  @PrimaryGeneratedColumn({ type: "integer", name: "extrinsic_type_id" })
+  public extrinsicTypeId: number;
 
   @Field(() => String)
   @Column("character varying", { name: "name" })

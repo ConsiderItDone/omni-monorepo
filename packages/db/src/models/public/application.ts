@@ -21,7 +21,7 @@ export default class Application extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "application_id" })
   public applicationId: number;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
 

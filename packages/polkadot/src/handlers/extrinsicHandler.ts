@@ -18,6 +18,8 @@ import {
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
+import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
+import ExtrinsicTypeRepository from "@nodle/db/src/repositories/public/extrinsicTypeRepository";
 
 export async function handleExtrinsics(
   manager: EntityManager,
@@ -44,6 +46,12 @@ export async function handleExtrinsics(
       ExtrinsicRepository
     );
 
+    const moduleRepository = manager.getCustomRepository(ModuleRepository);
+
+    const extrinsicTypeRepository = manager.getCustomRepository(
+      ExtrinsicTypeRepository
+    );
+
     const processedExtrinsics = await Promise.all(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
         const queryFeeDetails = await api.rpc.payment.queryFeeDetails(
@@ -64,13 +72,22 @@ export async function handleExtrinsics(
           signerId = account.accountId;
         }
 
+        const module = await moduleRepository.addOrIgnore({
+          name: extrinsic.method.section,
+        });
+
+        const extrinsicType = await extrinsicTypeRepository.addOrIgnore({
+          name: extrinsic.method.method,
+          moduleId: module.moduleId,
+        });
+
         return {
           index,
           length: extrinsic.length,
           versionInfo: extrinsic.version.toString(),
           callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-          callModule: extrinsic.method.section,
-          callModuleFunction: extrinsic.method.method,
+          moduleId: module.moduleId,
+          extrinsicTypeId: extrinsicType.extrinsicTypeId,
           params: JSON.stringify(extrinsic.method.args),
           nonce: extrinsic.nonce.toNumber(),
           era: extrinsic.era.toString(),
