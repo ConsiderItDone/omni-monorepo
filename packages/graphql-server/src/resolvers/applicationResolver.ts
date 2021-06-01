@@ -2,8 +2,8 @@ import { FieldResolver, Resolver, Root } from "type-graphql";
 import Application from "@nodle/db/src/models/public/application";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
-import { singleFieldResolver } from "../fieldsResolver";
-import { Account } from "@nodle/db/src/models";
+import { arrayFieldResolver, singleFieldResolver } from "../fieldsResolver";
+import { Account, Vote } from "@nodle/db/src/models";
 
 const ApplicationBaseResolver = createBaseResolver("Application", Application);
 
@@ -22,5 +22,10 @@ export default class ApplicationResolver extends ApplicationBaseResolver {
   @FieldResolver()
   challenger(@Root() source: Application): Promise<Account> {
     return singleFieldResolver(source, Account, "accountId", "challengerId");
+  }
+
+  @FieldResolver()
+  votes(@Root() source: Application): Promise<Vote[]> {
+    return arrayFieldResolver(source, Application, "applicationId");
   }
 }

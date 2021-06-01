@@ -18,7 +18,7 @@ export default class Vote extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "vote_id" })
   public voteId: number;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column("integer", { name: "initiator_id", nullable: true })
   public initiatorId: number;
 
@@ -27,7 +27,7 @@ export default class Vote extends BaseEntity {
   @JoinColumn([{ name: "initiator_id", referencedColumnName: "accountId" }])
   public initiator: Account;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column("integer", { name: "target_id", nullable: true })
   public targetId: number;
 

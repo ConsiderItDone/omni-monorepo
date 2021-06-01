@@ -6,12 +6,14 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
+  OneToMany,
 } from "typeorm";
 import { Field, ID, Int, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
 import { Account } from "../index";
+import Vote from "./vote";
 
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })
@@ -78,4 +80,9 @@ export default class Application extends BaseEntity {
   @Field(() => String)
   @Column("bigint", { name: "challenged_block", nullable: true })
   public challengedBlock: string; // TODO: id block
+
+  @Field(() => [Vote], { nullable: true, defaultValue: [] })
+  @OneToMany(() => Vote, (vote) => vote.application)
+  @JoinColumn([{ name: "vote_id", referencedColumnName: "voteId" }])
+  public votes: Vote[];
 }
