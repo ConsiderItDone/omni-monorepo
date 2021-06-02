@@ -62,7 +62,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     return extrinsic;
   }
   public async findByHash(hash: string): Promise<Extrinsic> {
-    return this.findOne({ hash: hash });
+    return await this.findOne({ hash: hash });
   }
   public async addList(list: NewExtrinsicParam[]): Promise<Extrinsic[]> {
     return await this.save(list);

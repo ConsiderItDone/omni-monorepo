@@ -11,6 +11,7 @@
   "rules": {
     "no-console": "off",
     "eol-last": "warn",
+    "require-await": 2,
     "prettier/prettier": 2 // Means error
   },
   "settings": {
