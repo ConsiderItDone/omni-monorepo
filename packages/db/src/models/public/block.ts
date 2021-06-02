@@ -1,13 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-  Unique,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn, Unique } from "typeorm";
 import { Field, GraphQLTimestamp, ID, ObjectType } from "type-graphql";
 import Event from "./event";
 import Log from "./log";
@@ -82,9 +73,7 @@ export default class Block extends BaseEntity {
 
   @Field(() => [RootCertificate], { nullable: true })
   @OneToMany(() => RootCertificate, (rootCertificate) => rootCertificate.block)
-  @JoinColumn([
-    { name: "rootCertificate_id", referencedColumnName: "rootCertificateId" },
-  ])
+  @JoinColumn([{ name: "rootCertificate_id", referencedColumnName: "rootCertificateId" }])
   public rootCertificates: RootCertificate[];
 
   /*   @Field(() => [Balance], { nullable: true, defaultValue: null })
@@ -94,8 +83,6 @@ export default class Block extends BaseEntity {
 
   @Field(() => [VestingSchedule], { nullable: true, defaultValue: null })
   @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.block)
-  @JoinColumn([
-    { name: "vestingSchedule_id", referencedColumnName: "vestingScheduleId" },
-  ])
+  @JoinColumn([{ name: "vestingSchedule_id", referencedColumnName: "vestingScheduleId" }])
   public vestingSchedules: VestingSchedule[];
 }

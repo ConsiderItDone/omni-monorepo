@@ -4,17 +4,9 @@ import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import {
-  getExtrinsicSuccess,
-  boundEventsToExtrinsics,
-  getOrCreateAccount,
-} from "@nodle/polkadot/src/misc";
+import { getExtrinsicSuccess, boundEventsToExtrinsics, getOrCreateAccount } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -30,34 +22,19 @@ export async function handleExtrinsics(
   blockNumber: BlockNumber,
   blockHash: BlockHash
 ): Promise<[Extrinsic[], ExtrinsicWithBoundedEvents[]]> {
-  logger.info(
-    LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(
-      extrinsics.length,
-      blockNumber.toNumber()
-    )
-  );
+  logger.info(LOGGER_INFO_CONST.EXTRINSICS_RECEIVED(extrinsics.length, blockNumber.toNumber()));
   try {
-    const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
-      extrinsics,
-      events
-    );
+    const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(extrinsics, events);
 
-    const extrinsicRepository = manager.getCustomRepository(
-      ExtrinsicRepository
-    );
+    const extrinsicRepository = manager.getCustomRepository(ExtrinsicRepository);
 
     const moduleRepository = manager.getCustomRepository(ModuleRepository);
 
-    const extrinsicTypeRepository = manager.getCustomRepository(
-      ExtrinsicTypeRepository
-    );
+    const extrinsicTypeRepository = manager.getCustomRepository(ExtrinsicTypeRepository);
 
     const processedExtrinsics = await Promise.all(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
-        const queryFeeDetails = await api.rpc.payment.queryFeeDetails(
-          extrinsic.toHex(),
-          blockHash
-        );
+        const queryFeeDetails = await api.rpc.payment.queryFeeDetails(extrinsic.toHex(), blockHash);
 
         let signerId: number = null;
         if (extrinsic.isSigned) {
@@ -102,9 +79,7 @@ export async function handleExtrinsics(
       })
     );
     try {
-      const newExtrinsics = await extrinsicRepository.addList(
-        processedExtrinsics
-      );
+      const newExtrinsics = await extrinsicRepository.addList(processedExtrinsics);
       logger.info(
         LOGGER_INFO_CONST.EXTRINSICS_SAVED({
           blockId,
@@ -115,10 +90,7 @@ export async function handleExtrinsics(
       );
       return [newExtrinsics, extrinsicsWithBoundedEvents];
     } catch (extrinsicsSaveError) {
-      logger.error(
-        LOGGER_ERROR_CONST.EXTRINSICS_SAVE_ERROR(blockNumber?.toNumber()),
-        extrinsicsSaveError
-      );
+      logger.error(LOGGER_ERROR_CONST.EXTRINSICS_SAVE_ERROR(blockNumber?.toNumber()), extrinsicsSaveError);
     }
   } catch (error) {
     logger.error(error);

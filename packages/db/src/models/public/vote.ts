@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, Int, ObjectType } from "type-graphql";
 import { Account, Application } from "../index";
 
@@ -42,9 +34,7 @@ export default class Vote extends BaseEntity {
 
   @Field(() => Application, { nullable: true })
   @ManyToOne(() => Application, (app) => app.applicationId)
-  @JoinColumn([
-    { name: "application_id", referencedColumnName: "applicationId" },
-  ])
+  @JoinColumn([{ name: "application_id", referencedColumnName: "applicationId" }])
   public application: Application;
 
   @Field(() => Boolean, { nullable: true })

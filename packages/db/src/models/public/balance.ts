@@ -1,13 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  OneToOne,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, OneToOne, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
 import Block from "./block";

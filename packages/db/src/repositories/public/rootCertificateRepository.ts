@@ -37,10 +37,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
 
     return rootCertificate;
   }
-  public replace(
-    rootCertificateId: number,
-    certificateData: NewRootCertificateParam
-  ): Promise<UpdateResult> {
+  public replace(rootCertificateId: number, certificateData: NewRootCertificateParam): Promise<UpdateResult> {
     return this.update(rootCertificateId, certificateData);
   }
 
@@ -50,10 +47,7 @@ export default class RootCertificateRepository extends Repository<RootCertificat
   ): Promise<UpdateResult | RootCertificate> {
     const existingRootCertificate = await this.findByKey(keyId);
     if (existingRootCertificate) {
-      return await this.replace(
-        existingRootCertificate.rootCertificateId,
-        certificateData
-      );
+      return await this.replace(existingRootCertificate.rootCertificateId, certificateData);
     } else {
       return await this.add(certificateData);
     }

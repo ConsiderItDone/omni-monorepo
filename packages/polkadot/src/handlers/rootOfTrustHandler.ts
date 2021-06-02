@@ -3,16 +3,9 @@ import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
-import {
-  getOrCreateAccount,
-  upsertRootCertificate,
-} from "@nodle/polkadot/src/misc";
+import { getOrCreateAccount, upsertRootCertificate } from "@nodle/polkadot/src/misc";
 import { RootCertificate } from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleRootOfTrust(
@@ -24,9 +17,7 @@ export async function handleRootOfTrust(
   blockHash: BlockHash
 ): Promise<void> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber()));
 
     let certificateAddress = event?.data[0]?.toString() || "";
     switch (event.method) {
@@ -41,24 +32,12 @@ export async function handleRootOfTrust(
     }
     let certificateData: RootCertificate;
     try {
-      certificateData = ((await api.query.pkiRootOfTrust.slots(
-        certificateAddress
-      )) as undefined) as RootCertificate;
+      certificateData = ((await api.query.pkiRootOfTrust.slots(certificateAddress)) as undefined) as RootCertificate;
     } catch (fetchError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateAddress),
-        fetchError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateAddress), fetchError);
     }
     try {
-      const certificate = await getOrCreateAccount(
-        api,
-        manager,
-        certificateAddress,
-        blockHash,
-        blockNumber,
-        blockId
-      );
+      const certificate = await getOrCreateAccount(api, manager, certificateAddress, blockHash, blockNumber, blockId);
 
       await upsertRootCertificate(
         api,
@@ -70,12 +49,7 @@ export async function handleRootOfTrust(
         blockId
       );
     } catch (upsertingError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(
-          blockNumber.toNumber()
-        ),
-        upsertingError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(blockNumber.toNumber()), upsertingError);
     }
   } catch (error) {
     logger.error(error);

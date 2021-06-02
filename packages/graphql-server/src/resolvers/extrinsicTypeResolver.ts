@@ -1,24 +1,11 @@
-import {
-  Args,
-  ArgsType,
-  Field,
-  FieldResolver,
-  Int,
-  ObjectType,
-  Query,
-  Resolver,
-  Root,
-} from "type-graphql";
+import { Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 import { createBaseResolver } from "../baseResolver";
 import Module from "@nodle/db/src/models/public/module";
 import { singleFieldResolver } from "../fieldsResolver";
 import { FindConditions } from "typeorm";
 
-const ExtrinsicTypeBaseResolver = createBaseResolver(
-  "ExtrinsicType",
-  ExtrinsicType
-);
+const ExtrinsicTypeBaseResolver = createBaseResolver("ExtrinsicType", ExtrinsicType);
 
 @ArgsType()
 class ExtrinsicTypesArgs {
@@ -41,9 +28,7 @@ class ExtrinsicTypeResponse {
 @Resolver(ExtrinsicType)
 export default class ExtrinsicTypeResolver extends ExtrinsicTypeBaseResolver {
   @Query(() => ExtrinsicTypeResponse)
-  async extrinsicTypes(
-    @Args() { moduleName, moduleId }: ExtrinsicTypesArgs
-  ): Promise<ExtrinsicTypeResponse> {
+  async extrinsicTypes(@Args() { moduleName, moduleId }: ExtrinsicTypesArgs): Promise<ExtrinsicTypeResponse> {
     if (moduleName) {
       const module = await Module.findOne({
         name: moduleName,

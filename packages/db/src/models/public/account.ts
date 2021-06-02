@@ -1,13 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  JoinColumn,
-  OneToOne,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
 import { Application, Balance, RootCertificate, Validator } from "..";
@@ -39,10 +30,7 @@ export default class Account extends BaseEntity {
   public balance: Balance;
 
   @Field(() => [VestingSchedule], { nullable: true })
-  @OneToMany(
-    () => VestingSchedule,
-    (vestingSchedule) => vestingSchedule.account
-  )
+  @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.account)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public vestingSchedules: VestingSchedule[];
 

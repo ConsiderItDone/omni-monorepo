@@ -1,8 +1,4 @@
-export {
-  boundEventsToExtrinsics,
-  findExtrinsicsWithEventsHash,
-  getExtrinsicSuccess,
-} from "./misc";
+export { boundEventsToExtrinsics, findExtrinsicsWithEventsHash, getExtrinsicSuccess } from "./misc";
 export {
   handleNewBlock,
   handleEvents,

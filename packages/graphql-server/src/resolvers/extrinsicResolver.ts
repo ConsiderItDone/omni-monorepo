@@ -1,15 +1,4 @@
-import {
-  Resolver,
-  FieldResolver,
-  Root,
-  Query,
-  Arg,
-  Args,
-  ArgsType,
-  Field,
-  Int,
-  ObjectType,
-} from "type-graphql";
+import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
@@ -68,9 +57,7 @@ class ExtrinsicsByType {
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => [Extrinsic])
-  async extrinsicsByBlockNumber(
-    @Arg("number") number: string
-  ): Promise<Extrinsic[]> {
+  async extrinsicsByBlockNumber(@Arg("number") number: string): Promise<Extrinsic[]> {
     const extrinsics = await Extrinsic.createQueryBuilder("log")
       .leftJoin(Block, "block", "block.blockId = log.blockId")
       .where(`block.number = :number`, { number })
@@ -113,14 +100,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async extrinsics(
     @Args()
-    {
-      take,
-      skip,
-      callModule,
-      callFunction,
-      signedOnly,
-      signerId,
-    }: ExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly, signerId }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,

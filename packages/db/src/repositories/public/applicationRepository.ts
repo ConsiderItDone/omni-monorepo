@@ -39,18 +39,11 @@ export default class ApplicationRepository extends Repository<Application> {
     });
   }
 
-  public async upsert(
-    applicationData: Application
-  ): Promise<UpdateResult | Application> {
-    const existingApplication = await this.findCandidate(
-      applicationData.candidateId
-    );
+  public async upsert(applicationData: Application): Promise<UpdateResult | Application> {
+    const existingApplication = await this.findCandidate(applicationData.candidateId);
 
     if (existingApplication) {
-      return await this.update(
-        existingApplication.applicationId,
-        applicationData
-      );
+      return await this.update(existingApplication.applicationId, applicationData);
     }
 
     return await this.add(applicationData);

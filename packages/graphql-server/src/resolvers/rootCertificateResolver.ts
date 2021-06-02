@@ -5,10 +5,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import { Account } from "@nodle/db/src/models";
 
-const RootCertificateBaseResolver = createBaseResolver(
-  "RootCertificate",
-  RootCertificate
-);
+const RootCertificateBaseResolver = createBaseResolver("RootCertificate", RootCertificate);
 
 @Resolver(RootCertificate)
 export default class RootCertificateResolver extends RootCertificateBaseResolver {

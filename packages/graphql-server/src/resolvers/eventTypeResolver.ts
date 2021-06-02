@@ -1,14 +1,4 @@
-import {
-  Args,
-  ArgsType,
-  Field,
-  FieldResolver,
-  Int,
-  ObjectType,
-  Query,
-  Resolver,
-  Root,
-} from "type-graphql";
+import { Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { createBaseResolver } from "../baseResolver";
 import Module from "@nodle/db/src/models/public/module";
@@ -37,9 +27,7 @@ class EventTypeResponse {
 @Resolver(EventType)
 export default class EventTypeResolver extends EventTypeBaseResolver {
   @Query(() => EventTypeResponse)
-  async eventTypes(
-    @Args() { moduleName, moduleId }: EventTypesArgs
-  ): Promise<EventTypeResponse> {
+  async eventTypes(@Args() { moduleName, moduleId }: EventTypesArgs): Promise<EventTypeResponse> {
     if (moduleName) {
       const module = await Module.findOne({
         name: moduleName,

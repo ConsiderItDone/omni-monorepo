@@ -1,13 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import { GraphQLJSON } from "graphql-type-json";
@@ -46,9 +37,7 @@ export default class Extrinsic extends BaseEntity {
 
   @Field(() => ExtrinsicType, { nullable: true })
   @ManyToOne(() => ExtrinsicType, (m) => m.extrinsicTypeId)
-  @JoinColumn([
-    { name: "extrinsic_type_id", referencedColumnName: "extrinsicTypeId" },
-  ])
+  @JoinColumn([{ name: "extrinsic_type_id", referencedColumnName: "extrinsicTypeId" }])
   public extrinsicType: ExtrinsicType;
 
   @Field(() => Int)

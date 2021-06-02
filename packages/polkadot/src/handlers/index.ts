@@ -24,53 +24,20 @@ export async function handleTrackedEvents(
     if (trackedEvents.length < 1) {
       return;
     }
-    logger.info(
-      LOGGER_INFO_CONST.CUSTOM_EVENTS_RECEIVED(
-        trackedEvents.length,
-        blockNumber?.toNumber()
-      )
-    );
+    logger.info(LOGGER_INFO_CONST.CUSTOM_EVENTS_RECEIVED(trackedEvents.length, blockNumber?.toNumber()));
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          await handleRootOfTrust(
-            manager,
-            event,
-            api,
-            blockId,
-            blockNumber,
-            blockHash
-          );
+          await handleRootOfTrust(manager, event, api, blockId, blockNumber, blockHash);
           break;
         case CustomEventSection.VestingSchedule:
-          await handleVestingSchedule(
-            manager,
-            event,
-            blockId,
-            api,
-            blockNumber,
-            blockHash
-          );
+          await handleVestingSchedule(manager, event, blockId, api, blockNumber, blockHash);
           break;
         case CustomEventSection.Application:
-          await handleApplication(
-            manager,
-            event,
-            blockId,
-            api,
-            blockNumber,
-            blockHash
-          );
+          await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
         case CustomEventSection.Balance:
-          await handleBalance(
-            manager,
-            event,
-            blockId,
-            api,
-            blockHash,
-            blockNumber
-          );
+          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           break;
         default:
           return;
@@ -85,9 +52,4 @@ export { handleNewBlock } from "./blockHandler";
 export { handleEvents } from "./eventHandler";
 export { handleExtrinsics } from "./extrinsicHandler";
 export { handleLogs } from "./logHandler";
-export {
-  handleApplication,
-  handleBalance,
-  handleRootOfTrust,
-  handleVestingSchedule,
-};
+export { handleApplication, handleBalance, handleRootOfTrust, handleVestingSchedule };

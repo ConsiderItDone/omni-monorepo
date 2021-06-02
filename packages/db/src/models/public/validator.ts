@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
 import { Field, ID, Int, ObjectType } from "type-graphql";
 import { Account } from "@nodle/db/src/models";
 
