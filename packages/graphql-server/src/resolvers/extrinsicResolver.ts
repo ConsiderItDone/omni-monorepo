@@ -203,7 +203,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @FieldResolver()
   async events(
     @Root() source: Extrinsic,
-    @Arg("eventNames", () => [String]) eventNames?: [string]
+    @Arg("eventNames", () => [String], { nullable: true }) eventNames?: [string]
   ): Promise<Event[]> {
     const where = {} as any; // eslint-disable-line
     if (eventNames && !eventNames.includes("All")) {
