@@ -7,6 +7,8 @@ try {
 }
 
 import express = require("express");
+import bodyParser from "body-parser";
+import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ConnectionOptions } from "typeorm";
@@ -59,20 +61,25 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     ],
   });
 
-  const server = new ApolloServer({
+  const apolloServer = new ApolloServer({
     schema,
     introspection: true,
     playground: true,
   });
-  await server.start();
 
   const app = express();
+  app.use("/graphql", bodyParser.json());
+
   app.get("/", function (req: express.Request, res: express.Response) {
     res.status(200).end();
   });
-  server.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app });
 
-  await new Promise((resolve) => app.listen({ port: PORT }, resolve as () => void));
+  const server = createServer(app);
+  apolloServer.installSubscriptionHandlers(server);
 
-  console.info(`GraphQL server running on port ${PORT}`);
+  server.listen(PORT, () => {
+    console.log(`GraphQL server running at http://localhost:${PORT}${apolloServer.graphqlPath}`);
+    console.log(`Subscription server running at ws://localhost:${PORT}${apolloServer.subscriptionsPath}`);
+  });
 })();
