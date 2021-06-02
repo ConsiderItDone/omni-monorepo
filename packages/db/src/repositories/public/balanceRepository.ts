@@ -31,7 +31,10 @@ export default class BalanceRepository extends Repository<Balance> {
   }
 
   public async findByAccountAddress(accountAddress: string): Promise<Balance> {
-    return await this.findOne({ account: { address: accountAddress } });
+    return await this.findOne(
+      { account: { address: accountAddress } },
+      { order: { balanceId: "DESC" } }
+    );
   }
 
   public async replace(
