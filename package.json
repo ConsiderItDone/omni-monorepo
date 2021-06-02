@@ -15,6 +15,7 @@
     "start:indexer": "npm_config_yes=true npm run start:indexer --prefix packages/indexer",
     "start:server": "npm_config_yes=true npm run start:server --prefix packages/graphql-server",
     "start:backfiller": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller",
+    "start:patcher": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller patcher-only",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
   },

@@ -49,21 +49,11 @@ export default class AccountResolver extends AccountBaseResolver {
 
   @FieldResolver()
   applicationsByChallenger(@Root() source: Account): Promise<Application[]> {
-    return arrayFieldResolver(
-      source,
-      Application,
-      "challengerId",
-      "accountId"
-    );
+    return arrayFieldResolver(source, Application, "challengerId", "accountId");
   }
 
   @FieldResolver()
   applicationsByCandidate(@Root() source: Account): Promise<Application[]> {
-    return arrayFieldResolver(
-      source,
-      Application,
-      "candidateId",
-      "accountId"
-    );
+    return arrayFieldResolver(source, Application, "candidateId", "accountId");
   }
 }
