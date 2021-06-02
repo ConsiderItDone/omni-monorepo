@@ -4,12 +4,10 @@ import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import {
   getExtrinsicSuccess,
   boundEventsToExtrinsics,
-  tryFetchAccount,
-  saveAccount,
+  getOrCreateAccount,
 } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
 import {
@@ -20,6 +18,8 @@ import {
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
+import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
+import ExtrinsicTypeRepository from "@nodle/db/src/repositories/public/extrinsicTypeRepository";
 
 export async function handleExtrinsics(
   manager: EntityManager,
@@ -37,8 +37,6 @@ export async function handleExtrinsics(
     )
   );
   try {
-    const accountRepository = manager.getCustomRepository(AccountRepository);
-
     const extrinsicsWithBoundedEvents = boundEventsToExtrinsics(
       extrinsics,
       events
@@ -48,47 +46,48 @@ export async function handleExtrinsics(
       ExtrinsicRepository
     );
 
+    const moduleRepository = manager.getCustomRepository(ModuleRepository);
+
+    const extrinsicTypeRepository = manager.getCustomRepository(
+      ExtrinsicTypeRepository
+    );
+
     const processedExtrinsics = await Promise.all(
       extrinsics.map(async (extrinsic: GenericExtrinsic, index: number) => {
-        let signerId: number = null;
-
         const queryFeeDetails = await api.rpc.payment.queryFeeDetails(
           extrinsic.toHex(),
           blockHash
         );
 
+        let signerId: number = null;
         if (extrinsic.isSigned) {
-          const account = await accountRepository.findByAddress(
-            extrinsic.signer.toString()
+          const account = await getOrCreateAccount(
+            api,
+            manager,
+            extrinsic.signer.toString(),
+            blockHash,
+            blockNumber,
+            blockId
           );
-          if (account) {
-            signerId = account.accountId;
-          } else {
-            const accountInfo = await tryFetchAccount(
-              api,
-              extrinsic.signer.toString(),
-              blockHash,
-              blockNumber
-            );
-
-            const { accountId } = await saveAccount(
-              manager,
-              extrinsic.signer.toString(),
-              accountInfo,
-              blockId
-            );
-
-            signerId = accountId;
-          }
+          signerId = account.accountId;
         }
+
+        const module = await moduleRepository.addOrIgnore({
+          name: extrinsic.method.section,
+        });
+
+        const extrinsicType = await extrinsicTypeRepository.addOrIgnore({
+          name: extrinsic.method.method,
+          moduleId: module.moduleId,
+        });
 
         return {
           index,
           length: extrinsic.length,
           versionInfo: extrinsic.version.toString(),
           callCode: `${extrinsic.method.section.toString()}.${extrinsic.method.method.toString()}`, // extrinsic.callIndex [0, 1] ??
-          callModule: extrinsic.method.section,
-          callModuleFunction: extrinsic.method.method,
+          moduleId: module.moduleId,
+          extrinsicTypeId: extrinsicType.extrinsicTypeId,
           params: JSON.stringify(extrinsic.method.args),
           nonce: extrinsic.nonce.toNumber(),
           era: extrinsic.era.toString(),

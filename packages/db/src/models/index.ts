@@ -9,3 +9,4 @@ export { default as RootCertificate } from "./public/rootCertificate";
 export { default as VestingSchedule } from "./public/vestingSchedule";
 export { default as Validator } from "./public/validator";
 export { default as BackfillProgress } from "./public/backfillProgress";
+export { default as Vote } from "./public/vote";

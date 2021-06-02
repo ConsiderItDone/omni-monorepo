@@ -15,13 +15,15 @@ import {
 } from "@nodle/utils/src/types";
 
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleApplication(
   manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
     const accountAddress = event.data[0].toString(); // may be reassigned
@@ -114,9 +116,12 @@ export async function handleApplication(
     }
     try {
       await upsertApplication(
+        api,
         manager,
         accountAddress,
         (applicationData as undefined) as ApplicationType,
+        blockHash,
+        blockNumber,
         blockId,
         applicationStatus
       );

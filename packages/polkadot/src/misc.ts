@@ -14,10 +14,9 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { getCustomRepository, EntityManager } from "typeorm";
+import { EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
@@ -146,39 +145,58 @@ export async function tryFetchApplication(
   }
 }
 export async function upsertApplication(
+  api: ApiPromise,
   manager: EntityManager,
-  accountId: string,
+  accountAddress: string,
   applicationData: ApplicationType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   status?: string
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(
     ApplicationRepository
   );
+  const { candidate, challenger } = applicationData;
+
+  const candidateAccount = await getOrCreateAccount(
+    api,
+    manager,
+    candidate.toString(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+  const challengerAccount = await getOrCreateAccount(
+    api,
+    manager,
+    challenger.toString(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
 
   const transformedApplicationData = transformApplicationData(
     blockId,
+    candidateAccount.accountId,
+    challengerAccount.accountId,
     applicationData,
     status
   );
-  applicationRepository.upsert(accountId, transformedApplicationData);
+  applicationRepository.upsert(transformedApplicationData);
 }
 
 function transformApplicationData(
   blockId: number,
+  candidateId: number,
+  challengerId: number,
   application: ApplicationType,
   status?: string
 ): ApplicationModel {
   const {
-    candidate,
     candidate_deposit,
     metadata,
-    challenger,
     challenger_deposit,
-    votes_for,
-    voters_for,
-    votes_against,
-    voters_against,
     created_block,
     challenged_block,
   } = application;
@@ -186,15 +204,11 @@ function transformApplicationData(
   return {
     blockId,
     status,
-    candidate: candidate.toString(),
+    candidateId,
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
-    challenger: challenger?.toString() || null,
+    challengerId,
     challengerDeposit: challenger_deposit?.toNumber() || null,
-    votesFor: votes_for?.toString() || null,
-    votersFor: voters_for.map((v) => JSON.stringify(v)),
-    votesAgainst: votes_against?.toString() || null,
-    votersAgainst: voters_against.map((v) => JSON.stringify(v)),
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
@@ -202,7 +216,7 @@ function transformApplicationData(
 
 export async function changeApplicationStatus(
   manager: EntityManager,
-  accountId: string,
+  accountId: number,
   status: ApplicationStatus
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(
@@ -217,75 +231,6 @@ export async function changeApplicationStatus(
   }
 }
 
-export async function recordVote(
-  manager: EntityManager,
-  initiatorId: AccountId,
-  targetId: AccountId,
-  value: boolean,
-  blockId: number,
-  targetData?: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-
-  const targetInDB = await applicationRepository.findCandidate(
-    targetId.toString()
-  );
-
-  if (!targetInDB && !targetData) {
-    logger.error(
-      "Error! Trying to record vote with no data about target(in db and from response)"
-    );
-  }
-  if (targetData) {
-    await upsertApplication(
-      manager,
-      targetId.toString(),
-      (targetData as undefined) as ApplicationType,
-      blockId,
-      ApplicationStatus.accepted
-    );
-  }
-
-  await applicationRepository.changeCandidateVote(
-    initiatorId.toString(),
-    targetId.toString(),
-    value
-  );
-}
-
-export async function addChallenger(
-  challengedAcc: string,
-  challengerAcc: string,
-  challengerDeposit: number,
-  blockId: number,
-  challengedAppData: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-  const blockRepository = getCustomRepository(BlockRepository);
-  const candidate = await applicationRepository.findOne({
-    candidate: challengedAcc,
-  });
-  if (candidate) {
-    const challengedBlock = await blockRepository.findOne({ blockId: blockId });
-    await applicationRepository.addChallenger(
-      challengedAcc,
-      challengerAcc,
-      challengerDeposit,
-      challengedBlock?.number as string
-    );
-  } else {
-    const transformedApplicationData = transformApplicationData(
-      blockId,
-      challengedAppData,
-      ApplicationStatus.accepted
-    );
-    await applicationRepository.upsert(
-      challengedAcc,
-      transformedApplicationData
-    );
-  }
-}
-
 export function applicationIsEmpty(applicationData: ApplicationType): boolean {
   return (
     applicationData.candidate.toString() ===
@@ -295,24 +240,35 @@ export function applicationIsEmpty(applicationData: ApplicationType): boolean {
 
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
+  api: ApiPromise,
   manager: EntityManager,
-  certificateId: string,
+  certificateId: number,
   certificateData: RootCertificateType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number
 ): Promise<void> {
   const rootCertificateRepository = manager.getCustomRepository(
     RootCertificateRepository
   );
-  const transformedCertificateData = transformCertificateData(
+  const transformedCertificateData = await transformCertificateData(
+    api,
+    manager,
+    blockHash,
+    blockNumber,
     blockId,
     certificateData
   );
   rootCertificateRepository.upsert(certificateId, transformedCertificateData);
 }
-function transformCertificateData(
+async function transformCertificateData(
+  api: ApiPromise,
+  manager: EntityManager,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   certificateData: RootCertificateType
-): RootCertificateModel {
+): Promise<RootCertificateModel> {
   const {
     owner,
     key,
@@ -323,9 +279,27 @@ function transformCertificateData(
     child_revocations,
   } = certificateData;
 
+  const keyAccount = await getOrCreateAccount(
+    api,
+    manager,
+    key.toHuman(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+
+  const ownerAccount = await getOrCreateAccount(
+    api,
+    manager,
+    owner.toHuman(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+
   return {
-    owner: owner.toHuman(),
-    key: key.toHuman(),
+    ownerId: ownerAccount.accountId,
+    keyId: keyAccount.accountId,
     created: created.toString(),
     renewed: renewed.toString(),
     revoked: revoked.toHuman(),
@@ -428,4 +402,36 @@ export async function saveValidator(
     consumers: consumers.toNumber(),
     providers: providers.toNumber(),
   });
+}
+
+export async function getOrCreateAccount(
+  api: ApiPromise,
+  entityManager: EntityManager,
+  accountAddress: string,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
+  blockId: number
+): Promise<AccountModel> {
+  const accountRepository = entityManager.getCustomRepository(
+    AccountRepository
+  );
+
+  const account = await accountRepository.findByAddress(accountAddress);
+  if (account) {
+    return account;
+  } else {
+    const accountInfo = await tryFetchAccount(
+      api,
+      accountAddress,
+      blockHash,
+      blockNumber
+    );
+
+    return await saveAccount(
+      entityManager,
+      accountAddress.toString(),
+      accountInfo,
+      blockId
+    );
+  }
 }

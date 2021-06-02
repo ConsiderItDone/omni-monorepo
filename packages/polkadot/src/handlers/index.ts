@@ -33,7 +33,14 @@ export async function handleTrackedEvents(
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          await handleRootOfTrust(manager, event, api, blockId, blockNumber);
+          await handleRootOfTrust(
+            manager,
+            event,
+            api,
+            blockId,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.VestingSchedule:
           await handleVestingSchedule(
@@ -46,7 +53,14 @@ export async function handleTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          await handleApplication(manager, event, blockId, api, blockNumber);
+          await handleApplication(
+            manager,
+            event,
+            blockId,
+            api,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.Balance:
           await handleBalance(

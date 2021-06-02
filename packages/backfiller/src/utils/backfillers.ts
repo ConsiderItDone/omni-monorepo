@@ -26,6 +26,7 @@ import {
 } from "@nodle/utils/src/types";
 import { logger } from "@nodle/utils/src/logger";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
+import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import {
   handleBalance,
   handleRootOfTrust,
@@ -49,7 +50,14 @@ export async function backfillTrackedEvents(
     for (const event of trackedEvents) {
       switch (event.section) {
         case CustomEventSection.RootOfTrust:
-          await handleRootOfTrust(manager, event, api, blockId, blockNumber);
+          await handleRootOfTrust(
+            manager,
+            event,
+            api,
+            blockId,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.VestingSchedule:
           await handleVestingSchedule(
@@ -62,7 +70,14 @@ export async function backfillTrackedEvents(
           );
           break;
         case CustomEventSection.Application:
-          await backfillApplication(manager, event, blockId, api, blockNumber);
+          await backfillApplication(
+            manager,
+            event,
+            blockId,
+            api,
+            blockNumber,
+            blockHash
+          );
           break;
         case CustomEventSection.Balance:
           await handleBalance(
@@ -88,7 +103,8 @@ export async function backfillApplication(
   event: Event,
   blockId: number,
   api: ApiPromise,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
     const accountId = event.data[0].toString();
@@ -97,6 +113,7 @@ export async function backfillApplication(
     const applicationRepository = manager.getCustomRepository(
       ApplicationRepository
     );
+    const accountRepository = manager.getCustomRepository(AccountRepository);
     switch (event.method) {
       case "NewApplication": {
         applicationData = await tryFetchApplication(
@@ -106,8 +123,10 @@ export async function backfillApplication(
           blockNumber
         );
         if (applicationIsEmpty(applicationData)) return;
+
+        const account = await accountRepository.findByAddress(accountId);
         const existingApplication = await applicationRepository.findCandidate(
-          accountId
+          account.accountId
         );
         if (existingApplication) return;
         break;
@@ -122,15 +141,21 @@ export async function backfillApplication(
 
         if (applicationIsEmpty(applicationData)) return;
 
-        const candidate = await applicationRepository.findOne({
-          candidate: applicationData.candidate.toString(),
-        });
+        const candidateAcc = await accountRepository.findByAddress(
+          applicationData.candidate.toString()
+        );
+
+        const candidate = await applicationRepository.findCandidate(
+          candidateAcc.accountId
+        );
         if (candidate) return;
         else applicationStatus = ApplicationStatus.accepted;
         break;
       }
       case "ApplicationCountered": {
-        const counteredAcc = event.data[0].toString();
+        const counteredAcc = await accountRepository.findByAddress(
+          event.data[0].toString()
+        );
         const acceptedApplication = await tryFetchApplication(
           api,
           ApplicationFetchMethods.Challenges,
@@ -138,13 +163,13 @@ export async function backfillApplication(
           blockNumber
         );
         const existingApp = await applicationRepository.findCandidate(
-          counteredAcc
+          counteredAcc.accountId
         );
         if (!applicationIsEmpty(acceptedApplication)) return;
         if (existingApp.status === ApplicationStatus.pending) {
           await changeApplicationStatus(
             manager,
-            counteredAcc,
+            counteredAcc.accountId,
             ApplicationStatus.countered
           );
         }
@@ -204,9 +229,12 @@ export async function backfillApplication(
         return;
     }
     await upsertApplication(
+      api,
       manager,
       accountId,
       (applicationData as undefined) as ApplicationType,
+      blockHash,
+      blockNumber,
       blockId,
       applicationStatus
     );

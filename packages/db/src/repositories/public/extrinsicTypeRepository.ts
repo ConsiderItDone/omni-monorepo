@@ -1,15 +1,15 @@
 import { EntityRepository, Repository } from "typeorm";
-import EventType from "../../models/public/eventType";
+import ExtrinsicType from "../../models/public/extrinsicType";
 
-@EntityRepository(EventType)
-export default class EventTypeRepository extends Repository<EventType> {
+@EntityRepository(ExtrinsicType)
+export default class ExtrinsicTypeRepository extends Repository<ExtrinsicType> {
   public async addOrIgnore({
     name,
     moduleId,
   }: {
     name: string;
     moduleId: number;
-  }): Promise<EventType> {
+  }): Promise<ExtrinsicType> {
     const type = await this.findOne({
       name,
     });
