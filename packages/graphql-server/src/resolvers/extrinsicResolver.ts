@@ -200,4 +200,14 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   signer(@Root() source: Extrinsic): Promise<Account> {
     return singleFieldResolver(source, Account, "accountId", "signerId");
   }
+
+  @FieldResolver()
+  module(@Root() source: Extrinsic): Promise<Module> {
+    return singleFieldResolver(source, Module, "moduleId");
+  }
+
+  @FieldResolver()
+  extrinsicType(@Root() source: Extrinsic): Promise<ExtrinsicType> {
+    return singleFieldResolver(source, ExtrinsicType, "extrinsicTypeId");
+  }
 }
