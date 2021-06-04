@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, Index, OneToOne, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
 import Block from "./block";
@@ -32,7 +32,7 @@ export default class Balance extends BaseEntity {
   public accountId: number;
 
   @Field(() => Account, { nullable: true })
-  @OneToOne(() => Account, (account) => account.balance)
+  @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 

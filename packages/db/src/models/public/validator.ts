@@ -19,7 +19,7 @@ export default class Validator extends BaseEntity {
   public providers: number;
 
   @Field(() => Int)
-  @Column("integer", { name: "account_id" })
+  @Column("integer", { name: "account_id", unique: true })
   public accountId: number;
 
   @Field(() => Account)
