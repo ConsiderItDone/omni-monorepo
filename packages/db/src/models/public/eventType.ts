@@ -11,7 +11,7 @@ export default class EventType extends BaseEntity {
   public eventTypeId: number;
 
   @Field(() => String)
-  @Column("character varying", { name: "name", unique: true })
+  @Column("character varying", { name: "name" })
   public name: string;
 
   @Field(() => Int)
