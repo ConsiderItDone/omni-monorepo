@@ -25,7 +25,8 @@
       "./packages/indexer",
       "./packages/graphql-server",
       "./packages/backfiller",
-      "./packages/polkadot"
+      "./packages/polkadot",
+      "./packages/test"
     ]
   },
   "repository": {
