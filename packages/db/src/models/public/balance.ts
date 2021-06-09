@@ -7,27 +7,27 @@ import Block from "./block";
 @Index("balance_pk", ["balanceId"], { unique: true })
 @Entity("balance", { schema: "public" })
 export default class Balance extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "free" })
   public free: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "reserved" })
   public reserved: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "misc_frozen" })
   public miscFrozen: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "fee_frozen" })
   public feeFrozen: string;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column("integer", { name: "account_id" })
   public accountId: number;
 
