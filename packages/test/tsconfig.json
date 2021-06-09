@@ -17,7 +17,8 @@
     "outDir": "dist",
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "types": ["jest", "@types/node"]
   },
   "files": ["index.ts"]
 }
