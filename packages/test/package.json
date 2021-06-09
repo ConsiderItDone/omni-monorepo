@@ -12,13 +12,17 @@
   "scripts": {
     "build": "npm exec tsc",
     "prepare": "npm run build",
-    "start:test": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts"
+    "start:test": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
+    "start:jest": "npx jest --detectOpenHandles --runInBand"
   },
   "devDependencies": {
     "@polkadot/api": "^3.11.1",
+    "@types/jest": "^26.0.23",
     "@types/node": "^14.14.35"
   },
   "dependencies": {
+    "jest": "^27.0.4",
+    "ts-jest": "^27.0.3",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   }
