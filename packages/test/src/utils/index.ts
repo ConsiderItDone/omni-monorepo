@@ -41,7 +41,7 @@ export function getExtrinsics(): Extrinsics<
 export async function signAndSend(
   fn: SubmittableExtrinsicFunction<"promise">,
   ...args: any[]
-) {
+): Promise<void> {
   const sender = this.sender;
   const unsub = await fn(...args).signAndSend(
     sender,
@@ -67,7 +67,6 @@ export async function signAndSend(
       });
     }
   );
-  return this;
 }
 
 function logArgs(func: SubmittableExtrinsicFunction<"promise">) {

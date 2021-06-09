@@ -1,41 +1,26 @@
-import { ApiPromise } from "@polkadot/api";
-import { Signer, SubmittableExtrinsicFunction } from "@polkadot/api/types";
-
+import { ApiPromise, Keyring } from "@polkadot/api";
+import { SubmittableExtrinsicFunction } from "@polkadot/api/types";
+import type { KeyringPair } from "@polkadot/keyring/types";
 import { Extrinsics, getExtrinsics, signAndSend } from "./utils";
 
 class Tester {
-  sender: any;
+  sender: KeyringPair;
   api: ApiPromise;
   extrinsics: Extrinsics<SubmittableExtrinsicFunction<"promise">>;
 
   getExtrinsics = getExtrinsics.bind(this);
-  signAndSend = signAndSend.bind(this);
+  signAndSend: (
+    fn: SubmittableExtrinsicFunction<"promise">,
+    ...args: any[]
+  ) => Promise<void> = signAndSend.bind(this);
 
-  constructor(api: ApiPromise, sender: any) {
+  constructor(api: ApiPromise, sender: KeyringPair) {
     this.api = api;
     this.sender = sender;
     this.extrinsics = this.getExtrinsics();
   }
 
-  async changeSender(newSender: string) {
-    await this.api.query.system
-      .account(newSender)
-      .then((data) => {
-        data && this.sender === newSender;
-        console.log("Sender succesfully changed, new sender -", this.sender);
-      })
-      .catch((e) => {
-        console.log(
-          "Received error fetching account :",
-          newSender,
-          "\nError message:",
-          e.message
-        );
-      });
-    return this;
-  }
-
-  allocate = (to: string, amount: number, proof: any) =>
+  allocate = (to: string, amount: number, proof: string) =>
     this.signAndSend(this.extrinsics.allocate, to, amount, proof);
 
   transfer = (dest: string, value: number) =>
