@@ -16,9 +16,16 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ]
     },
-    "types": ["jest", "@types/node"]
+    "types": [
+      "jest",
+      "@types/node"
+    ]
   },
-  "files": ["index.ts"]
+  "files": [
+    "index.ts"
+  ]
 }
