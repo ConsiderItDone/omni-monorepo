@@ -42,6 +42,7 @@ export async function handleTrackedEvents(
           break;
         case CustomEventSection.Allocation:
           await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
+          break;
         default:
           return;
       }
