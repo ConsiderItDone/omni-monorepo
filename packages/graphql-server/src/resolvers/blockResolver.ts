@@ -14,9 +14,11 @@ const BlockBaseResolver = createBaseResolver("Block", Block);
 @Resolver(Block)
 export default class BlockResolver extends BlockBaseResolver {
   @Query(() => Block, { nullable: true })
-  async blockByBlockNumber(
-    @Arg("number") number: string
-  ): Promise<Block | null> {
+  async lastFinalizedBlock(): Promise<Block | null> {
+    return await Block.findOne({ finalized: true }, { order: { number: "DESC" } });
+  }
+  @Query(() => Block, { nullable: true })
+  async blockByBlockNumber(@Arg("number") number: string): Promise<Block | null> {
     try {
       if (BigInt(number) > Number.MAX_SAFE_INTEGER) {
         // wrong number

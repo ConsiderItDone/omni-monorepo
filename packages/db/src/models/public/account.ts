@@ -1,16 +1,7 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  JoinColumn,
-  OneToOne,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
-import { Balance, Validator } from "..";
+import { Application, RootCertificate, Validator } from "..";
 import Extrinsic from "./extrinsic";
 
 @ObjectType()
@@ -33,16 +24,8 @@ export default class Account extends BaseEntity {
   @Column("integer", { name: "refcount", nullable: true })
   public refcount: number;
 
-  @Field(() => Balance, { nullable: true })
-  @OneToOne(() => Balance, (balance) => balance.account, { nullable: true })
-  // @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
-  public balance: Balance;
-
   @Field(() => [VestingSchedule], { nullable: true })
-  @OneToMany(
-    () => VestingSchedule,
-    (vestingSchedule) => vestingSchedule.account
-  )
+  @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.account)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public vestingSchedules: VestingSchedule[];
 
@@ -54,4 +37,24 @@ export default class Account extends BaseEntity {
   @OneToMany(() => Extrinsic, (extrinsic) => extrinsic.signer)
   @JoinColumn([{ name: "signer_id", referencedColumnName: "signerId" }])
   public extrinsics: Extrinsic[];
+
+  @Field(() => [RootCertificate], { nullable: true })
+  @OneToMany(() => RootCertificate, (cert) => cert.owner)
+  @JoinColumn([{ name: "owner_id", referencedColumnName: "ownerId" }])
+  public rootCertificatesByOwner: RootCertificate[];
+
+  @Field(() => [RootCertificate], { nullable: true })
+  @OneToMany(() => RootCertificate, (cert) => cert.key)
+  @JoinColumn([{ name: "key_id", referencedColumnName: "keyId" }])
+  public rootCertificatesByKey: RootCertificate[];
+
+  @Field(() => [Application], { nullable: true })
+  @OneToMany(() => Application, (app) => app.candidate)
+  @JoinColumn([{ name: "candidate_id", referencedColumnName: "candidateId" }])
+  public applicationsByCandidate: Application[];
+
+  @Field(() => [Application], { nullable: true })
+  @OneToMany(() => Application, (app) => app.challenger)
+  @JoinColumn([{ name: "challenger_id", referencedColumnName: "challengerId" }])
+  public applicationsByChallenger: Application[];
 }

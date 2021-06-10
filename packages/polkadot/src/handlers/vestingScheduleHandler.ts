@@ -1,9 +1,6 @@
 import { ApiPromise } from "@polkadot/api";
 import { EntityManager } from "typeorm";
-import type {
-  AccountId,
-  BlockNumber,
-} from "@polkadot/types/interfaces/runtime";
+import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
@@ -22,9 +19,7 @@ export async function handleVestingSchedule(
 ): Promise<void> {
   try {
     let targetAccount = event.data[0];
-    const vestingScheduleRepository = manager.getCustomRepository(
-      VestingScheduleRepository
-    );
+    const vestingScheduleRepository = manager.getCustomRepository(VestingScheduleRepository);
 
     switch (event.method) {
       case "VestingScheduleAdded": {
@@ -42,29 +37,14 @@ export async function handleVestingSchedule(
     }
     let grants: VestingScheduleOf[];
 
-    const accountInfo = await tryFetchAccount(
-      api,
-      targetAccount as AccountId,
-      blockHash,
-      blockNumber
-    );
-    const { accountId } = await saveAccount(
-      manager,
-      targetAccount as AccountId,
-      accountInfo,
-      blockId
-    );
+    const accountInfo = await tryFetchAccount(api, targetAccount as AccountId, blockHash, blockNumber);
+    const { accountId } = await saveAccount(manager, targetAccount as AccountId, accountInfo, blockId);
 
     try {
-      grants = ((await api.query.grants.vestingSchedules(
-        targetAccount
-      )) as undefined) as VestingScheduleOf[];
+      grants = ((await api.query.grants.vestingSchedules(targetAccount)) as undefined) as VestingScheduleOf[];
     } catch (grantsFetchError) {
       logger.error(
-        LOGGER_ERROR_CONST.VESTING_SCHEDULE_FETCH_ERROR(
-          targetAccount.toString(),
-          blockNumber.toNumber()
-        ),
+        LOGGER_ERROR_CONST.VESTING_SCHEDULE_FETCH_ERROR(targetAccount.toString(), blockNumber.toNumber()),
         grantsFetchError
       );
     }
@@ -85,10 +65,7 @@ export async function handleVestingSchedule(
           });
         } catch (grantSaveError) {
           logger.error(
-            LOGGER_ERROR_CONST.VESTING_SCHEDULE_SAVE_ERROR(
-              targetAccount.toString(),
-              blockNumber.toNumber()
-            ),
+            LOGGER_ERROR_CONST.VESTING_SCHEDULE_SAVE_ERROR(targetAccount.toString(), blockNumber.toNumber()),
             grantSaveError
           );
         }

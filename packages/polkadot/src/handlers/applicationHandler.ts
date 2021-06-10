@@ -3,25 +3,20 @@ import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
-import {
-  upsertApplication,
-  tryFetchApplication,
-  ApplicationFetchMethods,
-} from "../misc";
+import { upsertApplication, tryFetchApplication, ApplicationFetchMethods } from "../misc";
 
-import {
-  Application as ApplicationType,
-  ApplicationStatus,
-} from "@nodle/utils/src/types";
+import { Application as ApplicationType, ApplicationStatus } from "@nodle/utils/src/types";
 
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleApplication(
   manager: EntityManager,
   event: Event,
   blockId: number,
   api: ApiPromise,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
     const accountAddress = event.data[0].toString(); // may be reassigned
@@ -40,12 +35,7 @@ export async function handleApplication(
         break;
       }
       case "ApplicationPassed": {
-        applicationData = await tryFetchApplication(
-          api,
-          ApplicationFetchMethods.Members,
-          accountAddress,
-          blockNumber
-        );
+        applicationData = await tryFetchApplication(api, ApplicationFetchMethods.Members, accountAddress, blockNumber);
         applicationStatus = ApplicationStatus.passed;
         break;
       }
@@ -114,18 +104,18 @@ export async function handleApplication(
     }
     try {
       await upsertApplication(
+        api,
         manager,
         accountAddress,
         (applicationData as undefined) as ApplicationType,
+        blockHash,
+        blockNumber,
         blockId,
         applicationStatus
       );
     } catch (applicationUpsertError) {
       logger.error(
-        LOGGER_ERROR_CONST.APPLICATION_UPSERT_ERROR(
-          accountAddress,
-          blockNumber.toNumber()
-        ),
+        LOGGER_ERROR_CONST.APPLICATION_UPSERT_ERROR(accountAddress, blockNumber.toNumber()),
         applicationUpsertError
       );
     }

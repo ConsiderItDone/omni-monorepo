@@ -51,77 +51,51 @@ function getSavedString(type: string, params: savedDataParams): string {
 }
 
 export const LOGGER_INFO_CONST = {
-  BLOCK_RECEIVED: (blockNumber: number): string =>
-    getReceivedString("block", null, blockNumber),
-  BLOCK_SAVED: (params: savedDataParams): string =>
-    getSavedString("block", params),
-  BLOCK_DUPLICATE: (params: savedDataParams): string =>
-    `Block №: ${params.blockNumber} already in DB, skipping`,
+  BLOCK_RECEIVED: (blockNumber: number): string => getReceivedString("block", null, blockNumber),
+  BLOCK_SAVED: (params: savedDataParams): string => getSavedString("block", params),
+  BLOCK_DUPLICATE: (params: savedDataParams): string => `Block №: ${params.blockNumber} already in DB, skipping`,
 
-  EVENTS_RECEIVED: (length: number, blockNumber: number): string =>
-    getReceivedString("events", length, blockNumber),
-  EVENTS_SAVED: (params: savedDataParams): string =>
-    getSavedString("events", params),
+  EVENTS_RECEIVED: (length: number, blockNumber: number): string => getReceivedString("events", length, blockNumber),
+  EVENTS_SAVED: (params: savedDataParams): string => getSavedString("events", params),
 
-  LOGS_RECEIVED: (length: number, blockNumber: number): string =>
-    getReceivedString("logs", length, blockNumber),
-  LOGS_SAVED: (params: savedDataParams): string =>
-    getSavedString("logs", params),
+  LOGS_RECEIVED: (length: number, blockNumber: number): string => getReceivedString("logs", length, blockNumber),
+  LOGS_SAVED: (params: savedDataParams): string => getSavedString("logs", params),
 
   EXTRINSICS_RECEIVED: (length: number, blockNumber: number): string =>
     getReceivedString("extrinsics", length, blockNumber),
-  EXTRINSICS_SAVED: (params: savedDataParams): string =>
-    getSavedString("extrinsics", params),
+  EXTRINSICS_SAVED: (params: savedDataParams): string => getSavedString("extrinsics", params),
 
   CUSTOM_EVENTS_RECEIVED: (length: number, blockNumber: number): string =>
     getReceivedString("tracked events", length, blockNumber),
 
-  ROOT_OF_TRUST_RECEIVED: (blockNumber: number): string =>
-    getCustomEventReceivedString("root of trust", blockNumber),
+  ROOT_OF_TRUST_RECEIVED: (blockNumber: number): string => getCustomEventReceivedString("root of trust", blockNumber),
 };
 
 const saveErrorPrefix = "Received error saving";
 const fetchingErrorPrefix = "Received error fetching";
 export const LOGGER_ERROR_CONST = {
-  BLOCK_SAVE_ERROR: (blockNumber: number): string =>
-    `${saveErrorPrefix} block №: ${blockNumber}`,
+  BLOCK_SAVE_ERROR: (blockNumber: number): string => `${saveErrorPrefix} block №: ${blockNumber}`,
   EVENT_SAVE_ERROR: (event: string, blockNumber: number): string =>
     `${saveErrorPrefix} event ${event} at block № ${blockNumber}`,
-  LOGS_SAVE_ERROR: (blockNumber: number): string =>
-    `${saveErrorPrefix} logs at block №: ${blockNumber}`,
-  EXTRINSICS_SAVE_ERROR: (blockNumber: number): string =>
-    `${saveErrorPrefix} extrinsics at block №: ${blockNumber}`,
+  LOGS_SAVE_ERROR: (blockNumber: number): string => `${saveErrorPrefix} logs at block №: ${blockNumber}`,
+  EXTRINSICS_SAVE_ERROR: (blockNumber: number): string => `${saveErrorPrefix} extrinsics at block №: ${blockNumber}`,
 
   ROOT_CERTIFICATE_FETCH_ERROR: (certificateId: string): string =>
     `${fetchingErrorPrefix} root certificate for ${certificateId}`,
   ROOT_CERTIFICATE_UPSERT_ERROR: (blockNumber: number): string =>
     `${saveErrorPrefix} root certificate at block №: ${blockNumber}`,
 
-  VESTING_SCHEDULE_SAVE_ERROR: (
-    accountAddress: string,
-    blockNumber: number
-  ): string =>
+  VESTING_SCHEDULE_SAVE_ERROR: (accountAddress: string, blockNumber: number): string =>
     `${saveErrorPrefix} vesting schedule for ${accountAddress} at block № ${blockNumber}`,
-  VESTING_SCHEDULE_FETCH_ERROR: (
-    accountAddress: string,
-    blockNumber: number
-  ): string =>
+  VESTING_SCHEDULE_FETCH_ERROR: (accountAddress: string, blockNumber: number): string =>
     `${fetchingErrorPrefix} vesting schedules for ${accountAddress} at block №: ${blockNumber} `,
 
-  APPLICATION_FETCH_ERROR: (
-    fetchMethod: string,
-    accoundAddress: string,
-    blockNumber: number
-  ): string =>
+  APPLICATION_FETCH_ERROR: (fetchMethod: string, accoundAddress: string, blockNumber: number): string =>
     `${fetchingErrorPrefix} application for account '${accoundAddress}' with method 'api.query.pkiTcr.${fetchMethod}' at block №: ${blockNumber}`,
-  APPLICATION_UPSERT_ERROR: (
-    accountAddress: string,
-    blockNumber: number
-  ): string =>
+  APPLICATION_UPSERT_ERROR: (accountAddress: string, blockNumber: number): string =>
     `${saveErrorPrefix} applicatin for ${accountAddress} at block № ${blockNumber}`,
 
   ACCOUNT_FETCH_ERROR: (accountAddress: string, blockNumber: number): string =>
     `${fetchingErrorPrefix} account '${accountAddress}' at block №: ${blockNumber}`,
-  ACCOUNT_SAVE_ERROR: (blockNumber: number): string =>
-    `${saveErrorPrefix} one of accounts at block № ${blockNumber}`,
+  ACCOUNT_SAVE_ERROR: (blockNumber: number): string => `${saveErrorPrefix} one of accounts at block № ${blockNumber}`,
 };

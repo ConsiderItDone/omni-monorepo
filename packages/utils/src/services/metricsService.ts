@@ -1,11 +1,5 @@
 import express, { Express } from "express";
-import {
-  register,
-  Histogram,
-  Counter,
-  Gauge,
-  collectDefaultMetrics,
-} from "prom-client";
+import { register, Histogram, Counter, Gauge, collectDefaultMetrics } from "prom-client";
 
 export default class MetricsService {
   server: Express;
@@ -78,8 +72,6 @@ export default class MetricsService {
   }
 
   addBlockToCounter(blockNumber?: string, time?: number): void {
-    this.blockCounter.inc(
-      blockNumber && time ? { block_number: blockNumber, time: time } : null
-    );
+    this.blockCounter.inc(blockNumber && time ? { block_number: blockNumber, time: time } : null);
   }
 }

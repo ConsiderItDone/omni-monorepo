@@ -1,14 +1,7 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
+import Account from "./account";
 
 @ObjectType()
 @Index("root_certificate_pk", ["rootCertificateId"], { unique: true })
@@ -18,13 +11,23 @@ export default class RootCertificate extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "root_certificate_id" })
   public rootCertificateId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "owner" })
-  public owner: string;
+  @Field(() => Int)
+  @Column("integer", { name: "owner_id", nullable: true })
+  public ownerId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "key" })
-  public key: string;
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.accountId)
+  @JoinColumn([{ name: "owner_id", referencedColumnName: "accountId" }])
+  public owner: Account;
+
+  @Field(() => Int)
+  @Column("integer", { name: "key_id", nullable: true })
+  public keyId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.accountId)
+  @JoinColumn([{ name: "key_id", referencedColumnName: "accountId" }])
+  public key: Account;
 
   @Field(() => String)
   @Column("bigint", { name: "created" })

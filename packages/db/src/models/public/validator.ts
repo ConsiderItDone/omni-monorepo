@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
 import { Field, ID, Int, ObjectType } from "type-graphql";
 import { Account } from "@nodle/db/src/models";
 
@@ -27,7 +19,7 @@ export default class Validator extends BaseEntity {
   public providers: number;
 
   @Field(() => Int)
-  @Column("integer", { name: "account_id" })
+  @Column("integer", { name: "account_id", unique: true })
   public accountId: number;
 
   @Field(() => Account)

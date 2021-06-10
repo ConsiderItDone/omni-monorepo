@@ -19,7 +19,7 @@ export default class BalanceResolver extends BalanceBaseResolver {
       .addOrderBy("block.number", "DESC")
       .getOne();
 
-    return balance;
+    return balance || ({} as any); // eslint-disable-line
   }
 
   @FieldResolver()

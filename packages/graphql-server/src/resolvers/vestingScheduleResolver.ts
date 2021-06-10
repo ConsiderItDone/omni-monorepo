@@ -5,10 +5,7 @@ import Account from "@nodle/db/src/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 
-const VestingScheduleBaseResolver = createBaseResolver(
-  "VestingSchedule",
-  VestingSchedule
-);
+const VestingScheduleBaseResolver = createBaseResolver("VestingSchedule", VestingSchedule);
 
 @Resolver(VestingSchedule)
 export default class VestingScheduleResolver extends VestingScheduleBaseResolver {

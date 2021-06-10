@@ -5,19 +5,9 @@ import type { Vec } from "@polkadot/types";
 
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import {
-  findExtrinsicsWithEventsHash,
-  transformEventData,
-} from "@nodle/polkadot/src/misc";
-import {
-  ExtrinsicWithBoundedEvents,
-  CustomEventSection,
-} from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { findExtrinsicsWithEventsHash, transformEventData } from "@nodle/polkadot/src/misc";
+import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/src/types";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { default as EventModel } from "@nodle/db/src/models/public/event";
 import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepository";
 import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
@@ -30,17 +20,11 @@ export async function handleEvents(
   blockNumber: BlockNumber
 ): Promise<[EventModel[], Event[]]> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.EVENTS_RECEIVED(events.length, blockNumber?.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.EVENTS_RECEIVED(events.length, blockNumber?.toNumber()));
 
     const eventRepository = manager.getCustomRepository(EventRepository);
-    const eventTypeRepository = manager.getCustomRepository(
-      EventTypeRepository
-    );
-    const extrinsicRepository = manager.getCustomRepository(
-      ExtrinsicRepository
-    );
+    const eventTypeRepository = manager.getCustomRepository(EventTypeRepository);
+    const extrinsicRepository = manager.getCustomRepository(ExtrinsicRepository);
     const moduleRepository = manager.getCustomRepository(ModuleRepository);
 
     const trackedEvents: Event[] = [];
@@ -48,25 +32,19 @@ export async function handleEvents(
 
     for (const [index, eventRecord] of events.entries()) {
       const { method, section, data } = eventRecord.event;
-      if (
-        (Object.values(CustomEventSection) as string[]).includes(
-          eventRecord.event.section
-        )
-      ) {
+      if ((Object.values(CustomEventSection) as string[]).includes(eventRecord.event.section)) {
         trackedEvents.push(eventRecord.event);
       }
-      const extrinsicHash = findExtrinsicsWithEventsHash(
-        extrinsicsWithBoundedEvents,
-        eventRecord
-      );
+      const extrinsicHash = findExtrinsicsWithEventsHash(extrinsicsWithBoundedEvents, eventRecord);
       const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
       try {
-        const type = await eventTypeRepository.addOrIgnore({
-          name: method,
-        });
-
         const module = await moduleRepository.addOrIgnore({
           name: section,
+        });
+
+        const type = await eventTypeRepository.addOrIgnore({
+          name: method,
+          moduleId: module.moduleId,
         });
 
         const event = await eventRepository.add({
@@ -81,10 +59,7 @@ export async function handleEvents(
         newEvents.push(event);
       } catch (eventSaveError) {
         logger.error(
-          LOGGER_ERROR_CONST.EVENT_SAVE_ERROR(
-            `${section}.${method}`,
-            blockNumber.toNumber()
-          ),
+          LOGGER_ERROR_CONST.EVENT_SAVE_ERROR(`${section}.${method}`, blockNumber.toNumber()),
           eventSaveError
         );
       }

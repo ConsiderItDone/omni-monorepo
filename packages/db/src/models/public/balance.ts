@@ -1,13 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  OneToOne,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
 import Block from "./block";
@@ -16,32 +7,32 @@ import Block from "./block";
 @Index("balance_pk", ["balanceId"], { unique: true })
 @Entity("balance", { schema: "public" })
 export default class Balance extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "free" })
   public free: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "reserved" })
   public reserved: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "misc_frozen" })
   public miscFrozen: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column("character varying", { name: "fee_frozen" })
   public feeFrozen: string;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column("integer", { name: "account_id" })
   public accountId: number;
 
   @Field(() => Account, { nullable: true })
-  @OneToOne(() => Account, (account) => account.balance)
+  @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
   public account: Account;
 

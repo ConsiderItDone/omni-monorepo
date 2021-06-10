@@ -1,18 +1,11 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import { GraphQLJSON } from "graphql-type-json";
 import Event from "./event";
 import Account from "./account";
+import Module from "./module";
+import ExtrinsicType from "./extrinsicType";
 
 @ObjectType()
 @Index("extrinsic_pk", ["extrinsicId"], { unique: true })
@@ -38,13 +31,23 @@ export default class Extrinsic extends BaseEntity {
   @Column("character varying", { name: "call_code" })
   public callCode: string;
 
-  @Field(() => String)
-  @Column("character varying", { name: "call_module_function" })
-  public callModuleFunction: string;
+  @Field(() => Int)
+  @Column("integer", { name: "extrinsic_type_id", nullable: true })
+  public extrinsicTypeId: number;
 
-  @Field(() => String)
-  @Column("character varying", { name: "call_module" })
-  public callModule: string;
+  @Field(() => ExtrinsicType, { nullable: true })
+  @ManyToOne(() => ExtrinsicType, (m) => m.extrinsicTypeId)
+  @JoinColumn([{ name: "extrinsic_type_id", referencedColumnName: "extrinsicTypeId" }])
+  public extrinsicType: ExtrinsicType;
+
+  @Field(() => Int)
+  @Column("integer", { name: "module_id", nullable: true })
+  public moduleId: number;
+
+  @Field(() => Module, { nullable: true })
+  @ManyToOne(() => Module, (m) => m.moduleId)
+  @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  public module: Module;
 
   @Field(() => String)
   @Column("text", { name: "params" })

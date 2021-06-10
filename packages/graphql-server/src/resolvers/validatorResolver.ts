@@ -10,9 +10,7 @@ const ValidatorBaseResolver = createBaseResolver("Validator", Validator);
 @Resolver(Validator)
 export default class ValidatorResolver extends ValidatorBaseResolver {
   @Query(() => Validator, { nullable: true })
-  async validatorByAddress(
-    @Arg("address") address: string
-  ): Promise<Validator | null> {
+  async validatorByAddress(@Arg("address") address: string): Promise<Validator | null> {
     const validator = await getRepository(Validator).findOne({
       join: {
         alias: "validators",

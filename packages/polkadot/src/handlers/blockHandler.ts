@@ -4,11 +4,7 @@ import { u8aToHex } from "@polkadot/util";
 
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import Block from "@nodle/db/src/models/public/block";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 export async function handleNewBlock(
   manager: EntityManager,
@@ -17,9 +13,7 @@ export async function handleNewBlock(
   specVersion: number
 ): Promise<Block> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.BLOCK_RECEIVED(blockHeader.number.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.BLOCK_RECEIVED(blockHeader.number.toNumber()));
 
     const blockRepository = manager.getCustomRepository(BlockRepository);
 
@@ -44,15 +38,10 @@ export async function handleNewBlock(
         );
         return block;
       } else {
-        logger.info(
-          LOGGER_INFO_CONST.BLOCK_DUPLICATE({ blockNumber: number.toNumber() })
-        );
+        logger.info(LOGGER_INFO_CONST.BLOCK_DUPLICATE({ blockNumber: number.toNumber() }));
       }
     } catch (blockSaveError) {
-      logger.error(
-        LOGGER_ERROR_CONST.BLOCK_SAVE_ERROR(number.toNumber()),
-        blockSaveError
-      );
+      logger.error(LOGGER_ERROR_CONST.BLOCK_SAVE_ERROR(number.toNumber()), blockSaveError);
     }
   } catch (error) {
     logger.error(error);

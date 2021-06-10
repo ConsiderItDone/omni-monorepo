@@ -1,16 +1,9 @@
 import { EntityManager } from "typeorm";
-import type {
-  DigestItem,
-  BlockNumber,
-} from "@polkadot/types/interfaces/runtime";
+import type { DigestItem, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Vec } from "@polkadot/types";
 
 import LogRepository from "@nodle/db/src/repositories/public/logRepository";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import Log from "@nodle/db/src/models/public/log";
 
 export async function handleLogs(
@@ -20,9 +13,7 @@ export async function handleLogs(
   blockNumber: BlockNumber
 ): Promise<Log[]> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.LOGS_RECEIVED(logs.length, blockNumber?.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.LOGS_RECEIVED(logs.length, blockNumber?.toNumber()));
     const logRepository = manager.getCustomRepository(LogRepository);
 
     try {
@@ -50,10 +41,7 @@ export async function handleLogs(
 
       return newLogs;
     } catch (logsSaveError) {
-      logger.error(
-        LOGGER_ERROR_CONST.LOGS_SAVE_ERROR(blockNumber?.toNumber()),
-        logsSaveError
-      );
+      logger.error(LOGGER_ERROR_CONST.LOGS_SAVE_ERROR(blockNumber?.toNumber()), logsSaveError);
     }
   } catch (error) {
     logger.error(error);
