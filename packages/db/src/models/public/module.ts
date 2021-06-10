@@ -12,7 +12,7 @@ export default class Module extends BaseEntity {
   public moduleId: number;
 
   @Field(() => String)
-  @Column("character varying", { name: "name" })
+  @Column("character varying", { name: "name", unique: true })
   public name: string;
 
   @Field(() => [EventType], { nullable: true, defaultValue: [] })

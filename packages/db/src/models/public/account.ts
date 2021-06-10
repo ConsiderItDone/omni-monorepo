@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
-import { Application, Balance, RootCertificate, Validator } from "..";
+import { Application, RootCertificate, Validator } from "..";
 import Extrinsic from "./extrinsic";
 
 @ObjectType()
@@ -23,11 +23,6 @@ export default class Account extends BaseEntity {
   @Field(() => Number, { nullable: true })
   @Column("integer", { name: "refcount", nullable: true })
   public refcount: number;
-
-  @Field(() => Balance, { nullable: true })
-  @OneToOne(() => Balance, (balance) => balance.account, { nullable: true })
-  // @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
-  public balance: Balance;
 
   @Field(() => [VestingSchedule], { nullable: true })
   @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.account)

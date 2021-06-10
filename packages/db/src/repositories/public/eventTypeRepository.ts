@@ -6,6 +6,7 @@ export default class EventTypeRepository extends Repository<EventType> {
   public async addOrIgnore({ name, moduleId }: { name: string; moduleId: number }): Promise<EventType> {
     const type = await this.findOne({
       name,
+      moduleId,
     });
 
     if (type) {

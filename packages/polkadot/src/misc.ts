@@ -323,11 +323,11 @@ export async function saveValidator(
   accountId: number,
   accountAddress: AccountId,
   accountInfo: AccountInfoWithProviders
-): Promise<Validator> {
+): Promise<void | Validator> {
   const validatorRepository = entityManager.getCustomRepository(ValidatorRepository);
   const { consumers, providers } = accountInfo;
 
-  return await validatorRepository.upsert(accountAddress.toString(), {
+  return await validatorRepository.upsert({
     accountId,
     consumers: consumers.toNumber(),
     providers: providers.toNumber(),

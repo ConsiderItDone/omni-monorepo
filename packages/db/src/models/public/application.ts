@@ -28,7 +28,7 @@ export default class Application extends BaseEntity {
   public candidateId: number;
 
   @Field(() => Account, { nullable: true })
-  @ManyToOne(() => Account, (account) => account.balance)
+  @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "candidate_id", referencedColumnName: "accountId" }])
   public candidate: Account;
 
@@ -52,7 +52,7 @@ export default class Application extends BaseEntity {
   public challengerId: number;
 
   @Field(() => Account, { nullable: true })
-  @ManyToOne(() => Account, (account) => account.balance)
+  @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "challenger_id", referencedColumnName: "accountId" }])
   public challenger: Account;
 

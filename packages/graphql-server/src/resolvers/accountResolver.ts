@@ -3,8 +3,9 @@ import Account from "@nodle/db/src/models/public/account";
 import Balance from "@nodle/db/src/models/public/balance";
 import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
-import { arrayFieldResolver, singleFieldResolver } from "../fieldsResolver";
+import { arrayFieldResolver } from "../fieldsResolver";
 import { RootCertificate, Application } from "@nodle/db/src/models";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
@@ -20,9 +21,17 @@ export default class AccountResolver extends AccountBaseResolver {
     return account;
   }
 
-  @FieldResolver()
-  balance(@Root() source: Account): Promise<Balance> {
-    return singleFieldResolver(source, Balance, "accountId");
+  @FieldResolver(() => Balance, { nullable: true })
+  async balance(@Root() source: Account): Promise<Balance> {
+    const balance = await Balance.createQueryBuilder("balance")
+      .leftJoin(Account, "account", "account.accountId = balance.accountId")
+      .leftJoinAndSelect(Block, "block", "block.blockId = balance.blockId")
+      .where("balance.blockId is not null")
+      .andWhere(`account.address = :address`, { address: source.address })
+      .addOrderBy("block.number", "DESC")
+      .getOne();
+
+    return balance;
   }
 
   @FieldResolver()

@@ -16,23 +16,22 @@ export default class ValidatorRepository extends Repository<Validator> {
       providers,
     });
   }
-  public async findByAccountAddress(accountAddress: string): Promise<Validator> {
-    return await this.findOne({ account: { address: accountAddress } });
-  }
-  public async replace(validatorId: number, validatorData: NewValidatorParam): Promise<Validator> {
-    return await this.save({
-      validatorId,
-      ...validatorData,
-    });
+
+  public async findByAccountId(accountId: number): Promise<Validator> {
+    return await this.findOne({ accountId });
   }
 
-  public async upsert(accountAddress: string, validatorData: NewValidatorParam): Promise<Validator> {
-    const existingValidator = await this.findByAccountAddress(accountAddress);
+  public async replace(validatorId: number, validatorData: NewValidatorParam): Promise<void> {
+    await this.update(validatorId, validatorData);
+  }
+
+  public async upsert(validatorData: NewValidatorParam): Promise<void | Validator> {
+    const existingValidator = await this.findByAccountId(validatorData.accountId);
 
     if (existingValidator) {
       return await this.replace(existingValidator.validatorId, validatorData);
-    } else {
-      return await this.add(validatorData);
     }
+
+    return await this.add(validatorData);
   }
 }
