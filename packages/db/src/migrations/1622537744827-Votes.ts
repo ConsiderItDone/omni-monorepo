@@ -8,8 +8,8 @@ export class Votes1622537744827 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "public"."application" DROP COLUMN "account_id"`);
         await queryRunner.query(`ALTER TABLE "public"."application" ADD "candidate_id" integer`);
         await queryRunner.query(`ALTER TABLE "public"."application" ADD "challenger_id" integer`);
-        await queryRunner.query(`ALTER TABLE "public"."application" ADD CONSTRAINT "FK_7d1ecab63da5dcd0210b0b9c47f" FOREIGN KEY ("initiator_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "public"."application" ADD CONSTRAINT "FK_2141e3fad7235403b4e6b0ede02" FOREIGN KEY ("target_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "public"."application" ADD CONSTRAINT "FK_7d1ecab63da5dcd0210b0b9c47f" FOREIGN KEY ("candidate_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "public"."application" ADD CONSTRAINT "FK_2141e3fad7235403b4e6b0ede02" FOREIGN KEY ("challenger_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "public"."vote" ADD CONSTRAINT "FK_20ced0f40a4938ebd89be52ae36" FOREIGN KEY ("initiator_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "public"."vote" ADD CONSTRAINT "FK_5e2e341d6281a46d43674e10ca1" FOREIGN KEY ("target_id") REFERENCES "public"."account"("account_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "public"."vote" ADD CONSTRAINT "FK_69bd803920978a4513ef03c26f7" FOREIGN KEY ("application_id") REFERENCES "public"."application"("application_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
