@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Block, Account } from "../index";
 
@@ -34,7 +26,7 @@ export default class VestingSchedule extends BaseEntity {
   @Column("bigint", { name: "per_period", default: () => "0" })
   public perPeriod: string;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "account_id" })
   public accountId: number;
 

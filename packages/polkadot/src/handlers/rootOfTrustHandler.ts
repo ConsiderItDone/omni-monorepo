@@ -3,30 +3,26 @@ import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
-import { upsertRootCertificate } from "@nodle/polkadot/src/misc";
+import { getOrCreateAccount, upsertRootCertificate } from "@nodle/polkadot/src/misc";
 import { RootCertificate } from "@nodle/utils/src/types";
-import {
-  logger,
-  LOGGER_INFO_CONST,
-  LOGGER_ERROR_CONST,
-} from "@nodle/utils/src/logger";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleRootOfTrust(
   manager: EntityManager,
   event: Event,
   api: ApiPromise,
   blockId: number,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  blockHash: BlockHash
 ): Promise<void> {
   try {
-    logger.info(
-      LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber())
-    );
+    logger.info(LOGGER_INFO_CONST.ROOT_OF_TRUST_RECEIVED(blockNumber.toNumber()));
 
-    let certificateId = event?.data[0]?.toString() || "";
+    let certificateAddress = event?.data[0]?.toString() || "";
     switch (event.method) {
       case "SlotTaken":
-        certificateId = event.data[1].toString();
+        certificateAddress = event.data[1].toString();
         break;
       //case "SlotRenewed":
       //case "SlotRevoked":
@@ -36,29 +32,24 @@ export async function handleRootOfTrust(
     }
     let certificateData: RootCertificate;
     try {
-      certificateData = ((await api.query.pkiRootOfTrust.slots(
-        certificateId
-      )) as undefined) as RootCertificate;
+      certificateData = ((await api.query.pkiRootOfTrust.slots(certificateAddress)) as undefined) as RootCertificate;
     } catch (fetchError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateId),
-        fetchError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_FETCH_ERROR(certificateAddress), fetchError);
     }
     try {
+      const certificate = await getOrCreateAccount(api, manager, certificateAddress, blockHash, blockNumber, blockId);
+
       await upsertRootCertificate(
+        api,
         manager,
-        certificateId,
+        certificate.accountId,
         certificateData,
+        blockHash,
+        blockNumber,
         blockId
       );
     } catch (upsertingError) {
-      logger.error(
-        LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(
-          blockNumber.toNumber()
-        ),
-        upsertingError
-      );
+      logger.error(LOGGER_ERROR_CONST.ROOT_CERTIFICATE_UPSERT_ERROR(blockNumber.toNumber()), upsertingError);
     }
   } catch (error) {
     logger.error(error);

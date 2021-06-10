@@ -3,7 +3,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 export async function getApi(ws: string): Promise<ApiPromise> {
   const provider = new WsProvider(ws);
 
-  return ApiPromise.create({
+  return await ApiPromise.create({
     provider,
     types: {
       CertificateId: "AccountId",

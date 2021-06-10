@@ -1,16 +1,10 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-} from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from "typeorm";
+import { Field, ID, Int, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
+import { Account } from "../index";
+import Vote from "./vote";
 
 @ObjectType()
 @Index("application_pk", ["applicationId"], { unique: true })
@@ -20,7 +14,7 @@ export default class Application extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "application_id" })
   public applicationId: number;
 
-  @Field(() => Number)
+  @Field(() => Int)
   @Column("integer", { name: "block_id" })
   public blockId: number;
 
@@ -28,6 +22,19 @@ export default class Application extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.blockId)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => Int)
+  @Column("integer", { name: "candidate_id", nullable: true })
+  public candidateId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.accountId)
+  @JoinColumn([{ name: "candidate_id", referencedColumnName: "accountId" }])
+  public candidate: Account;
+
+  @Field(() => Number)
+  @Column("numeric", { name: "candidate_deposit" })
+  public candidateDeposit: number;
 
   @Field(() => String, { defaultValue: ApplicationStatus.pending })
   @Column("character varying", {
@@ -37,24 +44,17 @@ export default class Application extends BaseEntity {
   public status: string;
 
   @Field(() => String)
-  @Column("character varying", { name: "candidate" })
-  public candidate: string;
-
-  @Field(() => Number)
-  @Column("numeric", { name: "candidate_deposit" })
-  public candidateDeposit: number;
-
-  @Field(() => String)
   @Column("character varying", { name: "metadata", default: "" })
   public metadata: string;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "challenger",
-    nullable: true,
-    default: null,
-  })
-  public challenger: string | null;
+  @Field(() => Int)
+  @Column("integer", { name: "challenger_id", nullable: true })
+  public challengerId: number;
+
+  @Field(() => Account, { nullable: true })
+  @ManyToOne(() => Account, (account) => account.accountId)
+  @JoinColumn([{ name: "challenger_id", referencedColumnName: "accountId" }])
+  public challenger: Account;
 
   @Field(() => Number, { nullable: true })
   @Column("numeric", {
@@ -64,45 +64,16 @@ export default class Application extends BaseEntity {
   })
   public challengerDeposit: number | null;
 
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "votes_for",
-    nullable: true,
-    default: null,
-  })
-  public votesFor: string | null;
-
-  @Field(() => [String])
-  // TODO change to 'simple-array'
-  @Column("character varying", {
-    name: "voters_for",
-    array: true,
-    nullable: true,
-  })
-  public votersFor: string[];
-
-  @Field(() => String, { nullable: true })
-  @Column("character varying", {
-    name: "votes_against",
-    nullable: true,
-    default: null,
-  })
-  public votesAgainst: string | null;
-
-  @Field(() => [String])
-  // TODO change to 'simple-array'
-  @Column("character varying", {
-    name: "voters_against",
-    array: true,
-    nullable: true,
-  })
-  public votersAgainst: string[];
+  @Field(() => String)
+  @Column("bigint", { name: "created_block", nullable: true })
+  public createdBlock: string; // TODO: id block
 
   @Field(() => String)
-  @Column("bigint", { name: "created_block" })
-  public createdBlock: string;
+  @Column("bigint", { name: "challenged_block", nullable: true })
+  public challengedBlock: string; // TODO: id block
 
-  @Field(() => String)
-  @Column("bigint", { name: "challenged_block" })
-  public challengedBlock: string;
+  @Field(() => [Vote], { nullable: true, defaultValue: [] })
+  @OneToMany(() => Vote, (vote) => vote.application)
+  @JoinColumn([{ name: "vote_id", referencedColumnName: "voteId" }])
+  public votes: Vote[];
 }

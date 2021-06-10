@@ -1,10 +1,6 @@
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { Vec, Option, bool } from "@polkadot/types";
-import {
-  Balance,
-  BlockNumber,
-  AccountId,
-} from "@polkadot/types/interfaces/runtime";
+import { Balance, BlockNumber, AccountId } from "@polkadot/types/interfaces/runtime";
 import { u32, u8 } from "@polkadot/types";
 import { ITuple } from "@polkadot/types/types";
 
@@ -18,6 +14,7 @@ export enum CustomEventSection {
   VestingSchedule = "grants",
   Application = "pkiTcr",
   Balance = "balances",
+  Allocation = "allocations",
 }
 
 export type CertificateId = AccountId;

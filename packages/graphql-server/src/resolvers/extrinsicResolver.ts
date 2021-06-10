@@ -1,15 +1,4 @@
-import {
-  Resolver,
-  FieldResolver,
-  Root,
-  Query,
-  Arg,
-  Args,
-  ArgsType,
-  Field,
-  Int,
-  ObjectType,
-} from "type-graphql";
+import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";
@@ -19,6 +8,8 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { FindManyOptions, getConnection, getRepository, In } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
+import Module from "@nodle/db/src/models/public/module";
+import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -66,9 +57,7 @@ class ExtrinsicsByType {
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => [Extrinsic])
-  async extrinsicsByBlockNumber(
-    @Arg("number") number: string
-  ): Promise<Extrinsic[]> {
+  async extrinsicsByBlockNumber(@Arg("number") number: string): Promise<Extrinsic[]> {
     const extrinsics = await Extrinsic.createQueryBuilder("log")
       .leftJoin(Block, "block", "block.blockId = log.blockId")
       .where(`block.number = :number`, { number })
@@ -111,14 +100,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async extrinsics(
     @Args()
-    {
-      take,
-      skip,
-      callModule,
-      callFunction,
-      signedOnly,
-      signerId,
-    }: ExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly, signerId }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
@@ -135,6 +117,19 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       findOptions.where = Object.assign(findOptions.where || {}, { signerId });
     }
 
+    let module: Module;
+    if (callModule !== "All") {
+      module = await Module.findOne({
+        name: callModule,
+      });
+    }
+    let type: ExtrinsicType;
+    if (callFunction !== "All") {
+      type = await ExtrinsicType.findOne({
+        name: callFunction,
+      });
+    }
+
     let result;
 
     if (callModule === "All" && callFunction === "All") {
@@ -143,25 +138,26 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModule,
+          moduleId: module ? module.moduleId : null,
         },
       });
     } else if (callModule === "All") {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModuleFunction: callFunction,
+          extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
       });
     } else {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
-          callModule,
-          callModuleFunction: callFunction,
+          moduleId: module ? module.moduleId : null,
+          extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
       });
     }
+
     return { items: result[0], totalCount: result[1] };
   }
 
@@ -187,7 +183,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @FieldResolver()
   async events(
     @Root() source: Extrinsic,
-    @Arg("eventNames", () => [String]) eventNames?: [string]
+    @Arg("eventNames", () => [String], { nullable: true }) eventNames?: [string]
   ): Promise<Event[]> {
     const where = {} as any; // eslint-disable-line
     if (eventNames && !eventNames.includes("All")) {
@@ -203,5 +199,15 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @FieldResolver()
   signer(@Root() source: Extrinsic): Promise<Account> {
     return singleFieldResolver(source, Account, "accountId", "signerId");
+  }
+
+  @FieldResolver()
+  module(@Root() source: Extrinsic): Promise<Module> {
+    return singleFieldResolver(source, Module, "moduleId");
+  }
+
+  @FieldResolver()
+  extrinsicType(@Root() source: Extrinsic): Promise<ExtrinsicType> {
+    return singleFieldResolver(source, ExtrinsicType, "extrinsicTypeId");
   }
 }

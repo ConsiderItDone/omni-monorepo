@@ -1,9 +1,4 @@
-import type {
-  EventRecord,
-  Event,
-  AccountInfo,
-  AccountInfoWithProviders,
-} from "@polkadot/types/interfaces/system";
+import type { EventRecord, Event, AccountInfo, AccountInfoWithProviders } from "@polkadot/types/interfaces/system";
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
@@ -14,10 +9,9 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { getCustomRepository, EntityManager } from "typeorm";
+import { EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
@@ -38,10 +32,7 @@ export function boundEventsToExtrinsics(
 ): ExtrinsicWithBoundedEvents[] {
   return extrinsics.map(({ hash }, index) => {
     const boundedEvents: Event[] = events
-      .filter(
-        ({ phase }: EventRecord) =>
-          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
-      )
+      .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
       .map(({ event }: EventRecord) => event);
 
     return { hash: hash.toHex(), boundedEvents };
@@ -53,9 +44,7 @@ export function findExtrinsicsWithEventsHash(
 ): string | null {
   return (
     extrinsicsWithBoundedEvents.find((extrinsic) =>
-      extrinsic.boundedEvents.some(
-        (event) => event.hash.toHex() === eventRecord.event.hash.toHex()
-      )
+      extrinsic.boundedEvents.some((event) => event.hash.toHex() === eventRecord.event.hash.toHex())
     )?.hash || null
   );
 }
@@ -66,12 +55,8 @@ export function getExtrinsicSuccess(
   //events: EventRecord[],
   //api: ApiPromise
 ): boolean {
-  const extr = extrinsicsWithBoundedEvents.find(
-    (e) => e.hash === extrinsic.hash.toHex()
-  );
-  return extr.boundedEvents.some(
-    (event) => event.method === "ExtrinsicSuccess"
-  );
+  const extr = extrinsicsWithBoundedEvents.find((e) => e.hash === extrinsic.hash.toHex());
+  return extr.boundedEvents.some((event) => event.method === "ExtrinsicSuccess");
 }
 
 export function extractArgs(data: GenericEventData): string[] {
@@ -99,10 +84,7 @@ export function transformEventData(
     const res: any = {};
     args.map(
       (arg, index) =>
-        (res[arg] =
-          data?.typeDef[index]?.type === "Balance"
-            ? data[index]?.toString(10)
-            : data[index].toHuman())
+        (res[arg] = data?.typeDef[index]?.type === "Balance" ? data[index]?.toString(10) : data[index].toHuman())
     );
     return res;
   }
@@ -124,9 +106,7 @@ export async function tryFetchApplication(
   try {
     switch (method) {
       case ApplicationFetchMethods.Applications:
-        return (await api.query.pkiTcr.applications(
-          accountAddress
-        )) as undefined;
+        return (await api.query.pkiTcr.applications(accountAddress)) as undefined;
       case ApplicationFetchMethods.Members:
         return (await api.query.pkiTcr.members(accountAddress)) as undefined;
       case ApplicationFetchMethods.Challenges:
@@ -136,65 +116,69 @@ export async function tryFetchApplication(
     }
   } catch (applicationFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(
-        method,
-        accountAddress,
-        blockNumber.toNumber()
-      ),
+      LOGGER_ERROR_CONST.APPLICATION_FETCH_ERROR(method, accountAddress, blockNumber.toNumber()),
       applicationFetchError
     );
   }
 }
 export async function upsertApplication(
+  api: ApiPromise,
   manager: EntityManager,
-  accountId: string,
+  accountAddress: string,
   applicationData: ApplicationType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   status?: string
 ): Promise<void> {
-  const applicationRepository = manager.getCustomRepository(
-    ApplicationRepository
+  const applicationRepository = manager.getCustomRepository(ApplicationRepository);
+  const { candidate, challenger } = applicationData;
+
+  const candidateAccount = await getOrCreateAccount(
+    api,
+    manager,
+    candidate.toString(),
+    blockHash,
+    blockNumber,
+    blockId
+  );
+  const challengerAccount = await getOrCreateAccount(
+    api,
+    manager,
+    challenger.toString(),
+    blockHash,
+    blockNumber,
+    blockId
   );
 
   const transformedApplicationData = transformApplicationData(
     blockId,
+    candidateAccount.accountId,
+    challengerAccount.accountId,
     applicationData,
     status
   );
-  applicationRepository.upsert(accountId, transformedApplicationData);
+
+  await applicationRepository.upsert(transformedApplicationData);
 }
 
 function transformApplicationData(
   blockId: number,
+  candidateId: number,
+  challengerId: number,
   application: ApplicationType,
   status?: string
 ): ApplicationModel {
-  const {
-    candidate,
-    candidate_deposit,
-    metadata,
-    challenger,
-    challenger_deposit,
-    votes_for,
-    voters_for,
-    votes_against,
-    voters_against,
-    created_block,
-    challenged_block,
-  } = application;
+  const { candidate_deposit, metadata, challenger_deposit, created_block, challenged_block } = application;
 
   return {
     blockId,
     status,
-    candidate: candidate.toString(),
+    candidateId,
     candidateDeposit: candidate_deposit.toNumber(),
     metadata: metadata.toString(),
-    challenger: challenger?.toString() || null,
+    challengerId,
     challengerDeposit: challenger_deposit?.toNumber() || null,
-    votesFor: votes_for?.toString() || null,
-    votersFor: voters_for.map((v) => JSON.stringify(v)),
-    votesAgainst: votes_against?.toString() || null,
-    votersAgainst: voters_against.map((v) => JSON.stringify(v)),
     createdBlock: created_block.toString(),
     challengedBlock: challenged_block.toString(),
   } as ApplicationModel;
@@ -202,140 +186,65 @@ function transformApplicationData(
 
 export async function changeApplicationStatus(
   manager: EntityManager,
-  accountId: string,
+  accountId: number,
   status: ApplicationStatus
 ): Promise<void> {
-  const applicationRepository = manager.getCustomRepository(
-    ApplicationRepository
-  );
-  const existingApplication = await applicationRepository.findCandidate(
-    accountId
-  );
+  const applicationRepository = manager.getCustomRepository(ApplicationRepository);
+  const existingApplication = await applicationRepository.findCandidate(accountId);
   if (existingApplication) {
     existingApplication.status = status;
     applicationRepository.save(existingApplication);
   }
 }
 
-export async function recordVote(
-  manager: EntityManager,
-  initiatorId: AccountId,
-  targetId: AccountId,
-  value: boolean,
-  blockId: number,
-  targetData?: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-
-  const targetInDB = await applicationRepository.findCandidate(
-    targetId.toString()
-  );
-
-  if (!targetInDB && !targetData) {
-    logger.error(
-      "Error! Trying to record vote with no data about target(in db and from response)"
-    );
-  }
-  if (targetData) {
-    await upsertApplication(
-      manager,
-      targetId.toString(),
-      (targetData as undefined) as ApplicationType,
-      blockId,
-      ApplicationStatus.accepted
-    );
-  }
-
-  await applicationRepository.changeCandidateVote(
-    initiatorId.toString(),
-    targetId.toString(),
-    value
-  );
-}
-
-export async function addChallenger(
-  challengedAcc: string,
-  challengerAcc: string,
-  challengerDeposit: number,
-  blockId: number,
-  challengedAppData: ApplicationType
-): Promise<void> {
-  const applicationRepository = getCustomRepository(ApplicationRepository);
-  const blockRepository = getCustomRepository(BlockRepository);
-  const candidate = await applicationRepository.findOne({
-    candidate: challengedAcc,
-  });
-  if (candidate) {
-    const challengedBlock = await blockRepository.findOne({ blockId: blockId });
-    await applicationRepository.addChallenger(
-      challengedAcc,
-      challengerAcc,
-      challengerDeposit,
-      challengedBlock?.number as string
-    );
-  } else {
-    const transformedApplicationData = transformApplicationData(
-      blockId,
-      challengedAppData,
-      ApplicationStatus.accepted
-    );
-    await applicationRepository.upsert(
-      challengedAcc,
-      transformedApplicationData
-    );
-  }
-}
-
 export function applicationIsEmpty(applicationData: ApplicationType): boolean {
-  return (
-    applicationData.candidate.toString() ===
-    "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC"
-  );
+  return applicationData.candidate.toString() === "4h8QZi2vDmMtnAyAWhYsyLqiuxHt2nJFyoVrmHo98e13RHqC";
 }
 
 /******************* Root Certificate utils *************************************/
 export async function upsertRootCertificate(
+  api: ApiPromise,
   manager: EntityManager,
-  certificateId: string,
+  certificateId: number,
   certificateData: RootCertificateType,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number
 ): Promise<void> {
-  const rootCertificateRepository = manager.getCustomRepository(
-    RootCertificateRepository
-  );
-  const transformedCertificateData = transformCertificateData(
+  const rootCertificateRepository = manager.getCustomRepository(RootCertificateRepository);
+  const transformedCertificateData = await transformCertificateData(
+    api,
+    manager,
+    blockHash,
+    blockNumber,
     blockId,
     certificateData
   );
-  rootCertificateRepository.upsert(certificateId, transformedCertificateData);
+  await rootCertificateRepository.upsert(certificateId, transformedCertificateData);
 }
-function transformCertificateData(
+async function transformCertificateData(
+  api: ApiPromise,
+  manager: EntityManager,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
   blockId: number,
   certificateData: RootCertificateType
-): RootCertificateModel {
-  const {
-    owner,
-    key,
-    revoked,
-    renewed,
-    created,
-    validity,
-    child_revocations,
-  } = certificateData;
+): Promise<RootCertificateModel> {
+  const { owner, key, revoked, renewed, created, validity, child_revocations } = certificateData;
+
+  const keyAccount = await getOrCreateAccount(api, manager, key.toHuman(), blockHash, blockNumber, blockId);
+
+  const ownerAccount = await getOrCreateAccount(api, manager, owner.toHuman(), blockHash, blockNumber, blockId);
 
   return {
-    owner: owner.toHuman(),
-    key: key.toHuman(),
+    ownerId: ownerAccount.accountId,
+    keyId: keyAccount.accountId,
     created: created.toString(),
     renewed: renewed.toString(),
     revoked: revoked.toHuman(),
     validity: validity.toNumber(),
     childRevocations:
-      child_revocations.length > 0
-        ? child_revocations.map((revokation: AccountId) =>
-            revokation.toString()
-          )
-        : null,
+      child_revocations.length > 0 ? child_revocations.map((revokation: AccountId) => revokation.toString()) : null,
     blockId,
   } as RootCertificateModel;
 }
@@ -372,10 +281,7 @@ export async function tryFetchAccount(
     return await api.query.system.account.at(blockHash, accountAddress);
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
-        accountAddress.toString(),
-        blockNumber.toNumber()
-      ),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
       accountFetchError
     );
   }
@@ -417,15 +323,33 @@ export async function saveValidator(
   accountId: number,
   accountAddress: AccountId,
   accountInfo: AccountInfoWithProviders
-): Promise<Validator> {
-  const validatorRepository = entityManager.getCustomRepository(
-    ValidatorRepository
-  );
+): Promise<void | Validator> {
+  const validatorRepository = entityManager.getCustomRepository(ValidatorRepository);
   const { consumers, providers } = accountInfo;
 
-  return await validatorRepository.upsert(accountAddress.toString(), {
+  return await validatorRepository.upsert({
     accountId,
     consumers: consumers.toNumber(),
     providers: providers.toNumber(),
   });
+}
+
+export async function getOrCreateAccount(
+  api: ApiPromise,
+  entityManager: EntityManager,
+  accountAddress: string,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber,
+  blockId: number
+): Promise<AccountModel> {
+  const accountRepository = entityManager.getCustomRepository(AccountRepository);
+
+  const account = await accountRepository.findByAddress(accountAddress);
+  if (account) {
+    return account;
+  } else {
+    const accountInfo = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+
+    return await saveAccount(entityManager, accountAddress.toString(), accountInfo, blockId);
+  }
 }

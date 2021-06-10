@@ -2,8 +2,8 @@ import { EntityRepository, Repository, UpdateResult } from "typeorm";
 import RootCertificate from "../../models/public/rootCertificate";
 
 type NewRootCertificateParam = {
-  owner: string;
-  key: string;
+  ownerId: number;
+  keyId: number;
   created: string;
   renewed: string;
   revoked: boolean;
@@ -15,8 +15,8 @@ type NewRootCertificateParam = {
 @EntityRepository(RootCertificate)
 export default class RootCertificateRepository extends Repository<RootCertificate> {
   public async add({
-    owner,
-    key,
+    ownerId,
+    keyId,
     created,
     renewed,
     revoked,
@@ -25,8 +25,8 @@ export default class RootCertificateRepository extends Repository<RootCertificat
     blockId,
   }: NewRootCertificateParam): Promise<RootCertificate> {
     const rootCertificate = await this.save({
-      owner,
-      key,
+      ownerId,
+      keyId,
       created,
       renewed,
       revoked,
@@ -37,29 +37,23 @@ export default class RootCertificateRepository extends Repository<RootCertificat
 
     return rootCertificate;
   }
-  public replace(
-    rootCertificateId: number,
-    certificateData: NewRootCertificateParam
-  ): Promise<UpdateResult> {
+  public replace(rootCertificateId: number, certificateData: NewRootCertificateParam): Promise<UpdateResult> {
     return this.update(rootCertificateId, certificateData);
   }
 
   public async upsert(
-    certificateKey: string,
+    keyId: number,
     certificateData: NewRootCertificateParam
   ): Promise<UpdateResult | RootCertificate> {
-    const existingRootCertificate = await this.findByKey(certificateKey);
+    const existingRootCertificate = await this.findByKey(keyId);
     if (existingRootCertificate) {
-      return await this.replace(
-        existingRootCertificate.rootCertificateId,
-        certificateData
-      );
+      return await this.replace(existingRootCertificate.rootCertificateId, certificateData);
     } else {
       return await this.add(certificateData);
     }
   }
 
-  public async findByKey(certificateId: string): Promise<RootCertificate> {
-    return await this.findOne({ key: certificateId });
+  public async findByKey(rootCertificateId: number): Promise<RootCertificate> {
+    return await this.findOne({ rootCertificateId });
   }
 }

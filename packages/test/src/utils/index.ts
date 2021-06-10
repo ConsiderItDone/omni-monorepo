@@ -1,6 +1,12 @@
 import { ApiPromise } from "@polkadot/api";
 import { SubmittableExtrinsicFunction } from "@polkadot/api/types";
-
+import type {
+  EventRecord,
+  Event,
+  AccountInfo,
+  AccountInfoWithProviders,
+} from "@polkadot/types/interfaces/system";
+import { ISubmittableResult } from "@polkadot/types/types";
 export interface Extrinsics<T> {
   allocate: T;
   transfer: T;
@@ -45,26 +51,28 @@ export async function signAndSend(
   const sender = this.sender;
   const unsub = await fn(...args).signAndSend(
     sender,
-    ({ events = [], status }: { events: any[]; status: any }) => {
+    ({ events = [], status }: ISubmittableResult) => {
       if (status.isInBlock) {
         console.log(`Extrinsic included at blockHash ${status.asInBlock}`);
+        unsub();
       } else if (status.isFinalized) {
         console.log(`Extrinsic finalized at blockHash ${status.asFinalized}`);
         unsub();
       } else {
         console.log("Status " + status.type);
       }
-      events.forEach(({ phase, event: { data, method, section } }) => {
-        console.log(
-          phase.toString() +
-            " : " +
-            section +
-            "." +
-            method +
-            " " +
-            data.toString()
-        );
-      });
+      /*       events.forEach(({ phase, event: { data, method, section } }) => {
+        if (events.some((e) => e.event))
+          console.log(
+            phase.toString() +
+              " : " +
+              section +
+              "." +
+              method +
+              " " +
+              data.toString()
+          );
+      }); */
     }
   );
 }

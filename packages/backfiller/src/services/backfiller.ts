@@ -1,16 +1,7 @@
 import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
-import {
-  handleNewBlock,
-  handleEvents,
-  handleLogs,
-  handleExtrinsics,
-} from "@nodle/polkadot/src";
-import {
-  backfillAccounts,
-  backfillTrackedEvents,
-  backfillValidators,
-} from "@nodle/backfiller/src/utils/backfillers";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
+import { backfillAccounts, backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
@@ -21,25 +12,16 @@ import express from "express";
 
 const backfillServer = express();
 
-export async function backfiller(
-  ws: string,
-  connection: Connection
-): Promise<void> {
+export async function backfiller(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   // "00 00 00 * * *" to start every midnight
   // "00 */5 * * * *" to start every 5 minutes
   const backfillJob = new CronJob("00 00 00 * * *", backfill);
-  const blockFinalizerJob = new CronJob("00 */5 * * * *", () =>
-    finalizeBlocks(api, connection)
-  );
-  const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
-    backfillAccounts(connection, api)
-  );
+  const blockFinalizerJob = new CronJob("00 */5 * * * *", () => finalizeBlocks(api, connection));
+  const backfillAccountsJob = new CronJob("00 */30 * * * *", () => backfillAccounts(connection, api));
 
-  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () =>
-    backfillValidators(connection, api)
-  );
+  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
 
   logger.info("Backfiller started");
   let backfillJobStatus = "waiting";
@@ -56,9 +38,7 @@ export async function backfiller(
     backfillJobStatus = "running";
 
     logger.info("Backfill started");
-    const backfillProgressRepository = connection.getCustomRepository(
-      BackfillProgressRepository
-    );
+    const backfillProgressRepository = connection.getCustomRepository(BackfillProgressRepository);
     const blockRepository = connection.getCustomRepository(BlockRepository);
 
     const backfillProgress = await backfillProgressRepository.getProgress();
@@ -71,12 +51,7 @@ export async function backfiller(
 
     const startBlock = parseInt(backfillProgress.lastBlockNumber as string, 10);
     const limit = backfillProgress.perPage; // Amount of block to check
-    const endBlock = await getEndBlock(
-      blockRepository,
-      startBlock,
-      limit,
-      lastBlockNumberInChain.toString()
-    );
+    const endBlock = await getEndBlock(blockRepository, startBlock, limit, lastBlockNumberInChain.toString());
 
     const blocks = await blockRepository.find({
       number: Between(startBlock, endBlock + 1),
@@ -85,20 +60,13 @@ export async function backfiller(
       (block) => parseInt(block.number as string, 10) // Parsing because returns as string
     );
 
-    const missingBlocksNumbers = Array.from(
-      Array(endBlock + 1 - startBlock),
-      (v, i) => i + startBlock
-    ).filter((i: number) => !blockNumbers.includes(i));
-
-    logger.info(
-      `Going to backfill ${missingBlocksNumbers.length} missing blocks from ${startBlock} to ${endBlock}`
+    const missingBlocksNumbers = Array.from(Array(endBlock + 1 - startBlock), (v, i) => i + startBlock).filter(
+      (i: number) => !blockNumbers.includes(i)
     );
 
-    const metrics = new MetricsService(
-      backfillServer,
-      3001,
-      "nodle_backfiller_"
-    );
+    logger.info(`Going to backfill ${missingBlocksNumbers.length} missing blocks from ${startBlock} to ${endBlock}`);
+
+    const metrics = new MetricsService(backfillServer, 3001, "nodle_backfiller_");
 
     for (const blockNum of missingBlocksNumbers) {
       logger.info(`Backfilling block №: ${blockNum}`);
@@ -107,12 +75,7 @@ export async function backfiller(
       metrics.startTimer();
 
       const blockHash = await api.rpc.chain.getBlockHash(blockNum);
-      const [
-        { block },
-        timestamp,
-        events,
-        { specVersion },
-      ] = await Promise.all([
+      const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
         api.rpc.chain.getBlock(blockHash),
         api.query.timestamp.now.at(blockHash),
         api.query.system.events.at(blockHash),
@@ -126,12 +89,7 @@ export async function backfiller(
 
       try {
         // 1. Block
-        const newBlock = await handleNewBlock(
-          queryRunner.manager,
-          block.header,
-          timestamp,
-          specVersion.toNumber()
-        );
+        const newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
         const { blockId } = newBlock;
         // 2. Extrinsics
         const [, extrinsicsWithBoundedEvents] = await handleExtrinsics(
@@ -145,12 +103,7 @@ export async function backfiller(
         );
 
         // 3.Logs
-        await handleLogs(
-          queryRunner.manager,
-          block.header.digest.logs,
-          blockId,
-          blockNumber
-        );
+        await handleLogs(queryRunner.manager, block.header.digest.logs, blockId, blockNumber);
 
         // 4.Events
         const [, trackedEvents] = await handleEvents(
@@ -162,14 +115,7 @@ export async function backfiller(
         );
 
         //5. Backfilling custom events
-        await backfillTrackedEvents(
-          queryRunner.manager,
-          trackedEvents,
-          api,
-          blockId,
-          blockHash,
-          blockNumber
-        );
+        await backfillTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
 
         // Metrics after block process
         metrics.endTimer();
@@ -197,8 +143,7 @@ async function getEndBlock(
   let endBlock = startBlock + limit;
   // will increase last block to check, so if limit is 1000 blocks, will make so AT LEAST 1000 block should be backfilled
   for (let i = 1; ; i++) {
-    if (startBlock + limit * i >= parseInt(lastBlockInAChainNumber, 10))
-      return parseInt(lastBlockInAChainNumber, 10);
+    if (startBlock + limit * i >= parseInt(lastBlockInAChainNumber, 10)) return parseInt(lastBlockInAChainNumber, 10);
     const blocks = await blockRepository.find({
       number: Between(startBlock, startBlock + limit * i),
     });

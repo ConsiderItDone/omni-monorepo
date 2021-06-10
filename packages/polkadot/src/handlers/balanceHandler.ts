@@ -23,40 +23,17 @@ export async function handleBalance(
       case "Transfer": {
         const accFrom = [
           event.data[0],
-          await tryFetchAccount(
-            api,
-            event.data[0] as GenericAccountId,
-            blockHash,
-            blockNumber
-          ),
+          await tryFetchAccount(api, event.data[0] as GenericAccountId, blockHash, blockNumber),
         ];
         const accTo = [
           event.data[1],
-          await tryFetchAccount(
-            api,
-            event.data[1] as GenericAccountId,
-            blockHash,
-            blockNumber
-          ),
+          await tryFetchAccount(api, event.data[1] as GenericAccountId, blockHash, blockNumber),
         ];
         try {
-          await saveAccount(
-            manager,
-            accFrom[0] as GenericAccountId,
-            accFrom[1] as AccountInfo,
-            blockId
-          );
-          await saveAccount(
-            manager,
-            accTo[0] as GenericAccountId,
-            accTo[1] as AccountInfo,
-            blockId
-          );
+          await saveAccount(manager, accFrom[0] as GenericAccountId, accFrom[1] as AccountInfo, blockId);
+          await saveAccount(manager, accTo[0] as GenericAccountId, accTo[1] as AccountInfo, blockId);
         } catch (accountSaveError) {
-          logger.error(
-            LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()),
-            accountSaveError
-          );
+          logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
         }
         break;
       }
