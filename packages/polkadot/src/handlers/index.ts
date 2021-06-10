@@ -11,6 +11,7 @@ import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
+import { handleAllocation } from "./allocationHandler";
 
 export async function handleTrackedEvents(
   manager: EntityManager,
@@ -39,6 +40,8 @@ export async function handleTrackedEvents(
         case CustomEventSection.Balance:
           await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           break;
+        case CustomEventSection.Allocation:
+          await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
         default:
           return;
       }
