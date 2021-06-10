@@ -33,7 +33,7 @@ export async function handleAllocation(
         break;
       }
       default:
-        return;
+        break;
     }
   } catch (error) {
     logger.error(error);
