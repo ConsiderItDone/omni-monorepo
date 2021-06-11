@@ -16,7 +16,7 @@ async function start() {
     const alice = keyring.addFromUri("//Alice", { name: "Alice default" });
     const tester = new Tester(api, alice) as Tester;
 
-    tester.transfer(ACCOUNTS.BOB, 1234567894325); // 1.2345xxxxxxxx
+    tester.allocate(ACCOUNTS.BOB, 1000000000000, '0x00'); // 1.2345xxxxxxxx
     //tester.bookSlot(ACCOUNTS.BOB)
 
     //tester.allocate(ACCOUNTS.BOB, 1000000000000, "0x00");

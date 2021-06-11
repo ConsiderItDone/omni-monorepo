@@ -2,7 +2,7 @@ import { ApiPromise, Keyring } from "@polkadot/api";
 import { SubmittableExtrinsicFunction } from "@polkadot/api/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Extrinsics, getExtrinsics, signAndSend } from "./utils";
-
+import type { Hash} from '@polkadot/types/interfaces';
 class Tester {
   sender: KeyringPair;
   api: ApiPromise;
@@ -12,7 +12,7 @@ class Tester {
   signAndSend: (
     fn: SubmittableExtrinsicFunction<"promise">,
     ...args: any[]
-  ) => Promise<void> = signAndSend.bind(this);
+  ) => Promise<Hash> = signAndSend.bind(this);
 
   constructor(api: ApiPromise, sender: KeyringPair) {
     this.api = api;

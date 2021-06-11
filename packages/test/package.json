@@ -13,7 +13,8 @@
     "build": "npm exec tsc",
     "prepare": "npm run build",
     "start:test": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
-    "start:jest": "npx jest --detectOpenHandles --runInBand"
+    "start:jest": "npx jest --detectOpenHandles --forceExit --runInBand",
+    "start:jest noDetect": "npx jest --forceExit --runInBand"
   },
   "devDependencies": {
     "@polkadot/api": "^3.11.1",
@@ -21,6 +22,8 @@
     "@types/node": "^14.14.35"
   },
   "dependencies": {
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
     "jest": "^27.0.4",
     "ts-jest": "^27.0.3",
     "ts-node": "^9.1.1",
