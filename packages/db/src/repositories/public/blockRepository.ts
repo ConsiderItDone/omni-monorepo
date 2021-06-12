@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, LessThanOrEqual, UpdateResult } from "typeorm";
 import Block from "../../models/public/block";
 
 @EntityRepository(Block)
@@ -67,5 +67,14 @@ export default class BlockRepository extends Repository<Block> {
 
   public findByNumber(number: number): Promise<Block> {
     return this.findOne({ where: { number } });
+  }
+
+  public finalizeBlocks(lastFinalizedBlockNumber: number): Promise<UpdateResult> {
+    return this.update({
+        finalized: false,
+        number: LessThanOrEqual(lastFinalizedBlockNumber),
+      }, {
+        finalized: true
+    })
   }
 }

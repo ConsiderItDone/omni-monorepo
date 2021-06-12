@@ -27,8 +27,6 @@ const start = async function (): Promise<void> {
 
   const connection = await connect(connectionOptions);
 
-  await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection
-
   if (process.argv && process.argv.length > 1 && process.argv[process.argv.length - 1] === "patcher-only") {
     patcher(process.env.WS_PROVIDER, connection);
   } else {

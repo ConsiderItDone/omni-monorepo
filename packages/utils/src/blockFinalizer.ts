@@ -10,20 +10,6 @@ export async function finalizeBlocks(api: ApiPromise, connection: Connection): P
   logger.info(`Last finalized block №: ${lastFinalizedBlockNumber}`);
 
   const blockRepository = connection.getCustomRepository(BlockRepository);
-
-  const unfinalizedBlocks = await blockRepository.find({
-    where: {
-      finalized: false,
-      number: LessThanOrEqual(lastFinalizedBlockNumber.toNumber()),
-    },
-    take: 500, // 50 unfinalized blocks in 5 minutes comes from chain (1 block per 6 second). Finalizing with limit of 500 // finalization rate is ~2 blocks/second
-  });
-  logger.info(`Found ${unfinalizedBlocks.length} unfinalized block. Finalization started`);
-
-  for (const block of unfinalizedBlocks) {
-    logger.info(`Finalizing block ${block.blockId}`);
-    block.finalized = true;
-    await blockRepository.save(block);
-  }
-  logger.info(`Finalization done`);
+  const result = await blockRepository.finalizeBlocks(lastFinalizedBlockNumber.toNumber());
+  logger.info(`Found ${result.affected} unfinalized block. Finalization done`);
 }

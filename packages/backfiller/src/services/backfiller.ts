@@ -17,7 +17,7 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
 
   // "00 00 00 * * *" to start every midnight
   // "00 */5 * * * *" to start every 5 minutes
-  const backfillJob = new CronJob("00 00 00 * * *", backfill);
+  const backfillJob = new CronJob("00 */5 * * * *", backfill);
   const blockFinalizerJob = new CronJob("00 */5 * * * *", () => finalizeBlocks(api, connection));
   const backfillAccountsJob = new CronJob("00 */30 * * * *", () => backfillAccounts(connection, api));
 
@@ -117,6 +117,8 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
         //5. Backfilling custom events
         await backfillTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
 
+        await backfillProgressRepository.updateProgress(blockNumber.toString());
+
         // Metrics after block process
         metrics.endTimer();
         metrics.addBlockToCounter();
@@ -129,7 +131,7 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
       }
     }
     logger.info(`Backfiller finished succesfully with last block ${endBlock}`);
-    backfillProgressRepository.updateProgress(endBlock.toString());
+    await backfillProgressRepository.updateProgress(endBlock.toString());
     backfillJobStatus = "waiting";
   }
 }
