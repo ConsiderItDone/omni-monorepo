@@ -70,11 +70,14 @@ export default class BlockRepository extends Repository<Block> {
   }
 
   public finalizeBlocks(lastFinalizedBlockNumber: number): Promise<UpdateResult> {
-    return this.update({
+    return this.update(
+      {
         finalized: false,
         number: LessThanOrEqual(lastFinalizedBlockNumber),
-      }, {
-        finalized: true
-    })
+      },
+      {
+        finalized: true,
+      }
+    );
   }
 }

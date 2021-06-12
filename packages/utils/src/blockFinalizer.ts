@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { Connection, LessThanOrEqual } from "typeorm";
+import { Connection } from "typeorm";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import { logger } from "@nodle/utils/src/logger";
 

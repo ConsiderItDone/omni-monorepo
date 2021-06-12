@@ -9,7 +9,6 @@ try {
 import { backfiller } from "./services/backfiller";
 import { patcher } from "./services/patcher";
 import { connect } from "@nodle/db";
-import MQ from "@nodle/utils/src/mq";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {
