@@ -9,6 +9,18 @@ export const queryTransfer = gql`
     }
   }
 `;
+
+export const queryRootCertificates = gql`
+  query($address: String!) {
+    accountByAddress(address: $address) {
+      rootCertificatesByKey {
+        created
+        revoked
+        renewed
+      }
+    }
+  }
+`;
 export const queryLastBalance = gql`
   query($address: String!) {
     balanceByAddress(address: $address) {

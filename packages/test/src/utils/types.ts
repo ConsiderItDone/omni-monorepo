@@ -10,3 +10,7 @@ export interface VestingSchedule {
   period_count: number;
   per_period: string;
 }
+
+export interface RootCertificate {
+  revoked: boolean; renewed: string; created: string
+}

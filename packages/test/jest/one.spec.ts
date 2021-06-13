@@ -10,7 +10,7 @@ import { client } from "../src/client";
 import { queryTransfer, queryVestingSchedules } from "../src/queries";
 
 const keyring = new Keyring({ type: "sr25519" });
-``;
+
 describe("Preparation", () => {
   let tester: Tester;
   let api: ApiPromise;
@@ -26,7 +26,9 @@ describe("Preparation", () => {
   beforeEach(() => {
     fetchCount = 0;
   });
-
+  afterEach(() => {
+    //console.log("Fetching done after ", fetchCount, "requests");})
+  });
   let fetchCount = 0;
   async function waitForAfter(before: any, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after = await getAfterCallback();
@@ -39,7 +41,7 @@ describe("Preparation", () => {
   }
 
   it("Transfer. Balance after transfer should be equal to balance before transfer + transfered amount", async () => {
-    const transferValue = 1010000000000;
+    const transferValue = getRandomBalanceAmount();
 
     const freeBefore = await getLastBalance(receiver);
 
@@ -49,14 +51,11 @@ describe("Preparation", () => {
 
     const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, ACCOUNTS.BOB));
 
-    //console.log("Balance difference after ", fetchCount, "requests");
-
     expect(freeAfter).toBe(freeBefore + transferValue);
   });
 
   it("Allocation. Balance after allocation should be equal to balance before allocation + allocated amount", async () => {
-    const allocationValue = 1100000000000;
-    const receiver = ACCOUNTS.BOB;
+    const allocationValue = getRandomBalanceAmount();
 
     const freeBefore = await getLastBalance(receiver);
 
@@ -66,20 +65,13 @@ describe("Preparation", () => {
 
     const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, ACCOUNTS.BOB));
 
-    //console.log("Balance difference after ", fetchCount, "requests");
-
     const allocationValueAfterFee = allocationValue * 0.8;
 
     expect(freeAfter).toBe(freeBefore + allocationValueAfterFee);
   });
 
   it("Vesting schedule. Sended schedule should be equal to last from requested schedules", async () => {
-    const schedule: VestingSchedule = {
-      start: "1200",
-      period: "121",
-      period_count: 10,
-      per_period: "1",
-    };
+    const schedule = getRandomSchedule();
 
     const before = await getVestingSchedules(receiver);
 
@@ -89,10 +81,25 @@ describe("Preparation", () => {
 
     const after = await waitForAfter(before, getVestingSchedules.bind(null, receiver), (val) => val?.length);
 
-    //console.log("Vestings difference after ", fetchCount, "requests");
-
     const formattedSchedule = formatSchedule(schedule);
 
     expect(JSON.stringify(after[after.length - 1])).toBe(JSON.stringify(formattedSchedule));
   });
 });
+
+export const getRandomBalanceAmount = () => {
+  return getRandomInt(1, 10) * 1000000000000;
+};
+
+export const getRandomSchedule = (): VestingSchedule => {
+  return {
+    start: getRandomInt().toString(),
+    period: getRandomInt(1, 1000).toString(),
+    period_count: getRandomInt(1, 10),
+    per_period: (getRandomInt(1, 10) * 1000000000000).toString(),
+  };
+};
+
+export function getRandomInt(min = 1, max = 10000): number {
+  return Math.round(Math.random() * (max - min + 1) + min);
+}

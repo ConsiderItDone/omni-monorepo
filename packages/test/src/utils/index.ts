@@ -2,8 +2,8 @@ import { ApiPromise } from "@polkadot/api";
 import { SubmittableExtrinsicFunction } from "@polkadot/api/types";
 import type { Hash } from "@polkadot/types/interfaces";
 import { client } from "../client";
-import { queryLastBalance, queryVestingSchedules } from "../queries";
-import { VestingSchedule, VestingScheduleFormatted } from "./types";
+import { queryLastBalance, queryVestingSchedules, queryRootCertificates } from "../queries";
+import { VestingSchedule, VestingScheduleFormatted, RootCertificate } from "./types";
 export interface Extrinsics<T> {
   allocate: T;
   transfer: T;
@@ -52,6 +52,13 @@ export const getLastBalance = async (address: string): Promise<number> => {
 export const getVestingSchedules = async (address: string): Promise<VestingScheduleFormatted[]> => {
   const { accountByAddress } = await client.request(queryVestingSchedules, { address });
   return accountByAddress?.vestingSchedules || [];
+};
+
+export const getLastRootCertificate = async (address: string): Promise<RootCertificate> => {
+  const { accountByAddress } = await client.request(queryRootCertificates, { address });
+  if (!accountByAddress) return null;
+  const { rootCertificatesByKey } = accountByAddress;
+  return rootCertificatesByKey?.length && rootCertificatesByKey[rootCertificatesByKey.length - 1];
 };
 
 export function sleep(ms: number) {
