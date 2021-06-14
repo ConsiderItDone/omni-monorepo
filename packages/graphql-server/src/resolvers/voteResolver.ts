@@ -9,12 +9,12 @@ const VoteBaseResolver = createBaseResolver("Vote", Vote);
 export default class VoteResolver extends VoteBaseResolver {
   @FieldResolver()
   initiator(@Root() source: Vote): Promise<Account> {
-    return singleFieldResolver(source, Account, "initiatorId", "accountId");
+    return singleFieldResolver(source, Account, "accountId", "initiatorId");
   }
 
   @FieldResolver()
   target(@Root() source: Vote): Promise<Account> {
-    return singleFieldResolver(source, Account, "targetId", "accountId");
+    return singleFieldResolver(source, Account, "accountId", "targetId");
   }
 
   @FieldResolver()
