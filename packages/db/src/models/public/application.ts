@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from "typeorm";
-import { Field, ID, Int, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
@@ -10,7 +10,7 @@ import Vote from "./vote";
 @Index("application_pk", ["applicationId"], { unique: true })
 @Entity("application", { schema: "public" })
 export default class Application extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "application_id" })
   public applicationId: number;
 
@@ -73,7 +73,7 @@ export default class Application extends BaseEntity {
   public challengedBlock: string; // TODO: id block
 
   @Field(() => [Vote], { nullable: true, defaultValue: [] })
-  @OneToMany(() => Vote, (vote) => vote.application)
+  @OneToMany(() => Vote, (vote) => vote.voteId)
   @JoinColumn([{ name: "vote_id", referencedColumnName: "voteId" }])
   public votes: Vote[];
 }

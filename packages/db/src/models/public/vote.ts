@@ -1,12 +1,12 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, Int, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { Account, Application } from "../index";
 
 @ObjectType()
 @Index("vote_pk", ["voteId"], { unique: true })
 @Entity("vote", { schema: "public" })
 export default class Vote extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "vote_id" })
   public voteId: number;
 

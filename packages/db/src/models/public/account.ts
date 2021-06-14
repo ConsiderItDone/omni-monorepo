@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import VestingSchedule from "./vestingSchedule";
 import { Application, RootCertificate, Validator } from "..";
 import Extrinsic from "./extrinsic";
@@ -8,7 +8,7 @@ import Extrinsic from "./extrinsic";
 @Index("account_pk", ["accountId"], { unique: true })
 @Entity("account", { schema: "public" })
 export default class Account extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "account_id" })
   public accountId: number;
 

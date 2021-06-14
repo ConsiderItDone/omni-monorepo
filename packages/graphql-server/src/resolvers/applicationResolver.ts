@@ -24,8 +24,8 @@ export default class ApplicationResolver extends ApplicationBaseResolver {
     return singleFieldResolver(source, Account, "accountId", "challengerId");
   }
 
-  @FieldResolver()
+  @FieldResolver({ nullable: true })
   votes(@Root() source: Application): Promise<Vote[]> {
-    return arrayFieldResolver(source, Application, "applicationId");
+    return arrayFieldResolver(source, Vote, "applicationId");
   }
 }

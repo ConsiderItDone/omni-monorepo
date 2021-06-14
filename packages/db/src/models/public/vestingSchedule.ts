@@ -1,12 +1,12 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import { Block, Account } from "../index";
 
 @ObjectType()
 @Index("vesting_schedule_pk", ["vestingScheduleId"], { unique: true })
 @Entity("vesting_schedule", { schema: "public" })
 export default class VestingSchedule extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "vesting_schedule_id" })
   public vestingScheduleId: number;
 
