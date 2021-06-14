@@ -6,8 +6,6 @@ import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";
 import { getLastBalance, getVestingSchedules, sleep, formatSchedule } from "../src/utils";
 import { VestingSchedule } from "../src/utils/types";
-import { client } from "../src/client";
-import { queryTransfer, queryVestingSchedules } from "../src/queries";
 
 const keyring = new Keyring({ type: "sr25519" });
 
@@ -34,6 +32,7 @@ describe("Preparation", () => {
     let after = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
       if (fetchCount >= 5) return after; // returns 'after' value if waiting too long
+      fetchCount++
       await sleep(2000);
       after = await waitForAfter(before, getAfterCallback, equalityWrap);
     }

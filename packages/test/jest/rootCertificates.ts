@@ -4,10 +4,8 @@ import { ACCOUNTS } from "../src/const";
 import Tester from "../src/tester";
 import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";
-import { getLastBalance, getLastRootCertificate, sleep, formatSchedule } from "../src/utils";
-import { RootCertificate, VestingSchedule } from "../src/utils/types";
-import { client } from "../src/client";
-import { queryTransfer, queryVestingSchedules } from "../src/queries";
+import { getLastRootCertificate, sleep } from "../src/utils";
+import { RootCertificate } from "../src/utils/types";
 
 const keyring = new Keyring({ type: "sr25519" });
 
@@ -38,6 +36,7 @@ describe("Preparation", () => {
     let after = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
       if (fetchCount >= 5) return after; // returns 'after' value if waiting too long
+      fetchCount++;
       await sleep(2000);
       after = await waitForAfter(before, getAfterCallback, equalityWrap);
     }
@@ -47,7 +46,7 @@ describe("Preparation", () => {
     return waitForAfter.bind(null, before, getLastRootCertificate.bind(null, receiver), equalityWrap);
   }
 
-  it("Application. Booking Slot", async () => {
+  it("pkiRootOfTrust. Booking Slot", async () => {
     await tester.bookSlot(receiver);
     await sleep(8000);
 
@@ -56,7 +55,7 @@ describe("Preparation", () => {
     expect(after).toHaveProperty("created");
   });
 
-  it("Application. Renewing Slot", async () => {
+  it("pkiRootOfTrust. Renewing Slot", async () => {
     await tester.renewSlot(receiver);
 
     await sleep(8000);
@@ -65,7 +64,7 @@ describe("Preparation", () => {
     expect(before?.renewed).not.toBe(after?.renewed);
   });
 
-  it("Application. Revoking Slot", async () => {
+  it("pkiRootOfTrust. Revoking Slot", async () => {
     await tester.revokeSlot(receiver);
 
     await sleep(8000);

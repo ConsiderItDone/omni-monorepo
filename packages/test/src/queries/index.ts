@@ -41,3 +41,13 @@ export const queryVestingSchedules = gql`
     }
   }
 `;
+
+export const queryApplication = gql`
+query($address: String!) {
+  accountByAddress(address: $address){
+    applicationsByCandidate {
+      status
+    }
+  }
+}
+`
