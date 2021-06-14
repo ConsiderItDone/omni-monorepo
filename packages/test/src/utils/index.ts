@@ -61,14 +61,23 @@ export const getLastRootCertificate = async (address: string): Promise<RootCerti
   return rootCertificatesByKey?.length && rootCertificatesByKey[rootCertificatesByKey.length - 1];
 };
 
-export const getApplication = async (address: string): Promise<any> => {
-  //console.log("QA", address);
-  console.log("get", address);
+export interface Application {
+  status: string;
+  votes: {
+    isSupported: boolean;
+    initiator: { address: string };
+  }[];
+}
+
+export const getApplication = async (address: string): Promise<Application> => {
   const { accountByAddress } = await client.request(queryApplication, { address });
-  console.log('accByAdd', accountByAddress)
-  if (!accountByAddress) return { status: "404" };
+
+  if (!accountByAddress) return { status: "404", votes: [] };
   const { applicationsByCandidate } = accountByAddress;
-  return applicationsByCandidate[applicationsByCandidate.length - 1] || { status: "" };
+  return (
+    (applicationsByCandidate[applicationsByCandidate.length - 1] as Application) ||
+    ({ status: "", votes: [] } as Application)
+  );
 };
 
 export function sleep(ms: number) {

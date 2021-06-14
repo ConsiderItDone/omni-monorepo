@@ -36,14 +36,14 @@ describe("Preparation", () => {
 
   const initTester = async () => {
     const newTester = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
-    await tester.allocate(newTester.sender.address, 15 * 1000000000000, "0x00");
-    await sleep(2000); //wait for allocation to apply
+    await tester.allocate(newTester.sender.address, 20 * 1000000000000, "0x00");
+    await sleep(4000); //wait for allocation to apply
     return newTester;
   };
 
   let fetchCount = 0;
-  async function waitForAfter(before: any, getAfterCallback: any, equalityWrap = (val: any) => val) {
-    let after = await getAfterCallback();
+  async function waitForAfter<T = any>(before: T, getAfterCallback: any, equalityWrap = (val) => val) {
+    let after: T = await getAfterCallback();
     /*     console.log("before", before);
     console.log("after", after); */
     if (equalityWrap(before) === equalityWrap(after)) {
@@ -55,7 +55,7 @@ describe("Preparation", () => {
     return after;
   }
 
-  /*   it("Application. Apply", async () => {
+  it("Application. Apply", async () => {
     await tester2.apply("0x00", 10 * 1000000000000);
     await sleep(8000);
 
@@ -78,7 +78,7 @@ describe("Preparation", () => {
       (val) => val?.status
     );
     expect(application).toHaveProperty("status", "countered");
-  }); */
+  });
 
   it("Application. Challenge", async () => {
     tester2 = await initTester();
@@ -90,8 +90,8 @@ describe("Preparation", () => {
 
     await tester2.apply("0x00", 10 * 1000000000000);
 
-    await sleep(65000); // wait for application to pass
-    const before = await waitForAfter({ status: "" }, getAppCb, (val) => val?.status);
+    await sleep(70000); // wait for application to pass
+    const before = await waitForAfter({ status: "", votes: [] }, getAppCb, (val) => val?.status);
 
     await tester.challenge(tester2.sender.address, 100 * 1000000000000); //100 NODL to challenge
     await sleep(8000);
@@ -101,15 +101,24 @@ describe("Preparation", () => {
     expect(afterChallenge).toHaveProperty("status", "challenged");
   });
 
-  /*   it("Application. Vote", async () => {
+  it("Application. Vote", async () => {
     const candidateAddress = store.challengedAcc;
     const voter = await initTester();
 
+    const voteValue = Math.random() > 0.5 ? true : false;
+
     const applicationBefore = await getApplication(candidateAddress);
-    await voter.vote(candidateAddress, true, 1 * 1000000000000);
+    await voter.vote(candidateAddress, voteValue, 1 * 1000000000000);
     await sleep(8000);
 
-    const applicationAfter = await waitForAfter(applicationBefore, getApplication.bind(null, candidateAddress), val=>val?.));
-
-  }); */
+    const { votes: votesAfter } = await waitForAfter(
+      applicationBefore,
+      getApplication.bind(null, candidateAddress),
+      (val) => val?.status
+    );
+    const voteRecorded = votesAfter.some(
+      (v) => v?.initiator?.address === voter.sender.address && v?.isSupported === voteValue
+    );
+    expect(voteRecorded).toBe(true);
+  });
 });

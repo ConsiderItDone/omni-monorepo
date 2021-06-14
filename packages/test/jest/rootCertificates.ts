@@ -4,24 +4,27 @@ import { ACCOUNTS } from "../src/const";
 import Tester from "../src/tester";
 import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";
+import { mnemonicGenerate } from "@polkadot/util-crypto";
 import { getLastRootCertificate, sleep } from "../src/utils";
 import { RootCertificate } from "../src/utils/types";
 
 const keyring = new Keyring({ type: "sr25519" });
 
 describe("Preparation", () => {
-  let tester: Tester;
   let api: ApiPromise;
-  const receiver = ACCOUNTS.CHARLIE;
+  let tester: Tester;
+  let tester2: Tester;
+  let receiver: string;
   let before: RootCertificate;
   let after: RootCertificate;
   beforeAll(async () => {
     api = await getApi(process.env.WS_PROVIDER || "ws://3.217.156.114:9944"); //init api
 
-    waitReady().then(() => {
-      const alice = keyring.addFromUri("//Alice", { name: "Alice default" }); //init wasm-crypto and create keyring
-      tester = new Tester(api, alice);
-    });
+    await waitReady();
+    const alice = keyring.addFromUri("//Alice", { name: "Alice default" }); //init wasm-crypto and create keyring
+    tester = new Tester(api, alice);
+    tester2 = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
+    receiver = tester2.sender.address;
     before = await getLastRootCertificate(receiver);
   });
   beforeEach(() => {
@@ -31,6 +34,7 @@ describe("Preparation", () => {
     //console.log("Fetching done after ", fetchCount, "requests");})
     before = after;
   });
+
   let fetchCount = 0;
   async function waitForAfter(before: any, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after = await getAfterCallback();
