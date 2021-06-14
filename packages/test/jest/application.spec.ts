@@ -37,15 +37,13 @@ describe("Preparation", () => {
   const initTester = async () => {
     const newTester = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
     await tester.allocate(newTester.sender.address, 20 * 1000000000000, "0x00");
-    await sleep(4000); //wait for allocation to apply
+    await sleep(6000); //wait for allocation to apply
     return newTester;
   };
 
   let fetchCount = 0;
-  async function waitForAfter<T = any>(before: T, getAfterCallback: any, equalityWrap = (val) => val) {
+  async function waitForAfter<T = any>(before: T, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after: T = await getAfterCallback();
-    /*     console.log("before", before);
-    console.log("after", after); */
     if (equalityWrap(before) === equalityWrap(after)) {
       if (fetchCount >= 5) return after; // returns 'after' value if waiting too long
       fetchCount++;
@@ -116,7 +114,7 @@ describe("Preparation", () => {
       getApplication.bind(null, candidateAddress),
       (val) => val?.status
     );
-    const voteRecorded = votesAfter.some(
+    const voteRecorded = votesAfter?.some(
       (v) => v?.initiator?.address === voter.sender.address && v?.isSupported === voteValue
     );
     expect(voteRecorded).toBe(true);

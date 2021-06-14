@@ -8,7 +8,8 @@ import { mnemonicGenerate } from "@polkadot/util-crypto";
 import { getLastRootCertificate, sleep } from "../src/utils";
 import { RootCertificate } from "../src/utils/types";
 
-const keyring = new Keyring({ type: "sr25519" });
+const keyring = new Keyring({ type: "sr25519", ss58Format: 4 });
+keyring.setSS58Format(37);
 
 describe("Preparation", () => {
   let api: ApiPromise;
@@ -46,15 +47,14 @@ describe("Preparation", () => {
     }
     return after;
   }
-  async function getAfter(equalityWrap = (val: any) => val) {
-    return waitForAfter.bind(null, before, getLastRootCertificate.bind(null, receiver), equalityWrap);
-  }
 
   it("pkiRootOfTrust. Booking Slot", async () => {
+    before = await getLastRootCertificate(receiver);
+
     await tester.bookSlot(receiver);
     await sleep(8000);
 
-    after = await getAfter();
+    after = await waitForAfter(before, getLastRootCertificate.bind(null, receiver));
 
     expect(after).toHaveProperty("created");
   });
@@ -64,7 +64,7 @@ describe("Preparation", () => {
 
     await sleep(8000);
 
-    after = await getAfter((val) => val?.renewed);
+    after = await waitForAfter(before, getLastRootCertificate.bind(null, receiver), (val) => val?.renewed);
     expect(before?.renewed).not.toBe(after?.renewed);
   });
 
@@ -73,7 +73,7 @@ describe("Preparation", () => {
 
     await sleep(8000);
 
-    after = await getAfter((val) => val?.revoked);
+    after = await waitForAfter(before, getLastRootCertificate.bind(null, receiver), (val) => val?.revoked);
     expect(after?.revoked).toBe(true);
   });
 });
