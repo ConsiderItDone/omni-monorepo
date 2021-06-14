@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn, Unique } from "typeorm";
-import { Field, GraphQLTimestamp, ID, ObjectType } from "type-graphql";
+import { Field, GraphQLTimestamp, Int, ObjectType } from "type-graphql";
 import Event from "./event";
 import Log from "./log";
 import Extrinsic from "./extrinsic";
@@ -12,7 +12,7 @@ import Balance from "./balance";
 @Entity("block", { schema: "public" })
 @Unique(["number"])
 export default class Block extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "block_id" })
   public blockId: number;
 

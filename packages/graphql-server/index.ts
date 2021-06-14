@@ -27,6 +27,7 @@ import MQ from "@nodle/utils/src/mq";
 import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
+import VoteResolver from "./src/resolvers/voteResolver";
 
 const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
 (async (): Promise<void> => {
@@ -58,6 +59,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       EventTypeResolver,
       ModuleResolver,
       ExtrinsicTypeResolver,
+      VoteResolver,
     ],
   });
 
