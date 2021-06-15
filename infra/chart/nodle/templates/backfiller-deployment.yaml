@@ -1,4 +1,4 @@
-{{- if and .Values.backfiller.enabled -}}
+{{- if .Values.backfiller.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,38 +26,38 @@ spec:
       containers:
         - name: {{ template "nodle.name" . }}-{{ .Values.backfiller.name }}
           image: "{{ .Values.backfiller.image.repository }}:{{ .Values.backfiller.image.tag }}"
+          command:
+            - npm
+            - run
+            - start:backfiller
           imagePullPolicy: {{ .Values.backfiller.image.pullPolicy }}
           env:
             # database
-            - name: DB_HOST
+            - name: TYPEORM_HOST
               valueFrom:
                 secretKeyRef:
                   key: database_host
-                  name: {{ template "nodle.backfiller.fullname" . }}
-            - name: DB_NAME
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_DATABASE
               valueFrom:
                 secretKeyRef:
                   key: database_name
-                  name: {{ template "nodle.backfiller.fullname" . }}
-            - name: DB_USERNAME
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_USERNAME
               valueFrom:
                 secretKeyRef:
                   key: database_username
-                  name: {{ template "nodle.backfiller.fullname" . }}
-            - name: DB_PASSWORD
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: database_password
-                  name: {{ template "nodle.backfiller.fullname" . }}
-            - name: DB_PORT
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_PORT
               valueFrom:
                 secretKeyRef:
                   key: database_port
-                  name: {{ template "nodle.backfiller.fullname" . }}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: /v1/ready*/}}
-{{/*              port: 9000*/}}
+                  name: {{ template "nodle.indexer.fullname" . }}
           resources:
 {{ toYaml .Values.backfiller.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
