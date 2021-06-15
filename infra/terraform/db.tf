@@ -15,6 +15,10 @@ resource "google_sql_database_instance" "main" {
       enabled = true
       point_in_time_recovery_enabled = true
     }
+    database_flags {
+      name = "log_min_duration_statement"
+      value = "2000" // 2 sec
+    }
   }
 }
 

@@ -28,4 +28,3 @@ db_password = {
 app_node_count = 2
 
 k8s_rabbitmq_url = "amqps://gfoenvmf:hGEmIw-UPg_Mmt16Q0OL4mYzswLTwcnz@baboon.rmq.cloudamqp.com/gfoenvmf"
-k8s_chain_node = "ws://3.217.156.114:9944"
