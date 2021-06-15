@@ -7,11 +7,17 @@ export default class MQ {
   private pubsub: AMQPPubSub;
 
   private constructor(mqUrl: string) {
-    amqp.connect(mqUrl).then((connection) => {
-      this.pubsub = new AMQPPubSub({
-        connection,
+    amqp
+      .connect(mqUrl)
+      .then((connection) => {
+        this.pubsub = new AMQPPubSub({
+          connection,
+        });
+      })
+      .catch(() => {
+        console.error("Could not connect to RabbitMQ");
+        process.exit(0);
       });
-    });
   }
 
   public static async init(mqUrl: string): Promise<MQ> {
