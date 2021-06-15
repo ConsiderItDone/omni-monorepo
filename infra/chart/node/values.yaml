@@ -1,8 +1,8 @@
 image:
-  repository: eteissonniere/nodle-chain
+  repository: docker.pkg.github.com/nodlecode/chain/nodle-chain
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
+  tag: 2.0.8
 
 persistence:
   enabled: true
@@ -13,3 +13,6 @@ persistence:
 # mainnet - main
 #chain: arcadia
 chain: main
+
+imagePullSecrets:
+  - name: chain-github-secret
