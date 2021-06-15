@@ -58,6 +58,8 @@ spec:
                 secretKeyRef:
                   key: database_port
                   name: {{ template "nodle.indexer.fullname" . }}
+            - name: WS_PROVIDER
+              value: "ws://chain-node-external-websockets.chain:9944"
           resources:
 {{ toYaml .Values.backfiller.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
