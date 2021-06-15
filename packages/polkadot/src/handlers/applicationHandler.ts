@@ -96,7 +96,7 @@ export async function handleApplication(
           accountAddress,
           blockNumber
         );
-        applicationStatus = ApplicationStatus.accepted;
+        applicationStatus = ApplicationStatus.passed;
         break;
       }
       default:
