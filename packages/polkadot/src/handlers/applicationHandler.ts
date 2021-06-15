@@ -92,7 +92,7 @@ export async function handleApplication(
       case "ChallengeAcceptedApplication": {
         applicationData = await tryFetchApplication(
           api,
-          ApplicationFetchMethods.Challenges,
+          ApplicationFetchMethods.Members,
           accountAddress,
           blockNumber
         );
