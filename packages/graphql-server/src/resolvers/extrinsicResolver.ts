@@ -127,6 +127,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     if (callFunction !== "All") {
       type = await ExtrinsicType.findOne({
         name: callFunction,
+        moduleId: module ? module.moduleId : null,
       });
     }
 

@@ -100,6 +100,7 @@ export default class EventResolver extends EventBaseResolver {
     if (eventName !== "All") {
       type = await EventType.findOne({
         name: eventName,
+        moduleId: module ? module.moduleId : null,
       });
     }
 
