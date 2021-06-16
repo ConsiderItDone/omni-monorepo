@@ -1,14 +1,10 @@
 import { expect } from "@jest/globals";
 import { getApi } from "@nodle/polkadot/src/api";
-import { ACCOUNTS } from "../src/const";
 import Tester from "../src/tester";
 import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";
-import { getLastBalance, getLastRootCertificate, sleep, formatSchedule, getApplication } from "../src/utils";
+import { sleep, getApplication } from "../src/utils";
 import { mnemonicGenerate } from "@polkadot/util-crypto";
-import { RootCertificate, VestingSchedule } from "../src/utils/types";
-import { client } from "../src/client";
-import { queryTransfer, queryVestingSchedules } from "../src/queries";
 
 jest.setTimeout(120000);
 

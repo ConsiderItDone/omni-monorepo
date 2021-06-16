@@ -1,18 +1,20 @@
 import { expect } from "@jest/globals";
 import { getApi } from "@nodle/polkadot/src/api";
-import { ACCOUNTS } from "../src/const";
 import Tester from "../src/tester";
 import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";
 import { getLastBalance, getVestingSchedules, sleep, formatSchedule } from "../src/utils";
 import { VestingSchedule } from "../src/utils/types";
+import { mnemonicGenerate } from "@polkadot/util-crypto";
 
 const keyring = new Keyring({ type: "sr25519" });
+keyring.setSS58Format(37);
 
 describe("Preparation", () => {
   let tester: Tester;
+  let tester2: Tester;
   let api: ApiPromise;
-  const receiver = ACCOUNTS.BOB;
+  let receiver: string;
   beforeAll(async () => {
     api = await getApi(process.env.WS_PROVIDER || "ws://3.217.156.114:9944"); //init api
 
@@ -32,7 +34,7 @@ describe("Preparation", () => {
     let after = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
       if (fetchCount >= 5) return after; // returns 'after' value if waiting too long
-      fetchCount++
+      fetchCount++;
       await sleep(2000);
       after = await waitForAfter(before, getAfterCallback, equalityWrap);
     }
@@ -41,15 +43,16 @@ describe("Preparation", () => {
 
   it("Transfer. Balance after transfer should be equal to balance before transfer + transfered amount", async () => {
     const transferValue = getRandomBalanceAmount();
-
+    tester2 = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
+    receiver = tester2.sender.address;
     const freeBefore = await getLastBalance(receiver);
 
     await tester.transfer(receiver, transferValue); // returns hash => hash.toString()
 
     await sleep(8000);
 
-    const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, ACCOUNTS.BOB));
-
+    const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, receiver));
+    console.log(freeAfter);
     expect(freeAfter).toBe(freeBefore + transferValue);
   });
 
@@ -62,7 +65,9 @@ describe("Preparation", () => {
 
     await sleep(8000);
 
-    const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, ACCOUNTS.BOB));
+    console.log(freeBefore);
+    const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, receiver));
+    console.log(freeAfter);
 
     const allocationValueAfterFee = allocationValue * 0.8;
 
