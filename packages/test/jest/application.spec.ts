@@ -34,7 +34,7 @@ describe("Preparation", () => {
   const initTester = async () => {
     const newTester = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
     await tester.allocate(newTester.sender.address, 20 * 1000000000000, "0x00");
-    await sleep(4000); //wait for allocation to apply
+    await sleep(6000); //wait for allocation to apply
     return newTester;
   };
 
@@ -51,8 +51,7 @@ describe("Preparation", () => {
   }
 
   it("Application. Apply", async () => {
-    await tester2.apply("0x00", 10 * 1000000000000); // For challenge Accepted
-    await tester3.apply("0x00", 10 * 1000000000000); // For challenge Refused
+    await tester2.apply("0x00", 10 * 1000000000000);
     await sleep(8000);
 
     const application = await waitForAfter(
@@ -76,18 +75,19 @@ describe("Preparation", () => {
     expect(application).toHaveProperty("status", "countered");
   });
   it("Application. Challenge", async () => {
+    tester2 = await initTester();
+
     const accountToChallenge = tester2.sender.address;
     const getAppCb = getApplication.bind(null, accountToChallenge);
 
     store.challengedAcc = accountToChallenge;
 
-    await tester2.apply("0x00", 10 * 1000000000000);
+    await tester2.apply("0x00", 10 * 1000000000000); // For challenge Accepted
 
-    await sleep(70000); // wait for application to pass
+    await sleep(70000); // wait for applications to pass
     const before = await waitForAfter({ status: "", votes: [] }, getAppCb, (val) => val?.status);
 
-    await tester.challenge(tester2.sender.address, 100 * 1000000000000); //100 NODL to challenge
-    await tester.challenge(tester3.sender.address, 100 * 1000000000000); //100 NODL to challenge
+    await tester.challenge(accountToChallenge, 100 * 1000000000000); //100 NODL to challenge
 
     await sleep(8000);
 
@@ -114,7 +114,7 @@ describe("Preparation", () => {
     expect(voteRecorded).toBe(true);
   });
   it("Application. Accepted", async () => {
-    await sleep(10000);
+    await sleep(60000);
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester2.sender.address),
@@ -122,10 +122,19 @@ describe("Preparation", () => {
     );
     expect(application.status).toBe("member");
   });
-  it("Application. Refused", async () => {
+  it("Application. Challenge Refused", async () => {
+    tester3 = await initTester();
+
+    await sleep(2000);
+    await tester3.apply("0x00", 10 * 1000000000000); // For challenge Refused
+
+    await sleep(6000);
+    await tester.challenge(tester3.sender.address, 100 * 1000000000000); //100 NODL to challenge
+
+    await sleep(8000);
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
-      getApplication.bind(null, tester2.sender.address),
+      getApplication.bind(null, tester3.sender.address),
       (val) => val?.status
     );
     expect(application.status).toBe("refused");

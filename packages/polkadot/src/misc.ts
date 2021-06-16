@@ -132,12 +132,12 @@ export async function upsertApplication(
   status?: string
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(ApplicationRepository);
-  const { candidate, challenger } = applicationData;
+  const { challenger } = applicationData;
 
   const candidateAccount = await getOrCreateAccount(
     api,
     manager,
-    candidate.toString(),
+    accountAddress,
     blockHash,
     blockNumber,
     blockId
