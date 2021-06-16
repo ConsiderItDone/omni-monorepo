@@ -6,7 +6,7 @@ import { waitReady } from "@polkadot/wasm-crypto";
 import { sleep, getApplication } from "../src/utils";
 import { mnemonicGenerate } from "@polkadot/util-crypto";
 
-jest.setTimeout(120000);
+jest.setTimeout(210000);
 
 const keyring = new Keyring({ type: "sr25519", ss58Format: 4 });
 keyring.setSS58Format(37);
@@ -31,9 +31,9 @@ describe("Preparation", () => {
     fetchCount = 0;
   });
 
-  const initTester = async () => {
+  const initTester = async (allocationAmount: number = 20) => {
     const newTester = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
-    await tester.allocate(newTester.sender.address, 20 * 1000000000000, "0x00");
+    await tester.allocate(newTester.sender.address, allocationAmount * 1000000000000, "0x00");
     await sleep(6000); //wait for allocation to apply
     return newTester;
   };
@@ -97,7 +97,7 @@ describe("Preparation", () => {
   });
   it("Application. Vote for", async () => {
     const candidateAddress = store.challengedAcc;
-    const voter = await initTester();
+    const voter = await initTester(120);
 
     const applicationBefore = await getApplication(candidateAddress);
     await voter.vote(candidateAddress, true, 110 * 1000000000000); // 110 NODL to beat challenger deposit so challenged account would win
@@ -114,7 +114,7 @@ describe("Preparation", () => {
     expect(voteRecorded).toBe(true);
   });
   it("Application. Accepted", async () => {
-    await sleep(60000);
+    await sleep(120000); // decrease after voting implementation
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester2.sender.address),
@@ -128,10 +128,10 @@ describe("Preparation", () => {
     await sleep(2000);
     await tester3.apply("0x00", 10 * 1000000000000); // For challenge Refused
 
-    await sleep(6000);
+    await sleep(65000);
     await tester.challenge(tester3.sender.address, 100 * 1000000000000); //100 NODL to challenge
 
-    await sleep(8000);
+    await sleep(130000);
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester3.sender.address),
