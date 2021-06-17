@@ -52,7 +52,6 @@ describe("Preparation", () => {
     await sleep(8000);
 
     const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, receiver));
-    console.log(freeAfter);
     expect(freeAfter).toBe(freeBefore + transferValue);
   });
 
@@ -65,9 +64,7 @@ describe("Preparation", () => {
 
     await sleep(8000);
 
-    console.log(freeBefore);
     const freeAfter = await waitForAfter(freeBefore, getLastBalance.bind(null, receiver));
-    console.log(freeAfter);
 
     const allocationValueAfterFee = allocationValue * 0.8;
 
