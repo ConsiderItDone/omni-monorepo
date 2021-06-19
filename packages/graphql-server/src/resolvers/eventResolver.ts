@@ -168,7 +168,7 @@ export default class EventResolver extends EventBaseResolver {
 
     const data = await getConnection().query(`
       select
-        date_trunc('hour', b."timestamp") as date,
+        date_trunc('day', b."timestamp") as date,
         count(1) as quantity,
         sum(
           CEIL(CAST((e."data"->0)->>'amount' as BIGINT) / 10^12)
