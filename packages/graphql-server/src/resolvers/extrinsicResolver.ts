@@ -165,7 +165,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   async extrinsicsChartData(): Promise<ExtrinsicChartData[]> {
     const data = await getConnection().query(`
       select
-        date_trunc('hour', b."timestamp") as date,
+        date_trunc('day', b."timestamp") as date,
         count(1) as quantity
       from public."extrinsic" e 
       left join public.block b on b.block_id = e.block_id 
