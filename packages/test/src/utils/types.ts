@@ -12,5 +12,7 @@ export interface VestingSchedule {
 }
 
 export interface RootCertificate {
-  revoked: boolean; renewed: string; created: string
+  revoked: boolean;
+  renewed: string;
+  created: string;
 }

@@ -13,7 +13,7 @@
     "build": "npm exec tsc",
     "prepare": "npm run build",
     "start:test": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
-    "start:jest": "npx jest --detectOpenHandles --forceExit --runInBand",
+    "start:jest": "npx jest --forceExit --runInBand",
     "start:jest noDetect": "npx jest --forceExit --runInBand"
   },
   "devDependencies": {

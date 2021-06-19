@@ -16,7 +16,7 @@ describe("Preparation", () => {
   let tester2: Tester;
   let tester3: Tester;
   let api: ApiPromise;
-  let store = { challengedAcc: "" };
+  const store = { challengedAcc: "" };
 
   beforeAll(async () => {
     api = await getApi(process.env.WS_PROVIDER || "ws://3.217.156.114:9944"); //init api
@@ -27,11 +27,11 @@ describe("Preparation", () => {
     tester2 = await initTester();
     await sleep(6000); //wait for allocation to apply
   });
-  beforeEach(async () => {
+  beforeEach(() => {
     fetchCount = 0;
   });
 
-  const initTester = async (allocationAmount: number = 20) => {
+  const initTester = async (allocationAmount = 20) => {
     const newTester = new Tester(api, keyring.addFromUri(mnemonicGenerate()));
     await tester.allocate(newTester.sender.address, allocationAmount * 1000000000000, "0x00");
     await sleep(6000); //wait for allocation to apply
@@ -95,6 +95,7 @@ describe("Preparation", () => {
 
     expect(afterChallenge).toHaveProperty("status", "challenged");
   });
+
   it("Application. Vote for", async () => {
     const candidateAddress = store.challengedAcc;
     const voter = await initTester(120);

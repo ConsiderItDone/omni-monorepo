@@ -15,6 +15,7 @@ import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCer
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
+import VoteRepository from "@nodle/db/src/repositories/public/voteRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
@@ -133,15 +134,9 @@ export async function upsertApplication(
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(ApplicationRepository);
   const { challenger } = applicationData;
+  const voteRepository = manager.getCustomRepository(VoteRepository);
 
-  const candidateAccount = await getOrCreateAccount(
-    api,
-    manager,
-    accountAddress,
-    blockHash,
-    blockNumber,
-    blockId
-  );
+  const candidateAccount = await getOrCreateAccount(api, manager, accountAddress, blockHash, blockNumber, blockId);
   const challengerAccount = await getOrCreateAccount(
     api,
     manager,
@@ -159,7 +154,17 @@ export async function upsertApplication(
     status
   );
 
-  await applicationRepository.upsert(transformedApplicationData);
+  const applicationId = await applicationRepository.upsert(transformedApplicationData[0]);
+
+  for (const addr of transformedApplicationData[1].voters_for) {
+    const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
+    await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, true);
+  }
+
+  for (const addr of transformedApplicationData[1].voters_against) {
+    const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
+    await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, false);
+  }
 }
 
 function transformApplicationData(
@@ -168,20 +173,26 @@ function transformApplicationData(
   challengerId: number,
   application: ApplicationType,
   status?: string
-): ApplicationModel {
+): [ApplicationModel, { voters_for: string[]; voters_against: string[] }] {
   const { candidate_deposit, metadata, challenger_deposit, created_block, challenged_block } = application;
 
-  return {
-    blockId,
-    status,
-    candidateId,
-    candidateDeposit: candidate_deposit.toNumber(),
-    metadata: metadata.toString(),
-    challengerId,
-    challengerDeposit: challenger_deposit?.toNumber() || null,
-    createdBlock: created_block.toString(),
-    challengedBlock: challenged_block.toString(),
-  } as ApplicationModel;
+  return [
+    {
+      blockId,
+      status,
+      candidateId,
+      candidateDeposit: candidate_deposit.toNumber(),
+      metadata: metadata.toString(),
+      challengerId,
+      challengerDeposit: challenger_deposit?.toNumber() || null,
+      createdBlock: created_block.toString(),
+      challengedBlock: challenged_block.toString(),
+    } as ApplicationModel,
+    {
+      voters_against: application.voters_against.map((v) => JSON.stringify(v)),
+      voters_for: application.voters_for.map((v) => JSON.stringify(v)),
+    },
+  ];
 }
 
 export async function changeApplicationStatus(
