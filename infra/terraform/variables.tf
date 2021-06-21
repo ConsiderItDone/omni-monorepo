@@ -65,6 +65,3 @@ data "google_client_config" "gke" {}
 variable "k8s_rabbitmq_url" {
   type = string
 }
-variable "k8s_chain_node" {
-  type = string
-}

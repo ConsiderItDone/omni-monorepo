@@ -9,7 +9,7 @@ import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
 
-const BlockBaseResolver = createBaseResolver("Block", Block);
+const BlockBaseResolver = createBaseResolver("Block", Block, "number");
 
 @Resolver(Block)
 export default class BlockResolver extends BlockBaseResolver {

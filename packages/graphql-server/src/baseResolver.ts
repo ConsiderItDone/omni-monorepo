@@ -18,7 +18,8 @@ import { withFilter } from "apollo-server";
 
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
-  objectTypeCls: T
+  objectTypeCls: T,
+  orderByParam?: string
   // eslint-disable-next-line
 ): any {
   @ArgsType()
@@ -53,6 +54,7 @@ export function createBaseResolver<T extends ClassType>(
   @Resolver({ isAbstract: true })
   abstract class BaseResolver {
     private lastNumber = -1;
+    private orderBy = orderByParam ? orderByParam : `${Utils.lowerCaseFirstLetter(suffix)}Id`;
 
     @Query(() => objectTypeCls, {
       name: `${Utils.lowerCaseFirstLetter(suffix)}ById`,
@@ -76,16 +78,16 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       const order: any = {}; // eslint-disable-line
-      order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "DESC";
+      order[this.orderBy] = "DESC";
 
       if (first) {
         take = first;
-        order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "ASC";
+        order[this.orderBy] = "ASC";
       }
 
       if (last) {
         take = last;
-        order[`${Utils.lowerCaseFirstLetter(suffix)}Id`] = "DESC";
+        order[this.orderBy] = "DESC";
       }
 
       // eslint-disable-next-line

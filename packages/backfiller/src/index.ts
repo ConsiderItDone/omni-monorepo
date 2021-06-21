@@ -9,7 +9,6 @@ try {
 import { backfiller } from "./services/backfiller";
 import { patcher } from "./services/patcher";
 import { connect } from "@nodle/db";
-import MQ from "@nodle/utils/src/mq";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {
@@ -26,8 +25,6 @@ const start = async function (): Promise<void> {
   } as ConnectionOptions;
 
   const connection = await connect(connectionOptions);
-
-  await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection
 
   if (process.argv && process.argv.length > 1 && process.argv[process.argv.length - 1] === "patcher-only") {
     patcher(process.env.WS_PROVIDER, connection);

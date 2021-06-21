@@ -1,15 +1,31 @@
 graphql:
+  replicaCount: 3
   image:
     repository: gcr.io/block-explorer-312212/app
-    tag: v0.1.0
+    tag: v0.3.0
 
   ingress:
     enabled: true
     hosts:
       - api.prod.nodleprotocol.io
 
+frontend:
+  image:
+    repository: gcr.io/block-explorer-312212/frontend
+    tag: "v0.1.1"
+
+  ingress:
+    enabled: true
+    hosts:
+      - ui.prod.nodleprotocol.io
+
 indexer:
   image:
     repository: gcr.io/block-explorer-312212/app
-    tag: v0.1.0
+    tag: v0.3.0
 
+
+backfiller:
+  image:
+    repository: gcr.io/block-explorer-312212/app
+    tag: v0.3.0

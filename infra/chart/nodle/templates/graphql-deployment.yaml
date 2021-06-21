@@ -59,10 +59,9 @@ spec:
                   key: database_port
                   name: {{ template "nodle.indexer.fullname" . }}
             - name: RABBIT_MQ_URL
-              valueFrom:
-                secretKeyRef:
-                  key: rabbitmq_url
-                  name: {{ template "nodle.indexer.fullname" . }}
+              value: "amqp://nodleuser:KodRRXhxWnhj1Yku82mP@rabbitmq.rabbitmq:5672"
+            - name: WS_PROVIDER
+              value: "ws://chain-node-external-websockets.chain:9944"
           readinessProbe:
             httpGet:
               path: /

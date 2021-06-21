@@ -49,6 +49,7 @@ export default class ApplicationRepository extends Repository<Application> {
 
     return (await this.add(applicationData)).applicationId;
   }
+
   public async findCandidate(candidateId: number): Promise<Application> {
     return await this.findOne({ candidateId });
   }
