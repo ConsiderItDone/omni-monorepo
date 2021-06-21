@@ -19,7 +19,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
-import { FindConditions, FindManyOptions, getConnection, ILike, Raw } from "typeorm";
+import { getConnection, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
@@ -48,6 +48,12 @@ class EventByNameArgs {
 
   @Field(() => GraphQLJSON, { nullable: true })
   filters?: any; // eslint-disable-line
+
+  @Field(() => Date, { nullable: true })
+  dateStart?: Date;
+
+  @Field(() => Date, { nullable: true })
+  dateEnd?: Date;
 }
 
 @ArgsType()
@@ -81,75 +87,64 @@ class TransferChartData {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => EventsResponse)
   protected async events(
-    @Args() { take, skip, callModule, eventName, extrinsicHash, filters }: EventByNameArgs
+    @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
-    const findOptions: FindManyOptions<Event> = {
-      take,
-      skip,
-      order: {
-        eventId: "DESC",
-      },
-    };
-
-    let result;
-
-    let module: Module;
-    if (callModule !== "All") {
-      module = await Module.findOne({
-        name: callModule,
-      });
-    }
-    let type: EventType;
-    if (eventName !== "All") {
-      type = await EventType.findOne({
-        name: eventName,
-      });
-    }
-
-    const where: FindConditions<Event> = {};
-    if (filters) {
-      where.data = Raw((data) =>
-        Object.keys(filters)
-          .map((filter) => `${data} @> '{"${filter}":"${filters[filter]}"}'`)
-          .join(" and ")
-      );
-    }
+    const query = Event.createQueryBuilder("event").take(take).skip(skip);
+    // .orderBy('extrinsic.extrinsic_id', 'DESC');
 
     if (extrinsicHash) {
-      where.extrinsicHash = ILike(extrinsicHash);
+      query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
     }
 
-    if (callModule === "All" && eventName === "All") {
-      result = await Event.findAndCount({
-        ...findOptions,
-        where,
-      });
-    } else if (eventName === "All") {
-      result = await Event.findAndCount({
-        ...findOptions,
-        where: {
-          ...where,
-          moduleId: module ? module.moduleId : null,
-        },
-      });
-    } else if (callModule === "All") {
-      result = await Event.findAndCount({
-        ...findOptions,
-        where: {
-          ...where,
-          eventTypeId: type ? type.eventTypeId : null,
-        },
-      });
-    } else {
-      result = await Event.findAndCount({
-        ...findOptions,
-        where: {
-          ...where,
-          moduleId: module ? module.moduleId : null,
-          eventTypeId: type ? type.eventTypeId : null,
-        },
+    if (filters) {
+      Object.keys(filters).forEach((filter) => {
+        query.andWhere(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
       });
     }
+
+    if (dateStart || dateEnd) {
+      query.leftJoin(Block, "block", "block.block_id = event.block_id");
+
+      if (dateStart) {
+        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
+      }
+      if (dateEnd) {
+        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
+      }
+    }
+
+    if (callModule && callModule !== "All") {
+      const module = await Module.findOne({
+        name: ILike(callModule),
+      });
+
+      if (!module) {
+        return {
+          items: [],
+          totalCount: 0,
+        };
+      }
+
+      query.andWhere(`event.module_id = ${module.moduleId}`);
+
+      if (eventName && eventName !== "All") {
+        const type = await EventType.findOne({
+          name: ILike(eventName),
+          moduleId: module.moduleId,
+        });
+
+        if (!type) {
+          return {
+            items: [],
+            totalCount: 0,
+          };
+        }
+
+        query.andWhere(`event.event_type_id = ${type.eventTypeId}`);
+      }
+    }
+
+    const result = await query.getManyAndCount();
     return { items: result[0], totalCount: result[1] };
   }
 

@@ -115,7 +115,6 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       query.andWhere(`extrinsic.is_signed = true`);
     }
 
-    console.log(dateStart?.toUTCString(), dateEnd?.toUTCString());
     if (dateStart || dateEnd) {
       query.leftJoin(Block, "block", "block.block_id = extrinsic.block_id");
 
