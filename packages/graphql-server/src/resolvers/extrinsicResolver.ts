@@ -6,7 +6,7 @@ import Event from "@nodle/db/src/models/public/event";
 import Account from "@nodle/db/src/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindManyOptions, getConnection, getRepository, In } from "typeorm";
+import { getConnection, getRepository, In, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import Module from "@nodle/db/src/models/public/module";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
@@ -108,68 +108,52 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     @Args()
     { take, skip, callModule, callFunction, signedOnly, signer, dateStart, dateEnd }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
-    const findOptions: FindManyOptions<Extrinsic> = {
-      take,
-      skip,
-      order: {
-        extrinsicId: "DESC",
-      },
-    };
+    const query = Extrinsic.createQueryBuilder("extrinsic").take(take).skip(skip);
+    // .orderBy('extrinsic.extrinsic_id', 'DESC');
+
     if (signedOnly) {
-      findOptions.where = { isSigned: true };
+      query.andWhere(`extrinsic.is_signed = true`);
     }
 
-    if (dateStart) {
-    } else if (dateEnd) {
-    } else if (dateStart && dateEnd) {
+    console.log(dateStart?.toUTCString(), dateEnd?.toUTCString());
+    if (dateStart || dateEnd) {
+      query.leftJoin(Block, "block", "block.block_id = extrinsic.block_id");
+
+      if (dateStart) {
+        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
+      }
+      if (dateEnd) {
+        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
+      }
     }
 
     if (signer) {
-      const { accountId } = await Account.findOne({ where: { address: signer } });
-      findOptions.where = Object.assign(findOptions.where || {}, { signerId: accountId });
+      query.leftJoin(Account, "account", "account.account_id = extrinsic.signer_id");
+      query.andWhere(`account.address ILIKE '${signer}'`);
     }
 
-    let module: Module;
-    if (callModule !== "All") {
-      module = await Module.findOne({
-        name: callModule,
+    if (callModule && callModule !== "All") {
+      const module = await Module.findOne({
+        name: ILike(callModule),
       });
-    }
-    let type: ExtrinsicType;
-    if (callFunction !== "All") {
-      type = await ExtrinsicType.findOne({
-        name: callFunction,
-      });
-    }
 
-    let result;
+      if (module) {
+        query.andWhere(`extrinsic.module_id = ${module.moduleId}`);
+      }
 
-    if (callModule === "All" && callFunction === "All") {
-      result = await Extrinsic.findAndCount(findOptions);
-    } else if (callFunction === "All") {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          moduleId: module ? module.moduleId : null,
-        },
-      });
-    } else if (callModule === "All") {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          extrinsicTypeId: type ? type.extrinsicTypeId : null,
-        },
-      });
-    } else {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          moduleId: module ? module.moduleId : null,
-          extrinsicTypeId: type ? type.extrinsicTypeId : null,
-        },
-      });
+      if (callFunction && callFunction !== "All") {
+        const type = await ExtrinsicType.findOne({
+          name: ILike(callFunction),
+          moduleId: module.moduleId,
+        });
+
+        if (type) {
+          query.andWhere(`extrinsic.extrinsic_type_id = ${type.extrinsicTypeId}`);
+        }
+      }
     }
 
+    const result = await query.getManyAndCount();
     return { items: result[0], totalCount: result[1] };
   }
 
