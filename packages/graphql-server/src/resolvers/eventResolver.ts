@@ -19,7 +19,7 @@ import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import MQ from "@nodle/utils/src/mq";
 import { withFilter } from "graphql-subscriptions";
-import { FindConditions, FindManyOptions, getConnection, Raw } from "typeorm";
+import { FindConditions, FindManyOptions, getConnection, ILike, Raw } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
@@ -116,7 +116,7 @@ export default class EventResolver extends EventBaseResolver {
     }
 
     if (extrinsicHash) {
-      where.extrinsicHash = extrinsicHash;
+      where.extrinsicHash = ILike(extrinsicHash);
     }
 
     if (callModule === "All" && eventName === "All") {
