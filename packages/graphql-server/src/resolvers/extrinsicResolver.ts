@@ -53,6 +53,12 @@ class ExtrinsicsByType {
 
   @Field(() => String, { nullable: true })
   signer?: string;
+
+  @Field(() => Date, { nullable: true })
+  dateStart?: Date;
+
+  @Field(() => String, { nullable: true })
+  dateEnd?: Date;
 }
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
@@ -100,7 +106,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async extrinsics(
     @Args()
-    { take, skip, callModule, callFunction, signedOnly, signer }: ExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly, signer, dateStart, dateEnd }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
@@ -111,6 +117,11 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     };
     if (signedOnly) {
       findOptions.where = { isSigned: true };
+    }
+
+    if (dateStart) {
+    } else if (dateEnd) {
+    } else if (dateStart && dateEnd) {
     }
 
     if (signer) {
