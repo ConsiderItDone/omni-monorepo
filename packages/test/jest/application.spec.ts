@@ -6,7 +6,7 @@ import { waitReady } from "@polkadot/wasm-crypto";
 import { sleep, getApplication } from "../src/utils";
 import { mnemonicGenerate } from "@polkadot/util-crypto";
 
-jest.setTimeout(210000);
+jest.setTimeout(230000);
 
 const keyring = new Keyring({ type: "sr25519", ss58Format: 4 });
 keyring.setSS58Format(37);
@@ -132,7 +132,7 @@ describe("Preparation", () => {
     await sleep(65000);
     await tester.challenge(tester3.sender.address, 100 * 1000000000000); //100 NODL to challenge
 
-    await sleep(130000);
+    await sleep(150000);
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester3.sender.address),

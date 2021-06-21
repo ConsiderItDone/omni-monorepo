@@ -51,8 +51,8 @@ class ExtrinsicsByType {
   @Field(() => Boolean, { defaultValue: false, nullable: true })
   signedOnly?: boolean;
 
-  @Field(() => Int, { nullable: true })
-  signerId?: number;
+  @Field(() => String, { nullable: true })
+  signer?: string;
 }
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
@@ -100,7 +100,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async extrinsics(
     @Args()
-    { take, skip, callModule, callFunction, signedOnly, signerId }: ExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly, signer }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
     const findOptions: FindManyOptions<Extrinsic> = {
       take,
@@ -113,7 +113,8 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       findOptions.where = { isSigned: true };
     }
 
-    if (signerId) {
+    if (signer) {
+      const signerId = await Account.findOne({ where: { address: signer } });
       findOptions.where = Object.assign(findOptions.where || {}, { signerId });
     }
 
