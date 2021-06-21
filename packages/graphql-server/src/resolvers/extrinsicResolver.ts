@@ -126,7 +126,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
 
     if (signer) {
       const { accountId } = await Account.findOne({ where: { address: signer } });
-      findOptions.where = Object.assign(findOptions.where || {}, { signerId: accountId });
+      findOptions.where = { signerId: accountId };
     }
 
     let module: Module;
@@ -150,6 +150,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
+          ...(findOptions.where as any),
           moduleId: module ? module.moduleId : null,
         },
       });
@@ -157,6 +158,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
+          ...(findOptions.where as any),
           extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
       });
@@ -164,6 +166,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       result = await Extrinsic.findAndCount({
         ...findOptions,
         where: {
+          ...(findOptions.where as any),
           moduleId: module ? module.moduleId : null,
           extrinsicTypeId: type ? type.extrinsicTypeId : null,
         },
