@@ -57,7 +57,7 @@ class ExtrinsicsByType {
   @Field(() => Date, { nullable: true })
   dateStart?: Date;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => Date, { nullable: true })
   dateEnd?: Date;
 }
 @Resolver(Extrinsic)
