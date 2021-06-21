@@ -154,14 +154,17 @@ export async function upsertApplication(
     status
   );
 
-  const applicationId = await applicationRepository.upsert(transformedApplicationData[0]);
+  const applicationId = await applicationRepository.upsert(transformedApplicationData);
 
-  for (const addr of transformedApplicationData[1].voters_for) {
+  const votersAgainst = applicationData.voters_against.map((v) => v[0].toString());
+  const votersFor = applicationData.voters_for.map((v) => v[0].toString());
+
+  for (const addr of votersFor) {
     const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
     await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, true);
   }
 
-  for (const addr of transformedApplicationData[1].voters_against) {
+  for (const addr of votersAgainst) {
     const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
     await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, false);
   }
@@ -173,26 +176,20 @@ function transformApplicationData(
   challengerId: number,
   application: ApplicationType,
   status?: string
-): [ApplicationModel, { voters_for: string[]; voters_against: string[] }] {
+): ApplicationModel {
   const { candidate_deposit, metadata, challenger_deposit, created_block, challenged_block } = application;
 
-  return [
-    {
-      blockId,
-      status,
-      candidateId,
-      candidateDeposit: candidate_deposit.toNumber(),
-      metadata: metadata.toString(),
-      challengerId,
-      challengerDeposit: challenger_deposit?.toNumber() || null,
-      createdBlock: created_block.toString(),
-      challengedBlock: challenged_block.toString(),
-    } as ApplicationModel,
-    {
-      voters_against: application.voters_against.map((v) => JSON.stringify(v)),
-      voters_for: application.voters_for.map((v) => JSON.stringify(v)),
-    },
-  ];
+  return {
+    blockId,
+    status,
+    candidateId,
+    candidateDeposit: candidate_deposit.toNumber(),
+    metadata: metadata.toString(),
+    challengerId,
+    challengerDeposit: challenger_deposit?.toNumber() || null,
+    createdBlock: created_block.toString(),
+    challengedBlock: challenged_block.toString(),
+  } as ApplicationModel;
 }
 
 export async function changeApplicationStatus(
