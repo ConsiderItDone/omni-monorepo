@@ -182,7 +182,7 @@ export default class EventResolver extends EventBaseResolver {
         ) as amount
       from public."event" e 
       left join public.block b on b.block_id = e.block_id 
-      where e.event_type_id = 14
+      where e.event_type_id = ${eventType.eventTypeId}
       group by 1
     `);
 
