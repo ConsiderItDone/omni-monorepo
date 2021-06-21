@@ -114,8 +114,8 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     }
 
     if (signer) {
-      const signerAcc = await Account.findOne({ where: { address: signer } });
-      findOptions.where = Object.assign(findOptions.where || {}, { signerId: signerAcc.accountId });
+      const { accountId } = await Account.findOne({ where: { address: signer } });
+      findOptions.where = Object.assign(findOptions.where || {}, { signerId: accountId });
     }
 
     let module: Module;
