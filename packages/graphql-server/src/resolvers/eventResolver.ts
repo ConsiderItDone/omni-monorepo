@@ -43,6 +43,9 @@ class EventByNameArgs {
   @Field(() => String, { defaultValue: "All", nullable: true })
   eventName?: string;
 
+  @Field(() => String, { nullable: true })
+  extrinsicHash?: string;
+
   @Field(() => GraphQLJSON, { nullable: true })
   filters?: any; // eslint-disable-line
 }
@@ -78,7 +81,7 @@ class TransferChartData {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => EventsResponse)
   protected async events(
-    @Args() { take, skip, callModule, eventName, filters }: EventByNameArgs
+    @Args() { take, skip, callModule, eventName, extrinsicHash, filters }: EventByNameArgs
   ): Promise<EventsResponse> {
     const findOptions: FindManyOptions<Event> = {
       take,
@@ -110,6 +113,10 @@ export default class EventResolver extends EventBaseResolver {
           .map((filter) => `${data} @> '{"${filter}":"${filters[filter]}"}'`)
           .join(" and ")
       );
+    }
+
+    if (extrinsicHash) {
+      where.extrinsicHash = extrinsicHash;
     }
 
     if (callModule === "All" && eventName === "All") {
