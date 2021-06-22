@@ -5,7 +5,7 @@ import Module from "@nodle/db/src/models/public/module";
 import { singleFieldResolver } from "../fieldsResolver";
 import { FindConditions } from "typeorm";
 
-const ExtrinsicTypeBaseResolver = createBaseResolver("ExtrinsicType", ExtrinsicType);
+const ExtrinsicTypeBaseResolver = createBaseResolver("ExtrinsicType", ExtrinsicType, "name", "ASC");
 
 @ArgsType()
 class ExtrinsicTypesArgs {

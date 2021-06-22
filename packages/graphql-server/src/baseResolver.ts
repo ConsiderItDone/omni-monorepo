@@ -19,7 +19,8 @@ import { withFilter } from "apollo-server";
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
   objectTypeCls: T,
-  orderByParam?: string
+  orderByParam?: string,
+  orderDirection: "DESC" | "ASC" = "DESC"
   // eslint-disable-next-line
 ): any {
   @ArgsType()
@@ -78,7 +79,7 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       const order: any = {}; // eslint-disable-line
-      order[this.orderBy] = "DESC";
+      order[this.orderBy] = orderDirection;
 
       if (first) {
         take = first;
