@@ -39,6 +39,7 @@ export function getExtrinsics(): Extrinsics<SubmittableExtrinsicFunction<"promis
   };
 }
 
+// eslint-disable-next-line
 export async function signAndSend(fn: SubmittableExtrinsicFunction<"promise">, ...args: any[]): Promise<Hash> {
   const sender = this.sender;
   return await fn(...args).signAndSend(sender);
@@ -80,7 +81,7 @@ export const getApplication = async (address: string): Promise<Application> => {
   );
 };
 
-export function sleep(ms: number) {
+export function sleep(ms: number): Promise<NodeJS.Timeout> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

@@ -30,6 +30,7 @@ describe("Preparation", () => {
     //console.log("Fetching done after ", fetchCount, "requests");})
   });
   let fetchCount = 0;
+  // eslint-disable-next-line
   async function waitForAfter(before: any, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
@@ -88,7 +89,7 @@ describe("Preparation", () => {
   });
 });
 
-export const getRandomBalanceAmount = () => {
+export const getRandomBalanceAmount = (): number => {
   return getRandomInt(1, 10) * 1000000000000;
 };
 
