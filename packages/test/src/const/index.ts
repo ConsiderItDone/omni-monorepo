@@ -1,0 +1,6 @@
+export const ACCOUNTS = {
+  //ALICE: "4mvedcXEAY9xEoEfdCDHviBJqgVQxW9DRwvs7yPsV1HtWU9k",
+  BOB: "4kMVMYM62pA45nkACGFMBNGLjqUXVxjsw7nY4cGCR2NejajH",
+  CHARLIE: "4kQ9RiV8Mp3giQ9pj3qgB2idZy9uVGcjMu3sbcZJhRZB2kk7",
+  DAVE: "4iDsVu26Zq6N1UzqyXFeUQe4i8oPpLDenwCqT4S3bV4x3wGA",
+};

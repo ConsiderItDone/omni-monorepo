@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import { GraphQLJSON } from "graphql-type-json";
 import Event from "./event";
@@ -11,7 +11,7 @@ import ExtrinsicType from "./extrinsicType";
 @Index("extrinsic_pk", ["extrinsicId"], { unique: true })
 @Entity("extrinsic", { schema: "public" })
 export default class Extrinsic extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "extrinsic_id" })
   public extrinsicId: number;
 

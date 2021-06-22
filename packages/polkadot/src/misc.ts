@@ -15,6 +15,7 @@ import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCer
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
+import VoteRepository from "@nodle/db/src/repositories/public/voteRepository";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
@@ -132,16 +133,10 @@ export async function upsertApplication(
   status?: string
 ): Promise<void> {
   const applicationRepository = manager.getCustomRepository(ApplicationRepository);
-  const { candidate, challenger } = applicationData;
+  const { challenger } = applicationData;
+  const voteRepository = manager.getCustomRepository(VoteRepository);
 
-  const candidateAccount = await getOrCreateAccount(
-    api,
-    manager,
-    candidate.toString(),
-    blockHash,
-    blockNumber,
-    blockId
-  );
+  const candidateAccount = await getOrCreateAccount(api, manager, accountAddress, blockHash, blockNumber, blockId);
   const challengerAccount = await getOrCreateAccount(
     api,
     manager,
@@ -159,7 +154,20 @@ export async function upsertApplication(
     status
   );
 
-  await applicationRepository.upsert(transformedApplicationData);
+  const applicationId = await applicationRepository.upsert(transformedApplicationData);
+
+  const votersAgainst = applicationData.voters_against.map((v) => v[0].toString());
+  const votersFor = applicationData.voters_for.map((v) => v[0].toString());
+
+  for (const addr of votersFor) {
+    const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
+    await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, true);
+  }
+
+  for (const addr of votersAgainst) {
+    const initiator = await getOrCreateAccount(api, manager, addr, blockHash, blockNumber, blockId);
+    await voteRepository.changeCandidateVote(applicationId, initiator.accountId, candidateAccount.accountId, false);
+  }
 }
 
 function transformApplicationData(

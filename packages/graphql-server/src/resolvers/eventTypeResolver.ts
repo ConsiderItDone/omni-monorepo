@@ -4,7 +4,7 @@ import { createBaseResolver } from "../baseResolver";
 import Module from "@nodle/db/src/models/public/module";
 import { singleFieldResolver } from "../fieldsResolver";
 
-const EventTypeBaseResolver = createBaseResolver("EventType", EventType);
+const EventTypeBaseResolver = createBaseResolver("EventType", EventType, "name", "ASC");
 
 @ArgsType()
 class EventTypesArgs {

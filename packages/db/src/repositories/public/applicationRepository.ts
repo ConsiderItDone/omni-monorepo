@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, UpdateResult } from "typeorm";
+import { EntityRepository, Repository } from "typeorm";
 import { Application } from "../../models";
 
 type NewApplicationParams = {
@@ -39,15 +39,17 @@ export default class ApplicationRepository extends Repository<Application> {
     });
   }
 
-  public async upsert(applicationData: Application): Promise<UpdateResult | Application> {
+  public async upsert(applicationData: Application): Promise<number> {
     const existingApplication = await this.findCandidate(applicationData.candidateId);
 
     if (existingApplication) {
-      return await this.update(existingApplication.applicationId, applicationData);
+      await this.update(existingApplication.applicationId, applicationData);
+      return existingApplication.applicationId;
     }
 
-    return await this.add(applicationData);
+    return (await this.add(applicationData)).applicationId;
   }
+
   public async findCandidate(candidateId: number): Promise<Application> {
     return await this.findOne({ candidateId });
   }
