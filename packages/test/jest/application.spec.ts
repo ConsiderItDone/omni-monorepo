@@ -39,6 +39,7 @@ describe("Preparation", () => {
   };
 
   let fetchCount = 0;
+  //eslint-disable-next-line
   async function waitForAfter<T = any>(before: T, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after: T = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
