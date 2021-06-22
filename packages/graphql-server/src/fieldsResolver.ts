@@ -7,13 +7,15 @@ export async function arrayFieldResolver<T>(
   child: ClassType,
   field: string,
   field2?: string,
-  where: any = {} // eslint-disable-line
+  where: any = {}, // eslint-disable-line
+  order: any = null // eslint-disable-line
 ): Promise<any[]> {
   const array = await (child as any).find({
     where: {
       ...where,
       [field]: (parent as any)[field2 || field],
     },
+    order,
   });
 
   return array || [];
