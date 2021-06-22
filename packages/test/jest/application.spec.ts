@@ -39,7 +39,6 @@ describe("Preparation", () => {
   };
 
   let fetchCount = 0;
-  // eslint-disable-next-line
   async function waitForAfter<T = any>(before: T, getAfterCallback: any, equalityWrap = (val: any) => val) {
     let after: T = await getAfterCallback();
     if (equalityWrap(before) === equalityWrap(after)) {
@@ -114,7 +113,7 @@ describe("Preparation", () => {
     expect(voteRecorded).toBe(true);
   });
   it("Application. Accepted", async () => {
-    await sleep(100000); // decrease after voting implementation
+    await sleep(100000);
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester2.sender.address),
