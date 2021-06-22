@@ -108,8 +108,10 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     @Args()
     { take, skip, callModule, callFunction, signedOnly, signer, dateStart, dateEnd }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
-    const query = Extrinsic.createQueryBuilder("extrinsic").take(take).skip(skip);
-    // .orderBy('extrinsic.extrinsic_id', 'DESC');
+    const query = Extrinsic.createQueryBuilder("extrinsic")
+      .take(take)
+      .skip(skip)
+      .orderBy("extrinsic.extrinsicId", "DESC");
 
     if (signedOnly) {
       query.andWhere(`extrinsic.is_signed = true`);
@@ -136,9 +138,14 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
         name: ILike(callModule),
       });
 
-      if (module) {
-        query.andWhere(`extrinsic.module_id = ${module.moduleId}`);
+      if (!module) {
+        return {
+          items: [],
+          totalCount: 0,
+        };
       }
+
+      query.andWhere(`extrinsic.module_id = ${module.moduleId}`);
 
       if (callFunction && callFunction !== "All") {
         const type = await ExtrinsicType.findOne({
@@ -146,9 +153,14 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
           moduleId: module.moduleId,
         });
 
-        if (type) {
-          query.andWhere(`extrinsic.extrinsic_type_id = ${type.extrinsicTypeId}`);
+        if (!type) {
+          return {
+            items: [],
+            totalCount: 0,
+          };
         }
+
+        query.andWhere(`extrinsic.extrinsic_type_id = ${type.extrinsicTypeId}`);
       }
     }
 

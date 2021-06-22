@@ -89,8 +89,7 @@ export default class EventResolver extends EventBaseResolver {
   protected async events(
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
-    const query = Event.createQueryBuilder("event").take(take).skip(skip);
-    // .orderBy('extrinsic.extrinsic_id', 'DESC');
+    const query = Event.createQueryBuilder("event").take(take).skip(skip).orderBy("event.eventId", "DESC");
 
     if (extrinsicHash) {
       query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
