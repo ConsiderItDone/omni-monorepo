@@ -47,6 +47,12 @@ export const queryApplication = gql`
     accountByAddress(address: $address) {
       applicationsByCandidate {
         status
+        votes {
+          initiator {
+            address
+          }
+          isSupported
+        }
       }
     }
   }

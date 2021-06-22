@@ -96,27 +96,25 @@ describe("Preparation", () => {
 
     expect(afterChallenge).toHaveProperty("status", "challenged");
   });
-
   it("Application. Vote for", async () => {
     const candidateAddress = store.challengedAcc;
-    const voter = await initTester(120);
+    const voter = await initTester(180);
 
     const applicationBefore = await getApplication(candidateAddress);
+
     await voter.vote(candidateAddress, true, 110 * 1000000000000); // 110 NODL to beat challenger deposit so challenged account would win
     await sleep(8000);
 
-    const { votes: votesAfter } = await waitForAfter(
-      applicationBefore,
-      getApplication.bind(null, candidateAddress),
-      (val) => val?.status
+    const after = await waitForAfter(applicationBefore, getApplication.bind(null, candidateAddress), (val) =>
+      JSON.stringify(val)
     );
-    const voteRecorded = votesAfter?.some(
+    const voteRecorded = after?.votes.some(
       (v) => v?.initiator?.address === voter.sender.address && v?.isSupported === true
     );
     expect(voteRecorded).toBe(true);
   });
   it("Application. Accepted", async () => {
-    await sleep(120000); // decrease after voting implementation
+    await sleep(100000); // decrease after voting implementation
     const application = await waitForAfter(
       { status: "challenged", votes: [] },
       getApplication.bind(null, tester2.sender.address),
