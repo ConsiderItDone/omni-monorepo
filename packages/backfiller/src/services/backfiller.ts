@@ -18,7 +18,7 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
 
   // "00 */5 * * * *" to start every 5 minutes
   const backfillJob = new CronJob("00 */5 * * * *", backfill);
-  const blockFinalizerJob = new CronJob("00 */5 * * * *", () => finalizeBlocks(api, connection));
+  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
   const backfillAccountsJob = new CronJob("00 */30 * * * *", () => backfillAccounts(connection, api));
 
   const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
