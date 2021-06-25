@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@nodle/db": "^1.0.0",
+    "@nodle/polkadot": "^1.0.0",
     "@nodle/utils": "^1.0.0",
     "@types/express": "^4.17.11",
     "apollo-server": "^2.21.0",
