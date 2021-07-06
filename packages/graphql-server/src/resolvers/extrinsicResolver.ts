@@ -89,6 +89,9 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     }
 
     const [blockNumber, index] = id.split("-");
+    if (blockNumber || isNaN(parseInt(blockNumber))) {
+      return null;
+    }
     return await getRepository(Extrinsic).findOne({
       join: {
         alias: "extrinsic",
@@ -96,9 +99,12 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       },
       // eslint-disable-next-line
       where: (qb: any) => {
-        qb.where("block.number = :blockNumber", { blockNumber }).andWhere({
-          index,
-        });
+        qb.where("block.number = :blockNumber", { blockNumber });
+        if (index) {
+          qb.andWhere({
+            index,
+          });
+        }
       },
     });
   }
