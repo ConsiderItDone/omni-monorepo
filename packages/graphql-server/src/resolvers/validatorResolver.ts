@@ -1,6 +1,6 @@
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
-import Account from "@nodle/db/src/models/public/account";
-import Validator from "@nodle/db/src/models/public/validator";
+import Account from "@nodle/db/models/public/account";
+import Validator from "@nodle/db/models/public/validator";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import { getRepository } from "typeorm";

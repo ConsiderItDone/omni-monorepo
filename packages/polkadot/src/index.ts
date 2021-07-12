@@ -10,3 +10,5 @@ export {
   handleRootOfTrust,
   handleVestingSchedule,
 } from "./handlers";
+
+export * as api from "./api";

@@ -3,15 +3,15 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
-import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import { getExtrinsicSuccess, boundEventsToExtrinsics, getOrCreateAccount } from "@nodle/polkadot/src/misc";
-import { ExtrinsicWithBoundedEvents } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import ExtrinsicRepository from "@nodle/db/repositories/public/extrinsicRepository";
+import { getExtrinsicSuccess, boundEventsToExtrinsics, getOrCreateAccount } from "../misc";
+import { ExtrinsicWithBoundedEvents } from "@nodle/utils/types";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
-import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
-import ExtrinsicTypeRepository from "@nodle/db/src/repositories/public/extrinsicTypeRepository";
+import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
+import ExtrinsicTypeRepository from "@nodle/db/repositories/public/extrinsicTypeRepository";
 
 export async function handleExtrinsics(
   manager: EntityManager,

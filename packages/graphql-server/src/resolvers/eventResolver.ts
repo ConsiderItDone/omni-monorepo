@@ -12,17 +12,17 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Event from "@nodle/db/src/models/public/event";
-import Block from "@nodle/db/src/models/public/block";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
+import Event from "@nodle/db/models/public/event";
+import Block from "@nodle/db/models/public/block";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import MQ from "@nodle/utils/src/mq";
+import MQ from "@nodle/utils/mq";
 import { withFilter } from "graphql-subscriptions";
 import { getConnection, ILike } from "typeorm";
-import EventType from "@nodle/db/src/models/public/eventType";
+import EventType from "@nodle/db/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
-import Module from "@nodle/db/src/models/public/module";
+import Module from "@nodle/db/models/public/module";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 

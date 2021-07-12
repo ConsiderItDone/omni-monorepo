@@ -8,8 +8,8 @@ try {
 }
 
 import { subscribe } from "./services/subscribe";
-import { connect } from "@nodle/db";
-import MQ from "@nodle/utils/src/mq";
+import { connect } from "@nodle/db/index";
+import MQ from "@nodle/utils/mq";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {

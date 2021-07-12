@@ -5,6 +5,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "noImplicitAny": true,
     "declaration": true,
     "emitDecoratorMetadata": true,

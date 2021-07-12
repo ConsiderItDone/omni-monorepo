@@ -1,4 +1,4 @@
-import { getApi } from "@nodle/polkadot/src/api";
+import { getApi } from "@nodle/polkadot/api";
 import { ACCOUNTS } from "./const";
 import Tester from "./tester";
 

@@ -5,9 +5,9 @@ import type { Event } from "@polkadot/types/interfaces/system";
 
 import { upsertApplication, tryFetchApplication, ApplicationFetchMethods } from "../misc";
 
-import { Application as ApplicationType, ApplicationStatus } from "@nodle/utils/src/types";
+import { Application as ApplicationType, ApplicationStatus } from "@nodle/utils/types";
 
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleApplication(

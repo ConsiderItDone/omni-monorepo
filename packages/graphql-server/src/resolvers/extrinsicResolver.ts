@@ -1,15 +1,15 @@
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Block from "@nodle/db/src/models/public/block";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import Event from "@nodle/db/src/models/public/event";
-import Account from "@nodle/db/src/models/public/account";
+import Block from "@nodle/db/models/public/block";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
+import Event from "@nodle/db/models/public/event";
+import Account from "@nodle/db/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { getConnection, getRepository, In, ILike } from "typeorm";
-import EventType from "@nodle/db/src/models/public/eventType";
-import Module from "@nodle/db/src/models/public/module";
-import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
+import EventType from "@nodle/db/models/public/eventType";
+import Module from "@nodle/db/models/public/module";
+import ExtrinsicType from "@nodle/db/models/public/extrinsicType";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 

@@ -4,14 +4,18 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
-import { CustomEventSection } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST } from "@nodle/utils/src/logger";
+import { CustomEventSection } from "@nodle/utils/types";
+import { logger, LOGGER_INFO_CONST } from "@nodle/utils/logger";
 
 import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
+import { handleNewBlock } from "./blockHandler";
+import { handleEvents } from "./eventHandler";
+import { handleExtrinsics } from "./extrinsicHandler";
+import { handleLogs } from "./logHandler";
 
 export async function handleTrackedEvents(
   manager: EntityManager,
@@ -52,8 +56,15 @@ export async function handleTrackedEvents(
   }
 }
 
-export { handleNewBlock } from "./blockHandler";
-export { handleEvents } from "./eventHandler";
-export { handleExtrinsics } from "./extrinsicHandler";
-export { handleLogs } from "./logHandler";
-export { handleApplication, handleBalance, handleRootOfTrust, handleVestingSchedule };
+export {
+  handleNewBlock,
+  handleEvents,
+  handleExtrinsics,
+  handleLogs,
+  handleApplication,
+  handleBalance,
+  handleRootOfTrust,
+  handleVestingSchedule,
+};
+
+export * as misc from "../misc";

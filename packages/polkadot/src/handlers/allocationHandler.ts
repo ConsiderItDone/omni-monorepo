@@ -8,7 +8,7 @@ import { AccountInfo } from "@polkadot/types/interfaces/system";
 import { saveAccount, tryFetchAccount } from "../misc";
 
 import { GenericAccountId } from "@polkadot/types";
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 
 export async function handleAllocation(
   manager: EntityManager,

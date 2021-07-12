@@ -2,9 +2,9 @@ import { EntityManager } from "typeorm";
 import type { Header, Moment } from "@polkadot/types/interfaces/runtime";
 import { u8aToHex } from "@polkadot/util";
 
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
-import Block from "@nodle/db/src/models/public/block";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import BlockRepository from "@nodle/db/repositories/public/blockRepository";
+import Block from "@nodle/db/models/public/block";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 
 export async function handleNewBlock(
   manager: EntityManager,

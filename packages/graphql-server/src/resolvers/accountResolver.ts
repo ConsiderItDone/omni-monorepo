@@ -1,12 +1,13 @@
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
-import Account from "@nodle/db/src/models/public/account";
-import Balance from "@nodle/db/src/models/public/balance";
-import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import Block from "@nodle/db/src/models/public/block";
+import Account from "@nodle/db/models/public/account";
+import Balance from "@nodle/db/models/public/balance";
+import VestingSchedule from "@nodle/db/models/public/vestingSchedule";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
+import Block from "@nodle/db/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
-import { RootCertificate, Application } from "@nodle/db/src/models";
+import Application from "@nodle/db/models/public/application";
+import RootCertificate from "@nodle/db/models/public/rootCertificate";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 

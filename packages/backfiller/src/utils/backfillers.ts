@@ -12,14 +12,14 @@ import {
   ApplicationFetchMethods,
   saveAccount,
   saveValidator,
-} from "@nodle/polkadot/src/misc";
-import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/src/types";
-import { logger } from "@nodle/utils/src/logger";
-import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import { handleBalance, handleRootOfTrust, handleVestingSchedule } from "@nodle/polkadot/src/handlers";
+} from "@nodle/polkadot/misc";
+import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/types";
+import { logger } from "@nodle/utils/logger";
+import ApplicationRepository from "@nodle/db/repositories/public/applicationRepository";
+import AccountRepository from "@nodle/db/repositories/public/accountRepository";
+import { handleBalance, handleRootOfTrust, handleVestingSchedule } from "@nodle/polkadot/index";
 import { Connection } from "typeorm";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
+import BlockRepository from "@nodle/db/repositories/public/blockRepository";
 
 export async function backfillTrackedEvents(
   manager: EntityManager,

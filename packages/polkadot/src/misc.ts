@@ -8,23 +8,22 @@ import {
   RootCertificate as RootCertificateType,
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils/src/types";
+} from "@nodle/utils/types";
 import { EntityManager } from "typeorm";
-import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
-import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import VoteRepository from "@nodle/db/src/repositories/public/voteRepository";
-import {
-  Application as ApplicationModel,
-  RootCertificate as RootCertificateModel,
-  VestingSchedule as VestingScheduleModel,
-  Account as AccountModel,
-  Validator,
-} from "@nodle/db/src/models";
+import ApplicationRepository from "@nodle/db/repositories/public/applicationRepository";
+import RootCertificateRepository from "@nodle/db/repositories/public/rootCertificateRepository";
+import AccountRepository from "@nodle/db/repositories/public/accountRepository";
+import ValidatorRepository from "@nodle/db/repositories/public/validatorRepository";
+import BalanceRepository from "@nodle/db/repositories/public/balanceRepository";
+import VoteRepository from "@nodle/db/repositories/public/voteRepository";
+import ApplicationModel from "@nodle/db/models/public/application";
+import RootCertificateModel from "@nodle/db/models/public/rootCertificate";
+import VestingScheduleModel from "@nodle/db/models/public/vestingSchedule";
+import AccountModel from "@nodle/db/models/public/account";
+import Validator from "@nodle/db/models/public/validator";
+
 import { ApiPromise } from "@polkadot/api";
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(

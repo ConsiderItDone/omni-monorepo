@@ -1,13 +1,13 @@
 import { Between, Connection } from "typeorm";
-import { getApi } from "@nodle/polkadot/src/api";
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
+import { getApi } from "@nodle/polkadot/api";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/index";
 import { backfillAccounts, backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
-import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
+import BlockRepository from "@nodle/db/repositories/public/blockRepository";
+import BackfillProgressRepository from "@nodle/db/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
-import { logger } from "@nodle/utils/src/logger";
-import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
-import MetricsService from "@nodle/utils/src/services/metricsService";
+import { logger } from "@nodle/utils/logger";
+import { finalizeBlocks } from "@nodle/utils/blockFinalizer";
+import MetricsService from "@nodle/utils/services/metricsService";
 import express from "express";
 
 const backfillServer = express();

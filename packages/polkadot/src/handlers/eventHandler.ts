@@ -3,14 +3,14 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { Vec } from "@polkadot/types";
 
-import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
-import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import { findExtrinsicsWithEventsHash, transformEventData } from "@nodle/polkadot/src/misc";
-import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import { default as EventModel } from "@nodle/db/src/models/public/event";
-import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepository";
-import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
+import EventRepository from "@nodle/db/repositories/public/eventRepository";
+import ExtrinsicRepository from "@nodle/db/repositories/public/extrinsicRepository";
+import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
+import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/types";
+import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import { default as EventModel } from "@nodle/db/models/public/event";
+import EventTypeRepository from "@nodle/db/repositories/public/eventTypeRepository";
+import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
 
 export async function handleEvents(
   manager: EntityManager,

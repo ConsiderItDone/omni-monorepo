@@ -6,17 +6,18 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
-    "target": "es2019",
     "noImplicitAny": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
     "sourceMap": true,
-
+    "skipLibCheck": true,
+    "removeComments": true,
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
       "*": ["node_modules/*"]
     }
-  }
+  },
+  "files": ["index.ts"],
+  "exclude": ["node_modules", "dist"]
 }

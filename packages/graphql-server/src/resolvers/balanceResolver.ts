@@ -1,7 +1,7 @@
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
-import Balance from "@nodle/db/src/models/public/balance";
-import Account from "@nodle/db/src/models/public/account";
-import Block from "@nodle/db/src/models/public/block";
+import Balance from "@nodle/db/models/public/balance";
+import Account from "@nodle/db/models/public/account";
+import Block from "@nodle/db/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 

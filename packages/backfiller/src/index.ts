@@ -8,7 +8,7 @@ try {
 
 import { backfiller } from "./services/backfiller";
 import { patcher } from "./services/patcher";
-import { connect } from "@nodle/db";
+import { connect } from "@nodle/db/index";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {

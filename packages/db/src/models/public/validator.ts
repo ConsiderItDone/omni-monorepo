@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
-import { Account } from "@nodle/db/src/models";
+import Account from "./account";
 
 @ObjectType()
 @Index("validator_pk", ["validatorId"], { unique: true })
