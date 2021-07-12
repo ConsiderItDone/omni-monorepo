@@ -67,14 +67,16 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     schema,
     introspection: true,
     playground: true,
-    plugins: [{
-      requestDidStart(ctx: any): void {
-        if (ctx.request.query.indexOf('schema') === -1) {
-          console.log('query', ctx.request.query);
-          console.log('variables', ctx.request.variables);
-        }
+    plugins: [
+      {
+        requestDidStart(ctx): void {
+          if (ctx.request.query.indexOf("schema") === -1) {
+            console.log("query", ctx.request.query);
+            console.log("variables", ctx.request.variables);
+          }
+        },
       },
-    }]
+    ],
   });
 
   const app = express();
