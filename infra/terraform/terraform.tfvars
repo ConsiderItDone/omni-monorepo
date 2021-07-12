@@ -15,7 +15,7 @@ db_tier = {
   // 1 vCPU 1.7 GB memory
   default = "db-g1-small" // test
   // 2 CPU 3.75 GB memory
-  prod    = "db-custom-2-3840"
+  prod    = "db-custom-4-3840"
 }
 db_name = "nodle"
 db_user = "nodleuser"
@@ -25,6 +25,6 @@ db_password = {
 }
 
 // GKE
-app_node_count = 2
+app_node_count = 3
 
 k8s_rabbitmq_url = "amqps://gfoenvmf:hGEmIw-UPg_Mmt16Q0OL4mYzswLTwcnz@baboon.rmq.cloudamqp.com/gfoenvmf"
