@@ -39,7 +39,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    logging: false,
+    logging: process.env.TYPEORM_LOGGING,
     entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
   await connect(connectionOptions);

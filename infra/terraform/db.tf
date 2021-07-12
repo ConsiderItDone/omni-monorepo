@@ -14,6 +14,7 @@ resource "google_sql_database_instance" "main" {
     backup_configuration {
       enabled = true
       point_in_time_recovery_enabled = true
+      location = "us"
     }
     database_flags {
       name = "log_min_duration_statement"
