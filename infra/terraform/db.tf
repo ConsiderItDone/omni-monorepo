@@ -20,6 +20,16 @@ resource "google_sql_database_instance" "main" {
       name = "log_min_duration_statement"
       value = "2000" // 2 sec
     }
+    database_flags {
+      name = "random_page_cost"
+      value = "1"
+    }
+    insights_config {
+      query_insights_enabled = true
+      query_string_length = 1024
+      record_application_tags = true
+      record_client_address = false
+    }
   }
 }
 

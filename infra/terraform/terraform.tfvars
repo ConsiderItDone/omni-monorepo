@@ -14,8 +14,8 @@ master_cidr = "10.201.0.0/28"
 db_tier = {
   // 1 vCPU 1.7 GB memory
   default = "db-g1-small" // test
-  // 2 CPU 3.75 GB memory
-  prod    = "db-custom-4-3840"
+  // 8 CPU 3.75 GB memory
+  prod    = "db-custom-8-7424"
 }
 db_name = "nodle"
 db_user = "nodleuser"
