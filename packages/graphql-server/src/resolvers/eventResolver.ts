@@ -157,6 +157,23 @@ export default class EventResolver extends EventBaseResolver {
     return events || [];
   }
 
+  @Query(() => EventsResponse)
+  async eventsByIndex(
+    @Arg("blockNumber") number: number,
+    @Arg("extrinsicIndex") extrinsicIndex: number,
+    @Arg("eventIndex") eventIndex: number
+  ): Promise<EventsResponse> {
+    const query = await Event.createQueryBuilder("event")
+      .leftJoin(Block, "block", "block.blockId = event.blockId")
+      .leftJoin(Extrinsic, "extrinsic", "extrinsic.extrinsicId = event.extrinsicId")
+      .where(`block.number = :number`, { number })
+      .andWhere(`extrinsic.index = :extrinsicIndex`, { extrinsicIndex })
+      .andWhere(`event.index = :eventIndex`, { eventIndex });
+
+    const result = await query.getManyAndCount();
+    return { items: result[0], totalCount: result[1] };
+  }
+
   @Query(() => [TransferChartData])
   async transfersChartData(): Promise<TransferChartData[]> {
     const eventType = await EventType.findOne({
