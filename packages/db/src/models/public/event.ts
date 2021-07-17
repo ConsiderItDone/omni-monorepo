@@ -61,4 +61,8 @@ export default class Event extends BaseEntity {
   @ManyToOne(() => Extrinsic, (extrinsic) => extrinsic.extrinsicId)
   @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
   public extrinsic: Extrinsic;
+
+  @Field(() => Int, { nullable: true })
+  @Column("integer", { name: "patch_version", nullable: true })
+  public patchVersion: number;
 }

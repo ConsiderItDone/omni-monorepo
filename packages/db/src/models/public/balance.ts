@@ -44,4 +44,8 @@ export default class Balance extends BaseEntity {
   @ManyToOne(() => Block, (block) => block.events)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
   public block: Block;
+
+  @Field(() => Int, { nullable: true })
+  @Column("integer", { name: "patch_version", nullable: true })
+  public patchVersion: number;
 }

@@ -107,4 +107,8 @@ export default class Extrinsic extends BaseEntity {
   @OneToMany(() => Event, (event) => event.extrinsicId)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
   public events: Event[];
+
+  @Field(() => Int, { nullable: true })
+  @Column("integer", { name: "patch_version", nullable: true })
+  public patchVersion: number;
 }

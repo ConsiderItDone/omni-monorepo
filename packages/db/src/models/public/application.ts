@@ -76,4 +76,8 @@ export default class Application extends BaseEntity {
   @OneToMany(() => Vote, (vote) => vote.voteId)
   @JoinColumn([{ name: "vote_id", referencedColumnName: "voteId" }])
   public votes: Vote[];
+
+  @Field(() => Int, { nullable: true })
+  @Column("integer", { name: "patch_version", nullable: true })
+  public patchVersion: number;
 }
