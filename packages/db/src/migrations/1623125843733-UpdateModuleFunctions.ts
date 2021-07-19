@@ -3,6 +3,7 @@ import {getConnection, MigrationInterface, QueryRunner} from "typeorm";
 export class UpdateModuleFunctions1623125843733 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+
         const modules = await queryRunner.query(`SELECT module_id from "public"."module"`);
         for (const module of modules) {
             const items = await queryRunner.query(`

@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Extrinsic from "./extrinsic";
 import { GraphQLJSON } from "graphql-type-json";
@@ -10,7 +10,7 @@ import Module from "./module";
 @Index("event_pk", ["eventId"], { unique: true })
 @Entity("event", { schema: "public" })
 export default class Event extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "event_id" })
   public eventId: number;
 

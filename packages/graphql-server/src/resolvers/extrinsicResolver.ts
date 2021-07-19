@@ -6,7 +6,7 @@ import Event from "@nodle/db/src/models/public/event";
 import Account from "@nodle/db/src/models/public/account";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
-import { FindManyOptions, getConnection, getRepository, In } from "typeorm";
+import { getConnection, getRepository, In, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import Module from "@nodle/db/src/models/public/module";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
@@ -51,8 +51,14 @@ class ExtrinsicsByType {
   @Field(() => Boolean, { defaultValue: false, nullable: true })
   signedOnly?: boolean;
 
-  @Field(() => Int, { nullable: true })
-  signerId?: number;
+  @Field(() => String, { nullable: true })
+  signer?: string;
+
+  @Field(() => Date, { nullable: true })
+  dateStart?: Date;
+
+  @Field(() => Date, { nullable: true })
+  dateEnd?: Date;
 }
 @Resolver(Extrinsic)
 export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
@@ -83,6 +89,9 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     }
 
     const [blockNumber, index] = id.split("-");
+    if (blockNumber && isNaN(parseInt(blockNumber))) {
+      return null;
+    }
     return await getRepository(Extrinsic).findOne({
       join: {
         alias: "extrinsic",
@@ -90,9 +99,12 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       },
       // eslint-disable-next-line
       where: (qb: any) => {
-        qb.where("block.number = :blockNumber", { blockNumber }).andWhere({
-          index,
-        });
+        qb.where("block.number = :blockNumber", { blockNumber });
+        if (index) {
+          qb.andWhere({
+            index,
+          });
+        }
       },
     });
   }
@@ -100,65 +112,65 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   @Query(() => ExtrinsicsResponse)
   async extrinsics(
     @Args()
-    { take, skip, callModule, callFunction, signedOnly, signerId }: ExtrinsicsByType
+    { take, skip, callModule, callFunction, signedOnly, signer, dateStart, dateEnd }: ExtrinsicsByType
   ): Promise<ExtrinsicsResponse> {
-    const findOptions: FindManyOptions<Extrinsic> = {
-      take,
-      skip,
-      order: {
-        extrinsicId: "DESC",
-      },
-    };
+    const query = Extrinsic.createQueryBuilder("extrinsic")
+      .take(take)
+      .skip(skip)
+      .orderBy("extrinsic.extrinsicId", "DESC");
+
     if (signedOnly) {
-      findOptions.where = { isSigned: true };
+      query.andWhere(`extrinsic.is_signed = true`);
     }
 
-    if (signerId) {
-      findOptions.where = Object.assign(findOptions.where || {}, { signerId });
+    if (dateStart || dateEnd) {
+      query.leftJoin(Block, "block", "block.block_id = extrinsic.block_id");
+
+      if (dateStart) {
+        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
+      }
+      if (dateEnd) {
+        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
+      }
     }
 
-    let module: Module;
-    if (callModule !== "All") {
-      module = await Module.findOne({
-        name: callModule,
-      });
-    }
-    let type: ExtrinsicType;
-    if (callFunction !== "All") {
-      type = await ExtrinsicType.findOne({
-        name: callFunction,
-        moduleId: module ? module.moduleId : null,
-      });
+    if (signer) {
+      query.leftJoin(Account, "account", "account.account_id = extrinsic.signer_id");
+      query.andWhere(`account.address ILIKE '${signer}'`);
     }
 
-    let result;
+    if (callModule && callModule !== "All") {
+      const module = await Module.findOne({
+        name: ILike(callModule),
+      });
 
-    if (callModule === "All" && callFunction === "All") {
-      result = await Extrinsic.findAndCount(findOptions);
-    } else if (callFunction === "All") {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          moduleId: module ? module.moduleId : null,
-        },
-      });
-    } else if (callModule === "All") {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          extrinsicTypeId: type ? type.extrinsicTypeId : null,
-        },
-      });
-    } else {
-      result = await Extrinsic.findAndCount({
-        ...findOptions,
-        where: {
-          moduleId: module ? module.moduleId : null,
-          extrinsicTypeId: type ? type.extrinsicTypeId : null,
-        },
-      });
+      if (!module) {
+        return {
+          items: [],
+          totalCount: 0,
+        };
+      }
+
+      query.andWhere(`extrinsic.module_id = ${module.moduleId}`);
+
+      if (callFunction && callFunction !== "All") {
+        const type = await ExtrinsicType.findOne({
+          name: ILike(callFunction),
+          moduleId: module.moduleId,
+        });
+
+        if (!type) {
+          return {
+            items: [],
+            totalCount: 0,
+          };
+        }
+
+        query.andWhere(`extrinsic.extrinsic_type_id = ${type.extrinsicTypeId}`);
+      }
     }
 
+    const result = await query.getManyAndCount();
     return { items: result[0], totalCount: result[1] };
   }
 
@@ -166,7 +178,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   async extrinsicsChartData(): Promise<ExtrinsicChartData[]> {
     const data = await getConnection().query(`
       select
-        date_trunc('hour', b."timestamp") as date,
+        date_trunc('day', b."timestamp") as date,
         count(1) as quantity
       from public."extrinsic" e 
       left join public.block b on b.block_id = e.block_id 

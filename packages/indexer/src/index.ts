@@ -21,7 +21,7 @@ const start = async function (): Promise<void> {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    logging: false,
+    logging: process.env.TYPEORM_LOGGING === "true",
     entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
 

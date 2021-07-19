@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import { Account } from "../index";
 import Block from "./block";
 
@@ -7,7 +7,7 @@ import Block from "./block";
 @Index("balance_pk", ["balanceId"], { unique: true })
 @Entity("balance", { schema: "public" })
 export default class Balance extends BaseEntity {
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   @PrimaryGeneratedColumn({ type: "integer", name: "balance_id" })
   public balanceId: number;
 

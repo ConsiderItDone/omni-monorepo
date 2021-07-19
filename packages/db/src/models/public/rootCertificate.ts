@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import Block from "./block";
 import Account from "./account";
 
@@ -7,7 +7,7 @@ import Account from "./account";
 @Index("root_certificate_pk", ["rootCertificateId"], { unique: true })
 @Entity("root_certificate", { schema: "public" })
 export default class RootCertificate extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn({ type: "integer", name: "root_certificate_id" })
   public rootCertificateId: number;
 

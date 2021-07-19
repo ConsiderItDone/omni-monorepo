@@ -1,7 +1,7 @@
 graphql:
   image:
     repository: gcr.io/block-explorer-testnet/app
-    tag: 0ad6416
+    tag: "bbd003e"
 
   ingress:
     enabled: true
@@ -11,7 +11,7 @@ graphql:
 frontend:
   image:
     repository: gcr.io/block-explorer-testnet/frontend
-    tag: "4569691"
+    tag: "0303711"
 
   ingress:
     enabled: true
@@ -21,5 +21,10 @@ frontend:
 indexer:
   image:
     repository: gcr.io/block-explorer-testnet/app
-    tag: 0ad6416
+    tag: "bbd003e"
+
+backfiller:
+  image:
+    repository: gcr.io/block-explorer-testnet/app
+    tag: "bbd003e"
 

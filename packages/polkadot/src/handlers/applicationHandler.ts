@@ -90,13 +90,8 @@ export async function handleApplication(
       }
       /// A challenge accepted the application  ChallengeAcceptedApplication(AccountId),
       case "ChallengeAcceptedApplication": {
-        applicationData = await tryFetchApplication(
-          api,
-          ApplicationFetchMethods.Challenges,
-          accountAddress,
-          blockNumber
-        );
-        applicationStatus = ApplicationStatus.accepted;
+        applicationData = await tryFetchApplication(api, ApplicationFetchMethods.Members, accountAddress, blockNumber);
+        applicationStatus = ApplicationStatus.passed;
         break;
       }
       default:

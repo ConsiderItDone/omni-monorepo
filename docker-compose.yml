@@ -67,7 +67,7 @@ services:
       - .env
     volumes:
       - ./:/app  # only dev
-    command: ["sh", "-c", "npm ci &&  npm run start:server"]
+    command: ["sh", "-c", "npm ci && npm run start:server"]
     ports:
       - "4000:4000"
 
