@@ -10,6 +10,10 @@ export async function patcher(ws: string, connection: Connection): Promise<void>
 
   await patchExtrinsics(connection);
 
+  await patchAllocations(connection);
+
+  await patchTransfers(connection);
+
   process.exit(0);
 }
 
@@ -35,6 +39,8 @@ async function patchAllocationData(connection: Connection) {
     });
     console.log(`Event ${allocation.event_id} was patched`);
   }
+
+  console.log("Allocations data format were patched");
 }
 
 async function patchBalances(connection: Connection) {
@@ -48,6 +54,8 @@ async function patchBalances(connection: Connection) {
         fee_frozen=fee_frozen::numeric/100
       WHERE patch_version is null
     `);
+
+  console.log("Balances were patched");
 }
 
 async function patchApplications(connection: Connection) {
@@ -59,6 +67,8 @@ async function patchApplications(connection: Connection) {
         candidate_deposit=candidate_deposit::numeric/100
       WHERE patch_version is null
     `);
+
+  console.log("Applications were patched");
 }
 
 async function patchExtrinsics(connection: Connection) {
@@ -77,4 +87,40 @@ async function patchExtrinsics(connection: Connection) {
       fee = jsonb_set(fee, '{inclusionFee, lenFee}', to_jsonb((fee->'inclusionFee'->'lenFee')::bigint/100), true)
     WHERE patch_version = 1
   `);
+
+  console.log("Extrinsics were patched");
+}
+
+async function patchAllocations(connection: Connection) {
+  await connection.query(`
+    UPDATE "public"."event"
+    SET
+      patch_version=1,
+      data = jsonb_set(data, '{fee}',to_jsonb((data->>'fee')::bigint/100), true)
+    WHERE patch_version is null and data->'who' is not null
+  `);
+
+  await connection.query(`
+    UPDATE "public"."event"
+    SET
+      patch_version=2,
+      data = jsonb_set(data, '{value}',to_jsonb((data->>'value')::bigint/100), true)
+    WHERE patch_version=1 and data->'who' is not null
+  `);
+
+  console.log("Allocations were patched");
+}
+
+async function patchTransfers(connection: Connection) {
+  // skip patch_version=1 and set v2
+
+  await connection.query(`
+    UPDATE "public"."event"
+    SET
+      patch_version=2,
+      data = jsonb_set(data, '{value}',to_jsonb((data->>'value')::bigint/100), true)
+    WHERE patch_version is null and data->'from' is not null
+  `);
+
+  console.log("Transfers were patched");
 }
