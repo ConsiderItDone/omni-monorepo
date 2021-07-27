@@ -53,7 +53,7 @@ variable "db_password" {
 
 // gke
 variable "app_node_count" {
-  type = number
+  type = map(number)
 }
 //variable "system_node_count" {
 //  type = number

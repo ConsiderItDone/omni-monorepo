@@ -27,7 +27,7 @@ resource "google_container_node_pool" "app_nodes" {
   name       = "${google_container_cluster.main.name}-app-node-pool"
   cluster    = google_container_cluster.main.name
   location = "us-central1-a"
-  node_count = var.app_node_count
+  node_count = local.app_node_count
 
   node_config {
     oauth_scopes = [

@@ -25,6 +25,9 @@ db_password = {
 }
 
 // GKE
-app_node_count = 3
+app_node_count = {
+  default = 2
+  prod = 3
+}
 
 k8s_rabbitmq_url = "amqps://gfoenvmf:hGEmIw-UPg_Mmt16Q0OL4mYzswLTwcnz@baboon.rmq.cloudamqp.com/gfoenvmf"

@@ -22,7 +22,7 @@ resource "google_sql_database_instance" "main" {
     }
     database_flags {
       name = "random_page_cost"
-      value = "1"
+      value = "0.1"
     }
     insights_config {
       query_insights_enabled = true
