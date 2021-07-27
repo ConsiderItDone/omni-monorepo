@@ -1,5 +1,5 @@
 graphql:
-  replicaCount: 1
+  replicaCount: 3
   image:
     repository: gcr.io/block-explorer-312212/app
     tag: v0.4.2
