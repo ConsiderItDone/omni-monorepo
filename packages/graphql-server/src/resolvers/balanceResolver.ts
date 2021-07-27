@@ -4,13 +4,20 @@ import Account from "@nodle/db/src/models/public/account";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-
+import { balanceCache } from "@nodle/utils/src/services/cacheService";
 const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 
 @Resolver(Balance)
 export default class BalanceResolver extends BalanceBaseResolver {
   @Query(() => Balance, { nullable: true })
   async balanceByAddress(@Arg("address") address: string): Promise<Balance> {
+    const cachedBalance = await balanceCache.get(address).then(JSON.parse);
+
+    if (cachedBalance) {
+      console.log(`Found balance in cache by key: ${address} `);
+      return cachedBalance;
+    }
+
     const balance = await Balance.createQueryBuilder("balance")
       .leftJoin(Account, "account", "account.accountId = balance.accountId")
       .leftJoinAndSelect(Block, "block", "block.blockId = balance.blockId")
@@ -18,6 +25,10 @@ export default class BalanceResolver extends BalanceBaseResolver {
       .andWhere(`account.address = :address`, { address })
       .addOrderBy("block.number", "DESC")
       .getOne();
+
+    if (balance) {
+      balanceCache.set(address, balance);
+    }
 
     return balance || ({} as any); // eslint-disable-line
   }
