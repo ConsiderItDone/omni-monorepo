@@ -11,6 +11,7 @@ const clientOptions: Redis.ClientOpts = {
 
 class CacheClient {
   client: Redis.RedisClient;
+  // eslint-disable-next-line
   get: (key: string, cb?: Redis.Callback<string>) => any;
   constructor() {
     this.client = Redis.createClient(clientOptions);
@@ -19,11 +20,12 @@ class CacheClient {
     });
     this.get = promisify(this.client.get).bind(this.client);
   }
-  set(key: string, value: any) {
-    //return this.client.set(key, JSON.stringify(value), "EX", CACHE_EXPIRATION_TIME);
+  //eslint-disable-next-line
+  set(key: string, value: any): boolean {
     return this.client.set(key, JSON.stringify(value));
+    //return this.client.set(key, JSON.stringify(value), "EX", CACHE_EXPIRATION_TIME);
   }
-  del(key: string) {
+  del(key: string): boolean {
     return this.client.del(key);
   }
 }
