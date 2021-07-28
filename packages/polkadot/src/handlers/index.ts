@@ -6,6 +6,7 @@ import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
 import { CustomEventSection } from "@nodle/utils/src/types";
 import { logger, LOGGER_INFO_CONST } from "@nodle/utils/src/logger";
+import { Account, Balance } from "@nodle/db/src/models";
 
 import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
@@ -20,7 +21,12 @@ export async function handleTrackedEvents(
   blockId: number,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-): Promise<void> {
+): Promise<{
+  accountWithBalances: [
+    { savedAccount: Account; savedBalance?: Balance },
+    { savedAccount: Account; savedBalance?: Balance }
+  ];
+}> {
   try {
     if (trackedEvents.length < 1) {
       return;
@@ -38,8 +44,8 @@ export async function handleTrackedEvents(
           await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
         case CustomEventSection.Balance:
-          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
-          break;
+          const accountWithBalances = await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
+          return { accountWithBalances };
         case CustomEventSection.Allocation:
           await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
           break;

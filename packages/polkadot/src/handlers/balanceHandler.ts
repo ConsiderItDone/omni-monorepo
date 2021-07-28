@@ -9,6 +9,7 @@ import { saveAccount, tryFetchAccount } from "../misc";
 
 import { GenericAccountId } from "@polkadot/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { Account, Balance } from "../../../db/src/models";
 
 export async function handleBalance(
   manager: EntityManager,
@@ -17,7 +18,7 @@ export async function handleBalance(
   api: ApiPromise,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-): Promise<void> {
+): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }]> {
   try {
     switch (event.method) {
       case "Transfer": {
@@ -30,8 +31,19 @@ export async function handleBalance(
           await tryFetchAccount(api, event.data[1] as GenericAccountId, blockHash, blockNumber),
         ];
         try {
-          await saveAccount(manager, accFrom[0] as GenericAccountId, accFrom[1] as AccountInfo, blockId);
-          await saveAccount(manager, accTo[0] as GenericAccountId, accTo[1] as AccountInfo, blockId);
+          const savedAccountBalanceFrom = await saveAccount(
+            manager,
+            accFrom[0] as GenericAccountId,
+            accFrom[1] as AccountInfo,
+            blockId
+          );
+          const savedAccountBalanceTo = await saveAccount(
+            manager,
+            accTo[0] as GenericAccountId,
+            accTo[1] as AccountInfo,
+            blockId
+          );
+          return [savedAccountBalanceFrom, savedAccountBalanceTo];
         } catch (accountSaveError) {
           logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
         }

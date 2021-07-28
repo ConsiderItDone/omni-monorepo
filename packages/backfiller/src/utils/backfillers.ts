@@ -177,7 +177,11 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
     const validatorDatas = await Promise.all(validators.map((authorityId) => api.query.system.account(authorityId)));
     for (const [index, validator] of validators.entries()) {
       const entityManager = await connection.createEntityManager();
-      const validatorAccount = await saveAccount(entityManager, validator as AccountId, validatorDatas[index]);
+      const { savedAccount: validatorAccount } = await saveAccount(
+        entityManager,
+        validator as AccountId,
+        validatorDatas[index]
+      );
       await saveValidator(
         entityManager,
         validatorAccount.accountId,

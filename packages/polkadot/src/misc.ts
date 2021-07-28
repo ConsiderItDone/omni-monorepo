@@ -22,6 +22,7 @@ import {
   VestingSchedule as VestingScheduleModel,
   Account as AccountModel,
   Validator,
+  Balance as BalanceModel,
 } from "@nodle/db/src/models";
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
@@ -300,7 +301,7 @@ export async function saveAccount(
   accountAddress: AccountId | string,
   accountInfo: AccountInfo,
   blockId?: number
-): Promise<AccountModel> {
+): Promise<{ savedAccount: AccountModel; savedBalance?: BalanceModel }> {
   const accountRepository = manager.getCustomRepository(AccountRepository);
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
@@ -323,10 +324,10 @@ export async function saveAccount(
     feeFrozen: feeFrozen.toString(),
     blockId,
   };
-  await balanceRepository.add(balanceData);
+  const savedBalance = await balanceRepository.add(balanceData);
   balanceCache.del(address);
 
-  return savedAccount;
+  return { savedAccount, savedBalance };
 }
 
 export async function saveValidator(
@@ -361,6 +362,8 @@ export async function getOrCreateAccount(
   } else {
     const accountInfo = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
 
-    return await saveAccount(entityManager, accountAddress.toString(), accountInfo, blockId);
+    const { savedAccount } = await saveAccount(entityManager, accountAddress.toString(), accountInfo, blockId);
+
+    return savedAccount;
   }
 }

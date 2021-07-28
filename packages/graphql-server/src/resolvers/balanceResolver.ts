@@ -1,11 +1,20 @@
-import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
+import { Arg, Args, ArgsType, Field, FieldResolver, Query, Resolver, Root, Subscription } from "type-graphql";
 import Balance from "@nodle/db/src/models/public/balance";
 import Account from "@nodle/db/src/models/public/account";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 import { balanceCache } from "@nodle/utils/src/services/cacheService";
+import { withFilter } from "graphql-subscriptions";
+import MQ from "@nodle/utils/src/mq";
+
 const BalanceBaseResolver = createBaseResolver("Balance", Balance);
+
+@ArgsType()
+class SubscribeBalanceByAddress {
+  @Field(() => String)
+  address: string;
+}
 
 @Resolver(Balance)
 export default class BalanceResolver extends BalanceBaseResolver {
@@ -41,5 +50,22 @@ export default class BalanceResolver extends BalanceBaseResolver {
   @FieldResolver()
   block(@Root() source: Balance): Promise<Block> {
     return singleFieldResolver(source, Block, "blockId");
+  }
+
+  @Subscription(() => Balance, {
+    subscribe: withFilter(
+      () => MQ.getMQ().on(`newBalance`),
+      (payload, variables) => {
+        const match = payload.address === variables.address;
+        delete payload.address;
+        return match;
+      }
+    ),
+  })
+  newBalanceByAddress(
+    @Root() entity: Balance,
+    @Args() args: SubscribeBalanceByAddress // eslint-disable-line
+  ): Balance {
+    return entity;
   }
 }
