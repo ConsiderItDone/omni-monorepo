@@ -324,8 +324,7 @@ export async function saveAccount(
     blockId,
   };
   await balanceRepository.add(balanceData);
-
-  balanceCache.set(address, balance);
+  balanceCache.del(address);
 
   return savedAccount;
 }
