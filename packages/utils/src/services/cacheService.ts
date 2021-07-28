@@ -1,7 +1,7 @@
 import Redis from "redis";
 import { promisify } from "util";
 
-const CACHE_EXPIRATION_TIME = 60;
+//const CACHE_EXPIRATION_TIME = 60;
 
 const clientOptions: Redis.ClientOpts = {
   host: process.env.REDIS_HOST,
@@ -20,7 +20,8 @@ class CacheClient {
     this.get = promisify(this.client.get).bind(this.client);
   }
   set(key: string, value: any) {
-    return this.client.set(key, JSON.stringify(value), "EX", CACHE_EXPIRATION_TIME);
+    //return this.client.set(key, JSON.stringify(value), "EX", CACHE_EXPIRATION_TIME);
+    return this.client.set(key, JSON.stringify(value));
   }
   del(key: string) {
     return this.client.del(key);
