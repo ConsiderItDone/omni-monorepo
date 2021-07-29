@@ -70,7 +70,14 @@ export async function subscribe(ws: string, connection: Connection): Promise<voi
       );
 
       //5. Handling custom events
-      await handleTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
+      const result = await handleTrackedEvents(
+        queryRunner.manager,
+        trackedEvents,
+        api,
+        blockId,
+        blockHash,
+        blockNumber
+      );
 
       await queryRunner.commitTransaction();
 
@@ -83,6 +90,17 @@ export async function subscribe(ws: string, connection: Connection): Promise<voi
       }
       for (const event of newEvents) {
         MQ.getMQ().emit<EventModel>("newEvent", event);
+      }
+      interface BalanceWithAddress {
+        address: string;
+      }
+      if (result?.accountWithBalances) {
+        for (const accountWithBalance of result?.accountWithBalances) {
+          MQ.getMQ().emit<BalanceWithAddress>("newBalance", {
+            ...accountWithBalance.savedBalance,
+            address: accountWithBalance.savedAccount.address,
+          });
+        }
       }
 
       //const seconds = endMetricsTimer();
