@@ -6,7 +6,6 @@ import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, handleTrack
 import MQ from "@nodle/utils/src/mq";
 
 import Block from "@nodle/db/src/models/public/block";
-import Balance from "@nodle/db/src/models/public/balance";
 import Log from "@nodle/db/src/models/public/log";
 import { default as EventModel } from "@nodle/db/src/models/public/event";
 import Extrinsic from "@nodle/db/src/models/public/extrinsic";

@@ -43,9 +43,10 @@ export async function handleTrackedEvents(
         case CustomEventSection.Application:
           await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
-        case CustomEventSection.Balance:
+        case CustomEventSection.Balance: {
           const accountWithBalances = await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
           return { accountWithBalances };
+        }
         case CustomEventSection.Allocation:
           await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
           break;
