@@ -48,15 +48,27 @@ export async function handleEvents(
           moduleId: module.moduleId,
         });
 
+        const transformedData = transformEventData(data);
         const event = await eventRepository.add({
           index,
-          data: transformEventData(data),
+          data: transformedData,
           extrinsicHash,
           extrinsicId: extrinsic?.extrinsicId || null,
           moduleId: module.moduleId,
           eventTypeId: type.eventTypeId,
           blockId,
         });
+
+        const dataKeys = Object.keys(transformedData);
+        if (dataKeys.includes("from")) {
+          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
+        }
+        if (dataKeys.includes("to")) {
+          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
+        }
+        if (dataKeys.includes("who")) {
+          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
+        }
 
         cacheService.delByPattern(`events-${module.moduleId}-${type.eventTypeId}-*`);
 
