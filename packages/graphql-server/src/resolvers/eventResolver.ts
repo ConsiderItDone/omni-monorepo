@@ -23,6 +23,7 @@ import { getConnection, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -112,6 +113,7 @@ export default class EventResolver extends EventBaseResolver {
       }
     }
 
+    let cacheKey;
     if (callModule && callModule !== "All") {
       const module = await Module.findOne({
         name: ILike(callModule),
@@ -139,11 +141,24 @@ export default class EventResolver extends EventBaseResolver {
           };
         }
 
+        cacheKey = `events-${module.moduleId}-${type.eventTypeId}-${extrinsicHash}-${JSON.stringify(
+          filters
+        )}-${dateStart?.getTime()}-${dateEnd?.getTime()}-${take}-${skip}`;
+        const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+        if (cachedValue) {
+          return cachedValue;
+        }
+
         query.andWhere(`event.event_type_id = ${type.eventTypeId}`);
       }
     }
 
     const result = await query.getManyAndCount();
+
+    if (cacheKey && result) {
+      cacheService.set(cacheKey, result);
+    }
+
     return { items: result[0], totalCount: result[1] };
   }
 

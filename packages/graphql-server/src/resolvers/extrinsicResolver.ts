@@ -10,6 +10,7 @@ import { getConnection, getRepository, In, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import Module from "@nodle/db/src/models/public/module";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 
@@ -74,25 +75,47 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
 
   @Query(() => Extrinsic, { nullable: true })
   async extrinsicByHash(@Arg("hash") hash: string): Promise<Extrinsic | null> {
+    const cacheKey = `extrinsicByHash-${hash}`;
+    const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+    if (cachedValue) {
+      return cachedValue;
+    }
+
     const extrinsic = await Extrinsic.findOne({
       hash,
     });
+
+    if (extrinsic) {
+      cacheService.set(cacheKey, extrinsic);
+    }
 
     return extrinsic;
   }
   @Query(() => Extrinsic, { nullable: true })
   async extrinsicById(@Arg("id") id: string): Promise<Extrinsic | null> {
+    const cacheKey = `extrinsicById-${id}`;
+    const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+    if (cachedValue) {
+      return cachedValue;
+    }
+
     if (id.length === 66) {
-      return await Extrinsic.findOne({
+      const extrinsic = await Extrinsic.findOne({
         hash: id,
       });
+
+      if (extrinsic) {
+        cacheService.set(cacheKey, extrinsic);
+      }
+
+      return extrinsic;
     }
 
     const [blockNumber, index] = id.split("-");
     if (blockNumber && isNaN(parseInt(blockNumber))) {
       return null;
     }
-    return await getRepository(Extrinsic).findOne({
+    const extrinsic = await getRepository(Extrinsic).findOne({
       join: {
         alias: "extrinsic",
         innerJoin: { block: "extrinsic.block" },
@@ -107,6 +130,12 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
         }
       },
     });
+
+    if (extrinsic) {
+      cacheService.set(cacheKey, extrinsic);
+    }
+
+    return extrinsic;
   }
 
   @Query(() => ExtrinsicsResponse)
