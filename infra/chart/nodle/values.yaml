@@ -5,6 +5,8 @@ secrets:
   databaseName: ""
   databasePassword: ""
   databasePort: "5432"
+  redisHost: ""
+  redisPort: "6379"
 
   # RabbitMQ credentials
   rabbitMQURL: ""
