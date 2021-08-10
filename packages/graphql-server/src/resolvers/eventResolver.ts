@@ -92,28 +92,8 @@ export default class EventResolver extends EventBaseResolver {
   ): Promise<EventsResponse> {
     const query = Event.createQueryBuilder("event").take(take).skip(skip).orderBy("event.eventId", "DESC");
 
-    if (extrinsicHash) {
-      query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
-    }
+    let cacheKey = "";
 
-    if (filters) {
-      Object.keys(filters).forEach((filter) => {
-        query.andWhere(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
-      });
-    }
-
-    if (dateStart || dateEnd) {
-      query.leftJoin(Block, "block", "block.block_id = event.block_id");
-
-      if (dateStart) {
-        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
-      }
-      if (dateEnd) {
-        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
-      }
-    }
-
-    let cacheKey;
     if (callModule && callModule !== "All") {
       const module = await Module.findOne({
         name: ILike(callModule),
@@ -125,6 +105,8 @@ export default class EventResolver extends EventBaseResolver {
           totalCount: 0,
         };
       }
+
+      cacheKey += `-${module.moduleId}`;
 
       query.andWhere(`event.module_id = ${module.moduleId}`);
 
@@ -140,22 +122,49 @@ export default class EventResolver extends EventBaseResolver {
             totalCount: 0,
           };
         }
-
-        cacheKey = `events-${module.moduleId}-${type.eventTypeId}-${extrinsicHash}-${JSON.stringify(
-          filters
-        )}-${dateStart?.getTime()}-${dateEnd?.getTime()}-${take}-${skip}`;
-        const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
-        if (cachedValue) {
-          return cachedValue;
-        }
+        cacheKey += `-${type.eventTypeId}`;
 
         query.andWhere(`event.event_type_id = ${type.eventTypeId}`);
       }
     }
 
+    if (filters) {
+      cacheKey += `-${JSON.stringify(filters)}`;
+
+      Object.keys(filters).forEach((filter) => {
+        query.andWhere(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
+      });
+    }
+
+    if (dateStart || dateEnd) {
+      cacheKey += `-${dateStart?.getTime()}-${dateEnd?.getTime()}`;
+
+      query.leftJoin(Block, "block", "block.block_id = event.block_id");
+
+      if (dateStart) {
+        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
+      }
+      if (dateEnd) {
+        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
+      }
+    }
+
+    if (extrinsicHash) {
+      cacheKey += "extrinsicHash";
+      query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
+    }
+
+    if (cacheKey !== "") {
+      cacheKey = `events${cacheKey}-${take}-${skip}`;
+      const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+      if (cachedValue) {
+        return { items: cachedValue[0], totalCount: cachedValue[1] };
+      }
+    }
+
     const result = await query.getManyAndCount();
 
-    if (cacheKey && result) {
+    if (cacheKey !== "" && result) {
       cacheService.set(cacheKey, result);
     }
 
