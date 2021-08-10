@@ -61,13 +61,13 @@ export async function handleEvents(
 
         const dataKeys = Object.keys(transformedData);
         if (dataKeys.includes("from")) {
-          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`);
+          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
         }
         if (dataKeys.includes("to")) {
-          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`);
+          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
         }
         if (dataKeys.includes("who")) {
-          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`);
+          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
         }
 
         cacheService.delByPattern(`events-${module.moduleId}-${type.eventTypeId}-*`);
