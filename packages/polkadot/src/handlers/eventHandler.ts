@@ -11,6 +11,7 @@ import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/
 import { default as EventModel } from "@nodle/db/src/models/public/event";
 import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepository";
 import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 
 export async function handleEvents(
   manager: EntityManager,
@@ -56,6 +57,9 @@ export async function handleEvents(
           eventTypeId: type.eventTypeId,
           blockId,
         });
+
+        cacheService.delByPattern(`events-${module.moduleId}-${type.eventTypeId}-*`);
+
         newEvents.push(event);
       } catch (eventSaveError) {
         logger.error(

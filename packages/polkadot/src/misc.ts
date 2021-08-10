@@ -27,7 +27,7 @@ import {
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
-import { balanceCache } from "@nodle/utils/src/services/cacheService";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
   extrinsics: Vec<GenericExtrinsic>,
@@ -325,7 +325,7 @@ export async function saveAccount(
     blockId,
   };
   const savedBalance = await balanceRepository.add(balanceData);
-  balanceCache.del(address);
+  cacheService.del(address);
 
   return { savedAccount, savedBalance };
 }

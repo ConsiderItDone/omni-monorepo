@@ -4,7 +4,7 @@ import Account from "@nodle/db/src/models/public/account";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import { balanceCache } from "@nodle/utils/src/services/cacheService";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { withFilter } from "graphql-subscriptions";
 import MQ from "@nodle/utils/src/mq";
 
@@ -20,7 +20,7 @@ class SubscribeBalanceByAddress {
 export default class BalanceResolver extends BalanceBaseResolver {
   @Query(() => Balance, { nullable: true })
   async balanceByAddress(@Arg("address") address: string): Promise<Balance> {
-    const cachedBalance = await balanceCache.get(address).then(JSON.parse);
+    const cachedBalance = await cacheService.get(address).then(JSON.parse);
 
     if (cachedBalance) {
       console.log(`Found balance in cache by key: ${address} `);
@@ -36,7 +36,7 @@ export default class BalanceResolver extends BalanceBaseResolver {
       .getOne();
 
     if (balance) {
-      balanceCache.set(address, balance);
+      cacheService.set(address, balance);
     }
 
     return balance || ({} as any); // eslint-disable-line

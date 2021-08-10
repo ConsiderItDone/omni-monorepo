@@ -15,7 +15,7 @@ class CacheClient {
   get: (key: string, cb?: Redis.Callback<string>) => any;
   constructor() {
     this.client = Redis.createClient(clientOptions);
-    this.client.on("error", function (error) {
+    this.client.on("error", function (error: Error) {
       console.error(error);
     });
     this.get = promisify(this.client.get).bind(this.client);
@@ -28,7 +28,27 @@ class CacheClient {
   del(key: string): boolean {
     return this.client.del(key);
   }
+
+  async delByPattern(pattern: string): Promise<void> {
+    const keys = await this.keys(pattern);
+
+    for (const key of keys) {
+      this.del(key);
+    }
+  }
+
+  keys(pattern: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      this.client.keys(pattern, (err: Error, list: string[]) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(list);
+      });
+    });
+  }
 }
-export const balanceCache = new CacheClient();
+export const cacheService = new CacheClient();
 
 export default CacheClient;
