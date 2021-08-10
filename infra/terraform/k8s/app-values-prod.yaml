@@ -2,7 +2,7 @@ graphql:
   replicaCount: 3
   image:
     repository: gcr.io/block-explorer-312212/app
-    tag: v0.5.0
+    tag: v0.6.0
 
   ingress:
     enabled: true
@@ -22,10 +22,10 @@ frontend:
 indexer:
   image:
     repository: gcr.io/block-explorer-312212/app
-    tag: v0.5.0
+    tag: v0.6.0
 
 
 backfiller:
   image:
     repository: gcr.io/block-explorer-312212/app
-    tag: v0.5.0
+    tag: v0.6.0

@@ -87,4 +87,8 @@ resource "helm_release" "app" {
     name  = "secrets.rabbitMQURL"
     value = var.k8s_rabbitmq_url
   }
+  set_sensitive {
+    name  = "secrets.redisHost"
+    value = "172.20.49.3"
+  }
 }
