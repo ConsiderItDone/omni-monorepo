@@ -24,6 +24,10 @@ resource "google_sql_database_instance" "main" {
       name = "random_page_cost"
       value = "0.1"
     }
+//    database_flags {
+//      name = "work_mem"
+//      value = "10240"
+//    }
     insights_config {
       query_insights_enabled = true
       query_string_length = 1024

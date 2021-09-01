@@ -15,7 +15,7 @@ db_tier = {
   // 1 vCPU 1.7 GB memory
   default = "db-g1-small" // test
   // 8 CPU 3.75 GB memory
-  prod    = "db-custom-8-7424"
+  prod    = "db-custom-12-14080"
 }
 db_name = "nodle"
 db_user = "nodleuser"
