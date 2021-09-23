@@ -24,7 +24,7 @@ export async function handleTrackedEvents(
 ): Promise<{
   accountWithBalances: [
     { savedAccount: Account; savedBalance?: Balance },
-    { savedAccount: Account; savedBalance?: Balance }
+    { savedAccount: Account; savedBalance?: Balance }?
   ];
 }> {
   try {
