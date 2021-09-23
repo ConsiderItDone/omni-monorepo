@@ -32,7 +32,8 @@ export async function handleVestingSchedule(
         // await vestingScheduleRepository.cancelSchedules(targetAccount);
         break;
       }
-      case "Claimed": { //balance resolved by claim extrinsic signer
+      case "Claimed": {
+        //balance resolved by claim extrinsic signer
         break;
       }
       default:

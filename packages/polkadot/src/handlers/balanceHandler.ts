@@ -67,6 +67,7 @@ export async function handleBalance(
         } catch (accountSaveError) {
           logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
         }
+        break;
       }
       default:
         return;

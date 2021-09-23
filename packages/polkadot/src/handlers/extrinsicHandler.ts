@@ -49,7 +49,7 @@ export async function handleExtrinsics(
           signerId = account.accountId;
 
           const accountInfo = await tryFetchAccount(api, signerAddress, blockHash, blockNumber);
-          await saveAccount(manager, signerAddress, accountInfo, blockId);  
+          await saveAccount(manager, signerAddress, accountInfo, blockId);
         }
 
         const module = await moduleRepository.addOrIgnore({
