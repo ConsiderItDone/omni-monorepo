@@ -2,7 +2,6 @@ import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
 import {
-  backfillAccounts,
   backfillAccountsFromDB,
   backfillTrackedEvents,
   backfillValidators,
@@ -21,12 +20,15 @@ const metrics = new MetricsService(backfillServer, 3001, "nodle_backfiller_");
 export async function backfiller(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
+  // eslint-disable-next-line
   let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
   const backfillJob = new CronJob("00 */5 * * * *", backfill);
   const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
-  const backfillAccountsJob = new CronJob("00 */30 * * * *", () => backfillAccountsFromDB(connection, api, backfillAccountRunning));
+  const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
+    backfillAccountsFromDB(connection, api, backfillAccountRunning)
+  );
 
   const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
 
