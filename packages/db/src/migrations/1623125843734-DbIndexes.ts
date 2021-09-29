@@ -3,7 +3,7 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 export class DbIndexes1623125843734 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const sql = `
+/*         const sql = `
             create index if not exists extrinsic_block_id_index
                 on extrinsic (block_id);
             
@@ -20,7 +20,7 @@ export class DbIndexes1623125843734 implements MigrationInterface {
                 on event (event_type_id);
         `;
 
-        await queryRunner.query(sql);
+        await queryRunner.query(sql); */
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

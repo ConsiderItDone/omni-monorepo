@@ -28,10 +28,14 @@ export async function handleVestingSchedule(
         break;
       }
       case "VestingSchedulesCanceled": {
+        /* removes vesting schedule. move remain coins to another account. It Does trigger Claim and balance transfer events */
         // await vestingScheduleRepository.cancelSchedules(targetAccount);
         break;
       }
-      case "Claimed":
+      case "Claimed": {
+        //balance resolved by claim extrinsic signer
+        break;
+      }
       default:
         return;
     }

@@ -1,4 +1,4 @@
-import { EntityManager } from "typeorm";
+import { Between, EntityManager } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event, AccountInfoWithProviders } from "@polkadot/types/interfaces/system";
@@ -12,6 +12,7 @@ import {
   ApplicationFetchMethods,
   saveAccount,
   saveValidator,
+  tryFetchAccount,
 } from "@nodle/polkadot/src/misc";
 import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/src/types";
 import { logger } from "@nodle/utils/src/logger";
@@ -168,6 +169,50 @@ export async function backfillAccounts(connection: Connection, api: ApiPromise):
     const entityManager = await connection.createEntityManager();
     await saveAccount(entityManager, (account[0].toHuman() as undefined) as AccountId, account[1], blockId);
   }
+}
+
+export async function backfillAccountsFromDB(
+  connection: Connection,
+  api: ApiPromise,
+  isRunning: boolean
+): Promise<void> {
+  if (isRunning) {
+    logger.info("Backfill accounts cron already running");
+    return;
+  }
+  isRunning = true;
+
+  logger.info("Backfill accounts running");
+  const accountRepository = await connection.getCustomRepository(AccountRepository);
+
+  const count = await accountRepository.count();
+  const limit = 500;
+  const lastPage = Math.ceil(count / limit) || 1;
+
+  for (let page = 1; page <= lastPage; page++) {
+    const firstAtPage = (page - 1) * limit + 1;
+    const lastAtPage = page * limit;
+
+    const accounts = await accountRepository.find({
+      where: {
+        accountId: Between(firstAtPage, lastAtPage),
+      },
+    });
+    const { hash, number } = await api.rpc.chain.getHeader();
+
+    const blockRepository = connection.getCustomRepository(BlockRepository);
+    const currentBlock = await blockRepository.findOne({
+      number: number.toString(),
+    });
+
+    for (const account of accounts) {
+      logger.info(`backfilling account: ${account.address}`);
+      const accountInfo = await tryFetchAccount(api, account.address, hash, number.unwrap());
+      const entityManager = await connection.createEntityManager();
+      await saveAccount(entityManager, account.address, accountInfo, currentBlock?.blockId);
+    }
+  }
+  isRunning = false;
 }
 
 export async function backfillValidators(connection: Connection, api: ApiPromise): Promise<void> {

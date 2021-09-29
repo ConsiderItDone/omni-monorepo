@@ -18,7 +18,7 @@ export async function handleBalance(
   api: ApiPromise,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }]> {
+): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }?]> {
   try {
     switch (event.method) {
       case "Transfer": {
@@ -44,6 +44,26 @@ export async function handleBalance(
             blockId
           );
           return [savedAccountBalanceFrom, savedAccountBalanceTo];
+        } catch (accountSaveError) {
+          logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
+        }
+        break;
+      }
+      case "DustLost":
+      case "Unreserved":
+      case "Reserved": {
+        const acc = [
+          event.data[0],
+          await tryFetchAccount(api, event.data[1] as GenericAccountId, blockHash, blockNumber),
+        ];
+        try {
+          const savedAccountBalance = await saveAccount(
+            manager,
+            acc[0] as GenericAccountId,
+            acc[1] as AccountInfo,
+            blockId
+          );
+          return [savedAccountBalance];
         } catch (accountSaveError) {
           logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
         }
