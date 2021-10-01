@@ -43,8 +43,13 @@ export async function subscribe(ws: string, connection: Connection): Promise<voi
     try {
       // 1. Block
       const newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
-      if (!newBlock) return;
-
+      if (!newBlock) {
+        if (queryRunner.isTransactionActive) {
+          await queryRunner.rollbackTransaction();
+          await queryRunner.release();
+        }
+        return;
+      }
       const { blockId } = newBlock;
       // 2. Extrinsics
       const [newExtrinsics, extrinsicsWithBoundedEvents] = await handleExtrinsics(
