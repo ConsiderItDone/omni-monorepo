@@ -53,7 +53,7 @@ export default class MQ {
   }
 
   public publish(queue: string, msg: Buffer) {
-    this.connection.createChannel().then(async (channel: Channel) => {
+    this.connection.createChannel().then((channel: Channel) => {
       channel
         .assertQueue(queue, {
           durable: true,

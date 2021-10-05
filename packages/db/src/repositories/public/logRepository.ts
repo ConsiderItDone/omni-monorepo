@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, DeleteResult } from "typeorm";
 import Log from "../../models/public/log";
 
 type NewLogParam = {
@@ -27,7 +27,7 @@ export default class LogRepository extends Repository<Log> {
     return await this.save(list);
   }
 
-  public async deleteByBlockId(blockId: number) {
+  public deleteByBlockId(blockId: number): Promise<DeleteResult> {
     return this.delete({ blockId });
   }
 }

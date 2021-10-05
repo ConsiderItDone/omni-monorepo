@@ -20,7 +20,7 @@ export async function subscribe(ws: string, connection: Connection): Promise<voi
 
   const metrics = new MetricsService(indexerServer, 3050, "nodle_indexer_subscriber_");
 
-  await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
+  await api.rpc.chain.subscribeNewHeads((header: Header) => {
     // ws subscription
     const blockNum: string = header.number.toString();
     logger.info(`Chain is at block: #${blockNum}`);

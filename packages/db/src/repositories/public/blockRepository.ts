@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, LessThanOrEqual, UpdateResult } from "typeorm";
+import { EntityRepository, Repository, DeleteResult, LessThanOrEqual, UpdateResult } from "typeorm";
 import Block from "../../models/public/block";
 
 @EntityRepository(Block)
@@ -81,7 +81,7 @@ export default class BlockRepository extends Repository<Block> {
     );
   }
 
-  public async deleteByBlockId(blockId: number) {
+  public deleteByBlockId(blockId: number): Promise<DeleteResult> {
     return this.delete({ blockId });
   }
 }

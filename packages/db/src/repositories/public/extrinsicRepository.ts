@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, DeleteResult, Repository } from "typeorm";
 import Extrinsic from "../../models/public/extrinsic";
 
 type NewExtrinsicParam = {
@@ -68,7 +68,7 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
     return await this.save(list);
   }
 
-  public async deleteByBlockId(blockId: number) {
+  public deleteByBlockId(blockId: number): Promise<DeleteResult> {
     return this.delete({ blockId });
   }
 }
