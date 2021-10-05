@@ -26,4 +26,8 @@ export default class LogRepository extends Repository<Log> {
   public async addList(list: NewLogParam[]): Promise<Log[]> {
     return await this.save(list);
   }
+
+  public async deleteByBlockId(blockId: number) {
+    return this.delete({blockId});
+  }
 }

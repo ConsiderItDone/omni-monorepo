@@ -66,6 +66,10 @@ export default class MetricsService {
   startTimer(): void {
     this.endTimer = this.blockProcessingHistogram.startTimer();
   }
+  
+  resetTimer(): void {
+    this.endTimer = this.blockProcessingHistogram.reset();
+  }
 
   setBlockNumber(blockNumber: number): void {
     this.blockNumberGauge.set(blockNumber);

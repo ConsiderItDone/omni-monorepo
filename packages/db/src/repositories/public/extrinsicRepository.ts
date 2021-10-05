@@ -67,4 +67,8 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
   public async addList(list: NewExtrinsicParam[]): Promise<Extrinsic[]> {
     return await this.save(list);
   }
+
+  public async deleteByBlockId(blockId: number) {
+    return this.delete({blockId});
+  }
 }
