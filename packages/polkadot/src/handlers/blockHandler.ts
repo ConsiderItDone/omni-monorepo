@@ -51,10 +51,7 @@ export async function handleNewBlock(
   }
 }
 
-export async function handleBlockReorg(
-  manager: EntityManager,
-  blockHeader: Header
-): Promise<boolean> {
+export async function handleBlockReorg(manager: EntityManager, blockHeader: Header): Promise<boolean> {
   try {
     logger.info(LOGGER_INFO_CONST.REORG_CHECK(blockHeader.number.toNumber()));
 
@@ -65,7 +62,7 @@ export async function handleBlockReorg(
 
     const { number, hash } = blockHeader;
     const existingBlock = await blockRepository.findByNumber(number.toNumber());
-    
+
     if (existingBlock.hash != hash.toString()) {
       // we have existing block with different hash
       logger.info(LOGGER_INFO_CONST.REORG(blockHeader.number.toNumber(), existingBlock.hash, hash.toString()));
@@ -73,24 +70,23 @@ export async function handleBlockReorg(
       // this block if finalized
       if (existingBlock.finalized) {
         logger.warn(LOGGER_INFO_CONST.REORG_WARNING(blockHeader.number.toNumber()));
-        
+
         return false;
       }
 
       // remove existing block information
       const existingBlockId = existingBlock.blockId;
-      
+
       await eventRepository.deleteByBlockId(existingBlockId);
       await extrinsicRepository.deleteByBlockId(existingBlockId);
       await logRepository.deleteByBlockId(existingBlockId);
       await blockRepository.deleteByBlockId(existingBlockId);
-      
+
       return true;
     }
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
-    
+
     return false;
   }
 }

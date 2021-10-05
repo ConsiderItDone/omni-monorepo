@@ -26,7 +26,7 @@ export async function subscribe(ws: string, connection: Connection): Promise<voi
     logger.info(`Chain is at block: #${blockNum}`);
 
     metrics.startTimer();
-    MQ.getMQ().publish('indexer', Buffer.from(blockNum));
+    MQ.getMQ().publish("indexer", Buffer.from(blockNum));
     metrics.endTimer();
   });
 }

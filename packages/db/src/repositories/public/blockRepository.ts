@@ -82,6 +82,6 @@ export default class BlockRepository extends Repository<Block> {
   }
 
   public async deleteByBlockId(blockId: number) {
-    return this.delete({blockId});
+    return this.delete({ blockId });
   }
 }

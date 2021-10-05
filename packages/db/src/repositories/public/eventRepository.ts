@@ -53,8 +53,8 @@ export default class EventRepository extends Repository<Event> {
       [eventTypeId]
     );
   }
-  
+
   public async deleteByBlockId(blockId: number) {
-    return this.delete({blockId});
+    return this.delete({ blockId });
   }
 }

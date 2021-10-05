@@ -69,6 +69,6 @@ export default class ExtrinsicRepository extends Repository<Extrinsic> {
   }
 
   public async deleteByBlockId(blockId: number) {
-    return this.delete({blockId});
+    return this.delete({ blockId });
   }
 }

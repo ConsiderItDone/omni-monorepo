@@ -11,13 +11,12 @@ import { subscribe } from "./services/subscribe";
 import { connect } from "@nodle/db";
 import MQ from "@nodle/utils/src/mq";
 import { ConnectionOptions } from "typeorm";
-import {ConsumeMessage} from "amqplib/properties";
-import {logger} from "@nodle/utils/src/logger";
-import {processBlock} from "./services/processBlock";
-import {getApi} from "@nodle/polkadot/src/api";
+import { ConsumeMessage } from "amqplib/properties";
+import { logger } from "@nodle/utils/src/logger";
+import { processBlock } from "./services/processBlock";
+import { getApi } from "@nodle/polkadot/src/api";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import MetricsService from "@nodle/utils/src/services/metricsService";
-
 
 const connectionOptions = {
   name: "default",
@@ -45,13 +44,11 @@ const daemon = async (): Promise<void> => {
   const api = await getApi(process.env.WS_PROVIDER);
   const connection = await connect(connectionOptions);
 
-
   // init MQ connection
-  await MQ.init(process.env.RABBIT_MQ_URL); 
+  await MQ.init(process.env.RABBIT_MQ_URL);
   // run queue consumer
-  processBlock(process.env.WS_PROVIDER, connection); 
-
-}
+  processBlock(process.env.WS_PROVIDER, connection);
+};
 
 export const Indexer = {
   start,

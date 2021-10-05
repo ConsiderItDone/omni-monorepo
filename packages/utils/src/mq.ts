@@ -1,6 +1,6 @@
-import amqp, {Channel, Connection} from "amqplib";
+import amqp, { Channel, Connection } from "amqplib";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
-import {ConsumeMessage} from "amqplib/properties";
+import { ConsumeMessage } from "amqplib/properties";
 
 export default class MQ {
   private static mq: MQ;
@@ -51,29 +51,37 @@ export default class MQ {
   public emit<T>(eventName: string, payload: T): Promise<void> {
     return this.pubsub.publish(eventName, payload);
   }
-  
+
   public publish(queue: string, msg: Buffer) {
     this.connection.createChannel().then(async (channel: Channel) => {
-      channel.assertQueue(queue, {
-        durable: true,
-        autoDelete: false,
-      }).then(() => {
-        channel.sendToQueue(queue, msg);
-      })
-    })
+      channel
+        .assertQueue(queue, {
+          durable: true,
+          autoDelete: false,
+        })
+        .then(() => {
+          channel.sendToQueue(queue, msg);
+        });
+    });
   }
-  
+
   public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void) {
     this.connection.createChannel().then(async (channel: Channel) => {
       await channel.prefetch(1);
-      channel.assertQueue(queue, {
-        durable: true,
-        autoDelete: false,
-      }).then(() => {
-        channel.consume(queue, (msg: ConsumeMessage) => {
-          onMessage(msg, channel);
-        }, {noAck: false});
-      })
-    })
+      channel
+        .assertQueue(queue, {
+          durable: true,
+          autoDelete: false,
+        })
+        .then(() => {
+          channel.consume(
+            queue,
+            (msg: ConsumeMessage) => {
+              onMessage(msg, channel);
+            },
+            { noAck: false }
+          );
+        });
+    });
   }
 }

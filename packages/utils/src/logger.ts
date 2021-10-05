@@ -58,8 +58,10 @@ export const LOGGER_INFO_CONST = {
   BLOCK_SAVED: (params: savedDataParams): string => getSavedString("block", params),
   BLOCK_DUPLICATE: (params: savedDataParams): string => `Block №: ${params.blockNumber} already in DB, skipping`,
   REORG_CHECK: (blockNumber: number): string => `Checking reorg for Block №: ${blockNumber}`,
-  REORG: (blockNumber: number, oldHash: string, newHash: string): string => `Reorg for Block №: ${blockNumber}. Existing hash: ${oldHash} new hash ${newHash}`,
-  REORG_WARNING: (blockNumber: number): string => `Could not reorg Block №: ${blockNumber} because it is finalized already`,
+  REORG: (blockNumber: number, oldHash: string, newHash: string): string =>
+    `Reorg for Block №: ${blockNumber}. Existing hash: ${oldHash} new hash ${newHash}`,
+  REORG_WARNING: (blockNumber: number): string =>
+    `Could not reorg Block №: ${blockNumber} because it is finalized already`,
 
   EVENTS_RECEIVED: (length: number, blockNumber: number): string => getReceivedString("events", length, blockNumber),
   EVENTS_SAVED: (params: savedDataParams): string => getSavedString("events", params),

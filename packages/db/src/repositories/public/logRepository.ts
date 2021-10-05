@@ -28,6 +28,6 @@ export default class LogRepository extends Repository<Log> {
   }
 
   public async deleteByBlockId(blockId: number) {
-    return this.delete({blockId});
+    return this.delete({ blockId });
   }
 }
