@@ -8,13 +8,16 @@ export default class Logger {
       transports: new winston.transports.Console(),
     });
   }
-  public info(message: string, data?: undefined): void {
+  // eslint-disable-next-line
+  public info(message: string, data?: any): void {
     this.client.info(message, data);
   }
-  public warn(message: string, data?: undefined): void {
+  // eslint-disable-next-line
+  public warn(message: string, data?: any): void {
     this.client.warn(message, data);
   }
-  public error(message: string, data?: undefined): void {
+  // eslint-disable-next-line
+  public error(message: string, data?: any): void {
     this.client.error(message, data);
   }
 }

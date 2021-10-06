@@ -13,13 +13,13 @@ export async function subscribe(ws: string): Promise<void> {
 
   const metrics = new MetricsService(indexerServer, 3050, "nodle_indexer_subscriber_");
 
-  await api.rpc.chain.subscribeNewHeads((header: Header) => {
+  await api.rpc.chain.subscribeNewHeads(async (header: Header) => {
     // ws subscription
     const blockNum: string = header.number.toString();
     logger.info(`Chain is at block: #${blockNum}`);
 
     metrics.startTimer();
-    MQ.getMQ().publish("indexer", Buffer.from(blockNum));
+    await MQ.getMQ().publish("indexer", Buffer.from(blockNum));
     metrics.endTimer();
   });
 }
