@@ -52,7 +52,7 @@ export default class MQ {
     return this.pubsub.publish(eventName, payload);
   }
 
-  public publish(queue: string, msg: Buffer) {
+  public publish(queue: string, msg: Buffer): void {
     this.connection.createChannel().then((channel: Channel) => {
       channel
         .assertQueue(queue, {
@@ -65,7 +65,7 @@ export default class MQ {
     });
   }
 
-  public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void) {
+  public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void): void {
     this.connection.createChannel().then(async (channel: Channel) => {
       await channel.prefetch(1);
       channel

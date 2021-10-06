@@ -18,7 +18,7 @@ import { handleBlockReorg } from "@nodle/polkadot/src/handlers/blockHandler";
 
 const indexerServer = express();
 
-export async function processBlock(ws: string, connection: Connection) {
+export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
   const metrics = new MetricsService(
     indexerServer,
