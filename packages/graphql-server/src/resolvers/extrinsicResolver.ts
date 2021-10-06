@@ -212,6 +212,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       from public."extrinsic" e 
       left join public.block b on b.block_id = e.block_id 
       group by 1
+      LIMIT 100
     `);
 
     return data || [];
