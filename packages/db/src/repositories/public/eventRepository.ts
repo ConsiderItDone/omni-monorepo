@@ -35,7 +35,8 @@ export default class EventRepository extends Repository<Event> {
 
   // eslint-disable-next-line
   public getStats(eventTypeId: number): Promise<any> {
-    return this.query(`
+    return this.query(
+      `
       select
         date_trunc('day', b."timestamp") as date,
         count(1) as quantity,
