@@ -32,4 +32,24 @@ export default class EventRepository extends Repository<Event> {
 
     return event;
   }
+
+  // eslint-disable-next-line
+  public getStats(eventTypeId: number): Promise<any> {
+    return this.query(`
+      select
+        date_trunc('day', b."timestamp") as date,
+        count(1) as quantity,
+        sum(
+          CEIL(CAST(e."data"->>'value' as BIGINT) / 10^12)
+        ) as amount
+      from public."event" e 
+      left join public.block b on b.block_id = e.block_id 
+      where e.event_type_id = ?
+      group by 1
+      ORDER BY date
+      LIMIT 100
+    `,
+      [eventTypeId]
+    );
+  }
 }

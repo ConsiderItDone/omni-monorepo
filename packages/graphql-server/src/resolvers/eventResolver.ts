@@ -24,6 +24,7 @@ import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
+import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -208,18 +209,9 @@ export default class EventResolver extends EventBaseResolver {
       return [];
     }
 
-    const data = await getConnection().query(`
-      select
-        date_trunc('day', b."timestamp") as date,
-        count(1) as quantity,
-        sum(
-          CEIL(CAST((e."data"->0)->>'amount' as BIGINT) / 10^12)
-        ) as amount
-      from public."event" e 
-      left join public.block b on b.block_id = e.block_id 
-      where e.event_type_id = ${eventType.eventTypeId}
-      group by 1
-    `);
+    const eventRepository = getConnection().getCustomRepository(EventRepository);
+
+    const data = await eventRepository.getStats(eventType.eventTypeId);
 
     return data || [];
   }
