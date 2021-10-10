@@ -1,22 +1,25 @@
-import amqp from "amqplib";
+import amqp, { Channel, Connection } from "amqplib";
 import { AMQPPubSub } from "graphql-amqp-subscriptions";
+import { ConsumeMessage } from "amqplib/properties";
 
 export default class MQ {
   private static mq: MQ;
 
   private pubsub: AMQPPubSub;
+  private connection: Connection;
 
   private constructor(mqUrl: string) {
     amqp
       .connect(mqUrl)
-      .then((connection) => {
+      .then((connection: Connection) => {
+        this.connection = connection;
         this.pubsub = new AMQPPubSub({
           connection,
         });
       })
       .catch(() => {
         console.error("Could not connect to RabbitMQ");
-        process.exit(0);
+        process.exit(1);
       });
   }
 
@@ -42,10 +45,43 @@ export default class MQ {
   }
 
   public on(eventName: string): AsyncIterator<undefined> {
-    return MQ.getMQ().pubsub.asyncIterator(eventName);
+    return this.pubsub.asyncIterator(eventName);
   }
 
   public emit<T>(eventName: string, payload: T): Promise<void> {
-    return MQ.getMQ().pubsub.publish(eventName, payload);
+    return this.pubsub.publish(eventName, payload);
+  }
+
+  public publish(queue: string, msg: Buffer): void {
+    this.connection.createChannel().then((channel: Channel) => {
+      channel
+        .assertQueue(queue, {
+          durable: true,
+          autoDelete: false,
+        })
+        .then(() => {
+          channel.sendToQueue(queue, msg);
+        });
+    });
+  }
+
+  public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void): void {
+    this.connection.createChannel().then(async (channel: Channel) => {
+      await channel.prefetch(1);
+      channel
+        .assertQueue(queue, {
+          durable: true,
+          autoDelete: false,
+        })
+        .then(() => {
+          channel.consume(
+            queue,
+            (msg: ConsumeMessage) => {
+              onMessage(msg, channel);
+            },
+            { noAck: false }
+          );
+        });
+    });
   }
 }

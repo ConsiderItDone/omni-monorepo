@@ -8,10 +8,16 @@ export default class Logger {
       transports: new winston.transports.Console(),
     });
   }
-  public info(message: string, data?: undefined): void {
+  // eslint-disable-next-line
+  public info(message: string, data?: any): void {
     this.client.info(message, data);
   }
-  public error(message: string, data?: undefined): void {
+  // eslint-disable-next-line
+  public warn(message: string, data?: any): void {
+    this.client.warn(message, data);
+  }
+  // eslint-disable-next-line
+  public error(message: string, data?: any): void {
     this.client.error(message, data);
   }
 }
@@ -54,6 +60,11 @@ export const LOGGER_INFO_CONST = {
   BLOCK_RECEIVED: (blockNumber: number): string => getReceivedString("block", null, blockNumber),
   BLOCK_SAVED: (params: savedDataParams): string => getSavedString("block", params),
   BLOCK_DUPLICATE: (params: savedDataParams): string => `Block №: ${params.blockNumber} already in DB, skipping`,
+  REORG_CHECK: (blockNumber: number): string => `Checking reorg for Block №: ${blockNumber}`,
+  REORG: (blockNumber: number, oldHash: string, newHash: string): string =>
+    `Reorg for Block №: ${blockNumber}. Existing hash: ${oldHash} new hash ${newHash}`,
+  REORG_WARNING: (blockNumber: number): string =>
+    `Could not reorg Block №: ${blockNumber} because it is finalized already`,
 
   EVENTS_RECEIVED: (length: number, blockNumber: number): string => getReceivedString("events", length, blockNumber),
   EVENTS_SAVED: (params: savedDataParams): string => getSavedString("events", params),

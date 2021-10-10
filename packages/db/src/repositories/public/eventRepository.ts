@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, DeleteResult } from "typeorm";
 import Event from "../../models/public/event";
 
 @EntityRepository(Event)
@@ -52,5 +52,9 @@ export default class EventRepository extends Repository<Event> {
     `,
       [eventTypeId]
     );
+  }
+
+  public deleteByBlockId(blockId: number): Promise<DeleteResult> {
+    return this.delete({ blockId });
   }
 }
