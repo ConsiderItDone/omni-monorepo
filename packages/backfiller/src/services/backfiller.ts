@@ -19,7 +19,7 @@ import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 
 const backfillServer = express();
-const metrics = new MetricsService(backfillServer, 3001 + Math.floor(Math.random() * (100 - 0) + 0), "backfiller_");
+const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
 export async function blockBackfill(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
