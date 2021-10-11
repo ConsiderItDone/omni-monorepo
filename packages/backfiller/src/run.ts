@@ -8,7 +8,7 @@ try {
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import {backfiller, blockBackfill, blockBackfillDaemon} from "@nodle/backfiller/src/services/backfiller";
+import { backfiller, blockBackfill, blockBackfillDaemon } from "@nodle/backfiller/src/services/backfiller";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
 import { logger } from "@nodle/utils/src/logger";
@@ -40,7 +40,7 @@ yargs(hideBin(process.argv))
 
     blockBackfillDaemon(process.env.WS_PROVIDER, connection);
   })
-    // default
+  // default
   .command("*", "run legacy backfiller", {}, async () => {
     logger.info(`Legacy backfiller started`);
 

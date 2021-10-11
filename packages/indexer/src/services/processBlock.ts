@@ -20,11 +20,7 @@ const indexerServer = express();
 
 export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
-  const metrics = new MetricsService(
-    indexerServer,
-    3051,
-    "nodle_indexer_processor_"
-  );
+  const metrics = new MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
 
   MQ.getMQ().consume("indexer", (msg: ConsumeMessage, channel: Channel) => {
     const blockNumber = Number(msg.content.toString());
