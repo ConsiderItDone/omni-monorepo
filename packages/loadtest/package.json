@@ -1,0 +1,24 @@
+{
+  "name": "@nodle/loadtest",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "directory": "packages/loadtest"
+  },
+  "scripts": {
+    "build": "npm exec tsc",
+    "prepare": "npm run build",
+    "start:loadtest:Transfer": "npm exec -- ts-node -r tsconfig-paths/register index.ts transfer",
+    "start:loadtest:Allocation": "npm exec -- ts-node -r tsconfig-paths/register index.ts allocation"
+  },
+  "dependencies": {
+    "@nodle/test": "^1.0.0",
+    "@polkadot/api": "^3.11.1"
+  },
+  "devDependencies": {
+    "tsconfig-paths": "^3.9.0"
+  }
+}
