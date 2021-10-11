@@ -22,7 +22,7 @@ export async function processBlock(ws: string, connection: Connection): Promise<
   const api = await getApi(ws);
   const metrics = new MetricsService(
     indexerServer,
-    3051 + Math.floor(Math.random() * (100 - 0) + 0),
+    3051,
     "nodle_indexer_processor_"
   );
 
