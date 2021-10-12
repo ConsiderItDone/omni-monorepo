@@ -1,15 +1,25 @@
+import { getApi } from "@nodle/polkadot/src/api";
 import { ACCOUNTS } from "@nodle/test/src/const";
-import Tester from "@nodle/test/src/tester";
+import type { KeyringPair } from "@polkadot/keyring/types";
+
+const initApi = () => getApi(process.env.WS_PROVIDER || "ws://3.217.156.114:9944");
 
 export const submitTransfers = async (
-  tester: Tester,
+  tester: KeyringPair,
   transferQuantity: number,
   options = { receiver: ACCOUNTS.BOB, amount: 1000000000000 }
 ) => {
   try {
-    for (let i = 0; i < transferQuantity; i++) {
-      const resultHash = await tester.transfer(options.receiver, options.amount);
-      console.log(i, resultHash.toString())
+    const api = await initApi();
+    const nonce = (await api.rpc.system.accountNextIndex(tester.address)).toNumber();
+
+    let iteration = 1;
+    for (let i = nonce; i < nonce + transferQuantity; i++) {
+      const resultHash = await api.tx.balances
+        .transfer(options.receiver, options.amount)
+        .signAndSend(tester, { nonce: i });
+      console.log(iteration++, resultHash.toString());
+      //iteration++
     }
   } catch (e) {
     console.error(e);
@@ -17,14 +27,20 @@ export const submitTransfers = async (
 };
 
 export const submitAllocations = async (
-  tester: Tester,
-  transferQuantity: number,
+  tester: KeyringPair,
+  allocatiobQuantity: number,
   options = { receiver: ACCOUNTS.BOB, amount: 1000000000000 }
 ) => {
   try {
-    for (let i = 0; i < transferQuantity; i++) {
-      const resultHash = await tester.allocate(options.receiver, options.amount, "0x00");
-      console.log(i, resultHash.toString())
+    const api = await initApi();
+    const nonce = (await api.rpc.system.accountNextIndex(tester.address)).toNumber();
+
+    let iteration = 1;
+    for (let i = nonce; i < nonce + allocatiobQuantity; i++) {
+      const resultHash = await api.tx.allocations
+        .allocate(options.receiver, options.amount, "0x00")
+        .signAndSend(tester, { nonce: i });
+      console.log(iteration++, resultHash.toString());
     }
   } catch (e) {
     console.error(e);
