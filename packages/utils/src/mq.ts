@@ -7,6 +7,7 @@ export default class MQ {
 
   private pubsub: AMQPPubSub;
   private connection: Connection;
+  private channel: Channel;
 
   private constructor(mqUrl: string) {
     amqp
@@ -52,17 +53,19 @@ export default class MQ {
     return this.pubsub.publish(eventName, payload);
   }
 
-  public publish(queue: string, msg: Buffer): void {
-    this.connection.createChannel().then((channel: Channel) => {
-      channel
-        .assertQueue(queue, {
-          durable: true,
-          autoDelete: false,
-        })
-        .then(() => {
-          channel.sendToQueue(queue, msg);
-        });
-    });
+  public async publish(queue: string, msg: Buffer): Promise<void> {
+    if (!this.channel) {
+      this.channel = await this.connection.createChannel();
+    }
+
+    this.channel
+      .assertQueue(queue, {
+        durable: true,
+        autoDelete: false,
+      })
+      .then(() => {
+        this.channel.sendToQueue(queue, msg, { persistent: true });
+      });
   }
 
   public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void): void {
