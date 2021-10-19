@@ -41,7 +41,7 @@ export default class EventRepository extends Repository<Event> {
         date_trunc('day', b."timestamp") as date,
         count(1) as quantity,
         sum(
-          CEIL(CAST(e."data"->>'value' as BIGINT) / 10^12)
+          CEIL(CAST(e."data"->>'value' as numeric) / 10^12)
         ) as amount
       from public."event" e 
       left join public.block b on b.block_id = e.block_id 
