@@ -91,7 +91,9 @@ export default class EventResolver extends EventBaseResolver {
   protected async events(
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
-    const query = Event.createQueryBuilder("event").take(take).skip(skip).orderBy("event.eventId", "DESC");
+    const query = Event.createQueryBuilder("event")
+        .innerJoin("event.block", "block")
+        .take(take).skip(skip).orderBy("block.timestamp", "DESC");
 
     let cacheKey = "";
 
