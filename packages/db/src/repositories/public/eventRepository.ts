@@ -66,16 +66,12 @@ export default class EventRepository extends Repository<Event> {
   ): Promise<Event[]> {
     const whereCondition: FindConditions<Event> = {};
     const wheres: string[] = [];
-    // eslint-disable-next-line
-    const parameters: any = [];
 
     if (moduleId) {
-      wheres.push(`event.module_id = :moduleId`);
-      parameters.moduleId = moduleId;
+      wheres.push(`event.module_id = ${moduleId}`);
     }
     if (eventTypeId) {
-      wheres.push(`event.event_type_id = :eventTypeId`);
-      parameters.eventTypeId = eventTypeId;
+      wheres.push(`event.event_type_id = ${eventTypeId}`);
     }
     if (filters) {
       Object.keys(filters).forEach((filter) => {
@@ -86,23 +82,22 @@ export default class EventRepository extends Repository<Event> {
     if (dateStart || dateEnd) {
       whereCondition.block = {};
       if (dateStart) {
-        wheres.push(`b.timestamp >= :dateStart`);
-        parameters.dateStart = dateStart.toUTCString();
+        wheres.push(`b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
       }
       if (dateEnd) {
-        wheres.push(`b.timestamp <= :dateEnd`);
-        parameters.dateEnd = dateEnd.toUTCString();
+        wheres.push(`b.timestamp <= '${dateEnd.toUTCString()}'::timestamp`);
       }
     }
 
     if (extrinsicHash) {
-      wheres.push(`event.extrinsic_hash = :extrinsicHash`);
-      parameters.extrinsicHash = extrinsicHash;
+      wheres.push(`event.extrinsic_hash = ${extrinsicHash}`);
     }
 
-    const whereStr = wheres.map((where: string, index: number) => {
-      return (index > 0 ? "AND " : "WHERE ") + where;
-    });
+    const whereStr = wheres
+      .map((where: string, index: number) => {
+        return (index > 0 ? "AND " : "WHERE ") + where;
+      })
+      .join(" ");
 
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
@@ -121,7 +116,7 @@ export default class EventRepository extends Repository<Event> {
         OFFSET ${skip}
         `;
 
-    const events = await this.query(sql, parameters);
+    const events = await this.query(sql);
 
     return this.create(events);
   }
