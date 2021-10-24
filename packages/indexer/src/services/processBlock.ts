@@ -109,7 +109,9 @@ async function consume(
     //5. Handling custom events
     const result = await handleTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
 
+    console.time("commit");
     await queryRunner.commitTransaction();
+    console.timeEnd("commit");
 
     channel.ack(msg);
 

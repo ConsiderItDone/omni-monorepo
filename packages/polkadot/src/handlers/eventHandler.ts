@@ -12,6 +12,8 @@ import { default as EventModel } from "@nodle/db/src/models/public/event";
 import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepository";
 import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
+import { Module, Extrinsic } from "@nodle/db/src/models";
+import EventType from "@nodle/db/dist/src/models/public/eventType";
 
 export async function handleEvents(
   manager: EntityManager,
@@ -31,33 +33,62 @@ export async function handleEvents(
     const trackedEvents: Event[] = [];
     const newEvents: EventModel[] = [];
 
+    const extrinsicCache = new Map<string, Extrinsic>();
+    const moduleCache = new Map<string, Module>();
+    const typeCache = new Map<string, EventType>();
+
     for (const [index, eventRecord] of events.entries()) {
       const { method, section, data } = eventRecord.event;
       if ((Object.values(CustomEventSection) as string[]).includes(eventRecord.event.section)) {
         trackedEvents.push(eventRecord.event);
       }
       const extrinsicHash = findExtrinsicsWithEventsHash(extrinsicsWithBoundedEvents, eventRecord);
-      const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
-      try {
-        const module = await moduleRepository.addOrIgnore({
+
+      let extrinsic: Extrinsic;
+      if (extrinsicCache.has(extrinsicHash)) {
+        extrinsic = extrinsicCache.get(extrinsicHash);
+      } else {
+        extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
+        extrinsicCache.set(extrinsicHash, extrinsic);
+      }
+
+      let module: Module;
+      // search in local cache
+      if (moduleCache.has(section)) {
+        module = moduleCache.get(section);
+      } else {
+        module = await moduleRepository.addOrIgnore({
           name: section,
         });
+        moduleCache.set(section, module);
+      }
 
-        const type = await eventTypeRepository.addOrIgnore({
+      let eventType: EventType;
+      const typeKey = `${method}-${module.moduleId}`;
+      // search in local cache
+      if (typeCache.has(typeKey)) {
+        eventType = typeCache.get(typeKey);
+      } else {
+        eventType = await eventTypeRepository.addOrIgnore({
           name: method,
           moduleId: module.moduleId,
         });
+        typeCache.set(typeKey, eventType);
+      }
 
+      try {
         const transformedData = transformEventData(data);
+        console.time("event save");
         const event = await eventRepository.add({
           index,
           data: transformedData,
           extrinsicHash,
           extrinsicId: extrinsic?.extrinsicId || null,
           moduleId: module.moduleId,
-          eventTypeId: type.eventTypeId,
+          eventTypeId: eventType.eventTypeId,
           blockId,
         });
+        console.timeEnd("event save");
 
         const dataKeys = Object.keys(transformedData);
         if (dataKeys.includes("from")) {
@@ -70,7 +101,7 @@ export async function handleEvents(
           cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
         }
 
-        cacheService.delByPattern(`events-${module.moduleId}-${type.eventTypeId}-*`);
+        cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
 
         newEvents.push(event);
       } catch (eventSaveError) {

@@ -6,6 +6,7 @@ export default class ExtrinsicTypeRepository extends Repository<ExtrinsicType> {
   public async addOrIgnore({ name, moduleId }: { name: string; moduleId: number }): Promise<ExtrinsicType> {
     const type = await this.findOne({
       name,
+      moduleId,
     });
 
     if (type) {
