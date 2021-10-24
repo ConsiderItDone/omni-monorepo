@@ -4,6 +4,7 @@ services:
   db:
     restart: unless-stopped
     image: postgres:13.2-alpine
+    command: ["postgres", "-c", "log_statement=all"]
     environment:
       POSTGRES_USER: "nodle"
       POSTGRES_DB: "nodle"

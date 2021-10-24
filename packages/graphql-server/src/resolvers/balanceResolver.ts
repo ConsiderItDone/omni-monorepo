@@ -7,6 +7,8 @@ import { singleFieldResolver } from "../fieldsResolver";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { withFilter } from "graphql-subscriptions";
 import MQ from "@nodle/utils/src/mq";
+import { getConnection } from "typeorm";
+import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 
 const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 
@@ -27,13 +29,9 @@ export default class BalanceResolver extends BalanceBaseResolver {
       return cachedBalance;
     }
 
-    const balance = await Balance.createQueryBuilder("balance")
-      .leftJoin(Account, "account", "account.accountId = balance.accountId")
-      .leftJoinAndSelect(Block, "block", "block.blockId = balance.blockId")
-      .where("balance.blockId is not null")
-      .andWhere(`account.address = :address`, { address })
-      .addOrderBy("block.number", "DESC")
-      .getOne();
+    const balanceRepository = getConnection().getCustomRepository(BalanceRepository);
+
+    const balance = await balanceRepository.getBalanceByAddress(address);
 
     if (balance) {
       cacheService.set(address, balance);

@@ -34,10 +34,10 @@ class EventByNameArgs {
   @Min(0)
   skip: number;
 
-  @Field(() => Int)
+  @Field(() => Int, { defaultValue: 25 })
   @Min(1)
   @Max(100)
-  take = 25;
+  take?: number;
 
   @Field(() => String, { defaultValue: "All", nullable: true })
   callModule?: string;
@@ -91,13 +91,10 @@ export default class EventResolver extends EventBaseResolver {
   protected async events(
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
-    const query = Event.createQueryBuilder("event")
-      .innerJoin("event.block", "block")
-      .take(take)
-      .skip(skip)
-      .orderBy("block.timestamp", "DESC");
-
     let cacheKey = "";
+
+    let moduleId = 0;
+    let eventTypeId = 0;
 
     if (callModule && callModule !== "All") {
       const module = await Module.findOne({
@@ -111,9 +108,9 @@ export default class EventResolver extends EventBaseResolver {
         };
       }
 
-      cacheKey += `-${module.moduleId}`;
+      moduleId = module.moduleId;
 
-      query.andWhere(`event.module_id = ${module.moduleId}`);
+      cacheKey += `-${module.moduleId}`;
 
       if (eventName && eventName !== "All") {
         const type = await EventType.findOne({
@@ -129,34 +126,20 @@ export default class EventResolver extends EventBaseResolver {
         }
         cacheKey += `-${type.eventTypeId}`;
 
-        query.andWhere(`event.event_type_id = ${type.eventTypeId}`);
+        eventTypeId = type.eventTypeId;
       }
     }
 
     if (filters) {
       cacheKey += `-${JSON.stringify(filters)}`;
-
-      Object.keys(filters).forEach((filter) => {
-        query.andWhere(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
-      });
     }
 
     if (dateStart || dateEnd) {
       cacheKey += `-${dateStart?.getTime()}-${dateEnd?.getTime()}`;
-
-      query.leftJoin(Block, "block", "block.block_id = event.block_id");
-
-      if (dateStart) {
-        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
-      }
-      if (dateEnd) {
-        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
-      }
     }
 
     if (extrinsicHash) {
       cacheKey += "extrinsicHash";
-      query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
     }
 
     if (cacheKey !== "") {
@@ -167,13 +150,26 @@ export default class EventResolver extends EventBaseResolver {
       }
     }
 
-    const result = await query.getManyAndCount();
+    const eventRepository = getConnection().getCustomRepository(EventRepository);
+
+    console.time("events");
+    const result = await eventRepository.findByParams(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash,
+      skip,
+      take
+    );
+    console.timeEnd("events");
 
     if (cacheKey !== "" && result) {
       cacheService.set(cacheKey, result);
     }
 
-    return { items: result[0], totalCount: result[1] };
+    return { items: result, totalCount: 100 };
   }
 
   @Query(() => [Event])
