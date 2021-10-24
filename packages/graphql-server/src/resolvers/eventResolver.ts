@@ -146,6 +146,7 @@ export default class EventResolver extends EventBaseResolver {
       cacheKey = `events${cacheKey}-${take}-${skip}`;
       const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
       if (cachedValue) {
+        console.log(`Found events in cache by key: ${cacheKey}`);
         return { items: cachedValue[0], totalCount: cachedValue[1] };
       }
     }
@@ -153,7 +154,7 @@ export default class EventResolver extends EventBaseResolver {
     const eventRepository = getConnection().getCustomRepository(EventRepository);
 
     console.time("events");
-    const result = await eventRepository.findByParams(
+    const events = await eventRepository.findByParams(
       moduleId,
       eventTypeId,
       filters,
@@ -164,12 +165,22 @@ export default class EventResolver extends EventBaseResolver {
       take
     );
     console.timeEnd("events");
+    console.time("event count");
+    const count = await eventRepository.countByParams(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash
+    );
+    console.timeEnd("event count");
 
-    if (cacheKey !== "" && result) {
-      cacheService.set(cacheKey, result);
+    if (cacheKey !== "" && events) {
+      cacheService.set(cacheKey, [events, count]);
     }
 
-    return { items: result, totalCount: 100 };
+    return { items: events, totalCount: count };
   }
 
   @Query(() => [Event])

@@ -52,7 +52,7 @@ function getSavedString(type: string, params: savedDataParams): string {
     case "block":
       return `Block number ${blockNumber} saved succesfully at block_id: ${blockId}`;
     default:
-      return `Succesfully saved ${savedLength}/${length} ${type} of block №: ${blockNumber} at block_id: ${blockId}`;
+      return `Successfully saved ${savedLength}/${length} ${type} of block №: ${blockNumber} at block_id: ${blockId}`;
   }
 }
 
