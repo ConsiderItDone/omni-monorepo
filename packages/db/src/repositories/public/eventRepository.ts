@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, DeleteResult, FindConditions } from "typeorm";
+import { EntityRepository, Repository, DeleteResult } from "typeorm";
 import Event from "../../models/public/event";
 
 @EntityRepository(Event)
@@ -54,6 +54,31 @@ export default class EventRepository extends Repository<Event> {
     );
   }
 
+  public async countByParams(
+    moduleId: number,
+    eventTypeId: number,
+    filters: any, // eslint-disable-line
+    dateStart: Date,
+    dateEnd: Date,
+    extrinsicHash: string
+  ): Promise<number> {
+    const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
+
+    const sql = `
+        SELECT count(*) as count
+        FROM "public"."event" "event"
+                 INNER JOIN block b on b.block_id = event.block_id
+        ${whereStr}
+        `;
+
+    const result = await this.query(sql);
+    if (result.length) {
+      return result[0].count;
+    }
+
+    return 0;
+  }
+
   public async findByParams(
     moduleId: number,
     eventTypeId: number,
@@ -64,40 +89,7 @@ export default class EventRepository extends Repository<Event> {
     skip: number,
     take: number
   ): Promise<Event[]> {
-    const whereCondition: FindConditions<Event> = {};
-    const wheres: string[] = [];
-
-    if (moduleId) {
-      wheres.push(`event.module_id = ${moduleId}`);
-    }
-    if (eventTypeId) {
-      wheres.push(`event.event_type_id = ${eventTypeId}`);
-    }
-    if (filters) {
-      Object.keys(filters).forEach((filter) => {
-        wheres.push(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
-      });
-    }
-
-    if (dateStart || dateEnd) {
-      whereCondition.block = {};
-      if (dateStart) {
-        wheres.push(`b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
-      }
-      if (dateEnd) {
-        wheres.push(`b.timestamp <= '${dateEnd.toUTCString()}'::timestamp`);
-      }
-    }
-
-    if (extrinsicHash) {
-      wheres.push(`event.extrinsic_hash = ${extrinsicHash}`);
-    }
-
-    const whereStr = wheres
-      .map((where: string, index: number) => {
-        return (index > 0 ? "AND " : "WHERE ") + where;
-      })
-      .join(" ");
+    const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
@@ -123,5 +115,47 @@ export default class EventRepository extends Repository<Event> {
 
   public deleteByBlockId(blockId: number): Promise<DeleteResult> {
     return this.delete({ blockId });
+  }
+
+  private getConditionStr(
+    moduleId: number,
+    eventTypeId: number,
+    filters: any, // eslint-disable-line
+    dateStart: Date,
+    dateEnd: Date,
+    extrinsicHash: string
+  ): string {
+    const wheres: string[] = [];
+
+    if (moduleId) {
+      wheres.push(`event.module_id = ${moduleId}`);
+    }
+    if (eventTypeId) {
+      wheres.push(`event.event_type_id = ${eventTypeId}`);
+    }
+    if (filters) {
+      Object.keys(filters).forEach((filter) => {
+        wheres.push(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
+      });
+    }
+
+    if (dateStart || dateEnd) {
+      if (dateStart) {
+        wheres.push(`b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
+      }
+      if (dateEnd) {
+        wheres.push(`b.timestamp <= '${dateEnd.toUTCString()}'::timestamp`);
+      }
+    }
+
+    if (extrinsicHash) {
+      wheres.push(`event.extrinsic_hash = ${extrinsicHash}`);
+    }
+
+    return wheres
+      .map((where: string, index: number) => {
+        return (index > 0 ? "AND " : "WHERE ") + where;
+      })
+      .join(" ");
   }
 }
