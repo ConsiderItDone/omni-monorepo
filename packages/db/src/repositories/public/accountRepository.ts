@@ -22,10 +22,12 @@ export default class AccountRepository extends Repository<Account> {
   }
 
   public async findByAddress(accountAddress: string): Promise<Account> {
+    // console.log("findByAddress");
     return await this.findOne({ address: accountAddress });
   }
 
   public async replace(accountId: number, accountData: NewAccountParam): Promise<Account> {
+    // console.log("replace", accountId, accountData);
     return await this.save({
       accountId,
       ...accountData,
@@ -33,6 +35,7 @@ export default class AccountRepository extends Repository<Account> {
   }
 
   public async upsert(accountAddress: string, accountData: NewAccountParam): Promise<Account> {
+    // console.log("upsert");
     const existingAccount = await this.findByAddress(accountAddress);
 
     if (existingAccount) {
