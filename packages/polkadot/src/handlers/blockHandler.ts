@@ -8,6 +8,7 @@ import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
 import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
 import LogRepository from "@nodle/db/src/repositories/public/logRepository";
+import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 
 export async function handleNewBlock(
   manager: EntityManager,
@@ -57,6 +58,7 @@ export async function handleBlockReorg(manager: EntityManager, blockHeader: Head
 
     const blockRepository = manager.getCustomRepository(BlockRepository);
     const eventRepository = manager.getCustomRepository(EventRepository);
+    const balanceRepository = manager.getCustomRepository(BalanceRepository);
     const extrinsicRepository = manager.getCustomRepository(ExtrinsicRepository);
     const logRepository = manager.getCustomRepository(LogRepository);
 
@@ -77,6 +79,7 @@ export async function handleBlockReorg(manager: EntityManager, blockHeader: Head
       // remove existing block information
       const existingBlockId = existingBlock.blockId;
 
+      await balanceRepository.deleteByBlockId(existingBlockId);
       await eventRepository.deleteByBlockId(existingBlockId);
       await extrinsicRepository.deleteByBlockId(existingBlockId);
       await logRepository.deleteByBlockId(existingBlockId);

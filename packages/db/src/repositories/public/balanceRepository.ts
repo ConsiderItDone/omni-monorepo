@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, DeepPartial } from "typeorm";
+import { EntityRepository, Repository, DeepPartial, DeleteResult } from "typeorm";
 import { Balance } from "../../models";
 
 type NewBalanceParam = {
@@ -54,5 +54,9 @@ export default class BalanceRepository extends Repository<Balance> {
     }
 
     return this.create(result[0] as DeepPartial<Balance>);
+  }
+
+  public deleteByBlockId(blockId: number): Promise<DeleteResult> {
+    return this.delete({ blockId });
   }
 }
