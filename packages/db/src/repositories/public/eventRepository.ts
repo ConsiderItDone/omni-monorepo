@@ -57,7 +57,7 @@ export default class EventRepository extends Repository<Event> {
   public async findByParams(
     moduleId: number,
     eventTypeId: number,
-    filters: any,   // eslint-disable-line
+    filters: any, // eslint-disable-line
     dateStart: Date,
     dateEnd: Date,
     extrinsicHash: string,
