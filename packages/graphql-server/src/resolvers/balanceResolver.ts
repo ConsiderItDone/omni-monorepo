@@ -4,11 +4,9 @@ import Account from "@nodle/db/src/models/public/account";
 import Block from "@nodle/db/src/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import { cacheService } from "@nodle/utils/src/services/cacheService";
+import { BalanceService } from "@nodle/utils/src/services";
 import { withFilter } from "graphql-subscriptions";
 import MQ from "@nodle/utils/src/mq";
-import { getConnection } from "typeorm";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 
 const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 
@@ -21,23 +19,10 @@ class SubscribeBalanceByAddress {
 @Resolver(Balance)
 export default class BalanceResolver extends BalanceBaseResolver {
   @Query(() => Balance, { nullable: true })
-  async balanceByAddress(@Arg("address") address: string): Promise<Balance> {
-    const cachedBalance = await cacheService.get(address).then(JSON.parse);
+  balanceByAddress(@Arg("address") address: string): Promise<Balance> {
+    const balanceService = new BalanceService();
 
-    if (cachedBalance) {
-      console.log(`Found balance in cache by key: ${address} `);
-      return cachedBalance;
-    }
-
-    const balanceRepository = getConnection().getCustomRepository(BalanceRepository);
-
-    const balance = await balanceRepository.getBalanceByAddress(address);
-
-    if (balance) {
-      cacheService.set(address, balance);
-    }
-
-    return balance || ({} as any); // eslint-disable-line
+    return balanceService.getBalanceByAddress(address);
   }
 
   @FieldResolver()

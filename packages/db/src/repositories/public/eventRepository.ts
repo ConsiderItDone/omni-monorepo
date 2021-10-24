@@ -64,12 +64,18 @@ export default class EventRepository extends Repository<Event> {
   ): Promise<number> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
-    const sql = `
-        SELECT count(*) as count
-        FROM "public"."event" "event"
-                 INNER JOIN block b on b.block_id = event.block_id
-        ${whereStr}
-        `;
+    let sql: string;
+    // all events without any filters
+    if (whereStr == "") {
+      sql = `SELECT reltuples::bigint AS count FROM pg_class WHERE oid = 'public.event'::regclass`;
+    } else {
+      sql = `
+          SELECT count(*) as count
+          FROM "public"."event" "event"
+                   INNER JOIN block b on b.block_id = event.block_id
+          ${whereStr}
+          `;
+    }
 
     const result = await this.query(sql);
     if (result.length) {
@@ -103,7 +109,7 @@ export default class EventRepository extends Repository<Event> {
         FROM "public"."event" "event"
                  INNER JOIN block b on b.block_id = event.block_id
         ${whereStr}
-        ORDER BY b.timestamp DESC
+        ORDER BY b.number DESC
         LIMIT ${take}
         OFFSET ${skip}
         `;
