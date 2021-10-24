@@ -54,11 +54,21 @@ export default class EventRepository extends Repository<Event> {
     );
   }
 
-  public async findByParams(moduleId: number, eventTypeId: number, filters: any, dateStart: Date, dateEnd: Date, extrinsicHash: string, skip: number, take: number) {
+  public async findByParams(
+    moduleId: number,
+    eventTypeId: number,
+    filters: any,   // eslint-disable-line
+    dateStart: Date,
+    dateEnd: Date,
+    extrinsicHash: string,
+    skip: number,
+    take: number
+  ): Promise<Event[]> {
     const whereCondition: FindConditions<Event> = {};
     const wheres: string[] = [];
+    // eslint-disable-next-line
     const parameters: any = [];
-    
+
     if (moduleId) {
       wheres.push(`event.module_id = :moduleId`);
       parameters.moduleId = moduleId;
@@ -89,11 +99,11 @@ export default class EventRepository extends Repository<Event> {
       wheres.push(`event.extrinsic_hash = :extrinsicHash`);
       parameters.extrinsicHash = extrinsicHash;
     }
-    
+
     const whereStr = wheres.map((where: string, index: number) => {
       return (index > 0 ? "AND " : "WHERE ") + where;
-    })
-    
+    });
+
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
              "event"."index"          AS "index",
@@ -110,10 +120,9 @@ export default class EventRepository extends Repository<Event> {
         LIMIT ${take}
         OFFSET ${skip}
         `;
-    
-    
+
     const events = await this.query(sql, parameters);
-    
+
     return this.create(events);
   }
 

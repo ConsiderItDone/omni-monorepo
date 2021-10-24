@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, DeepPartial } from "typeorm";
 import { Balance } from "../../models";
 
 type NewBalanceParam = {
@@ -29,9 +29,10 @@ export default class BalanceRepository extends Repository<Balance> {
       ...balanceData,
     });
   }
-  
-  public async getBalanceByAddress(address: string) {
-    const result = await this.query(`
+
+  public async getBalanceByAddress(address: string): Promise<Balance | null> {
+    const result = await this.query(
+      `
         SELECT "balance"."balance_id"    AS "balanceId",
                "balance"."free"          AS "free",
                "balance"."reserved"      AS "reserved",
@@ -44,12 +45,14 @@ export default class BalanceRepository extends Repository<Balance> {
                  INNER JOIN "public"."block" "block" ON "block"."block_id" = "balance"."block_id"
         WHERE "account"."address" = $1
         ORDER BY "block"."number" DESC 
-        LIMIT 1`, [ address ]);
-    
+        LIMIT 1`,
+      [address]
+    );
+
     if (!result) {
       return null;
     }
 
-    return this.create(result[0]);
+    return this.create(result[0] as DeepPartial<Balance>);
   }
 }

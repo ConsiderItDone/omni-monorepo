@@ -92,7 +92,7 @@ export default class EventResolver extends EventBaseResolver {
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
     let cacheKey = "";
-    
+
     let moduleId = 0;
     let eventTypeId = 0;
 
@@ -107,7 +107,7 @@ export default class EventResolver extends EventBaseResolver {
           totalCount: 0,
         };
       }
-      
+
       moduleId = module.moduleId;
 
       cacheKey += `-${module.moduleId}`;
@@ -125,7 +125,7 @@ export default class EventResolver extends EventBaseResolver {
           };
         }
         cacheKey += `-${type.eventTypeId}`;
-        
+
         eventTypeId = type.eventTypeId;
       }
     }
@@ -152,10 +152,19 @@ export default class EventResolver extends EventBaseResolver {
 
     const eventRepository = getConnection().getCustomRepository(EventRepository);
 
-    console.time('events');
-    const result = await eventRepository.findByParams(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash, skip, take);
-    console.timeEnd('events');
-    
+    console.time("events");
+    const result = await eventRepository.findByParams(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash,
+      skip,
+      take
+    );
+    console.timeEnd("events");
+
     if (cacheKey !== "" && result) {
       cacheService.set(cacheKey, result);
     }
