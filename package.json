@@ -54,6 +54,7 @@
     "prettier": "2.2.1"
   },
   "dependencies": {
+    "@polkadot/util-crypto": "^7.9.2",
     "@types/redis": "^2.8.31",
     "cluster": "^0.7.7",
     "prom-client": "^13.1.0",
