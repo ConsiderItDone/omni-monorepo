@@ -1,5 +1,5 @@
 import { Arg, Args, ArgsType, Field, FieldResolver, Int, Query, Resolver, Root } from "type-graphql";
-import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { Min, Max } from "class-validator";
 import Account from "@nodle/db/src/models/public/account";
 import Balance from "@nodle/db/src/models/public/balance";
@@ -9,7 +9,7 @@ import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
 import { RootCertificate, Application } from "@nodle/db/src/models";
 import { BalanceService } from "@nodle/utils/src/services";
-import { SS58_FORMAT } from '../consts'
+import { SS58_FORMAT } from "../consts";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 
@@ -29,8 +29,8 @@ class AccountExtrinsicsArgs {
 export default class AccountResolver extends AccountBaseResolver {
   @Query(() => Account, { nullable: true })
   async accountByAddress(@Arg("address") address: string): Promise<Account | null> {
-    const decoded = decodeAddress(address.trim())
-    const encoded = encodeAddress(decoded, SS58_FORMAT)
+    const decoded = decodeAddress(address.trim());
+    const encoded = encodeAddress(decoded, SS58_FORMAT);
     const account = await Account.findOne({
       address: encoded,
     });
