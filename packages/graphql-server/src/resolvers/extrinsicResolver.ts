@@ -112,7 +112,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
     }
 
     const [blockNumber, index] = id.split("-");
-    if (blockNumber && isNaN(parseInt(blockNumber))) {
+    if (blockNumber && isNaN(parseInt(blockNumber)) && isNaN(parseInt(index))) {
       return null;
     }
     const extrinsic = await getRepository(Extrinsic).findOne({
