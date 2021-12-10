@@ -15,7 +15,7 @@
     "start:daemon": "npm exec -- ts-node -r tsconfig-paths/register src/processor.ts"
   },
   "dependencies": {
-    "@polkadot/api": "^3.11.1",
+    "@polkadot/api": "^5.7.1",
     "@nodle/db": "^1.0.0",
     "@nodle/utils": "^1.0.0",
     "@nodle/polkadot": "^1.0.0",

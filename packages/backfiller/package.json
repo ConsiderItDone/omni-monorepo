@@ -19,7 +19,7 @@
     "@nodle/db": "^1.0.0",
     "@nodle/polkadot": "^1.0.0",
     "@nodle/utils": "^1.0.0",
-    "@polkadot/api": "^3.11.1",
+    "@polkadot/api": "^5.7.1",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "ts-node": "^9.1.1",

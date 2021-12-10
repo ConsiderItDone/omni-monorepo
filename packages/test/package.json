@@ -17,7 +17,7 @@
     "start:jest noDetect": "npx jest --forceExit --runInBand"
   },
   "devDependencies": {
-    "@polkadot/api": "^3.11.1",
+    "@polkadot/api": "^5.7.1",
     "@types/jest": "^26.0.23",
     "@types/node": "^14.14.35"
   },
