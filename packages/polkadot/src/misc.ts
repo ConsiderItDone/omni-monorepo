@@ -64,10 +64,10 @@ export function getExtrinsicSuccess(
 
 export function extractArgs(data: GenericEventData): string[] {
   const {
-    meta: { documentation },
+    meta: { docs },
   } = data;
 
-  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
     return [];
@@ -306,12 +306,12 @@ export async function saveAccount(
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = accountAddress.toString();
-  const { nonce, refcount = null, data: balance } = accountInfo;
+  const { nonce, sufficients = null, data: balance } = accountInfo;
 
   const accountData = {
     address: address,
     nonce: nonce?.toNumber(),
-    refcount: refcount?.toNumber(),
+    refcount: 0, //refcount?.toNumber(),
   };
   const savedAccount = await accountRepository.upsert(address, accountData);
 
