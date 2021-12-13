@@ -167,7 +167,7 @@ export async function backfillAccounts(connection: Connection, api: ApiPromise):
 
   for (const account of accounts) {
     const entityManager = await connection.createEntityManager();
-    await saveAccount(entityManager, (account[0].toHuman() as undefined) as AccountId, account[1], blockId);
+    await saveAccount(entityManager, { address: account[0].toString(), data: account[1] }, blockId);
   }
 }
 
@@ -209,7 +209,7 @@ export async function backfillAccountsFromDB(
       logger.info(`backfilling account: ${account.address}`);
       const accountInfo = await tryFetchAccount(api, account.address, hash, number.unwrap());
       const entityManager = await connection.createEntityManager();
-      await saveAccount(entityManager, account.address, accountInfo, currentBlock?.blockId);
+      await saveAccount(entityManager, accountInfo, currentBlock?.blockId);
     }
   }
   isRunning = false;
@@ -222,11 +222,10 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
     const validatorDatas = await Promise.all(validators.map((authorityId) => api.query.system.account(authorityId)));
     for (const [index, validator] of validators.entries()) {
       const entityManager = await connection.createEntityManager();
-      const { savedAccount: validatorAccount } = await saveAccount(
-        entityManager,
-        validator as AccountId,
-        validatorDatas[index]
-      );
+      const { savedAccount: validatorAccount } = await saveAccount(entityManager, {
+        address: validator,
+        data: validatorDatas[index],
+      });
       await saveValidator(
         entityManager,
         validatorAccount.accountId,
