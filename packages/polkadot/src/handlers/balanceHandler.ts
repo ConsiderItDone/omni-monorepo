@@ -8,8 +8,8 @@ import { saveAccount, tryFetchAccount } from "../misc";
 import { GenericAccountId } from "@polkadot/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { Account, Balance } from "../../../db/src/models";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
+import { Block } from "@nodle/db/dist/src/models";
 
 export async function handleBalance(
   manager: EntityManager,
@@ -19,7 +19,6 @@ export async function handleBalance(
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }?]> {
-  const balanceRepository = manager.getCustomRepository(BalanceRepository);
   const accountRepository = manager.getCustomRepository(AccountRepository);
 
   try {
@@ -55,7 +54,13 @@ export async function handleBalance(
   async function handleAccountBalance(address: AccountId | string) {
     const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
     if (savedAccount) {
-      const savedBalance = await balanceRepository.findOne({ where: { accountId: savedAccount.accountId } });
+      const query = Balance.createQueryBuilder("balance")
+        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
+        .innerJoin(Block, "block", "block.blockId = balance.blockId")
+        .orderBy("block.number", "DESC")
+        .limit(1);
+
+      const savedBalance = await query.getOne();
       if (savedBalance) {
         const isOldBalance = Number(savedBalance.block.number) < blockNumber.toNumber();
         if (isOldBalance) {
