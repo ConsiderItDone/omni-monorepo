@@ -324,7 +324,16 @@ export async function saveAccount(
     feeFrozen: feeFrozen.toString(),
     blockId,
   };
-  const savedBalance = await balanceRepository.add(balanceData);
+  let savedBalance;
+  const balanceInDB = await balanceRepository.findOne({
+    where: { accountId: savedAccount.accountId },
+    order: { balanceId: "DESC" },
+  });
+  if (balanceInDB) {
+    savedBalance = await balanceRepository.replace(balanceInDB.balanceId, balanceData);
+  } else {
+    savedBalance = await balanceRepository.add(balanceData);
+  }
   cacheService.del(address);
 
   return { savedAccount, savedBalance };
