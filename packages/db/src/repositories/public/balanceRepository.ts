@@ -29,6 +29,13 @@ export default class BalanceRepository extends Repository<Balance> {
       ...balanceData,
     });
   }
+  public async upsert(balanceId: number, balanceData: NewBalanceParam): Promise<Balance> {
+    if (balanceId) {
+      return await this.replace(balanceId, balanceData);
+    } else {
+      return await this.add(balanceData);
+    }
+  }
 
   public async getBalanceByAddress(address: string): Promise<Balance | null> {
     const result = await this.query(
