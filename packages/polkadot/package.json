@@ -1,8 +1,8 @@
 {
   "name": "@nodle/polkadot",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/polkadot/index.js",
+  "types": "dist/polkadot/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConsiderItDone/nodle.git",

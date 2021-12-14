@@ -10,6 +10,7 @@ import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { Account, Balance } from "../../../db/src/models";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import { Block } from "@nodle/db/dist/src/models";
+import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
 
 export async function handleBalance(
   manager: EntityManager,
@@ -19,12 +20,11 @@ export async function handleBalance(
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }?]> {
-  const accountRepository = manager.getCustomRepository(AccountRepository);
-
   try {
     switch (event.method) {
       case "Transfer": {
         try {
+          console.log("transfer");
           const savedAccountBalanceFrom = await handleAccountBalance(event.data[0] as GenericAccountId);
           const savedAccountBalanceTo = await handleAccountBalance(event.data[1] as GenericAccountId);
           return [savedAccountBalanceFrom, savedAccountBalanceTo];
@@ -52,15 +52,24 @@ export async function handleBalance(
   }
 
   async function handleAccountBalance(address: AccountId | string) {
-    const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
-    if (savedAccount) {
-      const query = Balance.createQueryBuilder("balance")
-        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
-        .innerJoin(Block, "block", "block.blockId = balance.blockId")
-        .orderBy("block.number", "DESC")
-        .limit(1);
+    console.log("????before repos");
+    const accountRepository = manager.getCustomRepository(AccountRepository);
+    console.log("????After repos");
 
-      const savedBalance = await query.getOne();
+    logger.info("before");
+    const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
+    console.log("after");
+    if (savedAccount) {
+      console.log("!!!!!!!!!!!!!!!!!!!! acc", savedAccount);
+
+      const savedBalance = await Balance.createQueryBuilder("balance")
+        .innerJoin(Block, "block", "block.blockId = balance.blockId")
+        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
+        .orderBy("block.number", "DESC")
+        .limit(1)
+        .getOne();
+      console.log("!!!!!!!!!!!!!!!!!!!! savedBalance", savedBalance);
+
       if (savedBalance) {
         const isOldBalance = Number(savedBalance.block.number) < blockNumber.toNumber();
         if (isOldBalance) {
