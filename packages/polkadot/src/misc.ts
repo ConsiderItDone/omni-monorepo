@@ -281,14 +281,19 @@ export function transformVestingSchedules(
 
 /******************* Account utils ****************************/
 
+export interface IAccount {
+  address: AccountId | string;
+  data: AccountInfo;
+}
 export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-): Promise<AccountInfo> {
+): Promise<IAccount> {
   try {
-    return await api.query.system.account.at(blockHash, accountAddress);
+    const data = await api.query.system.account.at(blockHash, accountAddress);
+    return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
       LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
@@ -298,22 +303,22 @@ export async function tryFetchAccount(
 }
 export async function saveAccount(
   manager: EntityManager,
-  accountAddress: AccountId | string,
-  accountInfo: AccountInfo,
-  blockId?: number
+  account: IAccount,
+  blockId?: number,
+  options: { accountId?: number; balanceId?: number } = {}
 ): Promise<{ savedAccount: AccountModel; savedBalance?: BalanceModel }> {
   const accountRepository = manager.getCustomRepository(AccountRepository);
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
-  const address = accountAddress.toString();
-  const { nonce, sufficients = null, data: balance } = accountInfo;
+  const address = account.address.toString();
+  const { nonce, sufficients = null, data: balance } = account.data;
 
   const accountData = {
     address: address,
     nonce: nonce?.toNumber(),
     refcount: 0, //refcount?.toNumber(),
   };
-  const savedAccount = await accountRepository.upsert(address, accountData);
+  const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
@@ -324,7 +329,9 @@ export async function saveAccount(
     feeFrozen: feeFrozen.toString(),
     blockId,
   };
-  const savedBalance = await balanceRepository.add(balanceData);
+
+  const savedBalance = await balanceRepository.upsert(options?.balanceId, balanceData);
+
   cacheService.del(address);
 
   return { savedAccount, savedBalance };
@@ -360,9 +367,8 @@ export async function getOrCreateAccount(
   if (account) {
     return account;
   } else {
-    const accountInfo = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
-
-    const { savedAccount } = await saveAccount(entityManager, accountAddress.toString(), accountInfo, blockId);
+    const account = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+    const { savedAccount } = await saveAccount(entityManager, account, blockId);
 
     return savedAccount;
   }

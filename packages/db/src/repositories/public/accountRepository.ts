@@ -34,12 +34,9 @@ export default class AccountRepository extends Repository<Account> {
     });
   }
 
-  public async upsert(accountAddress: string, accountData: NewAccountParam): Promise<Account> {
-    // console.log("upsert");
-    const existingAccount = await this.findByAddress(accountAddress);
-
-    if (existingAccount) {
-      return await this.replace(existingAccount.accountId, accountData);
+  public async upsert(accountId: number, accountData: NewAccountParam): Promise<Account> {
+    if (accountId) {
+      return await this.replace(accountId, accountData);
     } else {
       return await this.add(accountData);
     }
