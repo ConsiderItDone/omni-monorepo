@@ -5,7 +5,6 @@ import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
 
-
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { Account, Balance } from "../../../db/src/models";
@@ -34,10 +33,6 @@ export async function handleBalance(
       case "DustLost":
       case "Unreserved":
       case "Reserved": {
-        const acc = [
-          event.data[0],
-          await tryFetchAccount(api, event.data[1] as GenericAccountId, blockHash, blockNumber),
-        ];
         try {
           const savedAccountBalance = await handleAccountBalance(event.data[1] as GenericAccountId);
           return [savedAccountBalance];
