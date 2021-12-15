@@ -3,13 +3,14 @@ import { EntityManager } from "typeorm";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import { saveAccount, tryFetchAccount } from "../misc";
-
 import { GenericAccountId } from "@polkadot/types";
+
+
+import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 import { Account, Balance } from "../../../db/src/models";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import { Block } from "@nodle/db/dist/src/models";
+import { saveAccount, tryFetchAccount } from "../misc";
 
 export async function handleBalance(
   manager: EntityManager,
@@ -50,19 +51,20 @@ export async function handleBalance(
   } catch (error) {
     logger.error(error);
   }
-
   async function handleAccountBalance(address: AccountId | string) {
-    const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
-    if (savedAccount) {
-      const query = Balance.createQueryBuilder("balance")
-        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
-        .innerJoin(Block, "block", "block.blockId = balance.blockId")
-        .orderBy("block.number", "DESC")
-        .limit(1);
+    const accountRepository = manager.getCustomRepository(AccountRepository);
 
-      const savedBalance = await query.getOne();
+    const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
+
+    if (savedAccount) {
+      const savedBalance = await Balance.createQueryBuilder("balance")
+        .leftJoinAndSelect("balance.block", "block", "block.blockId = balance.blockId")
+        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
+        .orderBy("block.number", "DESC", "NULLS LAST")
+        .getOne();
+
       if (savedBalance) {
-        const isOldBalance = Number(savedBalance.block.number) < blockNumber.toNumber();
+        const isOldBalance = Number(savedBalance?.block?.number) < blockNumber.toNumber();
         if (isOldBalance) {
           return await saveAccountBalance({ accountId: savedAccount.accountId, balanceId: savedBalance.balanceId });
         }
