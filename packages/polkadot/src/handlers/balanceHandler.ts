@@ -20,8 +20,6 @@ export async function handleBalance(
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<[{ savedAccount: Account; savedBalance?: Balance }, { savedAccount: Account; savedBalance?: Balance }?]> {
-  const accountRepository = manager.getCustomRepository(AccountRepository);
-
   try {
     switch (event.method) {
       case "Transfer": {
