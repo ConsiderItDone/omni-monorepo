@@ -33,7 +33,7 @@ async function consume(
   connection: Connection,
   msg: ConsumeMessage,
   channel: Channel,
-  address: GenericAccountId,
+  address: string | GenericAccountId,
   blockId: number,
   blockHash: BlockHash,
   blockNumber?: BlockNumber
