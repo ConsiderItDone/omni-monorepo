@@ -48,7 +48,7 @@ export async function handleTrackedEvents(
           return { accountWithBalances };
         }
         case CustomEventSection.Allocation:
-          await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
+          await handleAllocation(event, blockId, blockHash, blockNumber);
           break;
         default:
           return;

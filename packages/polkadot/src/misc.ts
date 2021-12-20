@@ -2,6 +2,7 @@ import type { EventRecord, Event, AccountInfo, AccountInfoWithProviders } from "
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
+import { GenericAccountId } from "@polkadot/types";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -9,7 +10,7 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { EntityManager } from "typeorm";
+import { Connection, EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
@@ -288,20 +289,20 @@ export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
   blockHash: BlockHash,
-  blockNumber: BlockNumber
+  blockNumber?: BlockNumber
 ): Promise<IAccount> {
   try {
     const data = await api.query.system.account.at(blockHash, accountAddress);
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber?.toNumber()),
       accountFetchError
     );
   }
 }
 export async function saveAccount(
-  manager: EntityManager,
+  manager: EntityManager | Connection,
   account: IAccount,
   blockId?: number,
   options: { accountId?: number; balanceId?: number } = {}
@@ -370,3 +371,12 @@ export async function getOrCreateAccount(
     return savedAccount;
   }
 }
+
+export const getAccountBlockBuffer = (
+  address: GenericAccountId,
+  blockId: number,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber
+) => {
+  return Buffer.from(JSON.stringify({ address, blockId, blockHash, blockNumber }));
+};
