@@ -21,12 +21,7 @@ export async function handleTrackedEvents(
   blockId: number,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-): Promise<{
-  accountWithBalances: [
-    { savedAccount: Account; savedBalance?: Balance },
-    { savedAccount: Account; savedBalance?: Balance }?
-  ];
-}> {
+): Promise<void> {
   try {
     if (trackedEvents.length < 1) {
       return;
@@ -44,8 +39,7 @@ export async function handleTrackedEvents(
           await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
         case CustomEventSection.Balance: {
-          const accountWithBalances = await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
-          return { accountWithBalances };
+          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
         }
         case CustomEventSection.Allocation:
           await handleAllocation(event, blockId, blockHash, blockNumber);
