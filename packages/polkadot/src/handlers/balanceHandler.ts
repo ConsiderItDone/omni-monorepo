@@ -54,9 +54,10 @@ export async function handleBalance(
 
     if (savedAccount) {
       const savedBalance = await Balance.createQueryBuilder("balance")
-        .leftJoinAndSelect("balance.block", "block", "block.blockId = balance.blockId")
+        .innerJoinAndSelect("balance.block", "block")
         .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
         .orderBy("block.number", "DESC", "NULLS LAST")
+        .limit(1)  
         .getOne();
 
       if (savedBalance) {
