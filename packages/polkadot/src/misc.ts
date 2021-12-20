@@ -30,7 +30,6 @@ import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 import { cacheService } from "@nodle/utils/src/services/cacheService";
 
-import MQ from "@nodle/utils/src/mq";
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
   extrinsics: Vec<GenericExtrinsic>,
@@ -382,7 +381,7 @@ export const getAccountBlockBuffer = (
   blockId: number,
   blockHash: BlockHash,
   blockNumber: BlockNumber
-) => {
+): Buffer => {
   return Buffer.from(
     JSON.stringify({ address: address.toString(), blockId, blockHash, blockNumber: blockNumber.toNumber() })
   );

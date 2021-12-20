@@ -1,10 +1,7 @@
 import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
-import {
-  backfillTrackedEvents,
-  backfillValidators,
-} from "@nodle/backfiller/src/utils/backfillers";
+import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
@@ -169,17 +166,17 @@ async function blockBackfillConsume(
   }
 }
 
-export async function accountBackfill(ws: string, connection: Connection): Promise<void> {
+export async function accountBackfill(ws: string): Promise<void> {
   const api = await getApi(ws);
 
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
 
-  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
+  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
   crontabJob.start();
 }
 
-export async function accountBackfillDaemon(ws: string, connection: Connection) {
+export async function accountBackfillDaemon(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   // init MQ connection
@@ -197,7 +194,7 @@ export async function accountBackfillDaemon(ws: string, connection: Connection) 
   });
 }
 
-async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
+async function accountBackfillPublish(api: ApiPromise) {
   logger.info("Backfill started");
 
   const accounts = await api.query.system.account.entries();

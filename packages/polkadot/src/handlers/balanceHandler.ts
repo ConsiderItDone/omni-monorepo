@@ -1,14 +1,10 @@
-import { ApiPromise } from "@polkadot/api";
-import { EntityManager } from "typeorm";
-import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
+import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
 
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import { Balance } from "../../../db/src/models";
-import { getAccountBlockBuffer, saveAccount, tryFetchAccount } from "../misc";
+import { getAccountBlockBuffer } from "../misc";
 import MQ from "@nodle/utils/src/mq";
 
 export async function handleBalance(

@@ -1,10 +1,8 @@
-import { ApiPromise } from "@polkadot/api";
-import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
-import { getAccountBlockBuffer, saveAccount, tryFetchAccount } from "../misc";
+import { getAccountBlockBuffer } from "../misc";
 
 import { GenericAccountId } from "@polkadot/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
