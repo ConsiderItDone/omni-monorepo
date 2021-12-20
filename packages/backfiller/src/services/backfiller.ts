@@ -2,7 +2,6 @@ import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
 import {
-  backfillAccountsFromDB,
   backfillTrackedEvents,
   backfillValidators,
 } from "@nodle/backfiller/src/utils/backfillers";
@@ -17,6 +16,8 @@ import { ApiPromise } from "@polkadot/api";
 import MQ from "@nodle/utils/dist/src/mq";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
+import { AccountBlockData } from "@nodle/utils/src/types";
+import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
 
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
@@ -168,22 +169,70 @@ async function blockBackfillConsume(
   }
 }
 
+export async function accountBackfill(ws: string, connection: Connection): Promise<void> {
+  const api = await getApi(ws);
+
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+
+  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
+  crontabJob.start();
+}
+
+export async function accountBackfillDaemon(ws: string, connection: Connection) {
+  const api = await getApi(ws);
+
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+
+  MQ.getMQ().consume("backfill_account", (msg: ConsumeMessage, channel: Channel) => {
+    const { address, blockHash } = JSON.parse(msg.content.toString());
+
+    try {
+      accountBackfillConsume(api, connection, { address, blockHash });
+    } catch (error) {
+      logger.error(error);
+      channel.ack(msg);
+    }
+  });
+}
+
+async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
+  logger.info("Backfill started");
+
+  const accounts = await api.query.system.account.entries();
+  const { hash } = await api.rpc.chain.getHeader();
+
+  for (const address of accounts) {
+    logger.info(`Publishing account: ${address} to backfiller queue`);
+
+    //Metrics timer start
+    metrics.startTimer();
+    await MQ.getMQ().publish("backfill_account", Buffer.from(JSON.stringify({ address, blockHash: hash })));
+    metrics.endTimer();
+  }
+}
+
+async function accountBackfillConsume(api: ApiPromise, connection: Connection, data: AccountBlockData) {
+  await handleAccountBalance(api, connection, data);
+}
+
 export async function backfiller(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   // eslint-disable-next-line
-  let backfillAccountRunning = false;
+  //let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
   const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
-  const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
-    backfillAccountsFromDB(connection, api, backfillAccountRunning)
-  );
+  //const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
+  //  backfillAccountsFromDB(connection, api, backfillAccountRunning)
+  //);
 
   const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
 
   logger.info("Backfiller started");
   blockFinalizerJob.start();
-  backfillAccountsJob.start();
+  //backfillAccountsJob.start();
   backfillValidatorsJob.start();
 }

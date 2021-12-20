@@ -12,23 +12,22 @@ import { getAccountBlockBuffer, saveAccount, tryFetchAccount } from "../misc";
 import MQ from "@nodle/utils/src/mq";
 
 export async function handleBalance(
-  manager: EntityManager,
   event: Event,
   blockId: number,
-  api: ApiPromise,
   blockHash: BlockHash,
-  blockNumber: BlockNumber
+  blockNumber: BlockNumber,
+  isBackfiller = false
 ): Promise<void> {
   try {
     switch (event.method) {
       case "Transfer": {
         try {
           await MQ.getMQ().publish(
-            "account_indexer",
+            isBackfiller ? "backfill_account" : "account_indexer",
             getAccountBlockBuffer(event.data[0] as GenericAccountId, blockId, blockHash, blockNumber)
           );
           await MQ.getMQ().publish(
-            "account_indexer",
+            isBackfiller ? "backfill_account" : "account_indexer",
             getAccountBlockBuffer(event.data[1] as GenericAccountId, blockId, blockHash, blockNumber)
           );
         } catch (accountSaveError) {
