@@ -57,7 +57,7 @@ export async function handleBalance(
         .innerJoinAndSelect("balance.block", "block")
         .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
         .orderBy("block.number", "DESC", "NULLS LAST")
-        .limit(1)  
+        .limit(1)
         .getOne();
 
       if (savedBalance) {
