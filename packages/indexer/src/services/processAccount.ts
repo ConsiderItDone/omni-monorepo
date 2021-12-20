@@ -18,13 +18,15 @@ interface AccountBlockData {
   address: string | GenericAccountId;
   blockId: number;
   blockHash: BlockHash;
-  blockNumber?: BlockNumber;
+  blockNumber: number;
 }
 export async function processAccount(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   MQ.getMQ().consume("account_indexer", (msg: ConsumeMessage, channel: Channel) => {
-    const { address, blockId, blockHash, blockNumber } = JSON.parse(msg.content.toString());
+    const parsed: AccountBlockData = JSON.parse(msg.content.toString());
+    console.log("parsed", parsed);
+    const { address, blockId, blockHash, blockNumber } = parsed;
 
     logger.info(`Processing account: ${address}, at block #${blockNumber}`);
 
@@ -56,9 +58,7 @@ async function consume(
 
     channel.ack(msg);
 
-    logger.info(
-      `------Finished processing account: ${data.address.toString()} at block ${data.blockNumber.toNumber()}------`
-    );
+    logger.info(`------Finished processing account: ${data.address.toString()} at block ${data.blockNumber}------`);
 
     MQ.getMQ().emit("newBalance", {
       ...savedBalance,
@@ -92,7 +92,7 @@ async function handleAccountBalance(
       .getOne();
 
     if (savedBalance) {
-      const isOldBalance = Number(savedBalance?.block?.number) < blockNumber.toNumber();
+      const isOldBalance = Number(savedBalance?.block?.number) < blockNumber;
       if (isOldBalance) {
         return await saveAccountBalance({ accountId: savedAccount.accountId, balanceId: savedBalance.balanceId });
       }

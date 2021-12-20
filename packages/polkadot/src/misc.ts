@@ -291,14 +291,17 @@ export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
   blockHash: BlockHash,
-  blockNumber?: BlockNumber
+  blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
     const data = await api.query.system.account.at(blockHash, accountAddress);
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber?.toNumber()),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
+        accountAddress.toString(),
+        typeof blockNumber === "number" ? blockNumber : blockNumber?.toNumber()
+      ),
       accountFetchError
     );
   }
@@ -380,5 +383,7 @@ export const getAccountBlockBuffer = (
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ) => {
-  return Buffer.from(JSON.stringify({ address: address.toString(), blockId, blockHash, blockNumber }));
+  return Buffer.from(
+    JSON.stringify({ address: address.toString(), blockId, blockHash, blockNumber: blockNumber.toNumber() })
+  );
 };
