@@ -212,6 +212,7 @@ async function accountBackfillPublish(api: ApiPromise) {
   let last_key = "" as any;
   let pages = 0;
   while (true) {
+    console.log(`Querying ${pages + 1} page`);
     let query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: last_key });
     if (query.length == 0) {
       break;
