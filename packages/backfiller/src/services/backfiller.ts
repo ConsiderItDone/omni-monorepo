@@ -1,4 +1,5 @@
 import { Between, Connection } from "typeorm";
+import type { AccountId } from "@polkadot/types/interfaces/runtime";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
 import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
@@ -16,7 +17,6 @@ import { Channel } from "amqplib";
 import { AccountBlockData } from "@nodle/utils/src/types";
 import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
 import { IAccount } from "@nodle/polkadot/src/misc";
-
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
@@ -207,13 +207,14 @@ async function accountBackfillPublish(api: ApiPromise) {
   console.time("Get accounts from chain");
 
   const { hash } = await api.rpc.chain.getHeader();
-  let limit = 100;
-  let accounts = [];
-  let last_key = "" as any;
+  const limit = 100;
+  const accounts = [];
+  let last_key: AccountId;
   let pages = 0;
+  //eslint-disable-next-line
   while (true) {
     console.log(`Querying ${pages + 1} page`);
-    let query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: last_key });
+    const query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: String(last_key) });
     if (query.length == 0) {
       break;
     }
@@ -221,7 +222,7 @@ async function accountBackfillPublish(api: ApiPromise) {
 
     for (const account of query) {
       accounts.push(account);
-      last_key = account[0];
+      last_key = account[0] as AccountId;
     }
   }
   console.timeEnd("Get accounts from chain");

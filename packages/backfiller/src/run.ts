@@ -46,7 +46,7 @@ yargs(hideBin(process.argv))
 
     blockBackfillDaemon(process.env.WS_PROVIDER, connection);
   })
-  .command("accounts", "run accounts backfiller", {}, async () => {
+  .command("accounts", "run accounts backfiller", {}, () => {
     logger.info(`Accounts backfilling started`);
 
     accountBackfill(process.env.WS_PROVIDER);
