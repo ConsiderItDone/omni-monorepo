@@ -172,9 +172,9 @@ export async function accountBackfill(ws: string): Promise<void> {
 
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
-  accountBackfillPublish(api);
-  //const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
-  //crontabJob.start();
+  //accountBackfillPublish(api);
+  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
+  crontabJob.start();
 }
 
 export async function accountBackfillDaemon(ws: string, connection: Connection): Promise<void> {
