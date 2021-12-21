@@ -319,7 +319,7 @@ export async function saveAccount(
 
   const accountData = {
     address: address,
-    nonce: nonce?.toNumber(),
+    nonce: typeof nonce === "number" ? nonce : nonce?.toNumber(),
     refcount: refcount?.toNumber(),
   };
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);

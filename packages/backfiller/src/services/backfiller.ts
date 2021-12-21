@@ -15,6 +15,7 @@ import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 import { AccountBlockData } from "@nodle/utils/src/types";
 import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
+import { IAccount } from "@nodle/polkadot/src/misc";
 
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
@@ -182,11 +183,17 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
 
-  MQ.getMQ().consume("backfill_account", (msg: ConsumeMessage, channel: Channel) => {
-    const { address, blockHash } = JSON.parse(msg.content.toString());
+  MQ.getMQ().consume("backfill_account", async (msg: ConsumeMessage, channel: Channel) => {
+    const parsed = JSON.parse(msg.content.toString());
 
+    const { account, blockHash, order } = parsed;
+    const address = account[0];
     try {
-      accountBackfillConsume(api, connection, { address, blockHash });
+      console.log(`Processing ${order} account: ${address}`);
+      console.time(`Account ${order} processing time`);
+      await accountBackfillConsume(api, connection, { address, blockHash }, { address, data: account[1] });
+      console.timeEnd(`Account ${order} processing time`);
+      channel.ack(msg);
     } catch (error) {
       logger.error(error);
       channel.ack(msg);
@@ -197,21 +204,52 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
 async function accountBackfillPublish(api: ApiPromise) {
   logger.info("Backfill started");
 
-  const accounts = await api.query.system.account.entries();
+  console.time("Get accounts from chain");
+
   const { hash } = await api.rpc.chain.getHeader();
+  let limit = 10;
+  let accounts = [];
+  let last_key = "" as any;
+  let pages = 0;
+  while (true) {
+    let query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: last_key });
+    if (query.length == 0 || pages === 1) {
+      break;
+    }
+    pages++;
 
-  for (const address of accounts) {
-    logger.info(`Publishing account: ${address} to backfiller queue`);
+    for (const account of query) {
+      accounts.push(account);
+      last_key = account[0];
+    }
+  }
+  console.timeEnd("Get accounts from chain");
+  console.log("Total accounts:", accounts.length, "on", pages, "pages");
 
-    //Metrics timer start
-    metrics.startTimer();
-    await MQ.getMQ().publish("backfill_account", Buffer.from(JSON.stringify({ address, blockHash: hash })));
-    metrics.endTimer();
+  for (const [index, account] of accounts.entries()) {
+    const address = account[0].toHuman().toString();
+    await MQ.getMQ().publish(
+      "backfill_account",
+      Buffer.from(
+        JSON.stringify({
+          account: { ...account, 0: address },
+          blockHash: hash,
+          order: index + 1 + "/" + accounts.length,
+        })
+      )
+    );
   }
 }
 
-async function accountBackfillConsume(api: ApiPromise, connection: Connection, data: AccountBlockData) {
-  await handleAccountBalance(api, connection, data);
+async function accountBackfillConsume(
+  api: ApiPromise,
+  connection: Connection,
+  data: AccountBlockData,
+  prefetched?: IAccount
+) {
+  console.log(`Consuming ${prefetched.address}`);
+  await handleAccountBalance(api, connection, data, prefetched);
+  console.log(`${prefetched.address} consumbed`);
 }
 
 export async function backfiller(ws: string, connection: Connection): Promise<void> {

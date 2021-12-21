@@ -14,7 +14,7 @@ import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
 import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import { tryFetchAccount, saveAccount } from "../misc";
+import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(
   manager: EntityManager,
@@ -59,7 +59,8 @@ export async function handleTrackedEvents(
 export async function handleAccountBalance(
   api: ApiPromise,
   connection: Connection,
-  { address, blockId, blockHash, blockNumber }: AccountBlockData
+  { address, blockId, blockHash, blockNumber }: AccountBlockData,
+  prefetched?: IAccount
 ): Promise<{ savedAccount: Account; savedBalance?: Balance }> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
 
@@ -85,7 +86,7 @@ export async function handleAccountBalance(
   return await saveAccountBalance();
 
   async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
-    const account = await tryFetchAccount(api, address, blockHash, blockNumber);
+    const account = prefetched || (await tryFetchAccount(api, address, blockHash, blockNumber));
     return await saveAccount(connection, account, blockId, options);
   }
 }

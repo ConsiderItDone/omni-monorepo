@@ -49,9 +49,7 @@ yargs(hideBin(process.argv))
   .command("accounts", "run accounts backfiller", {}, async () => {
     logger.info(`Accounts backfilling started`);
 
-    const connection = await connect(connectionOptions);
-
-    accountBackfill(process.env.WS_PROVIDER, connection);
+    accountBackfill(process.env.WS_PROVIDER);
   })
   .command("accounts-daemon", "run account backfiller daemon", {}, async () => {
     logger.info(`Account backfilling daemon started`);
