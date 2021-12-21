@@ -172,9 +172,9 @@ export async function accountBackfill(ws: string): Promise<void> {
 
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
-
-  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
-  crontabJob.start();
+  accountBackfillPublish(api);
+  //const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
+  //crontabJob.start();
 }
 
 export async function accountBackfillDaemon(ws: string, connection: Connection): Promise<void> {
@@ -207,13 +207,13 @@ async function accountBackfillPublish(api: ApiPromise) {
   console.time("Get accounts from chain");
 
   const { hash } = await api.rpc.chain.getHeader();
-  let limit = 10;
+  let limit = 100;
   let accounts = [];
   let last_key = "" as any;
   let pages = 0;
   while (true) {
     let query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: last_key });
-    if (query.length == 0 || pages === 1) {
+    if (query.length == 0) {
       break;
     }
     pages++;
