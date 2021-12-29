@@ -96,6 +96,7 @@ export default class EventRepository extends Repository<Event> {
     take: number
   ): Promise<Event[]> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
+    const orderStr = filters ? "ORDER BY b.number::character varying::bigint DESC" : "ORDER BY b.number DESC";
 
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
@@ -109,7 +110,7 @@ export default class EventRepository extends Repository<Event> {
         FROM "public"."event" "event"
                  INNER JOIN block b on b.block_id = event.block_id
         ${whereStr}
-        ORDER BY b.number::character varying::bigint DESC
+        ${orderStr}
         LIMIT ${take}
         OFFSET ${skip}
         `;
