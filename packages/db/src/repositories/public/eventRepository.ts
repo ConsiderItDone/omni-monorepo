@@ -64,6 +64,11 @@ export default class EventRepository extends Repository<Event> {
   ): Promise<number> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
+    if (!filters) {
+      // TODO: remove hot-fix, use quick count
+      return 10000;
+    }
+
     let sql: string;
     // all events without any filters
     if (whereStr == "") {
