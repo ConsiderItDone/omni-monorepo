@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {
   Resolver,
   Query,
@@ -25,6 +26,9 @@ import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
+import DataLoader from "dataloader";
+import { Loader } from "type-graphql-dataloader";
+import { groupBy } from "lodash";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -228,8 +232,27 @@ export default class EventResolver extends EventBaseResolver {
   }
 
   @FieldResolver()
-  block(@Root() source: Event): Promise<Block> {
-    return singleFieldResolver(source, Block, "blockId");
+  @Loader<number, Block>(async (eventIds) => {
+    const blocks = await Block.createQueryBuilder("block")
+      .leftJoinAndSelect("block.events", "events")
+      .where(`events.eventId IN(:...eventIds)`, { eventIds })
+      .getMany();
+
+    const newBlocks = [];
+    for (const b of blocks) {
+      for (const e of b.events) {
+        newBlocks.push({
+          eventId: e.eventId,
+          ...b,
+        });
+      }
+    }
+
+    const blocksByEventId = groupBy(newBlocks, "eventId");
+    return eventIds.map((id) => ((blocksByEventId[id][0] as any) as Block) ?? null);
+  })
+  block(@Root() source: Event) {
+    return (dataloader: DataLoader<number, Block>) => dataloader.load(source.eventId);
   }
 
   @FieldResolver()
