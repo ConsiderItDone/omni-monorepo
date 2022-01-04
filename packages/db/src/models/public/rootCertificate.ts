@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType, Int } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import Block from "./block";
 import Account from "./account";
 
@@ -18,6 +19,7 @@ export default class RootCertificate extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "owner_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public owner: Account;
 
   @Field(() => Int)
@@ -27,6 +29,7 @@ export default class RootCertificate extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "key_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public key: Account;
 
   @Field(() => String)
@@ -56,5 +59,6 @@ export default class RootCertificate extends BaseEntity {
   @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.rootCertificates)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  @TypeormLoader()
   public block: Block;
 }

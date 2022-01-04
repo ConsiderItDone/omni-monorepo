@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType, Int } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import Block from "./block";
 import { GraphQLJSON } from "graphql-type-json";
 import Event from "./event";
@@ -38,6 +39,7 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => ExtrinsicType, { nullable: true })
   @ManyToOne(() => ExtrinsicType, (m) => m.extrinsicTypeId)
   @JoinColumn([{ name: "extrinsic_type_id", referencedColumnName: "extrinsicTypeId" }])
+  @TypeormLoader()
   public extrinsicType: ExtrinsicType;
 
   @Field(() => Int)
@@ -47,6 +49,7 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Module, { nullable: true })
   @ManyToOne(() => Module, (m) => m.moduleId)
   @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  @TypeormLoader()
   public module: Module;
 
   @Field(() => String)
@@ -60,6 +63,7 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.extrinsics)
   @JoinColumn([{ name: "signer_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public signer: Account;
 
   @Field(() => String, { nullable: true })
@@ -101,10 +105,12 @@ export default class Extrinsic extends BaseEntity {
   @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.extrinsics)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  @TypeormLoader()
   public block: Block;
 
   @Field(() => [Event], { nullable: true, defaultValue: [] })
   @OneToMany(() => Event, (event) => event.extrinsicId)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
+  @TypeormLoader()
   public events: Event[];
 }

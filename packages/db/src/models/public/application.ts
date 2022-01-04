@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 
 import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
@@ -21,6 +22,7 @@ export default class Application extends BaseEntity {
   @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.blockId)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  @TypeormLoader()
   public block: Block;
 
   @Field(() => Int)
@@ -30,6 +32,7 @@ export default class Application extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "candidate_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public candidate: Account;
 
   @Field(() => Number)
@@ -54,6 +57,7 @@ export default class Application extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.accountId)
   @JoinColumn([{ name: "challenger_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public challenger: Account;
 
   @Field(() => Number, { nullable: true })
@@ -75,5 +79,6 @@ export default class Application extends BaseEntity {
   @Field(() => [Vote], { nullable: true, defaultValue: [] })
   @OneToMany(() => Vote, (vote) => vote.voteId)
   @JoinColumn([{ name: "vote_id", referencedColumnName: "voteId" }])
+  @TypeormLoader()
   public votes: Vote[];
 }
