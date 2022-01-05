@@ -211,8 +211,9 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
 
   console.time("Get accounts from chain");
 
-  const { hash } = await api.rpc.chain.getHeader();
-  const { blockId } = await connection.getCustomRepository(BlockRepository).findOne({ order: { blockId: "DESC" } });
+  const { blockId, hash } = await connection
+    .getCustomRepository(BlockRepository)
+    .findOne({ order: { blockId: "DESC" } });
 
   const limit = 100;
   let last_key: AccountId;
