@@ -1,11 +1,7 @@
 import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
-import {
-  backfillAccountsFromDB,
-  backfillTrackedEvents,
-  backfillValidators,
-} from "@nodle/backfiller/src/utils/backfillers";
+import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
@@ -176,14 +172,14 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
 
   // "00 */5 * * * *" to start every 5 minutes
   const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
-  const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
-    backfillAccountsFromDB(connection, api, backfillAccountRunning)
-  );
+  // const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
+  //   backfillAccountsFromDB(connection, api, backfillAccountRunning)
+  // );
 
   const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
 
   logger.info("Backfiller started");
   blockFinalizerJob.start();
-  backfillAccountsJob.start();
+  // backfillAccountsJob.start();
   backfillValidatorsJob.start();
 }
