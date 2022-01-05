@@ -1,11 +1,7 @@
 import { Between, Connection } from "typeorm";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
-import {
-  backfillAccountsFromDB,
-  backfillTrackedEvents,
-  backfillValidators,
-} from "@nodle/backfiller/src/utils/backfillers";
+import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
 import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
 import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
