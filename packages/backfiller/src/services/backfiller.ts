@@ -167,13 +167,13 @@ async function blockBackfillConsume(
   }
 }
 
-export async function accountBackfill(ws: string): Promise<void> {
+export async function accountBackfill(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
   //accountBackfillPublish(api);
-  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api));
+  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
   crontabJob.start();
 }
 
@@ -186,12 +186,17 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
   MQ.getMQ().consume("backfill_account", async (msg: ConsumeMessage, channel: Channel) => {
     const parsed = JSON.parse(msg.content.toString());
 
-    const { account, blockHash } = parsed;
+    const { account, blockHash, blockId } = parsed;
     const address = account[0];
     try {
       console.log(`Processing account: ${address}`);
       console.time(`Account ${address} processing time`);
-      await accountBackfillConsume(api, connection, { address, blockHash }, { address, data: account[1] });
+      await accountBackfillConsume(
+        api,
+        connection,
+        { address, blockHash, blockId: Number(blockId) },
+        { address, data: account[1] }
+      );
       console.timeEnd(`Account ${address} processing time`);
       channel.ack(msg);
     } catch (error) {
@@ -201,12 +206,14 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
   });
 }
 
-async function accountBackfillPublish(api: ApiPromise) {
+async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
   logger.info("Backfill started");
 
   console.time("Get accounts from chain");
 
   const { hash } = await api.rpc.chain.getHeader();
+  const { blockId } = await connection.getCustomRepository(BlockRepository).findOne({ order: { blockId: "DESC" } });
+
   const limit = 100;
   let last_key: AccountId;
   let pages = 0;
@@ -228,6 +235,7 @@ async function accountBackfillPublish(api: ApiPromise) {
           JSON.stringify({
             account: { ...account, 0: address },
             blockHash: hash,
+            blockId,
           })
         )
       );

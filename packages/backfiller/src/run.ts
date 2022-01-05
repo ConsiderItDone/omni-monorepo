@@ -15,7 +15,7 @@ import {
   blockBackfill,
   blockBackfillDaemon,
 } from "@nodle/backfiller/src/services/backfiller";
-import { ConnectionOptions } from "typeorm";
+import { Connection, ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
 import { logger } from "@nodle/utils/src/logger";
 
@@ -46,10 +46,12 @@ yargs(hideBin(process.argv))
 
     blockBackfillDaemon(process.env.WS_PROVIDER, connection);
   })
-  .command("accounts", "run accounts backfiller", {}, () => {
+  .command("accounts", "run accounts backfiller", {}, async () => {
     logger.info(`Accounts backfilling started`);
 
-    accountBackfill(process.env.WS_PROVIDER);
+    const connection = await connect(connectionOptions);
+
+    accountBackfill(process.env.WS_PROVIDER, connection);
   })
   .command("accounts-daemon", "run account backfiller daemon", {}, async () => {
     logger.info(`Account backfilling daemon started`);
