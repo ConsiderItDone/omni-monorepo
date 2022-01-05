@@ -186,13 +186,13 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
   MQ.getMQ().consume("backfill_account", async (msg: ConsumeMessage, channel: Channel) => {
     const parsed = JSON.parse(msg.content.toString());
 
-    const { account, blockHash, order } = parsed;
+    const { account, blockHash } = parsed;
     const address = account[0];
     try {
-      console.log(`Processing ${order} account: ${address}`);
-      console.time(`Account ${order} processing time`);
+      console.log(`Processing account: ${address}`);
+      console.time(`Account ${address} processing time`);
       await accountBackfillConsume(api, connection, { address, blockHash }, { address, data: account[1] });
-      console.timeEnd(`Account ${order} processing time`);
+      console.timeEnd(`Account ${address} processing time`);
       channel.ack(msg);
     } catch (error) {
       logger.error(error);
@@ -208,7 +208,6 @@ async function accountBackfillPublish(api: ApiPromise) {
 
   const { hash } = await api.rpc.chain.getHeader();
   const limit = 100;
-  const accounts = [];
   let last_key: AccountId;
   let pages = 0;
   //eslint-disable-next-line
@@ -221,26 +220,22 @@ async function accountBackfillPublish(api: ApiPromise) {
     pages++;
 
     for (const account of query) {
-      accounts.push(account);
+      const address = account[0].toHuman().toString();
+
+      await MQ.getMQ().publish(
+        "backfill_account",
+        Buffer.from(
+          JSON.stringify({
+            account: { ...account, 0: address },
+            blockHash: hash,
+          })
+        )
+      );
+
       last_key = account[0] as AccountId;
     }
   }
   console.timeEnd("Get accounts from chain");
-  console.log("Total accounts:", accounts.length, "on", pages, "pages");
-
-  for (const [index, account] of accounts.entries()) {
-    const address = account[0].toHuman().toString();
-    await MQ.getMQ().publish(
-      "backfill_account",
-      Buffer.from(
-        JSON.stringify({
-          account: { ...account, 0: address },
-          blockHash: hash,
-          order: index + 1 + "/" + accounts.length,
-        })
-      )
-    );
-  }
 }
 
 async function accountBackfillConsume(
