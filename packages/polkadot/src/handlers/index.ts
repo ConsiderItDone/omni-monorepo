@@ -13,7 +13,7 @@ import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
+import { AccountRepository } from "@nodle/db/src/repositories";
 import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(

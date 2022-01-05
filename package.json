@@ -20,6 +20,7 @@
     "start:backfiller": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller",
     "start:backfiller:blocks": "npm_config_yes=true npm run start:backfiller:blocks --prefix packages/backfiller",
     "start:backfiller:blocks-daemon": "npm_config_yes=true npm run start:backfiller:blocks-daemon --prefix packages/backfiller",
+    "start:backfiller:accounts": "npm_config_yes=true npm run start:backfiller:accounts --prefix packages/backfiller",
     "start:updateAccount": "npm_config_yes=true npm run start:updateAccount --prefix packages/backfiller",
     "start:jest": "npm_config_yes=true npm run start:jest --prefix packages/test",
     "start:patcher": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller patcher-only",

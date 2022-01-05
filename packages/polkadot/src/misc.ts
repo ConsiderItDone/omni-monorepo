@@ -11,12 +11,14 @@ import {
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
 import { Connection, EntityManager } from "typeorm";
-import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
-import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import VoteRepository from "@nodle/db/src/repositories/public/voteRepository";
+import {
+  ApplicationRepository,
+  RootCertificateRepository,
+  AccountRepository,
+  ValidatorRepository,
+  BalanceRepository,
+  VoteRepository,
+} from "@nodle/db/src/repositories";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
