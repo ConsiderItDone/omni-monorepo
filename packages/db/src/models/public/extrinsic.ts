@@ -109,7 +109,7 @@ export default class Extrinsic extends BaseEntity {
   public block: Block;
 
   @Field(() => [Event], { nullable: true, defaultValue: [] })
-  @OneToMany(() => Event, (event) => event.extrinsicId)
+  @OneToMany(() => Event, (event) => event.extrinsic)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
   @TypeormLoader()
   public events: Event[];

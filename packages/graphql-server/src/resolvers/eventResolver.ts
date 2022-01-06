@@ -32,6 +32,20 @@ import { groupBy } from "lodash";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
+function groupByEventId<T>(items: T[]) {
+  const newItems = [];
+  for (const item of items) {
+    for (const event of (item as any).events) { // eslint-disable-line
+      newItems.push(({
+        eventId: event.eventId,
+        ...item,
+      } as any) as T); // eslint-disable-line
+    }
+  }
+
+  return groupBy(newItems, "eventId");
+}
+
 @ArgsType()
 class EventByNameArgs {
   @Field(() => Int, { defaultValue: 0 })
@@ -238,26 +252,25 @@ export default class EventResolver extends EventBaseResolver {
       .where(`events.eventId IN(:...eventIds)`, { eventIds })
       .getMany();
 
-    const newBlocks = [];
-    for (const b of blocks) {
-      for (const e of b.events) {
-        newBlocks.push({
-          eventId: e.eventId,
-          ...b,
-        });
-      }
-    }
-
-    const blocksByEventId = groupBy(newBlocks, "eventId");
-    return eventIds.map((id) => ((blocksByEventId[id][0] as any) as Block) ?? null);
+    const itemsByEventId = groupByEventId<Block>(blocks);
+    return eventIds.map((id) => itemsByEventId[id][0] ?? null);
   })
   block(@Root() source: Event) {
     return (dataloader: DataLoader<number, Block>) => dataloader.load(source.eventId);
   }
 
   @FieldResolver()
-  extrinsic(@Root() source: Event): Promise<Extrinsic> {
-    return singleFieldResolver(source, Extrinsic, "extrinsicId");
+  @Loader<number, Extrinsic>(async (eventIds) => {
+    const items = await Extrinsic.createQueryBuilder("item")
+      .leftJoinAndSelect("item.events", "events")
+      .where(`events.eventId IN(:...eventIds)`, { eventIds })
+      .getMany();
+
+    const itemsByEventId = groupByEventId<Extrinsic>(items);
+    return eventIds.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  extrinsic(@Root() source: Event) {
+    return (dataloader: DataLoader<number, Extrinsic>) => dataloader.load(source.eventId);
   }
 
   @FieldResolver()

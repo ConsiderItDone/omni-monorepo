@@ -61,8 +61,15 @@ export default class BlockResolver extends BlockBaseResolver {
   }
 
   @FieldResolver()
-  extrinsics(@Root() source: Block): Promise<Extrinsic[]> {
-    return arrayFieldResolver<Block>(source, Extrinsic, "blockId");
+  @Loader<number, Extrinsic[]>(async (blockIds) => {
+    const extrinsics = await getRepository(Extrinsic).find({
+      where: { blockId: In([...blockIds]) },
+    });
+    const extrinsicsByBlockId = groupBy(extrinsics, "blockId");
+    return blockIds.map((blockId) => extrinsicsByBlockId[blockId] ?? ([] as Extrinsic[]));
+  })
+  extrinsics(@Root() source: Block) {
+    return (dataloader: DataLoader<number, Extrinsic[]>) => dataloader.load(source.blockId);
   }
 
   @FieldResolver()
