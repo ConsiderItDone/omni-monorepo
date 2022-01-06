@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
@@ -20,7 +21,8 @@ const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
 function groupByExtrinsicId<T>(items: T[]) {
   const newItems = [];
   for (const item of items) {
-    for (const extrinsic of (item as any).extrinsics) { // eslint-disable-line
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const extrinsic of (item as any).extrinsics) {
       newItems.push(({
         extrinsicId: extrinsic.extrinsicId,
         ...item,
@@ -242,7 +244,6 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       .where(`extrinsics.extrinsicId IN(:...ids)`, { ids })
       .getMany();
 
-      console.log('!!! WORK FINE');
     const itemsByEventId = groupByExtrinsicId<Block>(blocks);
     return ids.map((id) => itemsByEventId[id][0] ?? null);
   })

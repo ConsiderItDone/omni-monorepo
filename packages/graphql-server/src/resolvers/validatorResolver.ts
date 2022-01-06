@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
 import Account from "@nodle/db/src/models/public/account";
 import Validator from "@nodle/db/src/models/public/validator";
@@ -35,6 +36,7 @@ export default class ValidatorResolver extends ValidatorBaseResolver {
       .getMany();
 
     const itemsByEventId = groupBy(items, "validator.validatorId");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return validatorIds.map((id) => ((itemsByEventId[id][0] as any) as Account) ?? null);
   })
   account(@Root() source: Validator) {

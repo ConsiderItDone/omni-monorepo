@@ -35,7 +35,8 @@ const EventBaseResolver = createBaseResolver("Event", Event);
 function groupByEventId<T>(items: T[]) {
   const newItems = [];
   for (const item of items) {
-    for (const event of (item as any).events) { // eslint-disable-line
+    // eslint-disable-next-line
+    for (const event of (item as any).events) {
       newItems.push(({
         eventId: event.eventId,
         ...item,

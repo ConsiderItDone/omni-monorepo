@@ -1,4 +1,3 @@
-import { groupBy } from "lodash";
 import { ClassType } from "type-graphql";
 
 /* eslint @typescript-eslint/no-explicit-any: 0 */
