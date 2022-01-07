@@ -14,7 +14,7 @@ import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
 import MetricsService from "@nodle/utils/src/services/metricsService";
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import MQ from "@nodle/utils/dist/src/mq";
+import MQ from "@nodle/utils/src/mq";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 

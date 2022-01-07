@@ -13,7 +13,7 @@ import EventTypeRepository from "@nodle/db/src/repositories/public/eventTypeRepo
 import ModuleRepository from "@nodle/db/src/repositories/public/moduleRepository";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { Module, Extrinsic } from "@nodle/db/src/models";
-import EventType from "@nodle/db/dist/src/models/public/eventType";
+import EventType from "@nodle/db/src/models/public/eventType";
 
 export async function handleEvents(
   manager: EntityManager,
