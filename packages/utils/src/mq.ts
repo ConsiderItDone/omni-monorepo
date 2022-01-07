@@ -54,9 +54,14 @@ export default class MQ {
   }
 
   public async publish(queue: string, msg: Buffer): Promise<void> {
+    console.log('mq publish 1');
+
     if (!this.channel) {
       this.channel = await this.connection.createChannel();
+      console.log('mq publish 2');
     }
+
+    console.log('mq publish 3');
 
     this.channel
       .assertQueue(queue, {
@@ -64,8 +69,10 @@ export default class MQ {
         autoDelete: false,
       })
       .then(() => {
+        console.log('queue created')
         this.channel.sendToQueue(queue, msg, { persistent: true });
       });
+    console.log('mq publish 4');
   }
 
   public consume(queue: string, onMessage: (msg: ConsumeMessage, channel: Channel) => void): void {

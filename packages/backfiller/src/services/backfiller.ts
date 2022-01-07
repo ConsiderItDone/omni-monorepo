@@ -11,7 +11,7 @@ import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
 import MetricsService from "@nodle/utils/src/services/metricsService";
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import MQ from "@nodle/utils/dist/src/mq";
+import MQ from "@nodle/utils/src/mq";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 import { AccountBlockData } from "@nodle/utils/src/types";
@@ -172,9 +172,9 @@ export async function accountBackfill(ws: string, connection: Connection): Promi
 
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
-  //accountBackfillPublish(api);
-  const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
-  crontabJob.start();
+  accountBackfillPublish(api, connection);
+  // const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
+  // crontabJob.start();
 }
 
 export async function accountBackfillDaemon(ws: string, connection: Connection): Promise<void> {
@@ -186,7 +186,7 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
   MQ.getMQ().consume("backfill_account", async (msg: ConsumeMessage, channel: Channel) => {
     const parsed = JSON.parse(msg.content.toString());
 
-    const { account, blockHash, blockId } = parsed;
+    const { account, blockHash, blockId, blockNumber } = parsed;
     const address = account[0];
     try {
       console.log(`Processing account: ${address}`);
@@ -194,7 +194,7 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
       await accountBackfillConsume(
         api,
         connection,
-        { address, blockHash, blockId: Number(blockId) },
+        { address, blockHash, blockId: Number(blockId), blockNumber: Number(blockNumber) },
         { address, data: account[1] }
       );
       console.timeEnd(`Account ${address} processing time`);
@@ -211,17 +211,23 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
 
   console.time("Get accounts from chain");
 
-  const { blockId, hash } = await connection
+  const { blockId, hash, number: blockNumber } = await connection
     .getCustomRepository(BlockRepository)
-    .findOne({ order: { blockId: "DESC" } });
+    .findOne({ order: { number: "DESC" } });
 
   const limit = 100;
-  let last_key: AccountId;
+  let lastKey: AccountId = null;
   let pages = 0;
   //eslint-disable-next-line
   while (true) {
     console.log(`Querying ${pages + 1} page`);
-    const query = await api.query.system.account.entriesPaged({ pageSize: limit, startKey: String(last_key) });
+    const opts = {
+      pageSize: limit,
+    };
+    if (lastKey !== null) {
+      (opts as any).startKey = lastKey;
+    }
+    const query = await api.query.system.account.entriesPaged(opts);
     if (query.length == 0) {
       break;
     }
@@ -229,19 +235,23 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
 
     for (const account of query) {
       const address = account[0].toHuman().toString();
+      
+      const dataToSend = {
+        account: { ...account, 0: address },
+        blockHash: hash,
+        blockId,
+        blockNumber,
+      };
+      const encodedData = Buffer.from(JSON.stringify(dataToSend));
+      console.log(encodedData.toString('hex'));
 
       await MQ.getMQ().publish(
         "backfill_account",
-        Buffer.from(
-          JSON.stringify({
-            account: { ...account, 0: address },
-            blockHash: hash,
-            blockId,
-          })
-        )
+        encodedData
       );
+      return;
 
-      last_key = account[0] as AccountId;
+      lastKey = account[0] as AccountId;
     }
   }
   console.timeEnd("Get accounts from chain");
@@ -255,7 +265,7 @@ async function accountBackfillConsume(
 ) {
   console.log(`Consuming ${prefetched.address}`);
   await handleAccountBalance(api, connection, data, prefetched);
-  console.log(`${prefetched.address} consumbed`);
+  console.log(`${prefetched.address} consumed`);
 }
 
 export async function backfiller(ws: string, connection: Connection): Promise<void> {

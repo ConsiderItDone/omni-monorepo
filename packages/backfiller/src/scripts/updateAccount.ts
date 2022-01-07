@@ -1,32 +1,55 @@
 import * as dotenv from "dotenv";
 import path from "path";
-import { getApi } from "@nodle/polkadot/src/api";
-import MQ from "@nodle/utils/dist/src/mq";
-
 try {
   dotenv.config({ path: path.resolve(__dirname) + "/../../../../.env" });
 } catch (e) {
   //nop
 }
 
+import { getApi } from "@nodle/polkadot/src/api";
+import MQ from "@nodle/utils/src/mq";
+import { BlockRepository } from "@nodle/db/src/repositories";
+import { ConnectionOptions } from "typeorm";
+import {connect} from "@nodle/db";
+
+const connectionOptions = {
+  name: "default",
+  type: "postgres",
+  host: process.env.TYPEORM_HOST,
+  port: Number(process.env.TYPEORM_PORT),
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
+  logging: process.env.TYPEORM_LOGGING === "true",
+  entities: [path.resolve(__dirname) + "/../../../db/src/models/*.ts", path.resolve(__dirname) + "/../../db/src/models/**/*.ts"],
+} as ConnectionOptions;
+
 async function updateAccount(address: string) {
   console.log(`Updating ${address}`);
   const api = await getApi(process.env.WS_PROVIDER);
-
-  const { hash } = await api.rpc.chain.getHeader();
+  
+  const connection = await connect(connectionOptions);
+  
+  const { blockId, hash, number: blockNumber } = await connection
+      .getCustomRepository(BlockRepository)
+      .findOne({ order: { number: "DESC" } });
   const account = await api.query.system.account(address);
+
+  const dataToSend = {
+    account: { 1: account, 0: address },
+    blockHash: hash,
+    blockId,
+    blockNumber,
+  };
+  const encodedData = Buffer.from(JSON.stringify(dataToSend));
+  console.log(encodedData.toString('hex'));
 
   await MQ.getMQ().publish(
     "backfill_account",
-    Buffer.from(
-      JSON.stringify({
-        account: { ...account, 0: address },
-        blockHash: hash,
-      })
-    )
+    encodedData
   );
   console.log(`Account ${address} successfully passed to queue`);
-  api.disconnect();
+  await api.disconnect();
 }
 
 const readline = require("readline").createInterface({
@@ -34,7 +57,11 @@ const readline = require("readline").createInterface({
   output: process.stdout,
 });
 
-readline.question(`Input account address to update: `, (address: string) => {
+readline.question(`Input account address to update: `, async (address: string) => {
   readline.close();
-  updateAccount(address);
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+  
+  await updateAccount(address);
+  process.exit(0);
 });
