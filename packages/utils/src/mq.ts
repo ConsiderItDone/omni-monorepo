@@ -63,7 +63,7 @@ export default class MQ {
 
     console.log('mq publish 3');
 
-    this.channel
+    await this.channel
       .assertQueue(queue, {
         durable: true,
         autoDelete: false,
