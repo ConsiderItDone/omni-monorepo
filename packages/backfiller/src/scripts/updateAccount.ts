@@ -11,6 +11,7 @@ import MQ from "@nodle/utils/src/mq";
 import { BlockRepository } from "@nodle/db/src/repositories";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
+import * as readline from "readline";
 
 const connectionOptions = {
   name: "default",
@@ -52,13 +53,13 @@ async function updateAccount(address: string) {
   await api.disconnect();
 }
 
-const readline = require("readline").createInterface({
+const r = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-readline.question(`Input account address to update: `, async (address: string) => {
-  readline.close();
+r.question(`Input account address to update: `, async (address: string) => {
+  r.close();
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
 

@@ -17,6 +17,7 @@ import { Channel } from "amqplib";
 import { AccountBlockData } from "@nodle/utils/src/types";
 import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
 import { IAccount } from "@nodle/polkadot/src/misc";
+import { PaginationOptions } from "@polkadot/api/types/base";
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
@@ -221,11 +222,11 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
   //eslint-disable-next-line
   while (true) {
     console.log(`Querying ${pages + 1} page`);
-    const opts = {
+    const opts: PaginationOptions = {
       pageSize: limit,
     };
     if (lastKey !== null) {
-      (opts as any).startKey = lastKey;
+      opts.startKey = String(lastKey);
     }
     const query = await api.query.system.account.entriesPaged(opts);
     if (query.length == 0) {
