@@ -63,5 +63,4 @@ readline.question(`Input account address to update: `, async (address: string) =
   await MQ.init(process.env.RABBIT_MQ_URL);
   
   await updateAccount(address);
-  process.exit(0);
 });
