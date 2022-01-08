@@ -7,7 +7,6 @@ try {
 }
 
 import express = require("express");
-import bodyParser from "body-parser";
 import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -80,7 +79,19 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
   });
 
   const app = express();
-  app.use("/graphql", bodyParser.json());
+  app.use("/graphql", express.json());
+
+  app.get("/connections", function (req: express.Request, res: express.Response) {
+    server.getConnections((err, count) => {
+      if (err) {
+        return res.status(500).end();
+      }
+
+      res.status(200).json({
+        count,
+      });
+    });
+  });
 
   app.get("/", function (req: express.Request, res: express.Response) {
     res.status(200).end();
