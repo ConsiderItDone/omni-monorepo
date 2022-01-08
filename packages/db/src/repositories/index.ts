@@ -11,5 +11,5 @@ export { default as ApplicationRepository } from "./public/applicationRepository
 export { default as AccountRepository } from "./public/accountRepository";
 export { default as ValidatorRepository } from "./public/validatorRepository";
 export { default as BalanceRepository } from "./public/balanceRepository";
-export { default as   VoteRepository } from "./public/voteRepository";
+export { default as VoteRepository } from "./public/voteRepository";
 export { default as BackfillProgressRepository } from "./public/backfillProgressRepository";

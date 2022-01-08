@@ -235,7 +235,7 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
 
     for (const account of query) {
       const address = account[0].toHuman().toString();
-      
+
       const dataToSend = {
         account: { ...account, 0: address },
         blockHash: hash,
@@ -243,12 +243,9 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
         blockNumber,
       };
       const encodedData = Buffer.from(JSON.stringify(dataToSend));
-      console.log(encodedData.toString('hex'));
+      console.log(encodedData.toString("hex"));
 
-      await MQ.getMQ().publish(
-        "backfill_account",
-        encodedData
-      );
+      await MQ.getMQ().publish("backfill_account", encodedData);
       return;
 
       lastKey = account[0] as AccountId;
