@@ -216,12 +216,13 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
     .getCustomRepository(BlockRepository)
     .findOne({ order: { number: "DESC" } });
 
-  const limit = 100;
+  const limit = 500;
   let lastKey: AccountId = null;
   let pages = 0;
   //eslint-disable-next-line
   while (true) {
     console.log(`Querying ${pages + 1} page`);
+    console.time("Process page");
     const opts: PaginationOptions = {
       pageSize: limit,
     };
@@ -244,13 +245,13 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
         blockNumber,
       };
       const encodedData = Buffer.from(JSON.stringify(dataToSend));
-      console.log(encodedData.toString("hex"));
 
       await MQ.getMQ().publish("backfill_account", encodedData);
-      return;
 
       lastKey = account[0] as AccountId;
     }
+
+    console.timeEnd("Process page");
   }
   console.timeEnd("Get accounts from chain");
 }
