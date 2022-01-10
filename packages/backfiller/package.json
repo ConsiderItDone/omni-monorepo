@@ -13,7 +13,10 @@
     "prepare": "npm run build",
     "start:backfiller": "npm exec -- ts-node src/run.ts",
     "start:backfiller:blocks": "npm exec -- ts-node src/run.ts blocks",
-    "start:backfiller:blocks-daemon": "npm exec -- ts-node src/run.ts blocks-daemon"
+    "start:backfiller:blocks-daemon": "npm exec -- ts-node src/run.ts blocks-daemon",
+    "start:backfiller:accounts": "npm exec -- ts-node src/run.ts accounts",
+    "start:backfiller:accounts-daemon": "npm exec -- ts-node src/run.ts accounts-daemon",
+    "start:updateAccount": "npm exec -- ts-node src/scripts/updateAccount.ts"
   },
   "dependencies": {
     "@nodle/db": "^1.0.0",

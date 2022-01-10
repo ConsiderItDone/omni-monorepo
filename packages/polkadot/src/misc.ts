@@ -2,6 +2,7 @@ import type { EventRecord, Event, AccountInfo, AccountInfoWithProviders } from "
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
+import { GenericAccountId } from "@polkadot/types";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -9,13 +10,15 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/src/types";
-import { EntityManager } from "typeorm";
-import ApplicationRepository from "@nodle/db/src/repositories/public/applicationRepository";
-import RootCertificateRepository from "@nodle/db/src/repositories/public/rootCertificateRepository";
-import AccountRepository from "@nodle/db/src/repositories/public/accountRepository";
-import ValidatorRepository from "@nodle/db/src/repositories/public/validatorRepository";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
-import VoteRepository from "@nodle/db/src/repositories/public/voteRepository";
+import { Connection, EntityManager } from "typeorm";
+import {
+  ApplicationRepository,
+  RootCertificateRepository,
+  AccountRepository,
+  ValidatorRepository,
+  BalanceRepository,
+  VoteRepository,
+} from "@nodle/db/src/repositories";
 import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
@@ -28,6 +31,7 @@ import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
 
 import { cacheService } from "@nodle/utils/src/services/cacheService";
+
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
   extrinsics: Vec<GenericExtrinsic>,
@@ -288,20 +292,23 @@ export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
   blockHash: BlockHash,
-  blockNumber: BlockNumber
+  blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
     const data = await api.query.system.account.at(blockHash, accountAddress);
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
+        accountAddress.toString(),
+        typeof blockNumber === "number" ? blockNumber : blockNumber?.toNumber()
+      ),
       accountFetchError
     );
   }
 }
 export async function saveAccount(
-  manager: EntityManager,
+  manager: EntityManager | Connection,
   account: IAccount,
   blockId?: number,
   options: { accountId?: number; balanceId?: number } = {}
@@ -314,7 +321,7 @@ export async function saveAccount(
 
   const accountData = {
     address: address,
-    nonce: nonce?.toNumber(),
+    nonce: typeof nonce === "number" ? nonce : nonce?.toNumber(),
     refcount: refcount?.toNumber(),
   };
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
@@ -370,3 +377,14 @@ export async function getOrCreateAccount(
     return savedAccount;
   }
 }
+
+export const getAccountBlockBuffer = (
+  address: string | GenericAccountId,
+  blockId: number,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber
+): Buffer => {
+  return Buffer.from(
+    JSON.stringify({ address: address.toString(), blockId, blockHash, blockNumber: blockNumber.toNumber() })
+  );
+};

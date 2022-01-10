@@ -12,3 +12,4 @@ export { default as Validator } from "./public/validator";
 export { default as BackfillProgress } from "./public/backfillProgress";
 export { default as Vote } from "./public/vote";
 export { default as Module } from "./public/module";
+export { default as EventType } from "./public/eventType";
