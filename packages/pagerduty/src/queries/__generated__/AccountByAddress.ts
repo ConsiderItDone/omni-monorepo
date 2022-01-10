@@ -8,13 +8,13 @@
 // ====================================================
 
 export interface AccountByAddress_accountByAddress_validator {
-  __typename: 'Validator';
+  __typename: "Validator";
   providers: number;
   consumers: number;
 }
 
 export interface AccountByAddress_accountByAddress_balance {
-  __typename: 'Balance';
+  __typename: "Balance";
   free: string | null;
   feeFrozen: string | null;
   miscFrozen: string | null;
@@ -22,23 +22,23 @@ export interface AccountByAddress_accountByAddress_balance {
 }
 
 export interface AccountByAddress_accountByAddress_extrinsics_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface AccountByAddress_accountByAddress_extrinsics_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface AccountByAddress_accountByAddress_extrinsics_extrinsicType {
-  __typename: 'ExtrinsicType';
+  __typename: "ExtrinsicType";
   name: string;
 }
 
 export interface AccountByAddress_accountByAddress_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   block: AccountByAddress_accountByAddress_extrinsics_block | null;
   index: number;
   hash: string;
@@ -49,7 +49,7 @@ export interface AccountByAddress_accountByAddress_extrinsics {
 }
 
 export interface AccountByAddress_accountByAddress_vestingSchedules {
-  __typename: 'VestingSchedule';
+  __typename: "VestingSchedule";
   start: string;
   period: string;
   perPeriod: string;
@@ -57,17 +57,17 @@ export interface AccountByAddress_accountByAddress_vestingSchedules {
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByCandidate_candidate {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByCandidate_challenger {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByCandidate {
-  __typename: 'Application';
+  __typename: "Application";
   candidate: AccountByAddress_accountByAddress_applicationsByCandidate_candidate | null;
   candidateDeposit: number;
   metadata: string;
@@ -79,17 +79,17 @@ export interface AccountByAddress_accountByAddress_applicationsByCandidate {
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByChallenger_candidate {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByChallenger_challenger {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_applicationsByChallenger {
-  __typename: 'Application';
+  __typename: "Application";
   candidate: AccountByAddress_accountByAddress_applicationsByChallenger_candidate | null;
   candidateDeposit: number;
   metadata: string;
@@ -101,17 +101,17 @@ export interface AccountByAddress_accountByAddress_applicationsByChallenger {
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByKey_owner {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByKey_key {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByKey {
-  __typename: 'RootCertificate';
+  __typename: "RootCertificate";
   owner: AccountByAddress_accountByAddress_rootCertificatesByKey_owner | null;
   key: AccountByAddress_accountByAddress_rootCertificatesByKey_key | null;
   revoked: boolean;
@@ -122,17 +122,17 @@ export interface AccountByAddress_accountByAddress_rootCertificatesByKey {
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByOwner_owner {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByOwner_key {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_accountByAddress_rootCertificatesByOwner {
-  __typename: 'RootCertificate';
+  __typename: "RootCertificate";
   owner: AccountByAddress_accountByAddress_rootCertificatesByOwner_owner | null;
   key: AccountByAddress_accountByAddress_rootCertificatesByOwner_key | null;
   revoked: boolean;
@@ -143,7 +143,7 @@ export interface AccountByAddress_accountByAddress_rootCertificatesByOwner {
 }
 
 export interface AccountByAddress_accountByAddress {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
   nonce: number | null;
   refcount: number | null;
@@ -158,80 +158,80 @@ export interface AccountByAddress_accountByAddress {
 }
 
 export interface AccountByAddress_allocations_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface AccountByAddress_allocations_items_extrinsic_signer {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface AccountByAddress_allocations_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   signer: AccountByAddress_allocations_items_extrinsic_signer | null;
 }
 
 export interface AccountByAddress_allocations_items {
-  __typename: 'Event';
+  __typename: "Event";
   block: AccountByAddress_allocations_items_block | null;
   extrinsic: AccountByAddress_allocations_items_extrinsic | null;
   data: any | null;
 }
 
 export interface AccountByAddress_allocations {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   items: AccountByAddress_allocations_items[];
 }
 
 export interface AccountByAddress_transfersFrom_items_extrinsic_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface AccountByAddress_transfersFrom_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   hash: string;
   block: AccountByAddress_transfersFrom_items_extrinsic_block | null;
   index: number;
 }
 
 export interface AccountByAddress_transfersFrom_items {
-  __typename: 'Event';
+  __typename: "Event";
   extrinsic: AccountByAddress_transfersFrom_items_extrinsic | null;
   data: any | null;
   index: number;
 }
 
 export interface AccountByAddress_transfersFrom {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   items: AccountByAddress_transfersFrom_items[];
 }
 
 export interface AccountByAddress_transfersTo_items_extrinsic_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface AccountByAddress_transfersTo_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   hash: string;
   block: AccountByAddress_transfersTo_items_extrinsic_block | null;
   index: number;
 }
 
 export interface AccountByAddress_transfersTo_items {
-  __typename: 'Event';
+  __typename: "Event";
   extrinsic: AccountByAddress_transfersTo_items_extrinsic | null;
   data: any | null;
   index: number;
 }
 
 export interface AccountByAddress_transfersTo {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   items: AccountByAddress_transfersTo_items[];
 }
 

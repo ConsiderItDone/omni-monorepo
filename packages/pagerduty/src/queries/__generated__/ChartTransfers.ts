@@ -8,7 +8,7 @@
 // ====================================================
 
 export interface ChartTransfers_transfersChartData {
-  __typename: 'TransferChartData';
+  __typename: "TransferChartData";
   date: any;
   amount: number | null;
   quantity: number | null;

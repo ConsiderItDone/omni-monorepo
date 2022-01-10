@@ -8,27 +8,27 @@
 // ====================================================
 
 export interface HomePage_lastFinalizedBlock {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
 }
 
 export interface HomePage_signedExtrinsics {
-  __typename: 'ExtrinsicsResponse';
+  __typename: "ExtrinsicsResponse";
   totalCount: number;
 }
 
 export interface HomePage_blocks_items_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   length: number;
 }
 
 export interface HomePage_blocks_items_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
 }
 
 export interface HomePage_blocks_items {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   hash: string;
   extrinsics: HomePage_blocks_items_extrinsics[] | null;
@@ -38,66 +38,66 @@ export interface HomePage_blocks_items {
 }
 
 export interface HomePage_blocks {
-  __typename: 'BlockResponse';
+  __typename: "BlockResponse";
   items: HomePage_blocks_items[];
 }
 
 export interface HomePage_transfers_items_extrinsic_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface HomePage_transfers_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   hash: string;
   block: HomePage_transfers_items_extrinsic_block | null;
   index: number;
 }
 
 export interface HomePage_transfers_items {
-  __typename: 'Event';
+  __typename: "Event";
   extrinsic: HomePage_transfers_items_extrinsic | null;
   index: number;
   data: any | null;
 }
 
 export interface HomePage_transfers {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   items: HomePage_transfers_items[];
   totalCount: number;
 }
 
 export interface HomePage_allocations_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface HomePage_allocations_items {
-  __typename: 'Event';
+  __typename: "Event";
   block: HomePage_allocations_items_block | null;
   data: any | null;
 }
 
 export interface HomePage_allocations {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   totalCount: number;
   items: HomePage_allocations_items[];
 }
 
 export interface HomePage_validators_items_account {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface HomePage_validators_items {
-  __typename: 'Validator';
+  __typename: "Validator";
   account: HomePage_validators_items_account;
 }
 
 export interface HomePage_validators {
-  __typename: 'ValidatorResponse';
+  __typename: "ValidatorResponse";
   items: HomePage_validators_items[];
   totalCount: number;
 }

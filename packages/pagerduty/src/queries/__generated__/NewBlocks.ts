@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface NewBlocks_newBlock_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   length: number;
 }
 
 export interface NewBlocks_newBlock_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
 }
 
 export interface NewBlocks_newBlock {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   extrinsics: NewBlocks_newBlock_extrinsics[] | null;
   events: NewBlocks_newBlock_events[] | null;

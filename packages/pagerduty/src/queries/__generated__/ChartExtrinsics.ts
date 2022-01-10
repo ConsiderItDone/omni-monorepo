@@ -8,7 +8,7 @@
 // ====================================================
 
 export interface ChartExtrinsics_extrinsicsChartData {
-  __typename: 'ExtrinsicChartData';
+  __typename: "ExtrinsicChartData";
   quantity: number | null;
   date: any;
 }

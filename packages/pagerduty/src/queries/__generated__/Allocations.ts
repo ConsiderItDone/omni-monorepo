@@ -8,30 +8,30 @@
 // ====================================================
 
 export interface Allocations_events_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface Allocations_events_items_extrinsic_signer {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface Allocations_events_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   signer: Allocations_events_items_extrinsic_signer | null;
 }
 
 export interface Allocations_events_items {
-  __typename: 'Event';
+  __typename: "Event";
   block: Allocations_events_items_block | null;
   extrinsic: Allocations_events_items_extrinsic | null;
   data: any | null;
 }
 
 export interface Allocations_events {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   totalCount: number;
   items: Allocations_events_items[];
 }

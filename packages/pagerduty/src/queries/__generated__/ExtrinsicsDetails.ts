@@ -8,39 +8,39 @@
 // ====================================================
 
 export interface ExtrinsicsDetails_extrinsicById_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
   finalized: boolean;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_extrinsicType {
-  __typename: 'ExtrinsicType';
+  __typename: "ExtrinsicType";
   name: string;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_signer {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_events_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_events_eventType {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface ExtrinsicsDetails_extrinsicById_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
   extrinsicHash: string | null;
   module: ExtrinsicsDetails_extrinsicById_events_module | null;
@@ -49,7 +49,7 @@ export interface ExtrinsicsDetails_extrinsicById_events {
 }
 
 export interface ExtrinsicsDetails_extrinsicById {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
   block: ExtrinsicsDetails_extrinsicById_block | null;
   hash: string;

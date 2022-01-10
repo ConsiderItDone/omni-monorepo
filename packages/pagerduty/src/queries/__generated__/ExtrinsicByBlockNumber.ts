@@ -8,13 +8,13 @@
 // ====================================================
 
 export interface ExtrinsicByBlockNumber_getExtrinsicsByBlockNumber_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface ExtrinsicByBlockNumber_getExtrinsicsByBlockNumber_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
   extrinsicHash: string | null;
   moduleName: string;
@@ -22,7 +22,7 @@ export interface ExtrinsicByBlockNumber_getExtrinsicsByBlockNumber_events {
 }
 
 export interface ExtrinsicByBlockNumber_getExtrinsicsByBlockNumber {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
   block: ExtrinsicByBlockNumber_getExtrinsicsByBlockNumber_block | null;
   hash: string;

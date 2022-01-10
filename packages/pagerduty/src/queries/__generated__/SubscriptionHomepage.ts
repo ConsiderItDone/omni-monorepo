@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface SubscriptionHomepage_newBlock_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   length: number;
 }
 
 export interface SubscriptionHomepage_newBlock_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
 }
 
 export interface SubscriptionHomepage_newBlock {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   extrinsics: SubscriptionHomepage_newBlock_extrinsics[] | null;
   events: SubscriptionHomepage_newBlock_events[] | null;
@@ -26,19 +26,19 @@ export interface SubscriptionHomepage_newBlock {
 }
 
 export interface SubscriptionHomepage_newEventByName_extrinsic_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
 }
 
 export interface SubscriptionHomepage_newEventByName_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   hash: string;
   block: SubscriptionHomepage_newEventByName_extrinsic_block | null;
   index: number;
 }
 
 export interface SubscriptionHomepage_newEventByName {
-  __typename: 'Event';
+  __typename: "Event";
   extrinsic: SubscriptionHomepage_newEventByName_extrinsic | null;
   data: any | null;
 }

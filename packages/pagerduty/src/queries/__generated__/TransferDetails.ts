@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface TransferDetails_eventsByIndex_items_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface TransferDetails_eventsByIndex_items_eventType {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface TransferDetails_eventsByIndex_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   nonce: number | null;
   hash: string;
   index: number;
@@ -26,14 +26,14 @@ export interface TransferDetails_eventsByIndex_items_extrinsic {
 }
 
 export interface TransferDetails_eventsByIndex_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
   finalized: boolean;
 }
 
 export interface TransferDetails_eventsByIndex_items {
-  __typename: 'Event';
+  __typename: "Event";
   module: TransferDetails_eventsByIndex_items_module | null;
   eventType: TransferDetails_eventsByIndex_items_eventType | null;
   index: number;
@@ -44,7 +44,7 @@ export interface TransferDetails_eventsByIndex_items {
 }
 
 export interface TransferDetails_eventsByIndex {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   items: TransferDetails_eventsByIndex_items[];
 }
 

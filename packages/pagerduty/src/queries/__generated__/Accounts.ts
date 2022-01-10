@@ -8,7 +8,7 @@
 // ====================================================
 
 export interface Accounts_accounts_items_balance {
-  __typename: 'Balance';
+  __typename: "Balance";
   free: string | null;
   feeFrozen: string | null;
   miscFrozen: string | null;
@@ -16,13 +16,13 @@ export interface Accounts_accounts_items_balance {
 }
 
 export interface Accounts_accounts_items {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
   balance: Accounts_accounts_items_balance | null;
 }
 
 export interface Accounts_accounts {
-  __typename: 'AccountResponse';
+  __typename: "AccountResponse";
   items: Accounts_accounts_items[];
   totalCount: number;
 }

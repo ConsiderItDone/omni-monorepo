@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface Applications_applications_items_candidate {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface Applications_applications_items_challenger {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface Applications_applications_items {
-  __typename: 'Application';
+  __typename: "Application";
   candidate: Applications_applications_items_candidate | null;
   candidateDeposit: number;
   metadata: string;
@@ -30,7 +30,7 @@ export interface Applications_applications_items {
 }
 
 export interface Applications_applications {
-  __typename: 'ApplicationResponse';
+  __typename: "ApplicationResponse";
   items: Applications_applications_items[];
   totalCount: number;
 }

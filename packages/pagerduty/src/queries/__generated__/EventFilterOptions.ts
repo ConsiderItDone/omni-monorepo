@@ -8,18 +8,18 @@
 // ====================================================
 
 export interface EventFilterOptions_modules_items_eventTypes {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface EventFilterOptions_modules_items {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
   eventTypes: EventFilterOptions_modules_items_eventTypes[] | null;
 }
 
 export interface EventFilterOptions_modules {
-  __typename: 'ModuleResponse';
+  __typename: "ModuleResponse";
   items: EventFilterOptions_modules_items[];
 }
 

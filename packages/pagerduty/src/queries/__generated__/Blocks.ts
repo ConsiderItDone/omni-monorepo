@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface Blocks_blocks_items_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
 }
 
 export interface Blocks_blocks_items_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
 }
 
 export interface Blocks_blocks_items {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
   extrinsics: Blocks_blocks_items_extrinsics[] | null;
@@ -28,7 +28,7 @@ export interface Blocks_blocks_items {
 }
 
 export interface Blocks_blocks {
-  __typename: 'BlockResponse';
+  __typename: "BlockResponse";
   items: Blocks_blocks_items[];
   totalCount: number;
 }

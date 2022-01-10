@@ -8,7 +8,7 @@
 // ====================================================
 
 export interface Validators_validators_items_account_balance {
-  __typename: 'Balance';
+  __typename: "Balance";
   free: string | null;
   reserved: string | null;
   feeFrozen: string | null;
@@ -16,20 +16,20 @@ export interface Validators_validators_items_account_balance {
 }
 
 export interface Validators_validators_items_account {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
   balance: Validators_validators_items_account_balance | null;
 }
 
 export interface Validators_validators_items {
-  __typename: 'Validator';
+  __typename: "Validator";
   consumers: number;
   providers: number;
   account: Validators_validators_items_account;
 }
 
 export interface Validators_validators {
-  __typename: 'ValidatorResponse';
+  __typename: "ValidatorResponse";
   items: Validators_validators_items[];
   totalCount: number;
 }

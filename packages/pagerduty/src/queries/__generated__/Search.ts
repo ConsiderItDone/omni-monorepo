@@ -8,28 +8,28 @@
 // ====================================================
 
 export interface Search_blockByBlockNumber {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
 }
 
 export interface Search_extrinsicById_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
 }
 
 export interface Search_extrinsicById {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   block: Search_extrinsicById_block | null;
   index: number;
 }
 
 export interface Search_accountByAddress {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface Search_blockByHash {
-  __typename: 'Block';
+  __typename: "Block";
   hash: string;
 }
 

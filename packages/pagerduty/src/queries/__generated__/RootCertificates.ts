@@ -8,17 +8,17 @@
 // ====================================================
 
 export interface RootCertificates_rootCertificates_items_owner {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface RootCertificates_rootCertificates_items_key {
-  __typename: 'Account';
+  __typename: "Account";
   address: string;
 }
 
 export interface RootCertificates_rootCertificates_items {
-  __typename: 'RootCertificate';
+  __typename: "RootCertificate";
   owner: RootCertificates_rootCertificates_items_owner | null;
   key: RootCertificates_rootCertificates_items_key | null;
   revoked: boolean;
@@ -29,7 +29,7 @@ export interface RootCertificates_rootCertificates_items {
 }
 
 export interface RootCertificates_rootCertificates {
-  __typename: 'RootCertificateResponse';
+  __typename: "RootCertificateResponse";
   items: RootCertificates_rootCertificates_items[];
   totalCount: number;
 }

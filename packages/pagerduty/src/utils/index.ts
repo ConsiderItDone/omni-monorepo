@@ -1,8 +1,8 @@
-import { HttpLink, split } from "@apollo/client";
+import { ApolloLink, HttpLink, split } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
-export function constructLink(httpEndpoint: string, wsEndpoint?: string) {
+export function constructLink(httpEndpoint: string, wsEndpoint?: string): ApolloLink {
   const httpLink = new HttpLink({
     uri: httpEndpoint || "http://localhost:4000/graphql",
   });

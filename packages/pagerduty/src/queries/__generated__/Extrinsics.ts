@@ -8,23 +8,23 @@
 // ====================================================
 
 export interface Extrinsics_extrinsics_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface Extrinsics_extrinsics_items_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Extrinsics_extrinsics_items_extrinsicType {
-  __typename: 'ExtrinsicType';
+  __typename: "ExtrinsicType";
   name: string;
 }
 
 export interface Extrinsics_extrinsics_items {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   block: Extrinsics_extrinsics_items_block | null;
   index: number;
   hash: string;
@@ -35,7 +35,7 @@ export interface Extrinsics_extrinsics_items {
 }
 
 export interface Extrinsics_extrinsics {
-  __typename: 'ExtrinsicsResponse';
+  __typename: "ExtrinsicsResponse";
   totalCount: number;
   items: Extrinsics_extrinsics_items[];
 }

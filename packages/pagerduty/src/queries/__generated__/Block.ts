@@ -8,23 +8,23 @@
 // ====================================================
 
 export interface Block_blockByHash_extrinsics_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface Block_blockByHash_extrinsics_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Block_blockByHash_extrinsics_extrinsicType {
-  __typename: 'ExtrinsicType';
+  __typename: "ExtrinsicType";
   name: string;
 }
 
 export interface Block_blockByHash_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
   hash: string;
   block: Block_blockByHash_extrinsics_block | null;
@@ -35,17 +35,17 @@ export interface Block_blockByHash_extrinsics {
 }
 
 export interface Block_blockByHash_events_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Block_blockByHash_events_eventType {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface Block_blockByHash_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
   extrinsicHash: string | null;
   module: Block_blockByHash_events_module | null;
@@ -54,14 +54,14 @@ export interface Block_blockByHash_events {
 }
 
 export interface Block_blockByHash_logs {
-  __typename: 'Log';
+  __typename: "Log";
   index: string;
   type: string;
   data: string;
 }
 
 export interface Block_blockByHash {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   finalized: boolean;
   timestamp: any;
@@ -76,23 +76,23 @@ export interface Block_blockByHash {
 }
 
 export interface Block_blockByBlockNumber_extrinsics_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface Block_blockByBlockNumber_extrinsics_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Block_blockByBlockNumber_extrinsics_extrinsicType {
-  __typename: 'ExtrinsicType';
+  __typename: "ExtrinsicType";
   name: string;
 }
 
 export interface Block_blockByBlockNumber_extrinsics {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
   hash: string;
   block: Block_blockByBlockNumber_extrinsics_block | null;
@@ -103,17 +103,17 @@ export interface Block_blockByBlockNumber_extrinsics {
 }
 
 export interface Block_blockByBlockNumber_events_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Block_blockByBlockNumber_events_eventType {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface Block_blockByBlockNumber_events {
-  __typename: 'Event';
+  __typename: "Event";
   index: number;
   extrinsicHash: string | null;
   module: Block_blockByBlockNumber_events_module | null;
@@ -122,14 +122,14 @@ export interface Block_blockByBlockNumber_events {
 }
 
 export interface Block_blockByBlockNumber_logs {
-  __typename: 'Log';
+  __typename: "Log";
   index: string;
   type: string;
   data: string;
 }
 
 export interface Block_blockByBlockNumber {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   finalized: boolean;
   timestamp: any;

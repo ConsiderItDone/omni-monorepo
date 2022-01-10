@@ -8,28 +8,28 @@
 // ====================================================
 
 export interface Events_events_items_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
   timestamp: any;
 }
 
 export interface Events_events_items_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   index: number;
 }
 
 export interface Events_events_items_module {
-  __typename: 'Module';
+  __typename: "Module";
   name: string;
 }
 
 export interface Events_events_items_eventType {
-  __typename: 'EventType';
+  __typename: "EventType";
   name: string;
 }
 
 export interface Events_events_items {
-  __typename: 'Event';
+  __typename: "Event";
   block: Events_events_items_block | null;
   index: number;
   extrinsicHash: string | null;
@@ -40,7 +40,7 @@ export interface Events_events_items {
 }
 
 export interface Events_events {
-  __typename: 'EventsResponse';
+  __typename: "EventsResponse";
   totalCount: number;
   items: Events_events_items[];
 }

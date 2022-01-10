@@ -1,17 +1,10 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  gql,
-  NormalizedCacheObject,
-  FetchResult,
-  ApolloQueryResult,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, NormalizedCacheObject, FetchResult } from "@apollo/client";
 import { constructLink } from "./utils";
 import { DocumentNode } from "graphql";
-
+/* eslint-disable */
 interface Callbacks {
-  onSuccess?: (result: FetchResult) => any;
-  onError?: (error: any) => any;
+  onSuccess?: (result: FetchResult) => any; //eslint-disable
+  onError?: (error: any) => any; //eslint-disable
 }
 
 export default class Client {
@@ -24,7 +17,7 @@ export default class Client {
     });
   }
 
-  async query<T>(query: DocumentNode, variables?: any, callbacks?: Callbacks) {
+  async query<T>(query: DocumentNode, variables?: any, callbacks?: Callbacks): Promise<void> {
     return this.#client
       .query<T>({ query, variables })
       .then((res) => this.#handleSuccess(res, callbacks?.onSuccess))
@@ -37,13 +30,15 @@ export default class Client {
       .catch(this.#handleError);
   }
 
-  #handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any) {
+  #handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any): void {
     console.log(result);
     onSuccess && onSuccess(result);
   }
 
-  #handleError(error: any, onError?: (error: any) => any) {
+  #handleError(error: any, onError?: (error: any) => any): void {
     console.log(error);
     onError && onError(error);
   }
 }
+
+/* eslint-enable */

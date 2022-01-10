@@ -8,19 +8,19 @@
 // ====================================================
 
 export interface NewTransfers_newEventByName_extrinsic_block {
-  __typename: 'Block';
+  __typename: "Block";
   number: string;
 }
 
 export interface NewTransfers_newEventByName_extrinsic {
-  __typename: 'Extrinsic';
+  __typename: "Extrinsic";
   hash: string;
   block: NewTransfers_newEventByName_extrinsic_block | null;
   index: number;
 }
 
 export interface NewTransfers_newEventByName {
-  __typename: 'Event';
+  __typename: "Event";
   extrinsic: NewTransfers_newEventByName_extrinsic | null;
   index: number;
   data: any | null;
