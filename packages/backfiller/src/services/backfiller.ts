@@ -1,4 +1,5 @@
 import { Between, Connection } from "typeorm";
+import type { AccountId } from "@polkadot/types/interfaces/runtime";
 import { getApi } from "@nodle/polkadot/src/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
 import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
@@ -10,10 +11,13 @@ import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
 import MetricsService from "@nodle/utils/src/services/metricsService";
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import MQ from "@nodle/utils/dist/src/mq";
+import MQ from "@nodle/utils/src/mq";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-
+import { AccountBlockData } from "@nodle/utils/src/types";
+import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
+import { IAccount } from "@nodle/polkadot/src/misc";
+import { PaginationOptions } from "@polkadot/api/types/base";
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
@@ -164,11 +168,110 @@ async function blockBackfillConsume(
   }
 }
 
+export async function accountBackfill(ws: string, connection: Connection): Promise<void> {
+  const api = await getApi(ws);
+
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+  accountBackfillPublish(api, connection);
+  // const crontabJob = new CronJob("0 */12 * * *", () => accountBackfillPublish(api, connection));
+  // crontabJob.start();
+}
+
+export async function accountBackfillDaemon(ws: string, connection: Connection): Promise<void> {
+  const api = await getApi(ws);
+
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+
+  MQ.getMQ().consume("backfill_account", async (msg: ConsumeMessage, channel: Channel) => {
+    const parsed = JSON.parse(msg.content.toString());
+
+    const { account, blockHash, blockId, blockNumber } = parsed;
+    const address = account[0];
+    try {
+      console.log(`Processing account: ${address}`);
+      console.time(`Account ${address} processing time`);
+      await accountBackfillConsume(
+        api,
+        connection,
+        { address, blockHash, blockId: Number(blockId), blockNumber: Number(blockNumber) },
+        { address, data: account[1] }
+      );
+      console.timeEnd(`Account ${address} processing time`);
+      channel.ack(msg);
+    } catch (error) {
+      logger.error(error);
+      channel.ack(msg);
+    }
+  });
+}
+
+async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
+  logger.info("Backfill started");
+
+  console.time("Get accounts from chain");
+
+  const { blockId, hash, number: blockNumber } = await connection
+    .getCustomRepository(BlockRepository)
+    .findOne({ order: { number: "DESC" } });
+
+  const limit = 500;
+  let lastKey: AccountId = null;
+  let pages = 0;
+  //eslint-disable-next-line
+  while (true) {
+    console.log(`Querying ${pages + 1} page`);
+    console.time("Process page");
+    const opts: PaginationOptions = {
+      pageSize: limit,
+    };
+    if (lastKey !== null) {
+      opts.startKey = String(lastKey);
+    }
+    const query = await api.query.system.account.entriesPaged(opts);
+    if (query.length == 0) {
+      break;
+    }
+    pages++;
+
+    for (const account of query) {
+      const address = account[0].toHuman().toString();
+
+      const dataToSend = {
+        account: { ...account, 0: address },
+        blockHash: hash,
+        blockId,
+        blockNumber,
+      };
+      const encodedData = Buffer.from(JSON.stringify(dataToSend));
+
+      await MQ.getMQ().publish("backfill_account", encodedData);
+
+      lastKey = account[0] as AccountId;
+    }
+
+    console.timeEnd("Process page");
+  }
+  console.timeEnd("Get accounts from chain");
+}
+
+async function accountBackfillConsume(
+  api: ApiPromise,
+  connection: Connection,
+  data: AccountBlockData,
+  prefetched?: IAccount
+) {
+  console.log(`Consuming ${prefetched.address}`);
+  await handleAccountBalance(api, connection, data, prefetched);
+  console.log(`${prefetched.address} consumed`);
+}
+
 export async function backfiller(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
 
   // eslint-disable-next-line
-  let backfillAccountRunning = false;
+  //let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
   const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));

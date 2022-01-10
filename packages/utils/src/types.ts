@@ -3,6 +3,8 @@ import type { Vec, Option, bool } from "@polkadot/types";
 import { Balance, BlockNumber, AccountId } from "@polkadot/types/interfaces/runtime";
 import { u32, u8 } from "@polkadot/types";
 import { ITuple } from "@polkadot/types/types";
+import type { BlockHash } from "@polkadot/types/interfaces/chain";
+import { GenericAccountId } from "@polkadot/types";
 
 export type ExtrinsicWithBoundedEvents = {
   hash: string;
@@ -58,3 +60,10 @@ export type RootCertificate = {
   validity: BlockNumber;
   child_revocations: Vec<CertificateId>;
 };
+
+export interface AccountBlockData {
+  address: string | GenericAccountId;
+  blockId?: number;
+  blockHash: BlockHash;
+  blockNumber?: number;
+}
