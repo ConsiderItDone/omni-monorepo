@@ -22,8 +22,12 @@ export default class AccountRepository extends Repository<Account> {
   }
 
   public async findByAddress(accountAddress: string): Promise<Account> {
-    // console.log("findByAddress");
-    return await this.findOne({ address: accountAddress });
+    return await this.findOne(
+      { address: accountAddress },
+      {
+        order: { accountId: "ASC" },
+      }
+    );
   }
 
   public async replace(accountId: number, accountData: NewAccountParam): Promise<Account> {

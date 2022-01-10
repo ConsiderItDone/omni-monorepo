@@ -13,7 +13,7 @@ import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
-import { AccountRepository } from "@nodle/db/src/repositories";
+import { AccountRepository, BlockRepository } from "@nodle/db/src/repositories";
 import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(
@@ -59,12 +59,14 @@ export async function handleTrackedEvents(
 export async function handleAccountBalance(
   api: ApiPromise,
   connection: Connection,
-  { address, blockId, blockHash, blockNumber }: AccountBlockData,
+  { address, blockHash, blockNumber }: AccountBlockData,
   prefetched?: IAccount
 ): Promise<{ savedAccount: Account; savedBalance?: Balance }> {
   const accountRepository = connection.getCustomRepository(AccountRepository);
+  const blockRepository = connection.getCustomRepository(BlockRepository);
 
-  const savedAccount = await accountRepository.findOne({ where: { address: address.toString() } });
+  const savedAccount = await accountRepository.findByAddress(address.toString());
+  const block = await blockRepository.findByNumber(blockNumber);
 
   if (savedAccount) {
     const savedBalance = await Balance.createQueryBuilder("balance")
@@ -87,7 +89,7 @@ export async function handleAccountBalance(
 
   async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
     const account = prefetched || (await tryFetchAccount(api, address, blockHash, blockNumber));
-    return await saveAccount(connection, account, blockId, options);
+    return await saveAccount(connection, account, block.blockId, options);
   }
 }
 
