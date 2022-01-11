@@ -42,6 +42,9 @@ export default class AccountRepository extends Repository<Account> {
     if (accountId) {
       return await this.replace(accountId, accountData);
     } else {
+      //temp fix, TODO: FIX on upper level 
+      const savedAccount = await this.findByAddress(accountData.address);
+      if (savedAccount) return await this.replace(savedAccount.accountId, accountData);
       return await this.add(accountData);
     }
   }
