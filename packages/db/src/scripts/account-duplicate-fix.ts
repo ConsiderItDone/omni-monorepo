@@ -23,12 +23,26 @@ const connectionOptions = {
 async function start() {
   const connection = await connect(connectionOptions);
 
-  const query = `
+  while (true) {
+    const q1 = `
+    SELECT 
+    address, count(*)
+    FROM account
+    GROUP BY address
+    HAVING count(*) > 1
+    LIMIT 1000;
+    `;
+    const res = await connection.query(q1);
+    if (!res.length) break;
+    else {
+      for (const acc of res) {
+        const query = `
         WITH deleted_accounts as (
           DELETE FROM account a USING (
                  SELECT MIN(account_id) as account_id, address
                    FROM account
-                   GROUP BY address HAVING COUNT(*) > 1
+                   WHERE address = '${acc.address}'
+                   GROUP BY address HAVING COUNT(*) > 1   
                  ) b
                  WHERE a.address = b.address 
                  AND a.account_id <> b.account_id
@@ -36,8 +50,28 @@ async function start() {
          ) 
            DELETE FROM balance
            WHERE account_id IN (SELECT account_id FROM deleted_accounts)`;
-
-  await connection.query(query);
+        await connection.query(query);
+        console.log(acc.address + " duplicates deleted");
+      }
+    }
+  }
 }
 
 start();
+
+/* 
+const query = `
+WITH deleted_accounts as (
+  DELETE FROM account a USING (
+         SELECT MIN(account_id) as account_id, address
+           FROM account
+           WHERE address = '${acc.address}'
+           GROUP BY address HAVING COUNT(*) > 1   
+         ) b
+         WHERE a.address = b.address 
+         AND a.account_id <> b.account_id
+     returning a.account_id
+ ) 
+   DELETE FROM balance
+   WHERE account_id IN (SELECT account_id FROM deleted_accounts)`; 
+   */
