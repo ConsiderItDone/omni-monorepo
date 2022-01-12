@@ -23,6 +23,7 @@ const connectionOptions = {
 async function start() {
   const connection = await connect(connectionOptions);
 
+  //eslint-disable-next-line
   while (true) {
     const q1 = `
     SELECT 
