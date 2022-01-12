@@ -1,39 +1,20 @@
 import Client from "./client";
-import { BLOCK } from "./queries/index";
-import * as queries from "./queries";
+import { HOMEPAGE, CHART_TRANSFERTS, CHART_EXTRINSICS } from "./queries";
 
-console.log("hello");
-const client = new Client(process.env.GRAPHQL_ENDPOINT);
+const client = new Client(process.env.GRAPHQL_ENDPOINT, process.env.PAGERDUTY_API_KEY);
 
-const variables: { [key: string]: any } = {
-  /*   BLOCKS
-BLOCK
-TRANSFERS
-CHART_TRANSFERTS
-CHART_EXTRINSICS
-ACCOUNTS
-VALIDATORS
-EXTRINSICS
-EXTRINSICSDETAILTS
-EVENTS
-SEARCH
-ROOT_CERTIFICATES
-APPLICATIONS
-ACCOUNTBYADDRESS
-EXTRINSIC_FILTER_OPTIONS
-EVENT_FILTER_OPTIONS
-ALLOCATIONS
-TRANSFERDETAILS */
-};
+const variables: { [key: string]: any } = {};
 
-function run() {
-  const keys = Object.keys(queries);
-  for (const key of keys) {
-    if (variables[key]) {
-      //@ts-ignore
-      client.query(queries[key], variables[key]);
-    }
-  }
+async function run() {
+  await runCommonQueries();
+}
+
+async function runCommonQueries() {
+  await client.query(HOMEPAGE);
+  await client.query(CHART_TRANSFERTS);
+  await client.query(CHART_EXTRINSICS);
+  await client.query(HOMEPAGE);
+  await client.query(HOMEPAGE);
 }
 
 run();

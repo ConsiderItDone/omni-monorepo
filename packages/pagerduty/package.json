@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.6",
+    "@pagerduty/pdjs": "^2.2.4",
     "graphql": "^16.2.0",
     "ts-node": "^9.1.1",
     "typeorm": "^0.2.31",

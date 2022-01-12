@@ -1,20 +1,21 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject, FetchResult } from "@apollo/client";
 import { constructLink } from "./utils";
 import { DocumentNode } from "graphql";
+import { Incident, Callbacks } from "./types";
+import { api } from "@pagerduty/pdjs";
+import { PartialCall } from "@pagerduty/pdjs/build/src/api";
+
 /* eslint-disable */
-interface Callbacks {
-  onSuccess?: (result: FetchResult) => any; //eslint-disable
-  onError?: (error: any) => any; //eslint-disable
-}
 
 export default class Client {
   #client: ApolloClient<NormalizedCacheObject>;
-
-  constructor(uri?: string) {
+  #pagerduty: PartialCall;
+  constructor(uri?: string, pagerDutyToken?: string) {
     this.#client = new ApolloClient({
       link: constructLink(uri),
       cache: new InMemoryCache(),
     });
+    this.#pagerduty = api({ token: pagerDutyToken });
   }
 
   async query<T>(query: DocumentNode, variables?: any, callbacks?: Callbacks): Promise<void> {
@@ -37,6 +38,20 @@ export default class Client {
 
   #handleError(error: any, onError?: (error: any) => any): void {
     console.log(error);
+    this.#pagerduty
+      .post("/incidents", {
+        data: {
+          incident: {
+            type: "incident",
+            title: "Error occured",
+            service: { id: "SERVER", type: "ERROR" },
+            body: { type: "Error", details: error?.message || error },
+          },
+        } as Incident,
+      })
+      .then((res) => {
+        console.log(res);
+      });
     onError && onError(error);
   }
 }
