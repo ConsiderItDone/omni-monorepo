@@ -1,19 +1,16 @@
-import { ApiPromise } from "@polkadot/api";
-import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
-import { saveAccount, tryFetchAccount } from "../misc";
+import { getAccountBlockBuffer } from "../misc";
 
 import { GenericAccountId } from "@polkadot/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import MQ from "@nodle/utils/src/mq";
 
 export async function handleAllocation(
-  manager: EntityManager,
   event: Event,
   blockId: number,
-  api: ApiPromise,
   blockHash: BlockHash,
   blockNumber: BlockNumber
 ): Promise<void> {
@@ -21,8 +18,10 @@ export async function handleAllocation(
     switch (event.method) {
       case "NewAllocation": {
         try {
-          const accFrom = await tryFetchAccount(api, event.data[0] as GenericAccountId, blockHash, blockNumber);
-          await saveAccount(manager, accFrom, blockId);
+          await MQ.getMQ().publish(
+            "account_indexer",
+            getAccountBlockBuffer(event.data[0] as GenericAccountId, blockId, blockHash, blockNumber)
+          );
         } catch (accountSaveError) {
           logger.error(LOGGER_ERROR_CONST.ACCOUNT_SAVE_ERROR(blockNumber.toNumber()), accountSaveError);
         }

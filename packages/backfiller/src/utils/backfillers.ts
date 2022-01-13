@@ -46,7 +46,7 @@ export async function backfillTrackedEvents(
           await backfillApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
         case CustomEventSection.Balance:
-          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
+          await handleBalance(event, blockId, blockHash, blockNumber, true);
           break;
         default:
           return;

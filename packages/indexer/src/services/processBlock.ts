@@ -107,7 +107,7 @@ async function consume(
     );
 
     //5. Handling custom events
-    const result = await handleTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
+    await handleTrackedEvents(queryRunner.manager, trackedEvents, api, blockId, blockHash, blockNumber);
 
     console.time("commit");
     await queryRunner.commitTransaction();
@@ -124,17 +124,6 @@ async function consume(
     }
     for (const event of newEvents) {
       MQ.getMQ().emit<EventModel>("newEvent", event);
-    }
-    interface BalanceWithAddress {
-      address: string;
-    }
-    if (result?.accountWithBalances) {
-      for (const accountWithBalance of result?.accountWithBalances) {
-        MQ.getMQ().emit<BalanceWithAddress>("newBalance", {
-          ...accountWithBalance.savedBalance,
-          address: accountWithBalance.savedAccount.address,
-        });
-      }
     }
 
     //const seconds = endMetricsTimer();
