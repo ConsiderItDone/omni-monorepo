@@ -24,7 +24,7 @@ import { getConnection, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/src/models/public/module";
-import { cacheService } from "@nodle/utils/src/services/cacheService";
+// import { cacheService } from "@nodle/utils/src/services/cacheService";
 import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
@@ -162,12 +162,14 @@ export default class EventResolver extends EventBaseResolver {
     }
 
     if (cacheKey !== "") {
-      cacheKey = `events${cacheKey}-${take}-${skip}`;
-      const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
-      if (cachedValue) {
-        console.log(`Found events in cache by key: ${cacheKey}`);
-        return { items: cachedValue[0], totalCount: cachedValue[1] };
-      }
+      // cacheKey = `events${cacheKey}-${take}-${skip}`;
+      // console.time("events from cache");
+      // const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+      // console.timeEnd("events from cache");
+      // if (cachedValue) {
+      //   console.log(`Found events in cache by key: ${cacheKey}`);
+      //   return { items: cachedValue[0], totalCount: cachedValue[1] };
+      // }
     }
 
     const eventRepository = getConnection().getCustomRepository(EventRepository);
@@ -195,9 +197,9 @@ export default class EventResolver extends EventBaseResolver {
     );
     console.timeEnd("event count");
 
-    if (cacheKey !== "" && events) {
-      cacheService.set(cacheKey, [events, count]);
-    }
+    // if (cacheKey !== "" && events) {
+    //   cacheService.set(cacheKey, [events, count]);
+    // }
 
     return { items: events, totalCount: count };
   }

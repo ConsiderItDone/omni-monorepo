@@ -11,7 +11,7 @@ import { getConnection, getRepository, In, ILike } from "typeorm";
 import EventType from "@nodle/db/src/models/public/eventType";
 import Module from "@nodle/db/src/models/public/module";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
-import { cacheService } from "@nodle/utils/src/services/cacheService";
+// import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { groupBy } from "lodash";
 import { Loader } from "type-graphql-dataloader";
 import DataLoader from "dataloader";
@@ -94,38 +94,38 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
 
   @Query(() => Extrinsic, { nullable: true })
   async extrinsicByHash(@Arg("hash") hash: string): Promise<Extrinsic | null> {
-    const cacheKey = `extrinsicByHash-${hash}`;
-    const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
-    if (cachedValue) {
-      return cachedValue;
-    }
+    // const cacheKey = `extrinsicByHash-${hash}`;
+    // const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+    // if (cachedValue) {
+    //   return cachedValue;
+    // }
 
     const extrinsic = await Extrinsic.findOne({
       hash,
     });
 
-    if (extrinsic) {
-      cacheService.set(cacheKey, extrinsic);
-    }
+    // if (extrinsic) {
+    //   cacheService.set(cacheKey, extrinsic);
+    // }
 
     return extrinsic;
   }
   @Query(() => Extrinsic, { nullable: true })
   async extrinsicById(@Arg("id") id: string): Promise<Extrinsic | null> {
-    const cacheKey = `extrinsicById-${id}`;
-    const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
-    if (cachedValue) {
-      return cachedValue;
-    }
+    // const cacheKey = `extrinsicById-${id}`;
+    // const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+    // if (cachedValue) {
+    //   return cachedValue;
+    // }
 
     if (id.length === 66) {
       const extrinsic = await Extrinsic.findOne({
         hash: id,
       });
 
-      if (extrinsic) {
-        cacheService.set(cacheKey, extrinsic);
-      }
+      // if (extrinsic) {
+      //   cacheService.set(cacheKey, extrinsic);
+      // }
 
       return extrinsic;
     }
@@ -150,9 +150,9 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       },
     });
 
-    if (extrinsic) {
-      cacheService.set(cacheKey, extrinsic);
-    }
+    // if (extrinsic) {
+    //   cacheService.set(cacheKey, extrinsic);
+    // }
 
     return extrinsic;
   }
