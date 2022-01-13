@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
 import Account from "@nodle/db/src/models/public/account";
 import Validator from "@nodle/db/src/models/public/validator";
 import { createBaseResolver } from "../baseResolver";
-import { singleFieldResolver } from "../fieldsResolver";
+import DataLoader from "dataloader";
 import { getRepository } from "typeorm";
+import { Loader } from "type-graphql-dataloader";
+import { groupBy } from "lodash";
 
 const ValidatorBaseResolver = createBaseResolver("Validator", Validator);
 
@@ -26,7 +29,17 @@ export default class ValidatorResolver extends ValidatorBaseResolver {
   }
 
   @FieldResolver()
-  account(@Root() source: Validator): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId");
+  @Loader<number, Account>(async (validatorIds) => {
+    const items = await Account.createQueryBuilder("account")
+      .leftJoinAndSelect("account.validator", "validator")
+      .where(`validator.validatorId IN(:...validatorIds)`, { validatorIds })
+      .getMany();
+
+    const itemsByEventId = groupBy(items, "validator.validatorId");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return validatorIds.map((id) => ((itemsByEventId[id][0] as any) as Account) ?? null);
+  })
+  account(@Root() source: Validator) {
+    return (dataloader: DataLoader<number, Account>) => dataloader.load(source.validatorId);
   }
 }

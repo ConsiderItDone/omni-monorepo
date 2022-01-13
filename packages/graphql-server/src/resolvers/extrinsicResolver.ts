@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
 import Block from "@nodle/db/src/models/public/block";
@@ -11,8 +12,26 @@ import EventType from "@nodle/db/src/models/public/eventType";
 import Module from "@nodle/db/src/models/public/module";
 import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 import { cacheService } from "@nodle/utils/src/services/cacheService";
+import { groupBy } from "lodash";
+import { Loader } from "type-graphql-dataloader";
+import DataLoader from "dataloader";
 
 const ExtrinsicBaseResolver = createBaseResolver("Extrinsic", Extrinsic);
+
+function groupByExtrinsicId<T>(items: T[]) {
+  const newItems = [];
+  for (const item of items) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const extrinsic of (item as any).extrinsics) {
+      newItems.push(({
+        extrinsicId: extrinsic.extrinsicId,
+        ...item,
+      } as any) as T); // eslint-disable-line
+    }
+  }
+
+  return groupBy(newItems, "extrinsicId");
+}
 
 @ObjectType()
 class ExtrinsicsResponse {
@@ -219,8 +238,17 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @FieldResolver()
-  block(@Root() source: Extrinsic): Promise<Block> {
-    return singleFieldResolver(source, Block, "blockId");
+  @Loader<number, Block>(async (ids) => {
+    const blocks = await Block.createQueryBuilder("block")
+      .leftJoinAndSelect("block.extrinsics", "extrinsics")
+      .where(`extrinsics.extrinsicId IN(:...ids)`, { ids })
+      .getMany();
+
+    const itemsByEventId = groupByExtrinsicId<Block>(blocks);
+    return ids.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  block(@Root() source: Extrinsic) {
+    return (dataloader: DataLoader<number, Block>) => dataloader.load(source.extrinsicId);
   }
 
   @FieldResolver()
