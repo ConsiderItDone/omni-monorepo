@@ -58,7 +58,7 @@ export default class MQ {
       this.channel = await this.connection.createChannel();
     }
 
-    this.channel
+    return this.channel
       .assertQueue(queue, {
         durable: true,
         autoDelete: false,

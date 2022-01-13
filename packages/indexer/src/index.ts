@@ -13,6 +13,7 @@ import MQ from "@nodle/utils/src/mq";
 import { ConnectionOptions } from "typeorm";
 import { logger } from "@nodle/utils/src/logger";
 import { processBlock } from "./services/processBlock";
+import { processAccount } from "./services/processAccount";
 
 const connectionOptions = {
   name: "default",
@@ -43,7 +44,18 @@ const daemon = async (): Promise<void> => {
   processBlock(process.env.WS_PROVIDER, connection);
 };
 
+const accountDaemon = async (): Promise<void> => {
+  logger.info(`Account daemon is started`);
+  const connection = await connect(connectionOptions);
+
+  // init MQ connection
+  await MQ.init(process.env.RABBIT_MQ_URL);
+  // run queue consumer
+  processAccount(process.env.WS_PROVIDER, connection);
+};
+
 export const Indexer = {
   start,
   daemon,
+  accountDaemon,
 };

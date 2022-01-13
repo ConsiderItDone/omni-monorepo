@@ -2,13 +2,15 @@ import { EntityManager } from "typeorm";
 import type { Header, Moment } from "@polkadot/types/interfaces/runtime";
 import { u8aToHex } from "@polkadot/util";
 
-import Block from "@nodle/db/src/models/public/block";
+import { Block } from "@nodle/db/src/models";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
-import EventRepository from "@nodle/db/src/repositories/public/eventRepository";
-import ExtrinsicRepository from "@nodle/db/src/repositories/public/extrinsicRepository";
-import LogRepository from "@nodle/db/src/repositories/public/logRepository";
-import BalanceRepository from "@nodle/db/src/repositories/public/balanceRepository";
+import {
+  BlockRepository,
+  EventRepository,
+  ExtrinsicRepository,
+  LogRepository,
+  BalanceRepository,
+} from "@nodle/db/src/repositories";
 
 export async function handleNewBlock(
   manager: EntityManager,
