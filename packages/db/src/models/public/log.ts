@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType, Int } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import Block from "./block";
 
 @ObjectType()
@@ -33,5 +34,6 @@ export default class Log extends BaseEntity {
   @Field(() => Block, { nullable: true })
   @ManyToOne(() => Block, (block) => block.logs)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  @TypeormLoader()
   public block: Block;
 }

@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, JoinColumn, Unique } from "typeorm";
 import { Field, GraphQLTimestamp, Int, ObjectType } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import Event from "./event";
 import Log from "./log";
 import Extrinsic from "./extrinsic";
@@ -54,26 +55,31 @@ export default class Block extends BaseEntity {
   @Field(() => [Balance], { nullable: true })
   @OneToMany(() => Balance, (balance) => balance.block)
   @JoinColumn([{ name: "balance_id", referencedColumnName: "balanceId" }])
+  @TypeormLoader()
   public balances: Balance[];
 
   @Field(() => [Event], { nullable: true, defaultValue: [] })
   @OneToMany(() => Event, (event) => event.block)
   @JoinColumn([{ name: "event_id", referencedColumnName: "eventId" }])
+  @TypeormLoader()
   public events: Event[];
 
   @Field(() => [Log], { nullable: true, defaultValue: [] })
   @OneToMany(() => Log, (log) => log.block)
   @JoinColumn([{ name: "log_id", referencedColumnName: "logId" }])
+  @TypeormLoader()
   public logs: Log[];
 
   @Field(() => [Extrinsic], { nullable: true, defaultValue: [] })
   @OneToMany(() => Extrinsic, (extrinsic) => extrinsic.block)
   @JoinColumn([{ name: "extrinsic_id", referencedColumnName: "extrinsicId" }])
+  @TypeormLoader()
   public extrinsics: Extrinsic[];
 
   @Field(() => [RootCertificate], { nullable: true })
   @OneToMany(() => RootCertificate, (rootCertificate) => rootCertificate.block)
   @JoinColumn([{ name: "rootCertificate_id", referencedColumnName: "rootCertificateId" }])
+  @TypeormLoader()
   public rootCertificates: RootCertificate[];
 
   /*   @Field(() => [Balance], { nullable: true, defaultValue: null })
@@ -84,5 +90,6 @@ export default class Block extends BaseEntity {
   @Field(() => [VestingSchedule], { nullable: true, defaultValue: null })
   @OneToMany(() => VestingSchedule, (vestingSchedule) => vestingSchedule.block)
   @JoinColumn([{ name: "vestingSchedule_id", referencedColumnName: "vestingScheduleId" }])
+  @TypeormLoader()
   public vestingSchedules: VestingSchedule[];
 }

@@ -22,22 +22,29 @@ export default class AccountRepository extends Repository<Account> {
   }
 
   public async findByAddress(accountAddress: string): Promise<Account> {
-    return await this.findOne({ address: accountAddress });
+    return await this.findOne(
+      { address: accountAddress },
+      {
+        order: { accountId: "ASC" },
+      }
+    );
   }
 
   public async replace(accountId: number, accountData: NewAccountParam): Promise<Account> {
+    // console.log("replace", accountId, accountData);
     return await this.save({
       accountId,
       ...accountData,
     });
   }
 
-  public async upsert(accountAddress: string, accountData: NewAccountParam): Promise<Account> {
-    const existingAccount = await this.findByAddress(accountAddress);
-
-    if (existingAccount) {
-      return await this.replace(existingAccount.accountId, accountData);
+  public async upsert(accountId: number, accountData: NewAccountParam): Promise<Account> {
+    if (accountId) {
+      return await this.replace(accountId, accountData);
     } else {
+      //temp fix, TODO: FIX on upper level
+      const savedAccount = await this.findByAddress(accountData.address);
+      if (savedAccount) return await this.replace(savedAccount.accountId, accountData);
       return await this.add(accountData);
     }
   }

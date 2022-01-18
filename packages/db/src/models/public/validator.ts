@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
 import Account from "./account";
+import { TypeormLoader } from "type-graphql-dataloader";
 
 @ObjectType()
 @Index("validator_pk", ["validatorId"], { unique: true })
@@ -25,5 +26,6 @@ export default class Validator extends BaseEntity {
   @Field(() => Account)
   @OneToOne(() => Account, (account) => account.validator)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public account: Account;
 }

@@ -14,10 +14,25 @@ resource "google_sql_database_instance" "main" {
     backup_configuration {
       enabled = true
       point_in_time_recovery_enabled = true
+      location = "us"
     }
     database_flags {
       name = "log_min_duration_statement"
       value = "2000" // 2 sec
+    }
+    database_flags {
+      name = "random_page_cost"
+      value = "0.1"
+    }
+//    database_flags {
+//      name = "work_mem"
+//      value = "10240"
+//    }
+    insights_config {
+      query_insights_enabled = true
+      query_string_length = 1024
+      record_application_tags = true
+      record_client_address = false
     }
   }
 }

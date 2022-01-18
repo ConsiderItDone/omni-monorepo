@@ -21,13 +21,15 @@
     "build": "npm exec tsc",
     "prepare": "npm run build",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
-    "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
+    "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert",
+    "account-duplicate-fix:run": "npm exec ts-node ./src/scripts/account-duplicate-fix "
   },
   "dependencies": {
     "@nodle/utils": "^1.0.0",
-    "type-graphql": "^1.1.1",
-    "typeorm": "^0.2.31",
     "ts-node": "^9.1.1",
+    "type-graphql": "^1.1.1",
+    "type-graphql-dataloader": "^0.4.1",
+    "typeorm": "^0.2.31",
     "typescript": "^4.2.3"
   },
   "devDependencies": {

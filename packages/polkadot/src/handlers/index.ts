@@ -1,21 +1,21 @@
 import { ApiPromise } from "@polkadot/api";
-import { EntityManager } from "typeorm";
+import { Connection, EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-
-import { CustomEventSection } from "@nodle/utils/types";
+import { AccountBlockData, CustomEventSection } from "@nodle/utils/types";
 import { logger, LOGGER_INFO_CONST } from "@nodle/utils/logger";
+import Account from "@nodle/db/models/public/account";
+import Balance from "@nodle/db/models/public/balance";
 
 import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
-import { handleNewBlock } from "./blockHandler";
-import { handleEvents } from "./eventHandler";
-import { handleExtrinsics } from "./extrinsicHandler";
-import { handleLogs } from "./logHandler";
+import AccountRepository from "@nodle/db/repositories/public/accountRepository";
+import BlockRepository from "@nodle/db/repositories/public/blockRepository";
+import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(
   manager: EntityManager,
@@ -41,11 +41,12 @@ export async function handleTrackedEvents(
         case CustomEventSection.Application:
           await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
-        case CustomEventSection.Balance:
-          await handleBalance(manager, event, blockId, api, blockHash, blockNumber);
+        case CustomEventSection.Balance: {
+          await handleBalance(event, blockId, blockHash, blockNumber);
           break;
+        }
         case CustomEventSection.Allocation:
-          await handleAllocation(manager, event, blockId, api, blockHash, blockNumber);
+          await handleAllocation(event, blockId, blockHash, blockNumber);
           break;
         default:
           return;
@@ -56,15 +57,45 @@ export async function handleTrackedEvents(
   }
 }
 
-export {
-  handleNewBlock,
-  handleEvents,
-  handleExtrinsics,
-  handleLogs,
-  handleApplication,
-  handleBalance,
-  handleRootOfTrust,
-  handleVestingSchedule,
-};
+export async function handleAccountBalance(
+  api: ApiPromise,
+  connection: Connection,
+  { address, blockHash, blockNumber }: AccountBlockData,
+  prefetched?: IAccount
+): Promise<{ savedAccount: Account; savedBalance?: Balance }> {
+  const accountRepository = connection.getCustomRepository(AccountRepository);
+  const blockRepository = connection.getCustomRepository(BlockRepository);
 
-export * as misc from "../misc";
+  const savedAccount = await accountRepository.findByAddress(address.toString());
+  const block = await blockRepository.findByNumber(blockNumber);
+
+  if (savedAccount) {
+    const savedBalance = await Balance.createQueryBuilder("balance")
+      .innerJoinAndSelect("balance.block", "block")
+      .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
+      .orderBy("block.number", "DESC", "NULLS LAST")
+      .limit(1)
+      .getOne();
+
+    if (savedBalance) {
+      const isOldBalance = Number(savedBalance?.block?.number) < blockNumber;
+      if (isOldBalance) {
+        return await saveAccountBalance({ accountId: savedAccount.accountId, balanceId: savedBalance.balanceId });
+      }
+      return { savedAccount, savedBalance };
+    }
+    return await saveAccountBalance({ accountId: savedAccount.accountId });
+  }
+  return await saveAccountBalance();
+
+  async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
+    const account = prefetched || (await tryFetchAccount(api, address, blockHash, blockNumber));
+    return await saveAccount(connection, account, block.blockId, options);
+  }
+}
+
+export { handleNewBlock } from "./blockHandler";
+export { handleEvents } from "./eventHandler";
+export { handleExtrinsics } from "./extrinsicHandler";
+export { handleLogs } from "./logHandler";
+export { handleApplication, handleBalance, handleRootOfTrust, handleVestingSchedule };

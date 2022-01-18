@@ -11,7 +11,9 @@
   "scripts": {
     "build": "npm exec tsc",
     "prepare": "npm run build",
-    "start:indexer": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts"
+    "start:indexer": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
+    "start:daemon": "npm exec -- ts-node -r tsconfig-paths/register src/processor.ts",
+    "start:accountDaemon": "npm exec -- ts-node -r tsconfig-paths/register src/accountProcessor.ts"
   },
   "dependencies": {
     "@polkadot/api": "^3.11.1",

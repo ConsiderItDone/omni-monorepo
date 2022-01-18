@@ -13,3 +13,5 @@ export * as MQ from "./mq";
 export * as types from "./types";
 
 export * as blockFinalizer from "./blockFinalizer";
+
+export * as services from "./services";

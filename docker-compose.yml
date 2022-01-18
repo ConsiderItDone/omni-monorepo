@@ -4,6 +4,7 @@ services:
   db:
     restart: unless-stopped
     image: postgres:13.2-alpine
+    command: ["postgres", "-c", "log_statement=all"]
     environment:
       POSTGRES_USER: "nodle"
       POSTGRES_DB: "nodle"
@@ -71,6 +72,16 @@ services:
     ports:
       - "4000:4000"
 
+  rabbitmq:
+    image: rabbitmq:3.9.7-management
+    ports:
+    - 15672:15672
+    - 5672:5672
+      
+  redis:
+    image: "redis:alpine"
+    ports:
+    - 6379:6379
 
 volumes:
   nodle_db:

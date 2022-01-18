@@ -2,6 +2,7 @@ import type { EventRecord, Event, AccountInfo, AccountInfoWithProviders } from "
 import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
+import { GenericAccountId } from "@polkadot/types";
 import {
   ExtrinsicWithBoundedEvents,
   Application as ApplicationType,
@@ -9,21 +10,25 @@ import {
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils/types";
-import { EntityManager } from "typeorm";
+import { Connection, EntityManager } from "typeorm";
 import ApplicationRepository from "@nodle/db/repositories/public/applicationRepository";
 import RootCertificateRepository from "@nodle/db/repositories/public/rootCertificateRepository";
 import AccountRepository from "@nodle/db/repositories/public/accountRepository";
 import ValidatorRepository from "@nodle/db/repositories/public/validatorRepository";
 import BalanceRepository from "@nodle/db/repositories/public/balanceRepository";
 import VoteRepository from "@nodle/db/repositories/public/voteRepository";
+
 import ApplicationModel from "@nodle/db/models/public/application";
 import RootCertificateModel from "@nodle/db/models/public/rootCertificate";
 import VestingScheduleModel from "@nodle/db/models/public/vestingSchedule";
 import AccountModel from "@nodle/db/models/public/account";
 import Validator from "@nodle/db/models/public/validator";
+import BalanceModel from "@nodle/db/models/public/balance";
 
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+
+// import { cacheService } from "@nodle/utils/services/cacheService";
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -277,40 +282,47 @@ export function transformVestingSchedules(
 }
 
 /******************* Account utils ****************************/
-
+export interface IAccount {
+  address: AccountId | string;
+  data: AccountInfo;
+}
 export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
   blockHash: BlockHash,
-  blockNumber: BlockNumber
-): Promise<AccountInfo> {
+  blockNumber?: number | BlockNumber
+): Promise<IAccount> {
   try {
-    return await api.query.system.account.at(blockHash, accountAddress);
+    const data = await api.query.system.account.at(blockHash, accountAddress);
+    return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockNumber.toNumber()),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
+        accountAddress.toString(),
+        typeof blockNumber === "number" ? blockNumber : blockNumber?.toNumber()
+      ),
       accountFetchError
     );
   }
 }
 export async function saveAccount(
-  manager: EntityManager,
-  accountAddress: AccountId | string,
-  accountInfo: AccountInfo,
-  blockId?: number
-): Promise<AccountModel> {
+  manager: EntityManager | Connection,
+  account: IAccount,
+  blockId?: number,
+  options: { accountId?: number; balanceId?: number } = {}
+): Promise<{ savedAccount: AccountModel; savedBalance?: BalanceModel }> {
   const accountRepository = manager.getCustomRepository(AccountRepository);
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
-  const address = accountAddress.toString();
-  const { nonce, refcount = null, data: balance } = accountInfo;
+  const address = account.address.toString();
+  const { nonce, refcount = null, data: balance } = account.data;
 
   const accountData = {
     address: address,
-    nonce: nonce?.toNumber(),
+    nonce: typeof nonce === "number" ? nonce : nonce?.toNumber(),
     refcount: refcount?.toNumber(),
   };
-  const savedAccount = await accountRepository.upsert(address, accountData);
+  const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
@@ -321,8 +333,10 @@ export async function saveAccount(
     feeFrozen: feeFrozen.toString(),
     blockId,
   };
-  await balanceRepository.add(balanceData);
-  return savedAccount;
+  const savedBalance = await balanceRepository.upsert(options?.balanceId, balanceData);
+  // cacheService.del(address);
+
+  return { savedAccount, savedBalance };
 }
 
 export async function saveValidator(
@@ -355,8 +369,20 @@ export async function getOrCreateAccount(
   if (account) {
     return account;
   } else {
-    const accountInfo = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+    const account = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+    const { savedAccount } = await saveAccount(entityManager, account, blockId);
 
-    return await saveAccount(entityManager, accountAddress.toString(), accountInfo, blockId);
+    return savedAccount;
   }
 }
+
+export const getAccountBlockBuffer = (
+  address: string | GenericAccountId,
+  blockId: number,
+  blockHash: BlockHash,
+  blockNumber: BlockNumber
+): Buffer => {
+  return Buffer.from(
+    JSON.stringify({ address: address.toString(), blockId, blockHash, blockNumber: blockNumber.toNumber() })
+  );
+};

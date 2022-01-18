@@ -60,6 +60,19 @@ spec:
                   name: {{ template "nodle.indexer.fullname" . }}
             - name: WS_PROVIDER
               value: "ws://chain-node-external-websockets.chain:9944"
+            # redis
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: redis_address
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: redis_port
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: REDIS_PASSWORD
+              value: ""
           resources:
 {{ toYaml .Values.backfiller.resources | indent 12 }}
       {{- with .Values.nodeSelector }}

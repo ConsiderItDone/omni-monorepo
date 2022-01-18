@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: npm run prettier-check
       - run: npm run lint
       - run: npm run build
   build:
@@ -40,7 +41,7 @@ jobs:
         run: make docker-build-prod
       - run: docker tag nodle:prod gcr.io/${{ secrets.GCP_PROJECT_ID_PROD }}/app:${{steps.vars.outputs.tag}}
       - name: Login to GCP
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID_PROD }}
           service_account_key: ${{ secrets.GCP_CREDENTIALS_PROD }}

@@ -5,12 +5,17 @@ import type { Vec } from "@polkadot/types";
 
 import EventRepository from "@nodle/db/repositories/public/eventRepository";
 import ExtrinsicRepository from "@nodle/db/repositories/public/extrinsicRepository";
+import EventTypeRepository from "@nodle/db/repositories/public/eventTypeRepository";
+import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
+
 import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
 import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/types";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
-import { default as EventModel } from "@nodle/db/models/public/event";
-import EventTypeRepository from "@nodle/db/repositories/public/eventTypeRepository";
-import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
+// import { cacheService } from "@nodle/utils/src/services/cacheService";
+import Module from "@nodle/db/models/public/module";
+import Extrinsic from "@nodle/db/models/public/extrinsic";
+import EventType from "@nodle/db/models/public/eventType";
+import EventModel from "@nodle/db/models/public/event";
 
 export async function handleEvents(
   manager: EntityManager,
@@ -30,32 +35,76 @@ export async function handleEvents(
     const trackedEvents: Event[] = [];
     const newEvents: EventModel[] = [];
 
+    const extrinsicCache = new Map<string, Extrinsic>();
+    const moduleCache = new Map<string, Module>();
+    const typeCache = new Map<string, EventType>();
+
     for (const [index, eventRecord] of events.entries()) {
       const { method, section, data } = eventRecord.event;
       if ((Object.values(CustomEventSection) as string[]).includes(eventRecord.event.section)) {
         trackedEvents.push(eventRecord.event);
       }
       const extrinsicHash = findExtrinsicsWithEventsHash(extrinsicsWithBoundedEvents, eventRecord);
-      const extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
-      try {
-        const module = await moduleRepository.addOrIgnore({
+
+      let extrinsic: Extrinsic;
+      if (extrinsicCache.has(extrinsicHash)) {
+        extrinsic = extrinsicCache.get(extrinsicHash);
+      } else {
+        extrinsic = await extrinsicRepository.findByHash(extrinsicHash);
+        extrinsicCache.set(extrinsicHash, extrinsic);
+      }
+
+      let module: Module;
+      // search in local cache
+      if (moduleCache.has(section)) {
+        module = moduleCache.get(section);
+      } else {
+        module = await moduleRepository.addOrIgnore({
           name: section,
         });
+        moduleCache.set(section, module);
+      }
 
-        const type = await eventTypeRepository.addOrIgnore({
+      let eventType: EventType;
+      const typeKey = `${method}-${module.moduleId}`;
+      // search in local cache
+      if (typeCache.has(typeKey)) {
+        eventType = typeCache.get(typeKey);
+      } else {
+        eventType = await eventTypeRepository.addOrIgnore({
           name: method,
           moduleId: module.moduleId,
         });
+        typeCache.set(typeKey, eventType);
+      }
 
+      try {
+        const transformedData = transformEventData(data);
+        console.time("event save");
         const event = await eventRepository.add({
           index,
-          data: transformEventData(data),
+          data: transformedData,
           extrinsicHash,
           extrinsicId: extrinsic?.extrinsicId || null,
           moduleId: module.moduleId,
-          eventTypeId: type.eventTypeId,
+          eventTypeId: eventType.eventTypeId,
           blockId,
         });
+        console.timeEnd("event save");
+
+        // const dataKeys = Object.keys(transformedData);
+        // if (dataKeys.includes("from")) {
+        //   cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("to")) {
+        //   cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("who")) {
+        //   cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
+        // }
+
+        // cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
+
         newEvents.push(event);
       } catch (eventSaveError) {
         logger.error(

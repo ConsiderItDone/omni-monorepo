@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {
   Resolver,
   Query,
@@ -23,8 +24,28 @@ import { getConnection, ILike } from "typeorm";
 import EventType from "@nodle/db/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
 import Module from "@nodle/db/models/public/module";
+// import { cacheService } from "@nodle/utils/src/services/cacheService";
+import EventRepository from "@nodle/db/repositories/public/eventRepository";
+import DataLoader from "dataloader";
+import { Loader } from "type-graphql-dataloader";
+import { groupBy } from "lodash";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
+
+function groupByEventId<T>(items: T[]) {
+  const newItems = [];
+  for (const item of items) {
+    // eslint-disable-next-line
+    for (const event of (item as any).events) {
+      newItems.push(({
+        eventId: event.eventId,
+        ...item,
+      } as any) as T); // eslint-disable-line
+    }
+  }
+
+  return groupBy(newItems, "eventId");
+}
 
 @ArgsType()
 class EventByNameArgs {
@@ -32,10 +53,10 @@ class EventByNameArgs {
   @Min(0)
   skip: number;
 
-  @Field(() => Int)
+  @Field(() => Int, { defaultValue: 25 })
   @Min(1)
   @Max(100)
-  take = 25;
+  take?: number;
 
   @Field(() => String, { defaultValue: "All", nullable: true })
   callModule?: string;
@@ -89,28 +110,10 @@ export default class EventResolver extends EventBaseResolver {
   protected async events(
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
   ): Promise<EventsResponse> {
-    const query = Event.createQueryBuilder("event").take(take).skip(skip).orderBy("event.eventId", "DESC");
+    let cacheKey = "";
 
-    if (extrinsicHash) {
-      query.andWhere(`event.extrinsic_hash = '${extrinsicHash}'`);
-    }
-
-    if (filters) {
-      Object.keys(filters).forEach((filter) => {
-        query.andWhere(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
-      });
-    }
-
-    if (dateStart || dateEnd) {
-      query.leftJoin(Block, "block", "block.block_id = event.block_id");
-
-      if (dateStart) {
-        query.andWhere(`block.timestamp > '${dateStart.toUTCString()}'::timestamp`);
-      }
-      if (dateEnd) {
-        query.andWhere(`block.timestamp < '${dateEnd.toUTCString()}'::timestamp`);
-      }
-    }
+    let moduleId = 0;
+    let eventTypeId = 0;
 
     if (callModule && callModule !== "All") {
       const module = await Module.findOne({
@@ -124,7 +127,9 @@ export default class EventResolver extends EventBaseResolver {
         };
       }
 
-      query.andWhere(`event.module_id = ${module.moduleId}`);
+      moduleId = module.moduleId;
+
+      cacheKey += `-${module.moduleId}`;
 
       if (eventName && eventName !== "All") {
         const type = await EventType.findOne({
@@ -138,13 +143,65 @@ export default class EventResolver extends EventBaseResolver {
             totalCount: 0,
           };
         }
+        cacheKey += `-${type.eventTypeId}`;
 
-        query.andWhere(`event.event_type_id = ${type.eventTypeId}`);
+        eventTypeId = type.eventTypeId;
       }
     }
 
-    const result = await query.getManyAndCount();
-    return { items: result[0], totalCount: result[1] };
+    if (filters) {
+      cacheKey += `-${JSON.stringify(filters)}`;
+    }
+
+    if (dateStart || dateEnd) {
+      cacheKey += `-${dateStart?.getTime()}-${dateEnd?.getTime()}`;
+    }
+
+    if (extrinsicHash) {
+      cacheKey += "extrinsicHash";
+    }
+
+    if (cacheKey !== "") {
+      // cacheKey = `events${cacheKey}-${take}-${skip}`;
+      // console.time("events from cache");
+      // const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+      // console.timeEnd("events from cache");
+      // if (cachedValue) {
+      //   console.log(`Found events in cache by key: ${cacheKey}`);
+      //   return { items: cachedValue[0], totalCount: cachedValue[1] };
+      // }
+    }
+
+    const eventRepository = getConnection().getCustomRepository(EventRepository);
+
+    console.time("events");
+    const events = await eventRepository.findByParams(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash,
+      skip,
+      take
+    );
+    console.timeEnd("events");
+    console.time("event count");
+    const count = await eventRepository.countByParams(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash
+    );
+    console.timeEnd("event count");
+
+    // if (cacheKey !== "" && events) {
+    //   cacheService.set(cacheKey, [events, count]);
+    // }
+
+    return { items: events, totalCount: count };
   }
 
   @Query(() => [Event])
@@ -157,6 +214,23 @@ export default class EventResolver extends EventBaseResolver {
     return events || [];
   }
 
+  @Query(() => EventsResponse)
+  async eventsByIndex(
+    @Arg("blockNumber") number: number,
+    @Arg("extrinsicIndex") extrinsicIndex: number,
+    @Arg("eventIndex") eventIndex: number
+  ): Promise<EventsResponse> {
+    const query = await Event.createQueryBuilder("event")
+      .leftJoin(Block, "block", "block.blockId = event.blockId")
+      .leftJoin(Extrinsic, "extrinsic", "extrinsic.extrinsicId = event.extrinsicId")
+      .where(`block.number = :number`, { number })
+      .andWhere(`extrinsic.index = :extrinsicIndex`, { extrinsicIndex })
+      .andWhere(`event.index = :eventIndex`, { eventIndex });
+
+    const result = await query.getManyAndCount();
+    return { items: result[0], totalCount: result[1] };
+  }
+
   @Query(() => [TransferChartData])
   async transfersChartData(): Promise<TransferChartData[]> {
     const eventType = await EventType.findOne({
@@ -167,30 +241,39 @@ export default class EventResolver extends EventBaseResolver {
       return [];
     }
 
-    const data = await getConnection().query(`
-      select
-        date_trunc('day', b."timestamp") as date,
-        count(1) as quantity,
-        sum(
-          CEIL(CAST((e."data"->0)->>'amount' as BIGINT) / 10^12)
-        ) as amount
-      from public."event" e 
-      left join public.block b on b.block_id = e.block_id 
-      where e.event_type_id = ${eventType.eventTypeId}
-      group by 1
-    `);
+    const eventRepository = getConnection().getCustomRepository(EventRepository);
+
+    const data = await eventRepository.getStats(eventType.eventTypeId);
 
     return data || [];
   }
 
   @FieldResolver()
-  block(@Root() source: Event): Promise<Block> {
-    return singleFieldResolver(source, Block, "blockId");
+  @Loader<number, Block>(async (eventIds) => {
+    const blocks = await Block.createQueryBuilder("block")
+      .leftJoinAndSelect("block.events", "events")
+      .where(`events.eventId IN(:...eventIds)`, { eventIds })
+      .getMany();
+
+    const itemsByEventId = groupByEventId<Block>(blocks);
+    return eventIds.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  block(@Root() source: Event) {
+    return (dataloader: DataLoader<number, Block>) => dataloader.load(source.eventId);
   }
 
   @FieldResolver()
-  extrinsic(@Root() source: Event): Promise<Extrinsic> {
-    return singleFieldResolver(source, Extrinsic, "extrinsicId");
+  @Loader<number, Extrinsic>(async (eventIds) => {
+    const items = await Extrinsic.createQueryBuilder("item")
+      .leftJoinAndSelect("item.events", "events")
+      .where(`events.eventId IN(:...eventIds)`, { eventIds })
+      .getMany();
+
+    const itemsByEventId = groupByEventId<Extrinsic>(items);
+    return eventIds.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  extrinsic(@Root() source: Event) {
+    return (dataloader: DataLoader<number, Extrinsic>) => dataloader.load(source.eventId);
   }
 
   @FieldResolver()

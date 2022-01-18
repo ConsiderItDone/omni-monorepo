@@ -7,11 +7,11 @@ try {
 }
 
 import express = require("express");
-import bodyParser from "body-parser";
 import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { ConnectionOptions } from "typeorm";
+import { ApolloServerLoaderPlugin } from "type-graphql-dataloader";
+import { ConnectionOptions, getConnection } from "typeorm";
 import { connect } from "@nodle/db/index";
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
@@ -39,7 +39,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    logging: false,
+    logging: process.env.TYPEORM_LOGGING === "true",
     entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
   } as ConnectionOptions;
   await connect(connectionOptions);
@@ -67,10 +67,35 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     schema,
     introspection: true,
     playground: true,
+    plugins: [
+      {
+        requestDidStart(ctx): void {
+          if (ctx.request.query.indexOf("schema") === -1) {
+            console.log("query", ctx.request.query);
+            console.log("variables", ctx.request.variables);
+          }
+        },
+      },
+      ApolloServerLoaderPlugin({
+        typeormGetConnection: getConnection, // for use with TypeORM
+      }),
+    ],
   });
 
   const app = express();
-  app.use("/graphql", bodyParser.json());
+  app.use("/graphql", express.json());
+
+  app.get("/connections", function (req: express.Request, res: express.Response) {
+    server.getConnections((err, count) => {
+      if (err) {
+        return res.status(500).end();
+      }
+
+      res.status(200).json({
+        count,
+      });
+    });
+  });
 
   app.get("/", function (req: express.Request, res: express.Response) {
     res.status(200).end();

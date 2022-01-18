@@ -58,10 +58,25 @@ spec:
                 secretKeyRef:
                   key: database_port
                   name: {{ template "nodle.indexer.fullname" . }}
+            - name: TYPEORM_LOGGING
+              value: "false"
             - name: RABBIT_MQ_URL
               value: "amqp://nodleuser:KodRRXhxWnhj1Yku82mP@rabbitmq.rabbitmq:5672"
             - name: WS_PROVIDER
               value: "ws://chain-node-external-websockets.chain:9944"
+            # redis
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: redis_address
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: redis_port
+                  name: {{ template "nodle.indexer.fullname" . }}
+            - name: REDIS_PASSWORD
+              value: ""
           readinessProbe:
             httpGet:
               path: /

@@ -3,7 +3,6 @@ import { EntityManager } from "typeorm";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-
 import VestingScheduleRepository from "@nodle/db/repositories/public/vestingScheduleRepository";
 import { VestingScheduleOf } from "@nodle/utils/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
@@ -28,17 +27,23 @@ export async function handleVestingSchedule(
         break;
       }
       case "VestingSchedulesCanceled": {
+        /* removes vesting schedule. move remain coins to another account. It Does trigger Claim and balance transfer events */
         // await vestingScheduleRepository.cancelSchedules(targetAccount);
         break;
       }
-      case "Claimed":
+      case "Claimed": {
+        //balance resolved by claim extrinsic signer
+        break;
+      }
       default:
         return;
     }
     let grants: VestingScheduleOf[];
 
     const accountInfo = await tryFetchAccount(api, targetAccount as AccountId, blockHash, blockNumber);
-    const { accountId } = await saveAccount(manager, targetAccount as AccountId, accountInfo, blockId);
+    const {
+      savedAccount: { accountId },
+    } = await saveAccount(manager, accountInfo, blockId);
 
     try {
       grants = ((await api.query.grants.vestingSchedules(targetAccount)) as undefined) as VestingScheduleOf[];

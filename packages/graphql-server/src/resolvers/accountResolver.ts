@@ -1,15 +1,28 @@
-import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
 import Account from "@nodle/db/models/public/account";
 import Balance from "@nodle/db/models/public/balance";
 import VestingSchedule from "@nodle/db/models/public/vestingSchedule";
 import Extrinsic from "@nodle/db/models/public/extrinsic";
-import Block from "@nodle/db/models/public/block";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
 import Application from "@nodle/db/models/public/application";
 import RootCertificate from "@nodle/db/models/public/rootCertificate";
+import { Arg, Args, ArgsType, Field, FieldResolver, Int, Query, Resolver, Root } from "type-graphql";
+import { Min, Max } from "class-validator";
+import { BalanceService } from "@nodle/utils/services/balanceService";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
+
+@ArgsType()
+class AccountExtrinsicsArgs {
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0)
+  skip: number;
+
+  @Field(() => Int, { defaultValue: 25 })
+  @Min(1)
+  @Max(100)
+  take?: number;
+}
 
 @Resolver(Account)
 export default class AccountResolver extends AccountBaseResolver {
@@ -23,16 +36,10 @@ export default class AccountResolver extends AccountBaseResolver {
   }
 
   @FieldResolver(() => Balance, { nullable: true })
-  async balance(@Root() source: Account): Promise<Balance> {
-    const balance = await Balance.createQueryBuilder("balance")
-      .leftJoin(Account, "account", "account.accountId = balance.accountId")
-      .leftJoinAndSelect(Block, "block", "block.blockId = balance.blockId")
-      .where("balance.blockId is not null")
-      .andWhere(`account.address = :address`, { address: source.address })
-      .addOrderBy("block.number", "DESC")
-      .getOne();
+  balance(@Root() source: Account): Promise<Balance> {
+    const balanceService = new BalanceService();
 
-    return balance;
+    return balanceService.getBalanceByAddress(source.address);
   }
 
   @FieldResolver()
@@ -41,8 +48,8 @@ export default class AccountResolver extends AccountBaseResolver {
   }
 
   @FieldResolver()
-  extrinsics(@Root() source: Account): Promise<Extrinsic[]> {
-    return arrayFieldResolver(source, Extrinsic, "signerId", "accountId");
+  extrinsics(@Root() source: Account, @Args() args: AccountExtrinsicsArgs): Promise<Extrinsic[]> {
+    return arrayFieldResolver(source, Extrinsic, "signerId", "accountId", {}, null, args.take, args.skip);
   }
 
   @FieldResolver()
