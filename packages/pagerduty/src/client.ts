@@ -6,36 +6,35 @@ import {
   FetchResult,
   OperationVariables,
 } from "@apollo/client/core";
-import { Incident, Callbacks, Mutation, Query } from "./types";
-import { api } from "@pagerduty/pdjs";
-import { PartialCall } from "@pagerduty/pdjs/build/src/api";
-
+import { Callbacks, Metrics, MetricsData, Mutation, Query } from "./types";
+import { v1, v2 } from "@datadog/datadog-api-client";
 /* eslint-disable */
-
+function initIncidentClient() {
+  const configuration = v2.createConfiguration();
+  //@ts-ignore
+  configuration.unstableOperations["createIncident"] = true;
+  return new v2.IncidentsApi(configuration);
+}
+function initMetricsApi() {
+  const configuration = v1.createConfiguration();
+  return new v1.MetricsApi(configuration);
+}
 export default class Client {
   #client: ApolloClient<NormalizedCacheObject>;
-  #pagerduty: PartialCall;
+  #metricsApi: v1.MetricsApi;
   constructor(uri?: string, pagerDutyToken?: string) {
     this.#client = new ApolloClient({
       uri,
       cache: new InMemoryCache(),
     });
-    this.#pagerduty = api({ token: pagerDutyToken });
+
+    this.#metricsApi = initMetricsApi();
   }
 
-  async query<T, TVars = OperationVariables>(
-    query: Query<T, TVars>,
-    variables?: TVars,
-    callbacks?: Callbacks
-  ): Promise<void> {
-    return this.#client
-      .query<T, TVars>({ query, variables })
-      .then((res) => {
-        console.log("aQ", res);
-        this.handleSuccess(res, callbacks?.onSuccess);
-      })
-      .catch((error) => this.handleError(error, callbacks?.onError));
+  async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
+    return this.#client.query<T, TVars>({ query, variables });
   }
+
   async mutate<T, TVars = OperationVariables>(mutation: Mutation<T, TVars>, variables?: TVars) {
     return this.#client
       .mutate<T, TVars>({ mutation, variables })
@@ -43,32 +42,20 @@ export default class Client {
       .catch(this.handleError);
   }
 
-  private handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any): void {
+  private handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any): FetchResult<T> {
     console.log("handleSuccess", result);
-    return onSuccess && onSuccess(result);
+    onSuccess && onSuccess(result);
+    return result;
   }
 
   private handleError(error: any, onError?: (error: any) => any): void {
     console.log("handleError", error);
-    this.#pagerduty
-      .post("/incidents", {
-        data: {
-          incident: {
-            type: "incident",
-            title: "Error occured",
-            service: { id: "test", type: "test" },
-            body: { type: "Error", details: error?.message || error },
-          },
-        } as Incident,
-      })
-      .then((res) => {
-        console.log("pagerduty success", res, JSON.stringify(res.data.error.errors));
-      })
-      .catch((error) => {
-        console.log("pagerduty error", error);
-      });
     onError && onError(error);
+    return error;
+  }
+  async submitMetrics(metricsData: MetricsData[]) {
+    const metrics = new Metrics(metricsData);
+    return await this.#metricsApi.submitMetrics(metrics.getParams());
   }
 }
-
 /* eslint-enable */
