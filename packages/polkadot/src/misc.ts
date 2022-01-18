@@ -329,10 +329,10 @@ export async function saveAccount(
   const { free, reserved, miscFrozen, feeFrozen } = balance;
   const balanceData = {
     accountId: savedAccount.accountId,
-    free: free.toNumber().toString(),
-    reserved: reserved.toNumber().toString(),
-    miscFrozen: miscFrozen.toNumber().toString(),
-    feeFrozen: feeFrozen.toNumber().toString(),
+    free: free.toString(),
+    reserved: reserved.toString(),
+    miscFrozen: miscFrozen.toString(),
+    feeFrozen: feeFrozen.toString(),
     blockId,
   };
   const savedBalance = await balanceRepository.upsert(options?.balanceId, balanceData);
