@@ -14,12 +14,14 @@ const client = new Client(process.env.GRAPHQL_ENDPOINT, process.env.PAGERDUTY_AP
 
 async function run() {
   //await runCommonQueries();
-  await runBlockQueries();
+  //await runBlockQueries();
+  const res = await client.datadog.validate();
+  console.log('res', res)
 }
 
 async function runCommonQueries() {
   const home = await client.query(HOMEPAGE);
-  const chart = await client.query(CHART_TRANSFERTS, { hello: "world" });
+  const chart = await client.query(CHART_TRANSFERTS);
   const chart2 = await client.query(CHART_EXTRINSICS);
   console.log("home", home);
 }

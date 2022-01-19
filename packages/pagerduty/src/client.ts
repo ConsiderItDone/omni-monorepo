@@ -16,12 +16,20 @@ function initIncidentClient() {
   return new v2.IncidentsApi(configuration);
 }
 function initMetricsApi() {
+  const configuration = v1.createConfiguration({});
+  console.log("config", configuration);
+  const api = new v1.MetricsApi(configuration);
+  console.log("api", api);
+  return api;
+}
+function initApi() {
   const configuration = v1.createConfiguration();
-  return new v1.MetricsApi(configuration);
+  return new v1.AuthenticationApi(configuration);
 }
 export default class Client {
   #client: ApolloClient<NormalizedCacheObject>;
   #metricsApi: v1.MetricsApi;
+  #datadog: v1.AuthenticationApi;
   constructor(uri?: string, pagerDutyToken?: string) {
     this.#client = new ApolloClient({
       uri,
@@ -29,6 +37,10 @@ export default class Client {
     });
 
     this.#metricsApi = initMetricsApi();
+    this.#datadog = initApi();
+  }
+  get datadog() {
+    return this.#datadog;
   }
 
   async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
