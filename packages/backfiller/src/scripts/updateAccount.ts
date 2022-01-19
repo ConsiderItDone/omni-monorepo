@@ -38,9 +38,16 @@ async function updateAccount(address: string) {
     .getCustomRepository(BlockRepository)
     .findOne({ order: { number: "DESC" } });
   const account = await api.query.system.account(address);
+  const balance = {};
+
+  for (const key of account.data.keys()) {
+    // eslint-disable-next-line
+    //@ts-ignore
+    balance[key] = account.data[key].toString();
+  }
 
   const dataToSend = {
-    account: { 1: account, 0: address },
+    account: { 1: { ...account.toHuman(), data: balance }, 0: address },
     blockHash: hash,
     blockId,
     blockNumber,
