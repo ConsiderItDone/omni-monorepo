@@ -2,12 +2,14 @@ import { ApiPromise } from "@polkadot/api";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 import { Connection } from "typeorm";
+import { TypeRegistry } from "@polkadot/types/create";
 
 import MQ from "@nodle/utils/src/mq";
 import { logger } from "@nodle/utils/src/logger";
 import { getApi } from "@nodle/polkadot/src/api";
 import { AccountBlockData } from "@nodle/utils/src/types";
 import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
+import { BlockRepository } from "@nodle/db/src/repositories";
 
 export async function processAccount(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
@@ -40,6 +42,12 @@ async function consume(
   await queryRunner.startTransaction();
 
   try {
+    const blockRepository = queryRunner.manager.getCustomRepository(BlockRepository);
+    const blockDB = await blockRepository.findByNumber(data.blockNumber);
+    if (blockDB?.hash) {
+      const registry = new TypeRegistry();
+      data.blockHash = registry.createType("BlockHash", blockDB.hash);
+    }
     const { savedAccount, savedBalance } = await handleAccountBalance(api, connection, data);
     console.time("commit");
     await queryRunner.commitTransaction();

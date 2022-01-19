@@ -10,7 +10,8 @@ import express = require("express");
 import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { ConnectionOptions } from "typeorm";
+import { ApolloServerLoaderPlugin } from "type-graphql-dataloader";
+import { ConnectionOptions, getConnection } from "typeorm";
 import { connect } from "@nodle/db";
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
@@ -75,6 +76,9 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
           }
         },
       },
+      ApolloServerLoaderPlugin({
+        typeormGetConnection: getConnection, // for use with TypeORM
+      }),
     ],
   });
 
