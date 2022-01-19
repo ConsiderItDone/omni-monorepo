@@ -32,6 +32,7 @@ export async function processBlock(ws: string, connection: Connection): Promise<
       consume(blockNumber, api, connection, metrics, msg, channel);
     } catch (error) {
       logger.error(error);
+      logger.error(`Error while consuming block ${blockNumber}`);
       channel.ack(msg);
       metrics.resetTimer();
     }
@@ -134,8 +135,13 @@ async function consume(
     logger.info(`------Finished processing block №: ${blockNumber.toString()}------`);
   } catch (error) {
     logger.error(error);
+    logger.error(`Error while processing block ${blockNumber}`);
     if (queryRunner.isTransactionActive) {
       await queryRunner.rollbackTransaction();
+    }
+    if (!api.isConnected) {
+      logger.info("Api disconnected, reconnecting...");
+      api.connect();
     }
   } finally {
     await queryRunner.release();

@@ -31,7 +31,13 @@ export async function handleBalance(
         }
         break;
       }
-      case "DustLost":
+      case "DustLost": {
+        await MQ.getMQ().publish(
+          isBackfiller ? "backfill_account" : "account_indexer",
+          getAccountBlockBuffer(event.data[0] as GenericAccountId, blockId, blockHash, blockNumber)
+        );
+        break;
+      }
       case "Unreserved":
       case "Reserved": {
         try {
