@@ -19,7 +19,6 @@ import { AccountBlockData } from "@nodle/utils/src/types";
 import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
 import { IAccount } from "@nodle/polkadot/src/misc";
 import { PaginationOptions } from "@polkadot/api/types/base";
-import { AccountData } from "@polkadot/types/interfaces";
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
@@ -244,6 +243,7 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
       const balance = {};
 
       for (const key of info.data.keys()) {
+        // eslint-disable-next-line
         //@ts-ignore
         balance[key] = info.data[key].toString();
       }

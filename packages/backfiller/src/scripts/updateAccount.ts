@@ -41,6 +41,7 @@ async function updateAccount(address: string) {
   const balance = {};
 
   for (const key of account.data.keys()) {
+    // eslint-disable-next-line
     //@ts-ignore
     balance[key] = account.data[key].toString();
   }
