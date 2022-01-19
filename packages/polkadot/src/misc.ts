@@ -9,21 +9,22 @@ import {
   RootCertificate as RootCertificateType,
   ApplicationStatus,
   VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils/types";
+} from "@nodle/utils/index";
 import { Connection, EntityManager } from "typeorm";
-import ApplicationRepository from "@nodle/db/repositories/public/applicationRepository";
-import RootCertificateRepository from "@nodle/db/repositories/public/rootCertificateRepository";
-import AccountRepository from "@nodle/db/repositories/public/accountRepository";
-import ValidatorRepository from "@nodle/db/repositories/public/validatorRepository";
-import BalanceRepository from "@nodle/db/repositories/public/balanceRepository";
-import VoteRepository from "@nodle/db/repositories/public/voteRepository";
-
-import ApplicationModel from "@nodle/db/models/public/application";
-import RootCertificateModel from "@nodle/db/models/public/rootCertificate";
-import VestingScheduleModel from "@nodle/db/models/public/vestingSchedule";
-import AccountModel from "@nodle/db/models/public/account";
-import Validator from "@nodle/db/models/public/validator";
-import BalanceModel from "@nodle/db/models/public/balance";
+import {
+  ApplicationRepository,
+  RootCertificateRepository,
+  AccountRepository,
+  ValidatorRepository,
+  BalanceRepository,
+  VoteRepository,
+  Application as ApplicationModel,
+  RootCertificate as RootCertificateModel,
+  VestingSchedule as VestingScheduleModel,
+  Account as AccountModel,
+  Validator,
+  Balance as BalanceModel,
+} from "@nodle/db/index";
 
 import { ApiPromise } from "@polkadot/api";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";

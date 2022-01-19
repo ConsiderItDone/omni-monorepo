@@ -5,16 +5,13 @@ import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { AccountBlockData, CustomEventSection } from "@nodle/utils/types";
 import { logger, LOGGER_INFO_CONST } from "@nodle/utils/logger";
-import Account from "@nodle/db/models/public/account";
-import Balance from "@nodle/db/models/public/balance";
+import { Account, Balance, AccountRepository, BlockRepository } from "@nodle/db/index";
 
 import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
-import AccountRepository from "@nodle/db/repositories/public/accountRepository";
-import BlockRepository from "@nodle/db/repositories/public/blockRepository";
 import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(

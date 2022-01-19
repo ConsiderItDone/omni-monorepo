@@ -6,7 +6,7 @@ try {
   //nop
 }
 import { ConnectionOptions } from "typeorm";
-import { connect } from "@nodle/db";
+import { connect } from "..";
 
 const connectionOptions = {
   name: "default",

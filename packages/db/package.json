@@ -1,31 +1,22 @@
 {
   "name": "@nodle/db",
   "version": "1.0.0",
-  "main": "./dist/index.js",
-  "exports": {
-    "./*": "./dist/src/*"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/src/*"
-      ]
-    }
-  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConsiderItDone/nodle.git",
     "directory": "packages/db"
   },
   "scripts": {
-    "build": "npm exec tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
     "prepare": "npm run build",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert",
     "account-duplicate-fix:run": "npm exec ts-node ./src/scripts/account-duplicate-fix "
   },
   "dependencies": {
-    "@nodle/utils": "^1.0.0",
     "ts-node": "^9.1.1",
     "type-graphql": "^1.1.1",
     "type-graphql-dataloader": "^0.4.1",

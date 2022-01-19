@@ -3,19 +3,21 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord, Event } from "@polkadot/types/interfaces/system";
 import type { Vec } from "@polkadot/types";
 
-import EventRepository from "@nodle/db/repositories/public/eventRepository";
-import ExtrinsicRepository from "@nodle/db/repositories/public/extrinsicRepository";
-import EventTypeRepository from "@nodle/db/repositories/public/eventTypeRepository";
-import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
+import {
+  EventRepository,
+  ExtrinsicRepository,
+  EventTypeRepository,
+  ModuleRepository,
+  Module,
+  Extrinsic,
+  EventType,
+  Event as EventModel,
+} from "@nodle/db/index";
 
 import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
 import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/types";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 // import { cacheService } from "@nodle/utils/src/services/cacheService";
-import Module from "@nodle/db/models/public/module";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
-import EventType from "@nodle/db/models/public/eventType";
-import EventModel from "@nodle/db/models/public/event";
 
 export async function handleEvents(
   manager: EntityManager,

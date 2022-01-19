@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "removeComments": true,
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "dist/esm",
     "paths": {
       "*": ["node_modules/*"]
     }

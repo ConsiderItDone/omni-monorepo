@@ -8,7 +8,7 @@ export const Utils = {
   lowerCaseFirstLetter,
 };
 
-export * as MQ from "./mq";
+export { default as MQ } from "./mq";
 
 export * as types from "./types";
 

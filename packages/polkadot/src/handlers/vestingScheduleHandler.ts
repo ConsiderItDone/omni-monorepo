@@ -3,7 +3,7 @@ import { EntityManager } from "typeorm";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import VestingScheduleRepository from "@nodle/db/repositories/public/vestingScheduleRepository";
+import { VestingScheduleRepository } from "@nodle/db/index";
 import { VestingScheduleOf } from "@nodle/utils/types";
 import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
 import { saveAccount, tryFetchAccount } from "../misc";

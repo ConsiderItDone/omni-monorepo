@@ -3,15 +3,17 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { EventRecord } from "@polkadot/types/interfaces/system";
 import type { GenericExtrinsic, Vec } from "@polkadot/types";
 
-import ExtrinsicRepository from "@nodle/db/repositories/public/extrinsicRepository";
-import ExtrinsicTypeRepository from "@nodle/db/repositories/public/extrinsicTypeRepository";
-import ModuleRepository from "@nodle/db/repositories/public/moduleRepository";
+import {
+  ExtrinsicRepository,
+  ExtrinsicTypeRepository,
+  ModuleRepository,
+  Module,
+  Extrinsic,
+  ExtrinsicType,
+} from "@nodle/db/index";
 import { getExtrinsicSuccess, boundEventsToExtrinsics, getOrCreateAccount } from "../misc";
 import { ExtrinsicWithBoundedEvents } from "@nodle/utils/types";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
-import Module from "@nodle/db/models/public/module";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
-import ExtrinsicType from "@nodle/db/models/public/extrinsicType";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 

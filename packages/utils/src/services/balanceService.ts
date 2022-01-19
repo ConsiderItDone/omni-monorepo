@@ -1,7 +1,6 @@
 // import { cacheService } from "@nodle/utils/services/cacheService";
-import BalanceRepository from "@nodle/db/repositories/public/balanceRepository";
+import { BalanceRepository, Balance } from "@nodle/db/index";
 import { getConnection } from "typeorm";
-import Balance from "@nodle/db/models/public/balance";
 
 export class BalanceService {
   public async getBalanceByAddress(address: string): Promise<Balance> {
