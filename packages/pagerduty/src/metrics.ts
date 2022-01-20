@@ -64,7 +64,7 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
 
 export async function getSimpleMetrics() {
   let metrics = [
-    //await gatherMetrics<HomePage>(HOMEPAGE, "home"),
+    await gatherMetrics<HomePage>(HOMEPAGE, "home"),
     await gatherMetrics<ChartTransfers>(CHART_TRANSFERTS, "chart_transfers"),
     await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"),
     await gatherMetrics(EXTRINSIC_FILTER_OPTIONS, "filter_options_extrinsic"),
