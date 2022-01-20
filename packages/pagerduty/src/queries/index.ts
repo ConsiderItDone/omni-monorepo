@@ -237,8 +237,8 @@ export const CHART_EXTRINSICS = gql`
 `;
 
 export const ACCOUNTS = gql`
-  query Accounts($skip: Int) {
-    accounts(take: 10, skip: $skip) {
+  query Accounts {
+    accounts(take: 10, skip: 0) {
       items {
         address
         balance {
@@ -254,8 +254,8 @@ export const ACCOUNTS = gql`
 `;
 
 export const VALIDATORS = gql`
-  query Validators($skip: Int) {
-    validators(skip: $skip) {
+  query Validators {
+    validators(skip: 0) {
       items {
         consumers
         providers
@@ -416,8 +416,8 @@ export const SEARCH = gql`
 `;
 
 export const ROOT_CERTIFICATES = gql`
-  query RootCertificates($skip: Int!) {
-    rootCertificates(skip: $skip) {
+  query RootCertificates {
+    rootCertificates(skip: 0) {
       items {
         owner {
           address
@@ -437,8 +437,8 @@ export const ROOT_CERTIFICATES = gql`
 `;
 
 export const APPLICATIONS = gql`
-  query Applications($skip: Int!) {
-    applications(skip: $skip, take: 10) {
+  query Applications {
+    applications(skip: 0, take: 10) {
       items {
         candidate {
           address

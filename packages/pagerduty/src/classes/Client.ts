@@ -6,28 +6,20 @@ import {
   FetchResult,
   OperationVariables,
 } from "@apollo/client/core";
-import { Callbacks, Metric, Metrics, Mutation, Query } from "./types";
-import { v1, v2 } from "@datadog/datadog-api-client";
+import { Callbacks, Mutation, Query } from "../types";
+import Metric from "./Metric";
+import Metrics from "./Metrics";
+import { v1 } from "@datadog/datadog-api-client";
 /* eslint-disable */
-function initIncidentClient() {
-  const configuration = v2.createConfiguration();
-  //@ts-ignore
-  configuration.unstableOperations["createIncident"] = true;
-  return new v2.IncidentsApi(configuration);
-}
+
 function initMetricsApi() {
   const configuration = v1.createConfiguration({});
   return new v1.MetricsApi(configuration);
-}
-function initMetricsApiV2() {
-  const configuration = v2.createConfiguration();
-  return new v2.MetricsApi(configuration);
 }
 
 export default class Client {
   #client: ApolloClient<NormalizedCacheObject>;
   #metricsApi: v1.MetricsApi;
-  #metricsApiV2: v2.MetricsApi;
 
   constructor(uri?: string) {
     this.#client = new ApolloClient({
@@ -36,11 +28,10 @@ export default class Client {
     });
 
     this.#metricsApi = initMetricsApi();
-    this.#metricsApiV2 = initMetricsApiV2();
   }
 
   async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
-    return this.#client.query<T, TVars>({ query, variables });
+    return await this.#client.query<T, TVars>({ query, variables });
   }
 
   async mutate<T, TVars = OperationVariables>(mutation: Mutation<T, TVars>, variables?: TVars) {
@@ -64,9 +55,6 @@ export default class Client {
   async submitMetrics(metricsToSubmit: Metric[]) {
     const metrics = new Metrics(metricsToSubmit);
     return await this.#metricsApi.submitMetrics(metrics.getParams());
-  }
-  getMetricsApi() {
-    return this.#metricsApi;
   }
 }
 /* eslint-enable */
