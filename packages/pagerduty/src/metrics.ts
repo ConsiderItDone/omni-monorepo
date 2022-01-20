@@ -54,6 +54,9 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
   console.log("Gathering " + name + " metric");
 
   const queryResult = await client.query<T, TVars>(query, vars);
+  if (queryResult?.errors) {
+    console.log("Errors received:", JSON.stringify(queryResult.errors));
+  }
   return {
     result: queryResult,
     metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), isQuerySuccessfull(queryResult)),
