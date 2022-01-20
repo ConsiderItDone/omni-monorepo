@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import Block from "@nodle/db/src/models/public/block";
 import Event from "@nodle/db/src/models/public/event";
@@ -8,6 +9,10 @@ import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
 
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
+import DataLoader from "dataloader";
+import { Loader } from "type-graphql-dataloader";
+import { getRepository, In } from "typeorm";
+import { groupBy } from "lodash";
 
 const BlockBaseResolver = createBaseResolver("Block", Block, "number");
 
@@ -44,13 +49,27 @@ export default class BlockResolver extends BlockBaseResolver {
   }
 
   @FieldResolver()
-  events(@Root() source: Block): Promise<Event[]> {
-    return arrayFieldResolver<Block>(source, Event, "blockId");
+  @Loader<number, Event[]>(async (blockIds) => {
+    const events = await getRepository(Event).find({
+      where: { blockId: In([...blockIds]) },
+    });
+    const eventsByBlockId = groupBy(events, "blockId");
+    return blockIds.map((blockId) => eventsByBlockId[blockId] ?? ([] as Event[]));
+  })
+  events(@Root() source: Block) {
+    return (dataloader: DataLoader<number, Event[]>) => dataloader.load(source.blockId);
   }
 
   @FieldResolver()
-  extrinsics(@Root() source: Block): Promise<Extrinsic[]> {
-    return arrayFieldResolver<Block>(source, Extrinsic, "blockId");
+  @Loader<number, Extrinsic[]>(async (blockIds) => {
+    const extrinsics = await getRepository(Extrinsic).find({
+      where: { blockId: In([...blockIds]) },
+    });
+    const extrinsicsByBlockId = groupBy(extrinsics, "blockId");
+    return blockIds.map((blockId) => extrinsicsByBlockId[blockId] ?? ([] as Extrinsic[]));
+  })
+  extrinsics(@Root() source: Block) {
+    return (dataloader: DataLoader<number, Extrinsic[]>) => dataloader.load(source.blockId);
   }
 
   @FieldResolver()

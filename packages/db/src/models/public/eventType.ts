@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import Module from "./module";
 
 @ObjectType()
@@ -21,5 +22,6 @@ export default class EventType extends BaseEntity {
   @Field(() => Module, { nullable: true })
   @ManyToOne(() => Module, (m) => m.moduleId)
   @JoinColumn([{ name: "module_id", referencedColumnName: "moduleId" }])
+  @TypeormLoader()
   public module: Module;
 }

@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType, Int } from "type-graphql";
+import { TypeormLoader } from "type-graphql-dataloader";
 import { Block, Account } from "../index";
 
 @ObjectType()
@@ -33,6 +34,7 @@ export default class VestingSchedule extends BaseEntity {
   @Field(() => Account, { nullable: true })
   @ManyToOne(() => Account, (account) => account.vestingSchedules)
   @JoinColumn([{ name: "account_id", referencedColumnName: "accountId" }])
+  @TypeormLoader()
   public account: Account;
 
   @Field(() => Int)
@@ -42,5 +44,6 @@ export default class VestingSchedule extends BaseEntity {
   @Field(() => Block)
   @ManyToOne(() => Block, (block) => block.blockId)
   @JoinColumn([{ name: "block_id", referencedColumnName: "blockId" }])
+  @TypeormLoader()
   public block: Block;
 }
