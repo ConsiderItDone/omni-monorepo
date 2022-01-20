@@ -62,6 +62,8 @@ export default class EventRepository extends Repository<Event> {
     dateEnd: Date,
     extrinsicHash: string
   ): Promise<number> {
+    //@TODO
+    return 1000;
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
     if (!filters) {
