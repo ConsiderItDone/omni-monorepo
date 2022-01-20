@@ -5,20 +5,20 @@ import Balance from "@nodle/db/src/models/public/balance";
 
 export class BalanceService {
   public async getBalanceByAddress(address: string): Promise<Balance> {
-    const cachedBalance = await cacheService.get(address).then(JSON.parse);
+    //const cachedBalance = await cacheService.get(address).then(JSON.parse);
 
-    if (cachedBalance) {
-      console.log(`Found balance in cache by key: ${address} `);
-      return cachedBalance;
-    }
+    //if (cachedBalance) {
+    // console.log(`Found balance in cache by key: ${address} `);
+    // return cachedBalance;
+    //}
 
     const balanceRepository = getConnection().getCustomRepository(BalanceRepository);
 
     const balance = await balanceRepository.getBalanceByAddress(address);
 
-    if (balance) {
-      cacheService.set(address, balance);
-    }
+    //if (balance) {
+    //  cacheService.set(address, balance);
+    //}
 
     return balance || ({} as any); // eslint-disable-line
   }
