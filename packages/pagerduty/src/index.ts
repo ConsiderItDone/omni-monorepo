@@ -4,8 +4,7 @@ async function run() {
   console.time("Metrics collection");
   console.log("Metrics collection started");
 
-  const commonMetrics: any[] = [];
-  //await getSimpleMetrics();
+  const commonMetrics = await getSimpleMetrics();
   const blockMetrics = await getBlockMetrics();
   const eventMetrics = await getEventsMetrics();
   const extrinsicMetrics = await getExtrinsicsMetrics();
