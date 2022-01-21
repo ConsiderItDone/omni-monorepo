@@ -67,15 +67,15 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
 
 export async function getSimpleMetrics() {
   let metrics = [
-    await gatherMetrics<HomePage>(HOMEPAGE, "home"),
+/*     await gatherMetrics<HomePage>(HOMEPAGE, "home"),
     await gatherMetrics<ChartTransfers>(CHART_TRANSFERTS, "chart_transfers"),
-    await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"),
+    await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"), */
     await gatherMetrics(EXTRINSIC_FILTER_OPTIONS, "filter_options_extrinsic"),
     await gatherMetrics(EVENT_FILTER_OPTIONS, "filter_options_event"),
-    await gatherMetrics(ROOT_CERTIFICATES, "root_certificates"),
-    await gatherMetrics(APPLICATIONS, "applications"),
+/*     await gatherMetrics(ROOT_CERTIFICATES, "root_certificates"), */
+ /* await gatherMetrics(APPLICATIONS, "applications"),
     await gatherMetrics(ACCOUNTS, "accounts"),
-    await gatherMetrics(VALIDATORS, "validators"),
+    await gatherMetrics(VALIDATORS, "validators"), */
   ];
   return metrics;
 }
