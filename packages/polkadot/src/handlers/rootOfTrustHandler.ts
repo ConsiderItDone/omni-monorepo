@@ -4,8 +4,9 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
 import { getOrCreateAccount, upsertRootCertificate } from "../misc";
-import { RootCertificate } from "@nodle/utils/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import { RootCertificate } from "@nodle/utils/index";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleRootOfTrust(

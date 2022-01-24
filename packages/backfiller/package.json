@@ -20,9 +20,9 @@
     "start:updateAccount": "npm exec -- ts-node src/scripts/updateAccount.ts"
   },
   "dependencies": {
-    "@nodle/db": "^1.0.0",
+    "@nodle/db": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",
-    "@nodle/utils": "^1.0.0",
+    "@nodle/utils": "^1.1.0",
     "@polkadot/api": "^3.11.1",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",

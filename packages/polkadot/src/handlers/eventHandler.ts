@@ -15,8 +15,10 @@ import {
 } from "@nodle/db/index";
 
 import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
-import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import { ExtrinsicWithBoundedEvents } from "@nodle/utils/index";
+import { types, logger as Logger } from "@nodle/utils/index";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
+const CustomEventSection = types.CustomEventSection;
 // import { cacheService } from "@nodle/utils/src/services/cacheService";
 
 export async function handleEvents(

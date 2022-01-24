@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@polkadot/api": "^3.11.1",
-    "@nodle/db": "^1.0.0",
-    "@nodle/utils": "^1.0.0",
+    "@nodle/db": "^1.1.0",
+    "@nodle/utils": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",
     "apollo-server": "^2.21.0",
     "dotenv": "^8.2.0",

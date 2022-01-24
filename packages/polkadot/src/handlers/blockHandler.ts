@@ -1,7 +1,8 @@
 import { EntityManager } from "typeorm";
 import type { Header, Moment } from "@polkadot/types/interfaces/runtime";
 import { u8aToHex } from "@polkadot/util";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 import {
   BlockRepository,
   EventRepository,

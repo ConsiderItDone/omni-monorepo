@@ -12,6 +12,17 @@ export { default as MQ } from "./mq";
 
 export * as types from "./types";
 
+export type {
+  ExtrinsicWithBoundedEvents,
+  CertificateId,
+  Application,
+  VestingScheduleOf,
+  RootCertificate,
+  AccountBlockData,
+} from "./types";
+
 export * as blockFinalizer from "./blockFinalizer";
 
 export * as services from "./services";
+
+export * as logger from "./logger";

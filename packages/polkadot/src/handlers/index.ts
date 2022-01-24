@@ -3,8 +3,10 @@ import { Connection, EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import { AccountBlockData, CustomEventSection } from "@nodle/utils/types";
-import { logger, LOGGER_INFO_CONST } from "@nodle/utils/logger";
+import { types, logger as Logger, AccountBlockData } from "@nodle/utils/index";
+const { logger, LOGGER_INFO_CONST } = Logger;
+const { CustomEventSection } = types;
+
 import { Account, Balance, AccountRepository, BlockRepository } from "@nodle/db/index";
 
 import { handleApplication } from "./applicationHandler";

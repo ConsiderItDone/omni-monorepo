@@ -13,7 +13,7 @@
     "build:polkadot": "npm run build --prefix packages/polkadot",
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
-    "build": "npm run build:utils && npm run build:db && npm run build:indexer && npm run build:polkadot && npm run build:server && npm run build:backfiller",
+    "build": "npm run build:db && npm run build:utils && npm run build:polkadot && npm run build:indexer && npm run build:server && npm run build:backfiller",
     "start:indexer": "npm_config_yes=true npm run start:indexer --prefix packages/indexer",
     "start:indexer:daemon": "npm_config_yes=true npm run start:daemon --prefix packages/indexer",
     "start:indexer:accountDaemon": "npm_config_yes=true npm run start:accountDaemon --prefix packages/indexer",

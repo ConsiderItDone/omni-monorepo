@@ -3,13 +3,6 @@ import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
-import {
-  ExtrinsicWithBoundedEvents,
-  Application as ApplicationType,
-  RootCertificate as RootCertificateType,
-  ApplicationStatus,
-  VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils/index";
 import { Connection, EntityManager } from "typeorm";
 import {
   ApplicationRepository,
@@ -27,7 +20,15 @@ import {
 } from "@nodle/db/index";
 
 import { ApiPromise } from "@polkadot/api";
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import {
+  ExtrinsicWithBoundedEvents,
+  Application as ApplicationType,
+  RootCertificate as RootCertificateType,
+  VestingScheduleOf as VestingScheduleType,
+} from "@nodle/utils/index";
+import { types, logger as Logger } from "@nodle/utils/index";
+type ApplicationStatus = types.ApplicationStatus;
+const { logger, LOGGER_ERROR_CONST } = Logger;
 
 // import { cacheService } from "@nodle/utils/services/cacheService";
 

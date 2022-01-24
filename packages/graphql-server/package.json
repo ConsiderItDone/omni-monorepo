@@ -15,9 +15,9 @@
     "start:server": "npm exec -- ts-node -r tsconfig-paths/register index.ts"
   },
   "dependencies": {
-    "@nodle/db": "^1.0.0",
+    "@nodle/db": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",
-    "@nodle/utils": "^1.0.0",
+    "@nodle/utils": "^1.1.0",
     "@types/express": "^4.17.11",
     "apollo-server": "^2.21.0",
     "apollo-server-express": "^2.24.0",

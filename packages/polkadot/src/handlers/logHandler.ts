@@ -3,7 +3,8 @@ import type { DigestItem, BlockNumber } from "@polkadot/types/interfaces/runtime
 import type { Vec } from "@polkadot/types";
 
 import { LogRepository, Log } from "@nodle/db/index";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/logger";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 
 export async function handleLogs(
   manager: EntityManager,

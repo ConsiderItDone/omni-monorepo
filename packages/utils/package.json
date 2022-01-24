@@ -1,6 +1,6 @@
 {
   "name": "@nodle/utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -14,7 +14,7 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@nodle/db": "^1.0.0",
+    "@nodle/db": "^1.1.0",
     "@polkadot/api": "^3.11.1",
     "amqplib": "^0.7.1",
     "graphql-amqp-subscriptions": "^1.1.2",
