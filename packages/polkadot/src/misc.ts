@@ -299,9 +299,7 @@ export async function tryFetchAccount(
   blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
-    console.log("BeforeData");
     const data = await api.query.system.account.at(blockHash, accountAddress);
-    console.log("data", data);
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
