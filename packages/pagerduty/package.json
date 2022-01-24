@@ -5,7 +5,7 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "git+https://github.com/ConsiderItDone/nodle.git",
     "directory": "packages/pagerduty"
   },
   "scripts": {
@@ -25,5 +25,12 @@
   "devDependencies": {
     "tsconfig-paths": "^3.9.0",
     "typeorm-model-generator": "^0.4.5"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/ConsiderItDone/nodle/issues"
+  },
+  "homepage": "https://github.com/ConsiderItDone/nodle#readme",
+  "author": "Mikhail Kondratenko <kondratenkotm@gmail.com>",
+  "license": "ISC",
+  "description": ""
 }

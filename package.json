@@ -37,7 +37,8 @@
       "./packages/graphql-server",
       "./packages/backfiller",
       "./packages/polkadot",
-      "./packages/test"
+      "./packages/test",
+      "./packages/pagerduty"
     ]
   },
   "repository": {
