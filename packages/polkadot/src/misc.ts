@@ -299,7 +299,9 @@ export async function tryFetchAccount(
   blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
+    console.log("BeforeData");
     const data = await api.query.system.account.at(blockHash, accountAddress);
+    console.log("data", data);
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
@@ -325,8 +327,8 @@ export async function saveAccount(
 
   const accountData = {
     address: address,
-    nonce: typeof nonce === "number" ? nonce : nonce?.toNumber(),
-    refcount: refcount?.toNumber(),
+    nonce: typeof nonce === "number" ? nonce : typeof nonce === "string" ? Number(nonce) : nonce?.toNumber(),
+    refcount: refcount?.toNumber() || null,
   };
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
