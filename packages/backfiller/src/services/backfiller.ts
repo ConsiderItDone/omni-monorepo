@@ -5,7 +5,7 @@ import { BlockRepository, BackfillProgressRepository } from "@nodle/db/index";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
 const { CronJob } = require("cron"); // eslint-disable-line
 import { logger as Logger, services, blockFinalizer } from "@nodle/utils/index";
-const MetricsService = services.MetricsService;
+type MetricsService = services.MetricsService;
 const { logger } = Logger;
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
@@ -17,7 +17,7 @@ import { handleAccountBalance, getApi } from "@nodle/polkadot/index";
 import { PaginationOptions } from "@polkadot/api/types/base";
 import { IAccount } from "@nodle/polkadot/index";
 const backfillServer = express();
-const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
+const metrics = new services.MetricsService(backfillServer, 3001, "backfiller_");
 
 export async function blockBackfill(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);

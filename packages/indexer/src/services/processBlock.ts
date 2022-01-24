@@ -5,7 +5,7 @@ import { MQ } from "@nodle/utils/index";
 import { Block, Extrinsic, Log, Event as EventModel } from "@nodle/db/index";
 import { logger as Logger, services } from "@nodle/utils/index";
 const { logger } = Logger;
-const MetricsService = services.MetricsService;
+type MetricsService = services.MetricsService;
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
 import { getApi, handleBlockReorg } from "@nodle/polkadot/index";
@@ -17,7 +17,7 @@ const indexerServer = express();
 
 export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
-  const metrics = new MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
+  const metrics = new services.MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
 
   MQ.getMQ().consume("indexer", (msg: ConsumeMessage, channel: Channel) => {
     const blockNumber = Number(msg.content.toString());

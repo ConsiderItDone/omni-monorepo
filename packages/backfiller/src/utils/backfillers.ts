@@ -13,10 +13,11 @@ import {
   saveAccount,
   saveValidator,
   tryFetchAccount,
-} from "@nodle/polkadot/misc";
-import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/index";
-import { logger as Logger } from "@nodle/utils/index";
+} from "@nodle/polkadot/index";
+import { Application as ApplicationType } from "@nodle/utils/index";
+import { logger as Logger, types } from "@nodle/utils/index";
 const { logger } = Logger;
+const { CustomEventSection, ApplicationStatus } = types;
 import { ApplicationRepository, AccountRepository, BlockRepository } from "@nodle/db/index";
 import { handleBalance, handleRootOfTrust, handleVestingSchedule } from "@nodle/polkadot/index";
 import { Connection } from "typeorm";
