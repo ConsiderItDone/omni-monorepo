@@ -120,5 +120,6 @@ export async function handleExtrinsics(
     }
   } catch (error) {
     logger.error(error);
+    logger.error(`Error while processing extrinsics for block ${blockNumber}`);
   }
 }

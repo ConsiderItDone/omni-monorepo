@@ -37,6 +37,7 @@ async function start() {
     console.log("duplicates lenght", duplicates.length);
     if (!duplicates.length) break;
     else {
+      console.time("Process accounts");
       for (const acc of duplicates) {
         const query = `
         WITH get_min_account AS (
@@ -61,6 +62,11 @@ async function start() {
               where signer_id IN (SELECT duplicate_id as account_id FROM account_for_deletion)
           RETURNING *
       ),
+      deleted_validator AS (
+        DELETE FROM validator
+            WHERE account_id IN (SELECT duplicate_id as account_id FROM account_for_deletion)
+        RETURNING *
+    ),
       delete_balance AS (
           DELETE FROM balance
           WHERE account_id IN (SELECT duplicate_id as account_id FROM account_for_deletion)
@@ -77,11 +83,12 @@ async function start() {
               AND block_id IS NULL
           RETURNING *
       )
-      SELECT * FROM update_extrinsic, delete_balance, delete_account, delete_obsolete_balance;
+      SELECT * FROM update_extrinsic, deleted_validator, delete_balance, delete_account, delete_obsolete_balance;
 `;
         await connection.query(query);
         console.log(acc.address + " duplicates deleted");
       }
+      console.timeEnd("Process accounts");
     }
   }
 }

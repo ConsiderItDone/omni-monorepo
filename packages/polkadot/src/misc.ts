@@ -37,13 +37,17 @@ export function boundEventsToExtrinsics(
   extrinsics: Vec<GenericExtrinsic>,
   events: Vec<EventRecord>
 ): ExtrinsicWithBoundedEvents[] {
-  return extrinsics.map(({ hash }, index) => {
-    const boundedEvents: Event[] = events
-      .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
-      .map(({ event }: EventRecord) => event);
+  try {
+    return extrinsics.map(({ hash }, index) => {
+      const boundedEvents: Event[] = events
+        .filter(({ phase }: EventRecord) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index))
+        .map(({ event }: EventRecord) => event);
 
-    return { hash: hash.toHex(), boundedEvents };
-  });
+      return { hash: hash.toHex(), boundedEvents };
+    });
+  } catch (e) {
+    logger.error("Error bounding events to extrinsics");
+  }
 }
 export function findExtrinsicsWithEventsHash(
   extrinsicsWithBoundedEvents: ExtrinsicWithBoundedEvents[],

@@ -2,6 +2,7 @@ import { Between, Connection } from "typeorm";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/index";
 import { backfillTrackedEvents, backfillValidators } from "../utils";
 import { BlockRepository, BackfillProgressRepository } from "@nodle/db/index";
+import type { AccountInfo } from "@polkadot/types/interfaces/system";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
 const { CronJob } = require("cron"); // eslint-disable-line
 import { logger as Logger, services, blockFinalizer } from "@nodle/utils/index";
@@ -186,6 +187,7 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
     const parsed = JSON.parse(msg.content.toString());
 
     const { account, blockHash, blockId, blockNumber } = parsed;
+    console.log("parsed", account);
     const address = account[0];
     try {
       console.log(`Processing account: ${address}`);
@@ -235,9 +237,17 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
 
     for (const account of query) {
       const address = account[0].toHuman().toString();
+      const info = account[1] as AccountInfo;
+      const balance = {};
+
+      for (const key of info.data.keys()) {
+        // eslint-disable-next-line
+        //@ts-ignore
+        balance[key] = info.data[key].toString();
+      }
 
       const dataToSend = {
-        account: { ...account, 0: address },
+        account: { 0: address, 1: { ...info.toHuman(), data: balance } },
         blockHash: hash,
         blockId,
         blockNumber,
