@@ -9,9 +9,10 @@ try {
 
 import { subscribe } from "./services/subscribe";
 import { connect } from "@nodle/db/index";
-import MQ from "@nodle/utils/mq";
+import { MQ } from "@nodle/utils/index";
 import { ConnectionOptions } from "typeorm";
-import { logger } from "@nodle/utils/logger";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger } = Logger;
 import { processBlock } from "./services/processBlock";
 import { processAccount } from "./services/processAccount";
 

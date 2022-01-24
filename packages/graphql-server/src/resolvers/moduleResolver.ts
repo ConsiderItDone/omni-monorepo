@@ -1,9 +1,7 @@
 import { FieldResolver, Resolver, Root } from "type-graphql";
-import Module from "@nodle/db/models/public/module";
+import { Module, EventType, ExtrinsicType } from "@nodle/db/index";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
-import EventType from "@nodle/db/models/public/eventType";
-import ExtrinsicType from "@nodle/db/models/public/extrinsicType";
 
 const ModuleBaseResolver = createBaseResolver("Module", Module, "name", "ASC");
 

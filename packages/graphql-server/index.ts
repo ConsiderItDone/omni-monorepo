@@ -23,7 +23,7 @@ import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 import ValidatorResolver from "./src/resolvers/validatorResolver";
-import MQ from "@nodle/utils/mq";
+import { MQ } from "@nodle/utils/index";
 import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";

@@ -1,7 +1,6 @@
 import { Resolver, FieldResolver, Root } from "type-graphql";
-import RootCertificate from "@nodle/db/models/public/rootCertificate";
-import Block from "@nodle/db/models/public/block";
-import Account from "@nodle/db/models/public/account";
+import { RootCertificate, Block, Account } from "@nodle/db/index";
+
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 

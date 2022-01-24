@@ -9,6 +9,10 @@ export {
   handleBalance,
   handleRootOfTrust,
   handleVestingSchedule,
+  handleAccountBalance,
+  handleBlockReorg,
 } from "./handlers";
 
 export * as api from "./api";
+
+export { getApi } from "./api";

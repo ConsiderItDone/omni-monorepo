@@ -93,7 +93,7 @@ export async function handleAccountBalance(
   }
 }
 
-export { handleNewBlock } from "./blockHandler";
+export { handleNewBlock, handleBlockReorg } from "./blockHandler";
 export { handleEvents } from "./eventHandler";
 export { handleExtrinsics } from "./extrinsicHandler";
 export { handleLogs } from "./logHandler";

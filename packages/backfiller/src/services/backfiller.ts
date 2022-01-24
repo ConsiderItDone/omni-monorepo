@@ -1,23 +1,21 @@
 import { Between, Connection } from "typeorm";
-import { getApi } from "@nodle/polkadot/api";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/index";
 import { backfillTrackedEvents, backfillValidators } from "../utils";
-import BlockRepository from "@nodle/db/repositories/public/blockRepository";
-import BackfillProgressRepository from "@nodle/db/repositories/public/backfillProgressRepository";
+import { BlockRepository, BackfillProgressRepository } from "@nodle/db/index";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
 const { CronJob } = require("cron"); // eslint-disable-line
-import { logger } from "@nodle/utils/logger";
-import { finalizeBlocks } from "@nodle/utils/blockFinalizer";
-import MetricsService from "@nodle/utils/services/metricsService";
+import { logger as Logger, services, blockFinalizer } from "@nodle/utils/index";
+const MetricsService = services.MetricsService;
+const { logger } = Logger;
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import MQ from "@nodle/utils/mq";
+import { MQ } from "@nodle/utils/index";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-import { AccountBlockData } from "@nodle/utils/types";
-import { handleAccountBalance } from "@nodle/polkadot/handlers/index";
+import { AccountBlockData } from "@nodle/utils/index";
+import { handleAccountBalance, getApi } from "@nodle/polkadot/index";
 import { PaginationOptions } from "@polkadot/api/types/base";
-import { IAccount } from "@nodle/polkadot/misc";
+import { IAccount } from "@nodle/polkadot/index";
 const backfillServer = express();
 const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
 
@@ -274,7 +272,7 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
   //let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
-  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
+  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => blockFinalizer.finalizeBlocks(api, connection));
   // const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
   //   backfillAccountsFromDB(connection, api, backfillAccountRunning)
   // );

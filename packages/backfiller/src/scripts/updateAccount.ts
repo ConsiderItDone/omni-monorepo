@@ -6,9 +6,9 @@ try {
   //nop
 }
 
-import { getApi } from "@nodle/polkadot/api";
-import MQ from "@nodle/utils/mq";
-import BlockRepository from "@nodle/db/repositories/public/blockRepository";
+import { getApi } from "@nodle/polkadot/index";
+import { MQ } from "@nodle/utils/index";
+import { BlockRepository } from "@nodle/db/index";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db";
 import * as readline from "readline";

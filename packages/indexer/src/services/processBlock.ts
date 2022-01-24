@@ -1,20 +1,17 @@
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { handleEvents, handleExtrinsics, handleLogs, handleNewBlock, handleTrackedEvents } from "@nodle/polkadot/index";
-import MQ from "@nodle/utils/mq";
-import Block from "@nodle/db/models/public/block";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
-import Log from "@nodle/db/models/public/log";
-import { default as EventModel } from "@nodle/db/models/public/event";
-import { logger } from "@nodle/utils/logger";
+import { MQ } from "@nodle/utils/index";
+import { Block, Extrinsic, Log, Event as EventModel } from "@nodle/db/index";
+import { logger as Logger, services } from "@nodle/utils/index";
+const { logger } = Logger;
+const MetricsService = services.MetricsService;
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
-import { getApi } from "@nodle/polkadot/api";
-import MetricsService from "@nodle/utils/services/metricsService";
+import { getApi, handleBlockReorg } from "@nodle/polkadot/index";
 import express from "express";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-import { handleBlockReorg } from "@nodle/polkadot/handlers/blockHandler";
 
 const indexerServer = express();
 

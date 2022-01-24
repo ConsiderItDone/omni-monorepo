@@ -14,13 +14,12 @@ import {
   saveValidator,
   tryFetchAccount,
 } from "@nodle/polkadot/misc";
-import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/types";
-import { logger } from "@nodle/utils/logger";
-import ApplicationRepository from "@nodle/db/repositories/public/applicationRepository";
-import AccountRepository from "@nodle/db/repositories/public/accountRepository";
+import { CustomEventSection, Application as ApplicationType, ApplicationStatus } from "@nodle/utils/index";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger } = Logger;
+import { ApplicationRepository, AccountRepository, BlockRepository } from "@nodle/db/index";
 import { handleBalance, handleRootOfTrust, handleVestingSchedule } from "@nodle/polkadot/index";
 import { Connection } from "typeorm";
-import BlockRepository from "@nodle/db/repositories/public/blockRepository";
 
 export async function backfillTrackedEvents(
   manager: EntityManager,

@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Block from "@nodle/db/models/public/block";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
-import Event from "@nodle/db/models/public/event";
-import Account from "@nodle/db/models/public/account";
+import { Block, Extrinsic, Event, Account, Module, EventType, ExtrinsicType } from "@nodle/db/index";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { getConnection, getRepository, In, ILike } from "typeorm";
-import EventType from "@nodle/db/models/public/eventType";
-import Module from "@nodle/db/models/public/module";
-import ExtrinsicType from "@nodle/db/models/public/extrinsicType";
 // import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { groupBy } from "lodash";
 import { Loader } from "type-graphql-dataloader";

@@ -13,19 +13,14 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Event from "@nodle/db/models/public/event";
-import Block from "@nodle/db/models/public/block";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import MQ from "@nodle/utils/mq";
+import { MQ } from "@nodle/utils/index";
 import { withFilter } from "graphql-subscriptions";
 import { getConnection, ILike } from "typeorm";
-import EventType from "@nodle/db/models/public/eventType";
 import { GraphQLJSON } from "graphql-type-json";
-import Module from "@nodle/db/models/public/module";
 // import { cacheService } from "@nodle/utils/src/services/cacheService";
-import EventRepository from "@nodle/db/repositories/public/eventRepository";
+import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@nodle/db/index";
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
 import { groupBy } from "lodash";

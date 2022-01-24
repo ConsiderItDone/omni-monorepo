@@ -1,14 +1,10 @@
-import Account from "@nodle/db/models/public/account";
-import Balance from "@nodle/db/models/public/balance";
-import VestingSchedule from "@nodle/db/models/public/vestingSchedule";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
+import { Account, Balance, VestingSchedule, Extrinsic, Application, RootCertificate } from "@nodle/db/index";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
-import Application from "@nodle/db/models/public/application";
-import RootCertificate from "@nodle/db/models/public/rootCertificate";
 import { Arg, Args, ArgsType, Field, FieldResolver, Int, Query, Resolver, Root } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { BalanceService } from "@nodle/utils/services/balanceService";
+import { services } from "@nodle/utils/index";
+const BalanceService = services.BalanceService;
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 

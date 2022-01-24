@@ -17,7 +17,8 @@ import {
 } from "@nodle/backfiller/src/services/backfiller";
 import { ConnectionOptions } from "typeorm";
 import { connect } from "@nodle/db/index";
-import { logger } from "@nodle/utils/logger";
+import { logger as Logger } from "@nodle/utils/index";
+const { logger } = Logger;
 
 const connectionOptions = {
   name: "default",

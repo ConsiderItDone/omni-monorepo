@@ -1,9 +1,10 @@
 import type { Header } from "@polkadot/types/interfaces/runtime";
-import { getApi } from "@nodle/polkadot/api";
-import MQ from "@nodle/utils/mq";
+import { getApi } from "@nodle/polkadot/index";
+import { MQ } from "@nodle/utils/index";
 
-import { logger } from "@nodle/utils/logger";
-import MetricsService from "@nodle/utils/services/metricsService";
+import { logger as Logger, services } from "@nodle/utils/index";
+const { logger } = Logger;
+const MetricsService = services.MetricsService;
 import express from "express";
 
 const indexerServer = express();

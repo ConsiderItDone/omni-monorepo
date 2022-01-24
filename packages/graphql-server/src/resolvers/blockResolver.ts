@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
-import Block from "@nodle/db/models/public/block";
-import Event from "@nodle/db/models/public/event";
-import Extrinsic from "@nodle/db/models/public/extrinsic";
-import Log from "@nodle/db/models/public/log";
-import RootCertificate from "@nodle/db/models/public/rootCertificate";
-import VestingSchedule from "@nodle/db/models/public/vestingSchedule";
+import { Block, Event, Extrinsic, Log, RootCertificate, VestingSchedule } from "@nodle/db/index";
 
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
