@@ -39,7 +39,7 @@ import { TransferDetails, TransferDetailsVariables } from "./queries/__generated
 import { Extrinsics } from "./queries/__generated__/Extrinsics";
 import { ExtrinsicsDetails, ExtrinsicsDetailsVariables } from "./queries/__generated__/ExtrinsicsDetails";
 
-const metrics_prefix = "nodle_graphql";
+const metrics_prefix = "nodle.graphql";
 export const client = new Client(process.env.GRAPHQL_ENDPOINT);
 
 export function isQuerySuccessfull(result: ApolloQueryResult<any>) {

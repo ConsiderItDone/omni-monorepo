@@ -10,10 +10,12 @@ export default class Metrics {
   }
 
   getParams(): v1.MetricsApiSubmitMetricsRequest {
-    return {
+    const payload = {
       body: {
         series: this.metrics,
       },
     };
+    console.log("Payload", JSON.stringify(payload));
+    return payload;
   }
 }
