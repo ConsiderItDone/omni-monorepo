@@ -16,7 +16,24 @@ import {
   blockBackfillDaemon,
 } from "@nodle/backfiller/src/services/backfiller";
 import { ConnectionOptions } from "typeorm";
-import { connect } from "@nodle/db";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
 import { logger as Logger } from "@nodle/utils";
 const { logger } = Logger;
 
@@ -29,7 +46,23 @@ const connectionOptions = {
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   logging: process.env.TYPEORM_LOGGING === "true",
-  entities: ["../../db/src/models/*.ts", "../db/src/models/**/*.ts"],
+  entities: [
+    Account,
+    Application,
+    Balance,
+    Block,
+    Event,
+    Extrinsic,
+    ExtrinsicType,
+    Log,
+    RootCertificate,
+    VestingSchedule,
+    Validator,
+    BackfillProgress,
+    Vote,
+    Module,
+    EventType,
+  ],
 } as ConnectionOptions;
 
 yargs(hideBin(process.argv))

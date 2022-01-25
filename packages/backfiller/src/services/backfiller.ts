@@ -5,7 +5,7 @@ import { BlockRepository, BackfillProgressRepository } from "@nodle/db";
 import type { AccountInfo } from "@polkadot/types/interfaces/system";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
 const { CronJob } = require("cron"); // eslint-disable-line
-import { services, blockFinalizer } from "@nodle/utils";
+import { services, blockFinalizer, logger as Logger } from "@nodle/utils";
 type MetricsService = services.MetricsService;
 const { logger } = Logger;
 import express from "express";
