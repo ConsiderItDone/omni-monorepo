@@ -12,7 +12,6 @@ import {
 import { findExtrinsicsWithEventsHash, transformEventData } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/src/types";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { Module, Extrinsic, EventType, Event as EventModel } from "@nodle/db/src/models";
 
 export async function handleEvents(
