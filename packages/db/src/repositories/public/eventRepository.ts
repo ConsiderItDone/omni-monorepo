@@ -101,7 +101,10 @@ export default class EventRepository extends Repository<Event> {
     take: number
   ): Promise<Event[]> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
-    const orderStr = !filters || !Object.keys(filters).length ? "ORDER BY b.number DESC" : "ORDER BY b.number::character varying::bigint DESC";
+    const orderStr =
+      !filters || !Object.keys(filters).length
+        ? "ORDER BY b.number DESC"
+        : "ORDER BY b.number::character varying::bigint DESC";
 
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
