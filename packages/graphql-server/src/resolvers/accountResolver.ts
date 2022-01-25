@@ -1,12 +1,20 @@
 import { Account, Balance, VestingSchedule, Extrinsic, Application, RootCertificate } from "@nodle/db";
-import { createBaseResolver } from "../baseResolver";
+import { createBaseResolver, PaginationArgs } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
-import { Arg, Args, ArgsType, Field, FieldResolver, Int, Query, Resolver, Root } from "type-graphql";
+import { Arg, Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { services } from "@nodle/utils";
-const BalanceService = services.BalanceService;
+import { BalanceService } from "@nodle/utils";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
+
+@ObjectType(`AccountResponse`)
+class AccountResponse {
+  @Field(() => [Account])
+  items: Account[];
+
+  @Field(() => Int)
+  totalCount: number;
+}
 
 @ArgsType()
 class AccountExtrinsicsArgs {
@@ -29,6 +37,39 @@ export default class AccountResolver extends AccountBaseResolver {
     });
 
     return account;
+  }
+
+  @Query(() => AccountResponse)
+  async accounts(@Args() { take, skip, first, last }: PaginationArgs): Promise<AccountResponse> {
+    if (first && last) {
+      throw new Error("Bad request");
+    }
+
+    const order: any = {}; // eslint-disable-line
+    order["accountId"] = "DESC";
+
+    if (first) {
+      take = first;
+      order["accountId"] = "ASC";
+    }
+
+    if (last) {
+      take = last;
+      order["accountId"] = "DESC";
+    }
+
+    console.time(`accounts`);
+    const items = await Account.find({
+      take,
+      skip,
+      order,
+    });
+    console.timeEnd(`accounts`);
+
+    return {
+      items,
+      totalCount: 10000, // @TODO
+    };
   }
 
   @FieldResolver(() => Balance, { nullable: true })

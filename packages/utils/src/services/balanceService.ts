@@ -5,9 +5,9 @@ const cacheService = new CacheService();
 
 export class BalanceService {
   public async getBalanceByAddress(address: string): Promise<Balance> {
-    console.time("balance");
+    console.time(`balance-cache-${address}`);
     const cachedBalance = await cacheService.get(address).then(JSON.parse);
-    console.timeEnd("balance");
+    console.timeEnd(`balance-cache-${address}`);
 
     if (cachedBalance) {
       console.log(`Found balance in cache by key: ${address} `);
