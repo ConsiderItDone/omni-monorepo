@@ -1,6 +1,5 @@
 import { getSimpleMetrics, getBlockMetrics, getEventsMetrics, getExtrinsicsMetrics, client } from "./metrics";
-import { v1 } from "@datadog/datadog-api-client";
-
+const { CronJob } = require("cron"); // eslint-disable-line
 import * as dotenv from "dotenv";
 import path from "path";
 try {
@@ -11,27 +10,35 @@ try {
 import Prometheus from "./classes/Prometheus";
 
 async function run() {
-  console.time("Metrics collection");
-  console.log("Metrics collection started");
-
-  //const blockMetrics = await getBlockMetrics();
-  //const eventMetrics = await getEventsMetrics();
-  //const extrinsicMetrics = await getExtrinsicsMetrics();
-
-  const commonMetrics = await getSimpleMetrics();
-
-  //const combinedMetrics = commonMetrics.concat(blockMetrics).concat(eventMetrics).concat(extrinsicMetrics);
-
-  client.submitMetrics(commonMetrics).then((res) => {
-    console.log("Metrics to Datadog submitted:", res);
-  });
+  console.log("Metrics collection cronjob started");
 
   const metricService = new Prometheus();
+
+  const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
+  crontabJob.start();
+
+  return;
+}
+
+async function monitor(metricService: Prometheus) {
+  console.log("Metrics collection started");
+  console.time("Metrics collection");
+
+  const commonMetrics = await getSimpleMetrics();
+  const blockMetrics = await getBlockMetrics();
+  const eventMetrics = await getEventsMetrics();
+  const extrinsicMetrics = await getExtrinsicsMetrics();
+
+  const combinedMetrics = commonMetrics.concat(blockMetrics).concat(eventMetrics).concat(extrinsicMetrics);
+
+  const ddResponse = await client.submitMetrics(combinedMetrics);
+  console.log("Metrics submitted to Datadog:", ddResponse);
+
   commonMetrics.map((m) => metricService.set(m.name, Number(!m.success), m.timestamp));
+  console.log("Metrics submitted to Prometheus");
 
   console.log("Metrics collection finished");
   console.timeEnd("Metrics collection");
   return;
 }
-
 run();

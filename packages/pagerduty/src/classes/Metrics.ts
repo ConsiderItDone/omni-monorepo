@@ -15,7 +15,6 @@ export default class Metrics {
         series: this.metrics,
       },
     };
-    console.log("Payload", JSON.stringify(payload));
     return payload;
   }
 }

@@ -63,7 +63,7 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
       metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), isQuerySuccessfull(queryResult)),
     };
   } catch (e) {
-    console.error(e);
+    console.error(`Cought error: ${JSON.stringify(e, null, 2)}`);
     return {
       result: null,
       metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), false),
@@ -82,11 +82,9 @@ export async function getSimpleMetrics() {
     await gatherMetrics(EVENT_FILTER_OPTIONS, "filter_options_event"),
     await gatherMetrics(ROOT_CERTIFICATES, "root_certificates"),
     await gatherMetrics(APPLICATIONS, "applications"),
-    //await gatherMetrics(VALIDATORS, "validators"),
+    await gatherMetrics(ACCOUNTS, "accounts"),
+    await gatherMetrics(VALIDATORS, "validators"),
   ];
-  const acc = await gatherMetrics(ACCOUNTS, "accounts");
-  console.log("acc", acc);
-  metrics.push(acc);
   return metrics;
 }
 
