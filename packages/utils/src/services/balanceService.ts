@@ -5,7 +5,9 @@ import Balance from "@nodle/db/src/models/public/balance";
 
 export class BalanceService {
   public async getBalanceByAddress(address: string): Promise<Balance> {
+    console.time("balance");
     const cachedBalance = await cacheService.get(address).then(JSON.parse);
+    console.timeEnd("balance");
 
     if (cachedBalance) {
       console.log(`Found balance in cache by key: ${address} `);
