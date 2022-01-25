@@ -8,6 +8,7 @@ try {
 } catch (e) {
   //nop
 }
+import Prometheus from "./classes/Prometheus";
 
 async function run() {
   console.time("Metrics collection");
@@ -16,21 +17,21 @@ async function run() {
   //const blockMetrics = await getBlockMetrics();
   //const eventMetrics = await getEventsMetrics();
   //const extrinsicMetrics = await getExtrinsicsMetrics();
-  
-/*   const config = v1.createConfiguration();
-  const api = new v1.AuthenticationApi(config)
-  console.log('api', JSON.stringify(api, null, 2))
-  const validation = await api.validate();
-  console.log('validation', validation) */
+
   const commonMetrics = await getSimpleMetrics();
+
   //const combinedMetrics = commonMetrics.concat(blockMetrics).concat(eventMetrics).concat(extrinsicMetrics);
 
-   client.submitMetrics(commonMetrics).then((res) => {
-    console.log("Metrics submitted", res);
+  client.submitMetrics(commonMetrics).then((res) => {
+    console.log("Metrics to Datadog submitted:", res);
   });
+
+  const metricService = new Prometheus();
+  commonMetrics.map((m) => metricService.set(m.name, Number(!m.success), m.timestamp));
 
   console.log("Metrics collection finished");
   console.timeEnd("Metrics collection");
+  return;
 }
 
 run();

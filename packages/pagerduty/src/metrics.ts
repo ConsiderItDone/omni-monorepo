@@ -53,30 +53,40 @@ export async function gatherMetrics<T, TVars = any>(query: Query<T, TVars>, name
 export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>, name: string, vars?: TVars) {
   console.log("Gathering " + name + " metric");
 
-  const queryResult = await client.query<T, TVars>(query, vars);
-  if (queryResult?.errors) {
-    console.log("Errors received:", JSON.stringify(queryResult.errors));
+  try {
+    const queryResult = await client.query<T, TVars>(query, vars);
+    if (queryResult?.errors) {
+      console.log("Errors received:", JSON.stringify(queryResult.errors));
+    }
+    return {
+      result: queryResult,
+      metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), isQuerySuccessfull(queryResult)),
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      result: null,
+      metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), false),
+    };
   }
-  return {
-    result: queryResult,
-    metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), isQuerySuccessfull(queryResult)),
-  };
 }
 
 /**************************  GET METRICS  *****************************/
 
 export async function getSimpleMetrics() {
   let metrics = [
-/*     await gatherMetrics<HomePage>(HOMEPAGE, "home"),
+    await gatherMetrics<HomePage>(HOMEPAGE, "home"),
     await gatherMetrics<ChartTransfers>(CHART_TRANSFERTS, "chart_transfers"),
-    await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"), */
+    await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"),
     await gatherMetrics(EXTRINSIC_FILTER_OPTIONS, "filter_options_extrinsic"),
     await gatherMetrics(EVENT_FILTER_OPTIONS, "filter_options_event"),
-/*     await gatherMetrics(ROOT_CERTIFICATES, "root_certificates"), */
- /* await gatherMetrics(APPLICATIONS, "applications"),
-    await gatherMetrics(ACCOUNTS, "accounts"),
-    await gatherMetrics(VALIDATORS, "validators"), */
+    await gatherMetrics(ROOT_CERTIFICATES, "root_certificates"),
+    await gatherMetrics(APPLICATIONS, "applications"),
+    //await gatherMetrics(VALIDATORS, "validators"),
   ];
+  const acc = await gatherMetrics(ACCOUNTS, "accounts");
+  console.log("acc", acc);
+  metrics.push(acc);
   return metrics;
 }
 
