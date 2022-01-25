@@ -201,7 +201,7 @@ export async function accountBackfillDaemon(ws: string, connection: Connection):
       console.timeEnd(`Account ${address} processing time`);
       channel.ack(msg);
     } catch (error) {
-      logger.error(error);
+      logger.error("backfill_account error");
       channel.ack(msg);
     }
   });

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Nodle monorepo",
   "scripts": {
-    "mr": "TYPEORM_HOST=localhost TYPEORM_USERNAME=nodleuser TYPEORM_PASSWORD=uf7HWNVuqYhoj27gD9hC05 TYPEORM_DATABASE=nodle TYPEORM_PORT=6433 TYPEORM_LOGGING=true REDIS_HOST=redis-11149.c276.us-east-1-2.ec2.cloud.redislabs.com REDIS_PORT=11149 REDIS_PASSWORD=vAvwSJexuswHEwZf9vRNeYXK6lcqfi02 REDIS_DB=nodle WS_PROVIDER=wss://main3.nodleprotocol.io GRAPHQL_ENDPOINT=http://localhost:4000/graphql RABBIT_MQ_URL=amqps://egfjhbxs:Gh79glYSzErtKj7vKG0oyZCtzXCWn8pI@jaguar.rmq.cloudamqp.com/egfjhbxs DEV_WS_PROVIDER=ws://3.217.156.114:9944 node packages/graphql-server/dist/esm/index.js",
     "lint": "npm run prettier-check & npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages",
     "lint:fix": "npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages --fix",
     "prettier-format": "npm exec -- prettier --write ./packages",

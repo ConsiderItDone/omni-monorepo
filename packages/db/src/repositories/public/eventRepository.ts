@@ -64,7 +64,7 @@ export default class EventRepository extends Repository<Event> {
   ): Promise<number> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
-    if (!filters) {
+    if (!filters || !Object.keys(filters).length) {
       // TODO: remove hot-fix, use quick count
       return 10000;
     }
@@ -101,7 +101,10 @@ export default class EventRepository extends Repository<Event> {
     take: number
   ): Promise<Event[]> {
     const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
-    const orderStr = filters ? "ORDER BY b.number::character varying::bigint DESC" : "ORDER BY b.number DESC";
+    const orderStr =
+      !filters || !Object.keys(filters).length
+        ? "ORDER BY b.number DESC"
+        : "ORDER BY b.number::character varying::bigint DESC";
 
     const sql = `
         SELECT "event"."event_id"     AS "eventId",
