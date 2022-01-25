@@ -90,18 +90,18 @@ export async function handleEvents(
         });
         console.timeEnd("event save");
 
-        const dataKeys = Object.keys(transformedData);
-        if (dataKeys.includes("from")) {
-          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
-        }
-        if (dataKeys.includes("to")) {
-          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
-        }
-        if (dataKeys.includes("who")) {
-          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
-        }
-
-        cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
+        // const dataKeys = Object.keys(transformedData);
+        // if (dataKeys.includes("from")) {
+        //   cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("to")) {
+        //   cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("who")) {
+        //   cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
+        // }
+        //
+        // cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
 
         newEvents.push(event);
       } catch (eventSaveError) {
