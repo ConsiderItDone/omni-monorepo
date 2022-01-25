@@ -26,11 +26,11 @@ import {
   RootCertificate as RootCertificateType,
   VestingScheduleOf as VestingScheduleType,
 } from "@nodle/utils";
-import { types, logger as Logger } from "@nodle/utils";
+import { types, logger as Logger, CacheService } from "@nodle/utils";
 type ApplicationStatus = types.ApplicationStatus;
 const { logger, LOGGER_ERROR_CONST } = Logger;
 
-// import { cacheService } from "@nodle/utils/services/cacheService";
+const cacheService = new CacheService();
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(
@@ -340,7 +340,7 @@ export async function saveAccount(
     blockId,
   };
   const savedBalance = await balanceRepository.upsert(options?.balanceId, balanceData);
-  // cacheService.del(address);
+  cacheService.del(address);
 
   return { savedAccount, savedBalance };
 }

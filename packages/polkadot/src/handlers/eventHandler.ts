@@ -15,11 +15,10 @@ import {
 } from "@nodle/db";
 
 import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
-import { ExtrinsicWithBoundedEvents } from "@nodle/utils";
-import { types, logger as Logger } from "@nodle/utils";
+import { types, logger as Logger, CacheService, ExtrinsicWithBoundedEvents } from "@nodle/utils";
 const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 const CustomEventSection = types.CustomEventSection;
-// import { cacheService } from "@nodle/utils/src/services/cacheService";
+const cacheService = new CacheService();
 
 export async function handleEvents(
   manager: EntityManager,
@@ -96,18 +95,18 @@ export async function handleEvents(
         });
         console.timeEnd("event save");
 
-        // const dataKeys = Object.keys(transformedData);
-        // if (dataKeys.includes("from")) {
-        //   cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
-        // }
-        // if (dataKeys.includes("to")) {
-        //   cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
-        // }
-        // if (dataKeys.includes("who")) {
-        //   cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
-        // }
+        const dataKeys = Object.keys(transformedData);
+        if (dataKeys.includes("from")) {
+          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
+        }
+        if (dataKeys.includes("to")) {
+          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
+        }
+        if (dataKeys.includes("who")) {
+          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
+        }
 
-        // cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
+        cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
 
         newEvents.push(event);
       } catch (eventSaveError) {
