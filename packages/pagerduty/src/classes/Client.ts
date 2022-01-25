@@ -29,16 +29,18 @@ export default class Client {
 
     this.#metricsApi = initMetricsApi();
   }
-  //@ts-ignore
   async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
+    //@ts-ignore
     return await this.#client.query<T, TVars>({ query, variables });
   }
-  //@ts-ignore
   async mutate<T, TVars = OperationVariables>(mutation: Mutation<T, TVars>, variables?: TVars) {
-    return this.#client
-      .mutate<T, TVars>({ mutation, variables })
-      .then(this.handleSuccess)
-      .catch(this.handleError);
+    return (
+      this.#client
+        //@ts-ignore
+        .mutate<T, TVars>({ mutation, variables })
+        .then(this.handleSuccess)
+        .catch(this.handleError)
+    );
   }
 
   private handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any): FetchResult<T> {
