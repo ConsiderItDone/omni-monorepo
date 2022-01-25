@@ -1,6 +1,6 @@
 import { FetchResult, OperationVariables, TypedDocumentNode } from "@apollo/client/core";
 import { DocumentNode } from "graphql";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Callbacks {
   onSuccess?: (result: FetchResult) => any; //eslint-disable
   onError?: (error: any) => any; //eslint-disable

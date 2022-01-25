@@ -10,7 +10,7 @@ export default class Metric {
     this.success = sucess;
     this.description = description;
   }
-  getMetric() {
+  getMetric(): { metric: string; points: [[number, number]] } {
     return {
       metric: this.name,
       points: [[this.timestamp, Number(!this.success)]],

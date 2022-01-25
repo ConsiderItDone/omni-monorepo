@@ -5,6 +5,7 @@ try {
 } catch (e) {
   //nop
 }
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */
 
 import { ApolloQueryResult } from "@apollo/client";
 import {
@@ -42,7 +43,7 @@ import { ExtrinsicsDetails, ExtrinsicsDetailsVariables } from "./queries/__gener
 const metrics_prefix = "nodle.graphql";
 export const client = new Client(process.env.GRAPHQL_ENDPOINT);
 
-export function isQuerySuccessfull(result: ApolloQueryResult<any>) {
+export function isQuerySuccessfull(result: ApolloQueryResult<any>): boolean {
   return !result.errors?.length && Boolean(result.data);
 }
 
@@ -74,7 +75,7 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
 /**************************  GET METRICS  *****************************/
 
 export async function getSimpleMetrics() {
-  let metrics = [
+  const metrics = [
     await gatherMetrics<HomePage>(HOMEPAGE, "home"),
     await gatherMetrics<ChartTransfers>(CHART_TRANSFERTS, "chart_transfers"),
     await gatherMetrics<ChartExtrinsics>(CHART_EXTRINSICS, "chart_extrinsics"),
@@ -89,7 +90,7 @@ export async function getSimpleMetrics() {
 }
 
 export async function getBlockMetrics() {
-  let metrics: Metric[] = [];
+  const metrics: Metric[] = [];
 
   const { result: blocksResult, metric: blocksMetric } = await gatherMetricsResult<Blocks>(BLOCKS, "blocks");
   metrics.push(blocksMetric);
@@ -107,7 +108,7 @@ export async function getBlockMetrics() {
 }
 
 export async function getEventsMetrics() {
-  let metrics: Metric[] = [await gatherMetrics(ALLOCATIONS, "allocations")];
+  const metrics: Metric[] = [await gatherMetrics(ALLOCATIONS, "allocations")];
 
   const { result: transfersResult, metric: transfersMetric } = await gatherMetricsResult<Transfers>(
     TRANSFERS,
@@ -130,7 +131,7 @@ export async function getEventsMetrics() {
 }
 
 export async function getExtrinsicsMetrics() {
-  let metrics: Metric[] = [];
+  const metrics: Metric[] = [];
 
   const { result: extrinsicsResult, metric: extrinsicsMetric } = await gatherMetricsResult<Extrinsics>(
     EXTRINSICS,

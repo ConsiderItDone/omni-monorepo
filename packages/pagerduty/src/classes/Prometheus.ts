@@ -4,7 +4,7 @@ import { register, Gauge } from "prom-client";
 export default class Prometheus {
   server: Express;
   port: number;
-  gauge: Gauge<any>;
+  gauge: Gauge<any>; //eslint-disable-line
 
   constructor(port = 3008) {
     this.server = express();
@@ -33,7 +33,7 @@ export default class Prometheus {
     console.log(`Server listening to ${this.port}, metrics exposed on /metrics endpoint`);
   }
 
-  set(name: string, value: number, timestamp: number) {
+  set(name: string, value: number, timestamp: number): void {
     this.gauge.set({ name, timestamp }, value);
   }
 }

@@ -13,8 +13,7 @@
     "removeComments": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "paths": {
-    }
+    "paths": {}
   },
   "files": ["src/index.ts"],
   "exclude": ["node_modules", "dist"]

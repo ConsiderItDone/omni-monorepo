@@ -9,7 +9,7 @@ try {
 }
 import Prometheus from "./classes/Prometheus";
 
-async function run() {
+function run() {
   console.log("Metrics collection cronjob started");
 
   const metricService = new Prometheus();
