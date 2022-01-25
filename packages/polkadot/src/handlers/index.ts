@@ -68,24 +68,28 @@ export async function handleAccountBalance(
   const savedAccount = await accountRepository.findByAddress(address.toString());
   const block = await blockRepository.findByNumber(blockNumber);
 
-  if (savedAccount) {
-    const savedBalance = await Balance.createQueryBuilder("balance")
-      .innerJoinAndSelect("balance.block", "block")
-      .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
-      .orderBy("block.number", "DESC", "NULLS LAST")
-      .limit(1)
-      .getOne();
+  try {
+    if (savedAccount) {
+      const savedBalance = await Balance.createQueryBuilder("balance")
+        .innerJoinAndSelect("balance.block", "block")
+        .where(`balance.accountId =:accountId`, { accountId: savedAccount.accountId })
+        .orderBy("block.number", "DESC", "NULLS LAST")
+        .limit(1)
+        .getOne();
 
-    if (savedBalance) {
-      const isOldBalance = Number(savedBalance?.block?.number) < blockNumber;
-      if (isOldBalance) {
-        return await saveAccountBalance({ accountId: savedAccount.accountId, balanceId: savedBalance.balanceId });
+      if (savedBalance) {
+        const isOldBalance = Number(savedBalance?.block?.number) < blockNumber;
+        if (isOldBalance) {
+          return await saveAccountBalance({ accountId: savedAccount.accountId, balanceId: savedBalance.balanceId });
+        }
+        return { savedAccount, savedBalance };
       }
-      return { savedAccount, savedBalance };
+      return await saveAccountBalance({ accountId: savedAccount.accountId });
     }
-    return await saveAccountBalance({ accountId: savedAccount.accountId });
+    return await saveAccountBalance();
+  } catch (e) {
+    logger.error("Error saving account");
   }
-  return await saveAccountBalance();
 
   async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
     const account = prefetched || (await tryFetchAccount(api, address, blockHash, blockNumber));
