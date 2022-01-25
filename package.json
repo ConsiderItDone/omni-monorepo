@@ -26,6 +26,7 @@
     "start:updateAccount": "npm_config_yes=true npm run start:updateAccount --prefix packages/backfiller",
     "start:jest": "npm_config_yes=true npm run start:jest --prefix packages/test",
     "start:patcher": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller patcher-only",
+    "start:server:prod": "node packages/graphql-server/dist/esm/index.js",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
