@@ -1,6 +1,6 @@
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
-import { BlockRepository } from "@nodle/db/index";
+import { BlockRepository } from "@nodle/db";
 import { logger } from "./logger";
 
 export async function finalizeBlocks(api: ApiPromise, connection: Connection): Promise<void> {

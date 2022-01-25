@@ -1,5 +1,5 @@
 import { expect } from "@jest/globals";
-import { getApi } from "@nodle/polkadot/index";
+import { getApi } from "@nodle/polkadot";
 import Tester from "../src/tester";
 import { ApiPromise, Keyring } from "@polkadot/api";
 import { waitReady } from "@polkadot/wasm-crypto";

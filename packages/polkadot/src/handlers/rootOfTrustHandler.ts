@@ -4,8 +4,8 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
 import { getOrCreateAccount, upsertRootCertificate } from "../misc";
-import { RootCertificate } from "@nodle/utils/index";
-import { logger as Logger } from "@nodle/utils/index";
+import { RootCertificate } from "@nodle/utils";
+import { logger as Logger } from "@nodle/utils";
 const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 

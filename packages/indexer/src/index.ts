@@ -8,10 +8,10 @@ try {
 }
 
 import { subscribe } from "./services/subscribe";
-import { connect } from "@nodle/db/index";
-import { MQ } from "@nodle/utils/index";
+import { connect } from "@nodle/db";
+import { MQ } from "@nodle/utils";
 import { ConnectionOptions } from "typeorm";
-import { logger as Logger } from "@nodle/utils/index";
+import { logger as Logger } from "@nodle/utils";
 const { logger } = Logger;
 import { processBlock } from "./services/processBlock";
 import { processAccount } from "./services/processAccount";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { Block, Extrinsic, Event, Account, Module, EventType, ExtrinsicType } from "@nodle/db/index";
+import { Block, Extrinsic, Event, Account, Module, EventType, ExtrinsicType } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { getConnection, getRepository, In, ILike } from "typeorm";

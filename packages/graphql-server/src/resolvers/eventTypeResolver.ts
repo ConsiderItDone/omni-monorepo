@@ -1,5 +1,5 @@
 import { Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
-import { EventType, Module } from "@nodle/db/index";
+import { EventType, Module } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 

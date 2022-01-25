@@ -12,11 +12,11 @@ import {
   Extrinsic,
   EventType,
   Event as EventModel,
-} from "@nodle/db/index";
+} from "@nodle/db";
 
 import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
-import { ExtrinsicWithBoundedEvents } from "@nodle/utils/index";
-import { types, logger as Logger } from "@nodle/utils/index";
+import { ExtrinsicWithBoundedEvents } from "@nodle/utils";
+import { types, logger as Logger } from "@nodle/utils";
 const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 const CustomEventSection = types.CustomEventSection;
 // import { cacheService } from "@nodle/utils/src/services/cacheService";

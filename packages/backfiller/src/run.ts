@@ -16,8 +16,8 @@ import {
   blockBackfillDaemon,
 } from "@nodle/backfiller/src/services/backfiller";
 import { ConnectionOptions } from "typeorm";
-import { connect } from "@nodle/db/index";
-import { logger as Logger } from "@nodle/utils/index";
+import { connect } from "@nodle/db";
+import { logger as Logger } from "@nodle/utils";
 const { logger } = Logger;
 
 const connectionOptions = {

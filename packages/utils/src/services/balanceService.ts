@@ -1,5 +1,5 @@
 // import { cacheService } from "@nodle/utils/services/cacheService";
-import { BalanceRepository, Balance } from "@nodle/db/index";
+import { BalanceRepository, Balance } from "@nodle/db";
 import { getConnection } from "typeorm";
 
 export class BalanceService {

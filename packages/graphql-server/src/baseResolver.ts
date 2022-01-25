@@ -12,7 +12,7 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { MQ, Utils } from "@nodle/utils/index";
+import { MQ, Utils } from "@nodle/utils";
 import { withFilter } from "apollo-server";
 
 export function createBaseResolver<T extends ClassType>(

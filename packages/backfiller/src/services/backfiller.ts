@@ -1,22 +1,22 @@
 import { Between, Connection } from "typeorm";
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/index";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot";
 import { backfillTrackedEvents, backfillValidators } from "../utils";
-import { BlockRepository, BackfillProgressRepository } from "@nodle/db/index";
+import { BlockRepository, BackfillProgressRepository } from "@nodle/db";
 import type { AccountInfo } from "@polkadot/types/interfaces/system";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
 const { CronJob } = require("cron"); // eslint-disable-line
-import { logger as Logger, services, blockFinalizer } from "@nodle/utils/index";
+import { services, blockFinalizer } from "@nodle/utils";
 type MetricsService = services.MetricsService;
 const { logger } = Logger;
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import { MQ } from "@nodle/utils/index";
+import { MQ } from "@nodle/utils";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-import { AccountBlockData } from "@nodle/utils/index";
-import { handleAccountBalance, getApi } from "@nodle/polkadot/index";
+import { AccountBlockData } from "@nodle/utils";
+import { handleAccountBalance, getApi } from "@nodle/polkadot";
 import { PaginationOptions } from "@polkadot/api/types/base";
-import { IAccount } from "@nodle/polkadot/index";
+import { IAccount } from "@nodle/polkadot";
 const backfillServer = express();
 const metrics = new services.MetricsService(backfillServer, 3001, "backfiller_");
 

@@ -1,11 +1,11 @@
-import { Balance, Account, Block } from "@nodle/db/index";
+import { Balance, Account, Block } from "@nodle/db";
 import { Arg, Args, ArgsType, Field, FieldResolver, Query, Resolver, Root, Subscription } from "type-graphql";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import { services } from "@nodle/utils/index";
+import { services } from "@nodle/utils";
 const BalanceService = services.BalanceService;
 import { withFilter } from "graphql-subscriptions";
-import { MQ } from "@nodle/utils/index";
+import { MQ } from "@nodle/utils";
 
 const BalanceBaseResolver = createBaseResolver("Balance", Balance);
 

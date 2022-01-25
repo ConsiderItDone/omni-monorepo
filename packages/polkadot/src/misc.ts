@@ -17,7 +17,7 @@ import {
   Account as AccountModel,
   Validator,
   Balance as BalanceModel,
-} from "@nodle/db/index";
+} from "@nodle/db";
 
 import { ApiPromise } from "@polkadot/api";
 import {
@@ -25,8 +25,8 @@ import {
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
   VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils/index";
-import { types, logger as Logger } from "@nodle/utils/index";
+} from "@nodle/utils";
+import { types, logger as Logger } from "@nodle/utils";
 type ApplicationStatus = types.ApplicationStatus;
 const { logger, LOGGER_ERROR_CONST } = Logger;
 

@@ -1,8 +1,8 @@
 import type { Header } from "@polkadot/types/interfaces/runtime";
-import { getApi } from "@nodle/polkadot/index";
-import { MQ } from "@nodle/utils/index";
+import { getApi } from "@nodle/polkadot";
+import { MQ } from "@nodle/utils";
 
-import { logger as Logger, services } from "@nodle/utils/index";
+import { logger as Logger, services } from "@nodle/utils";
 const { logger } = Logger;
 const MetricsService = services.MetricsService;
 import express from "express";

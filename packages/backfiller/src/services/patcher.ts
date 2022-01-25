@@ -1,5 +1,5 @@
 import { Connection } from "typeorm";
-import { EventRepository } from "@nodle/db/index";
+import { EventRepository } from "@nodle/db";
 
 export async function patcher(ws: string, connection: Connection): Promise<void> {
   const eventRepository = connection.getCustomRepository(EventRepository);
