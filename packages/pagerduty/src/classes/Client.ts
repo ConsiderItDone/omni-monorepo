@@ -29,11 +29,11 @@ export default class Client {
 
     this.#metricsApi = initMetricsApi();
   }
-
+  //@ts-ignore
   async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
     return await this.#client.query<T, TVars>({ query, variables });
   }
-
+  //@ts-ignore
   async mutate<T, TVars = OperationVariables>(mutation: Mutation<T, TVars>, variables?: TVars) {
     return this.#client
       .mutate<T, TVars>({ mutation, variables })
