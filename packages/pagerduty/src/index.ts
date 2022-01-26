@@ -36,7 +36,7 @@ async function monitor() {
 
   console.log("Metrics collection finished");
   console.timeEnd("Metrics collection");
-  console.timeEnd("--------------------------------------------------------");
+  console.log("--------------------------------------------------------");
   return;
 }
 run();

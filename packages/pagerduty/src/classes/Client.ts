@@ -3,13 +3,14 @@ import {
   ApolloClient,
   InMemoryCache,
   NormalizedCacheObject,
-  FetchResult,
   OperationVariables,
+  createHttpLink,
 } from "@apollo/client/core";
-import { Callbacks, Mutation, Query } from "../types";
+import { Query } from "../types";
 import Metric from "./Metric";
 import Metrics from "./Metrics";
 import { v1 } from "@datadog/datadog-api-client";
+import ApolloLinkTimeout from "apollo-link-timeout";
 /* eslint-disable */
 
 function initMetricsApi() {
@@ -22,38 +23,24 @@ export default class Client {
   #metricsApi: v1.MetricsApi;
 
   constructor(uri?: string) {
+    const timeoutLink = new ApolloLinkTimeout(5000);
+    const httpLink = createHttpLink({ uri });
+    //@ts-ignore
+    const timeoutHttpLink = timeoutLink.concat(httpLink);
+
     this.#client = new ApolloClient({
-      uri,
+      //@ts-ignore
+      link: timeoutHttpLink,
       cache: new InMemoryCache(),
     });
 
     this.#metricsApi = initMetricsApi();
   }
-  async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars, callbacks?: Callbacks) {
+  async query<T, TVars = OperationVariables>(query: Query<T, TVars>, variables?: TVars) {
     //@ts-ignore
-    return await this.#client.query<T, TVars>({ query, variables });
-  }
-  async mutate<T, TVars = OperationVariables>(mutation: Mutation<T, TVars>, variables?: TVars) {
-    return (
-      this.#client
-        //@ts-ignore
-        .mutate<T, TVars>({ mutation, variables })
-        .then(this.handleSuccess)
-        .catch(this.handleError)
-    );
+    return await this.#client.query<T, TVars>({ query, variables, fetchPolicy: "no-cache" });
   }
 
-  private handleSuccess<T>(result: FetchResult<T>, onSuccess?: (result: FetchResult<T>) => any): FetchResult<T> {
-    console.log("handleSuccess", result);
-    onSuccess && onSuccess(result);
-    return result;
-  }
-
-  private handleError(error: any, onError?: (error: any) => any): void {
-    console.log("handleError", error);
-    onError && onError(error);
-    return error;
-  }
   async submitMetrics(metricsToSubmit: Metric[]) {
     const metrics = new Metrics(metricsToSubmit);
     return await this.#metricsApi.submitMetrics(metrics.getParams());

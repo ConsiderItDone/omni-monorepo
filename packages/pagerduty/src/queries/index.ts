@@ -280,9 +280,9 @@ export const EXTRINSICS = gql`
     $callFunction: String
     $signedOnly: Boolean
     $skip: Int
-    $dateStart: DateTime = ""
-    $dateEnd: DateTime = ""
-    $signer: String = ""
+    $dateStart: DateTime
+    $dateEnd: DateTime
+    $signer: String
   ) {
     extrinsics(
       take: 10

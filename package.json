@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@types/redis": "^2.8.31",
+    "apollo-link-timeout": "^4.0.0",
     "cluster": "^0.7.7",
     "prom-client": "^13.1.0",
     "redis": "^3.1.2",
