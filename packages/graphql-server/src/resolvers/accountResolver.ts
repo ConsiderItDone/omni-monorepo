@@ -1,9 +1,9 @@
-import { Arg, Args, ArgsType, Field, FieldResolver, Int, Query, Resolver, Root, ObjectType } from "type-graphql";
-import { Min, Max } from "class-validator";
-import { RootCertificate, Application, Account, Balance, VestingSchedule, Extrinsic } from "@nodle/db/src/models";
+import { Account, Balance, VestingSchedule, Extrinsic, Application, RootCertificate } from "@nodle/db";
 import { createBaseResolver, PaginationArgs } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
-import { BalanceService } from "@nodle/utils/src/services";
+import { Arg, Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
+import { Min, Max } from "class-validator";
+import { BalanceService } from "@nodle/utils";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 

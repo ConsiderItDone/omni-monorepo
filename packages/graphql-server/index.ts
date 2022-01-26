@@ -13,7 +13,24 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ApolloServerLoaderPlugin } from "type-graphql-dataloader";
 import { ConnectionOptions, getConnection } from "typeorm";
-import { connect } from "@nodle/db";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
 import LogResolver from "./src/resolvers/logResolver";
@@ -24,7 +41,7 @@ import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 import ValidatorResolver from "./src/resolvers/validatorResolver";
-import MQ from "@nodle/utils/src/mq";
+import { MQ } from "@nodle/utils";
 import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
@@ -41,7 +58,23 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
-    entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
+    entities: [
+      Account,
+      Application,
+      Balance,
+      Block,
+      Event,
+      Extrinsic,
+      ExtrinsicType,
+      Log,
+      RootCertificate,
+      VestingSchedule,
+      Validator,
+      BackfillProgress,
+      Vote,
+      Module,
+      EventType,
+    ],
   } as ConnectionOptions;
   await connect(connectionOptions);
   await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection

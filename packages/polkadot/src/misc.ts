@@ -3,13 +3,6 @@ import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
-import {
-  ExtrinsicWithBoundedEvents,
-  Application as ApplicationType,
-  RootCertificate as RootCertificateType,
-  ApplicationStatus,
-  VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils/src/types";
 import { Connection, EntityManager } from "typeorm";
 import {
   ApplicationRepository,
@@ -18,19 +11,26 @@ import {
   ValidatorRepository,
   BalanceRepository,
   VoteRepository,
-} from "@nodle/db/src/repositories";
-import {
   Application as ApplicationModel,
   RootCertificate as RootCertificateModel,
   VestingSchedule as VestingScheduleModel,
   Account as AccountModel,
   Validator,
   Balance as BalanceModel,
-} from "@nodle/db/src/models";
-import { ApiPromise } from "@polkadot/api";
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+} from "@nodle/db";
 
-import { cacheService } from "@nodle/utils/src/services/cacheService";
+import { ApiPromise } from "@polkadot/api";
+import {
+  ExtrinsicWithBoundedEvents,
+  Application as ApplicationType,
+  RootCertificate as RootCertificateType,
+  VestingScheduleOf as VestingScheduleType,
+} from "@nodle/utils";
+import { types, logger as Logger, CacheService } from "@nodle/utils";
+type ApplicationStatus = types.ApplicationStatus;
+const { logger, LOGGER_ERROR_CONST } = Logger;
+
+const cacheService = new CacheService();
 
 // Bounding events to Extrinsics with 'phase.asApplyExtrinsic.eq(----))'
 export function boundEventsToExtrinsics(

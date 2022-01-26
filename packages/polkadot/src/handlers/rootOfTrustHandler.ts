@@ -3,9 +3,10 @@ import { EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 
-import { getOrCreateAccount, upsertRootCertificate } from "@nodle/polkadot/src/misc";
-import { RootCertificate } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { getOrCreateAccount, upsertRootCertificate } from "../misc";
+import { RootCertificate } from "@nodle/utils";
+import { logger as Logger } from "@nodle/utils";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 import { BlockHash } from "@polkadot/types/interfaces/chain";
 
 export async function handleRootOfTrust(

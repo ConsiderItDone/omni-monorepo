@@ -3,17 +3,17 @@ import { Connection, EntityManager } from "typeorm";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
+import { types, logger as Logger, AccountBlockData } from "@nodle/utils";
+const { logger, LOGGER_INFO_CONST } = Logger;
+const { CustomEventSection } = types;
 
-import { AccountBlockData, CustomEventSection } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST } from "@nodle/utils/src/logger";
-import { Account, Balance } from "@nodle/db/src/models";
+import { Account, Balance, AccountRepository, BlockRepository } from "@nodle/db";
 
 import { handleApplication } from "./applicationHandler";
 import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
-import { AccountRepository, BlockRepository } from "@nodle/db/src/repositories";
 import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(
@@ -97,7 +97,7 @@ export async function handleAccountBalance(
   }
 }
 
-export { handleNewBlock } from "./blockHandler";
+export { handleNewBlock, handleBlockReorg } from "./blockHandler";
 export { handleEvents } from "./eventHandler";
 export { handleExtrinsics } from "./extrinsicHandler";
 export { handleLogs } from "./logHandler";

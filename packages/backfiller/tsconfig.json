@@ -12,11 +12,11 @@
     "skipLibCheck": true,
     "removeComments": true,
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "dist/esm",
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "files": ["index.ts"],
+  "files": ["src/index.ts"],
   "exclude": ["node_modules", "dist"]
 }

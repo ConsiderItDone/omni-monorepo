@@ -8,11 +8,17 @@ import {
   ExtrinsicRepository,
   EventTypeRepository,
   ModuleRepository,
-} from "@nodle/db/src/repositories";
-import { findExtrinsicsWithEventsHash, transformEventData } from "@nodle/polkadot/src/misc";
-import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/src/types";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import { Module, Extrinsic, EventType, Event as EventModel } from "@nodle/db/src/models";
+  Module,
+  Extrinsic,
+  EventType,
+  Event as EventModel,
+} from "@nodle/db";
+
+import { findExtrinsicsWithEventsHash, transformEventData } from "../misc";
+import { types, logger as Logger, ExtrinsicWithBoundedEvents } from "@nodle/utils";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
+const CustomEventSection = types.CustomEventSection;
+// const cacheService = new CacheService();
 
 export async function handleEvents(
   manager: EntityManager,

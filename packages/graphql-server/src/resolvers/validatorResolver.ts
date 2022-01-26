@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Arg, FieldResolver, Query, Resolver, Root } from "type-graphql";
-import Account from "@nodle/db/src/models/public/account";
-import Validator from "@nodle/db/src/models/public/validator";
+import { Account, Validator } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import DataLoader from "dataloader";
 import { getRepository } from "typeorm";

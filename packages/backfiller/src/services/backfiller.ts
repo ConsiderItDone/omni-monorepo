@@ -1,26 +1,24 @@
 import { Between, Connection } from "typeorm";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot";
+import { backfillTrackedEvents, backfillValidators } from "../utils";
+import { BlockRepository, BackfillProgressRepository } from "@nodle/db";
 import type { AccountInfo } from "@polkadot/types/interfaces/system";
 import type { AccountId } from "@polkadot/types/interfaces/runtime";
-import { getApi } from "@nodle/polkadot/src/api";
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot/src";
-import { backfillTrackedEvents, backfillValidators } from "@nodle/backfiller/src/utils/backfillers";
-import BlockRepository from "@nodle/db/src/repositories/public/blockRepository";
-import BackfillProgressRepository from "@nodle/db/src/repositories/public/backfillProgressRepository";
 const { CronJob } = require("cron"); // eslint-disable-line
-import { logger } from "@nodle/utils/src/logger";
-import { finalizeBlocks } from "@nodle/utils/src/blockFinalizer";
-import MetricsService from "@nodle/utils/src/services/metricsService";
+import { services, blockFinalizer, logger as Logger } from "@nodle/utils";
+type MetricsService = services.MetricsService;
+const { logger } = Logger;
 import express from "express";
 import { ApiPromise } from "@polkadot/api";
-import MQ from "@nodle/utils/src/mq";
+import { MQ } from "@nodle/utils";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-import { AccountBlockData } from "@nodle/utils/src/types";
-import { handleAccountBalance } from "@nodle/polkadot/src/handlers";
-import { IAccount } from "@nodle/polkadot/src/misc";
+import { AccountBlockData } from "@nodle/utils";
+import { handleAccountBalance, getApi } from "@nodle/polkadot";
 import { PaginationOptions } from "@polkadot/api/types/base";
+import { IAccount } from "@nodle/polkadot";
 const backfillServer = express();
-const metrics = new MetricsService(backfillServer, 3001, "backfiller_");
+const metrics = new services.MetricsService(backfillServer, 3001, "backfiller_");
 
 export async function blockBackfill(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
@@ -284,7 +282,7 @@ export async function backfiller(ws: string, connection: Connection): Promise<vo
   //let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
-  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => finalizeBlocks(api, connection));
+  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => blockFinalizer.finalizeBlocks(api, connection));
   // const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
   //   backfillAccountsFromDB(connection, api, backfillAccountRunning)
   // );

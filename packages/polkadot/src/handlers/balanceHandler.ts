@@ -2,10 +2,10 @@ import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
-
-import { logger, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
+import { logger as Logger } from "@nodle/utils";
+const { logger, LOGGER_ERROR_CONST } = Logger;
 import { getAccountBlockBuffer } from "../misc";
-import MQ from "@nodle/utils/src/mq";
+import { MQ } from "@nodle/utils";
 
 export async function handleBalance(
   event: Event,

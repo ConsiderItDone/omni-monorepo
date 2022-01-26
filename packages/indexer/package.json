@@ -1,15 +1,16 @@
 {
   "name": "@nodle/indexer",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConsiderItDone/nodle.git",
     "directory": "packages/indexer"
   },
   "scripts": {
-    "build": "npm exec tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
     "prepare": "npm run build",
     "start:indexer": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
     "start:daemon": "npm exec -- ts-node -r tsconfig-paths/register src/processor.ts",
@@ -17,8 +18,8 @@
   },
   "dependencies": {
     "@polkadot/api": "^3.11.1",
-    "@nodle/db": "^1.0.0",
-    "@nodle/utils": "^1.0.0",
+    "@nodle/db": "^1.1.0",
+    "@nodle/utils": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",
     "apollo-server": "^2.21.0",
     "dotenv": "^8.2.0",

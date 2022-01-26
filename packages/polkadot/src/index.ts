@@ -1,4 +1,17 @@
-export { boundEventsToExtrinsics, findExtrinsicsWithEventsHash, getExtrinsicSuccess } from "./misc";
+export {
+  upsertApplication,
+  changeApplicationStatus,
+  applicationIsEmpty,
+  tryFetchApplication,
+  ApplicationFetchMethods,
+  saveAccount,
+  saveValidator,
+  tryFetchAccount,
+  boundEventsToExtrinsics,
+  findExtrinsicsWithEventsHash,
+  getExtrinsicSuccess,
+  IAccount,
+} from "./misc";
 export {
   handleNewBlock,
   handleEvents,
@@ -9,4 +22,10 @@ export {
   handleBalance,
   handleRootOfTrust,
   handleVestingSchedule,
+  handleAccountBalance,
+  handleBlockReorg,
 } from "./handlers";
+
+export * as api from "./api";
+
+export { getApi } from "./api";

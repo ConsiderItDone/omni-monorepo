@@ -2,7 +2,6 @@ import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn, J
 import { Field, Int, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 
-import { ApplicationStatus } from "@nodle/utils/src/types";
 import Block from "./block";
 import { Account } from "../index";
 import Vote from "./vote";
@@ -39,10 +38,10 @@ export default class Application extends BaseEntity {
   @Column("numeric", { name: "candidate_deposit" })
   public candidateDeposit: number;
 
-  @Field(() => String, { defaultValue: ApplicationStatus.pending })
+  @Field(() => String, { defaultValue: "application" })
   @Column("character varying", {
     name: "status",
-    default: ApplicationStatus.pending,
+    default: "application",
   })
   public status: string;
 
