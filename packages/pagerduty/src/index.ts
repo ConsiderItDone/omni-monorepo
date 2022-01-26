@@ -1,5 +1,4 @@
 import { getSimpleMetrics, getBlockMetrics, getEventsMetrics, getExtrinsicsMetrics, client } from "./metrics";
-const { CronJob } = require("cron"); // eslint-disable-line
 import * as dotenv from "dotenv";
 import path from "path";
 try {
@@ -7,17 +6,13 @@ try {
 } catch (e) {
   //nop
 }
-import Prometheus from "./classes/Prometheus";
-
 async function run() {
   while (true) {
     console.log("Metrics collection cronjob started");
     await monitor();
     //const metricService = new Prometheus();
-
     //const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
     //crontabJob.start();
-
     //monitor(metricService);
   }
 }

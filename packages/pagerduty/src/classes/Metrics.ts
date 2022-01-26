@@ -15,6 +15,7 @@ export default class Metrics {
         series: this.metrics,
       },
     };
+    console.log("Payload to submit: ", JSON.stringify(payload, null, 2));
     return payload;
   }
 }
