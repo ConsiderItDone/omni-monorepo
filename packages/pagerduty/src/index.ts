@@ -9,19 +9,20 @@ try {
 }
 import Prometheus from "./classes/Prometheus";
 
-function run() {
-  console.log("Metrics collection cronjob started");
+async function run() {
+  while (true) {
+    console.log("Metrics collection cronjob started");
+    await monitor();
+    //const metricService = new Prometheus();
 
-  const metricService = new Prometheus();
+    //const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
+    //crontabJob.start();
 
-  //const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
-  //crontabJob.start();
-
-  monitor(metricService);
-  return;
+    //monitor(metricService);
+  }
 }
 
-async function monitor(metricService: Prometheus) {
+async function monitor() {
   console.log("Metrics collection started");
   console.time("Metrics collection");
 
@@ -35,11 +36,12 @@ async function monitor(metricService: Prometheus) {
   const ddResponse = await client.submitMetrics(combinedMetrics);
   console.log("Metrics submitted to Datadog at", new Date().toTimeString(), ":", ddResponse);
 
-  commonMetrics.map((m) => metricService.set(m.name, Number(!m.success), m.timestamp));
-  console.log("Metrics submitted to Prometheus");
+  //commonMetrics.map((m) => metricService.set(m.name, Number(!m.success), m.timestamp));
+  //console.log("Metrics submitted to Prometheus");
 
   console.log("Metrics collection finished");
   console.timeEnd("Metrics collection");
+  console.timeEnd("--------------------------------------------------------");
   return;
 }
 run();
