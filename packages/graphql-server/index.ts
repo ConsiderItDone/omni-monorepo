@@ -6,6 +6,7 @@ try {
   //nop
 }
 
+import "@nodle/utils/src/tracer";
 import express = require("express");
 import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
