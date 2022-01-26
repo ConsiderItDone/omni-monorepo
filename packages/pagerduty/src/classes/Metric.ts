@@ -1,6 +1,5 @@
 import { Series } from "@datadog/datadog-api-client/dist/packages/datadog-api-client-v1/models/Series";
 
-
 const metrics_prefix = "nodle.graphql";
 export default class Metric {
   name: string;
