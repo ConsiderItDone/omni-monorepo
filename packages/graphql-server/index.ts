@@ -1,3 +1,4 @@
+import "@nodle/utils/src/tracer";
 import * as dotenv from "dotenv";
 import path from "path";
 try {
