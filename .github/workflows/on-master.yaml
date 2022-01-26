@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - NOD-216-prod-mode
 
 jobs:
   test:
