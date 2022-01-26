@@ -40,7 +40,6 @@ import { TransferDetails, TransferDetailsVariables } from "./queries/__generated
 import { Extrinsics } from "./queries/__generated__/Extrinsics";
 import { ExtrinsicsDetails, ExtrinsicsDetailsVariables } from "./queries/__generated__/ExtrinsicsDetails";
 
-const metrics_prefix = "nodle.graphql";
 export const client = new Client(process.env.GRAPHQL_ENDPOINT);
 
 export function isQuerySuccessfull(result: ApolloQueryResult<any>): boolean {
@@ -61,13 +60,13 @@ export async function gatherMetricsResult<T, TVars = any>(query: Query<T, TVars>
     }
     return {
       result: queryResult,
-      metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), isQuerySuccessfull(queryResult)),
+      metric: new Metric(name, new Date().getTime() / 1000, isQuerySuccessfull(queryResult)),
     };
   } catch (e) {
     console.error(`Cought error: ${JSON.stringify(e, null, 2)}`);
     return {
       result: null,
-      metric: new Metric(`${metrics_prefix}.${name}`, Date.now(), false),
+      metric: new Metric(name, new Date().getTime() / 1000, false),
     };
   }
 }
@@ -95,7 +94,7 @@ export async function getBlockMetrics() {
   const { result: blocksResult, metric: blocksMetric } = await gatherMetricsResult<Blocks>(BLOCKS, "blocks");
   metrics.push(blocksMetric);
 
-  if (blocksResult.data) {
+  if (blocksResult?.data) {
     const block = blocksResult.data.blocks.items[0];
     metrics.push(
       await gatherMetrics<Block, BlockVariables>(BLOCK, "block", {

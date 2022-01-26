@@ -14,9 +14,10 @@ function run() {
 
   const metricService = new Prometheus();
 
-  const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
-  crontabJob.start();
+  //const crontabJob = new CronJob("0 */5 * * * *", () => monitor(metricService));
+  //crontabJob.start();
 
+  monitor(metricService);
   return;
 }
 
@@ -32,7 +33,7 @@ async function monitor(metricService: Prometheus) {
   const combinedMetrics = commonMetrics.concat(blockMetrics).concat(eventMetrics).concat(extrinsicMetrics);
 
   const ddResponse = await client.submitMetrics(combinedMetrics);
-  console.log("Metrics submitted to Datadog:", ddResponse);
+  console.log("Metrics submitted to Datadog at", new Date().toTimeString(), ":", ddResponse);
 
   commonMetrics.map((m) => metricService.set(m.name, Number(!m.success), m.timestamp));
   console.log("Metrics submitted to Prometheus");

@@ -1,3 +1,7 @@
+import { Series } from "@datadog/datadog-api-client/dist/packages/datadog-api-client-v1/models/Series";
+
+
+const metrics_prefix = "nodle.graphql";
 export default class Metric {
   name: string;
   timestamp: number;
@@ -5,15 +9,17 @@ export default class Metric {
   description?: string;
 
   constructor(name: string, timestamp: number, sucess: boolean, description?: string) {
-    this.name = name;
+    this.name = `${metrics_prefix}.${name}`;
     this.timestamp = timestamp;
     this.success = sucess;
     this.description = description;
   }
-  getMetric(): { metric: string; points: [[number, number]] } {
+  getMetric(): Series {
     return {
       metric: this.name,
+      type: "gauge",
       points: [[this.timestamp, Number(!this.success)]],
+      tags: ["nodle:Graphql server response"],
     };
   }
 }
