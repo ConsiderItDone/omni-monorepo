@@ -24,6 +24,7 @@
     "start:backfiller:accounts-daemon": "npm_config_yes=true npm run start:backfiller:accounts-daemon --prefix packages/backfiller",
     "start:updateAccount": "npm_config_yes=true npm run start:updateAccount --prefix packages/backfiller",
     "start:jest": "npm_config_yes=true npm run start:jest --prefix packages/test",
+    "start:pagerDuty": "npm_config_yes=true npm run start:pagerDuty --prefix packages/pagerduty",
     "start:patcher": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller patcher-only",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert"
@@ -36,7 +37,8 @@
       "./packages/graphql-server",
       "./packages/backfiller",
       "./packages/polkadot",
-      "./packages/test"
+      "./packages/test",
+      "./packages/pagerduty"
     ]
   },
   "repository": {
@@ -59,6 +61,7 @@
   },
   "dependencies": {
     "@types/redis": "^2.8.31",
+    "apollo-link-timeout": "^4.0.0",
     "cluster": "^0.7.7",
     "prom-client": "^13.1.0",
     "redis": "^3.1.2",
