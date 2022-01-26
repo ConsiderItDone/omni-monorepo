@@ -1,15 +1,16 @@
 {
   "name": "@nodle/backfiller",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ConsiderItDone/nodle.git",
     "directory": "packages/backfiller"
   },
   "scripts": {
-    "build": "npm exec tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
     "prepare": "npm run build",
     "start:backfiller": "npm exec -- ts-node src/run.ts",
     "start:backfiller:blocks": "npm exec -- ts-node src/run.ts blocks",
@@ -19,9 +20,9 @@
     "start:updateAccount": "npm exec -- ts-node src/scripts/updateAccount.ts"
   },
   "dependencies": {
-    "@nodle/db": "^1.0.0",
+    "@nodle/db": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",
-    "@nodle/utils": "^1.0.0",
+    "@nodle/utils": "^1.1.0",
     "@polkadot/api": "^3.11.1",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",

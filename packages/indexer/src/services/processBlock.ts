@@ -1,26 +1,23 @@
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { handleEvents, handleExtrinsics, handleLogs, handleNewBlock, handleTrackedEvents } from "@nodle/polkadot";
-import MQ from "@nodle/utils/src/mq";
-import Block from "@nodle/db/src/models/public/block";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import Log from "@nodle/db/src/models/public/log";
-import { default as EventModel } from "@nodle/db/src/models/public/event";
-import { logger } from "@nodle/utils/src/logger";
+import { MQ } from "@nodle/utils";
+import { Block, Extrinsic, Log, Event as EventModel } from "@nodle/db";
+import { logger as Logger, services } from "@nodle/utils";
+const { logger } = Logger;
+type MetricsService = services.MetricsService;
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
-import { getApi } from "@nodle/polkadot/src/api";
-import MetricsService from "@nodle/utils/src/services/metricsService";
+import { getApi, handleBlockReorg } from "@nodle/polkadot";
 import express from "express";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
-import { handleBlockReorg } from "@nodle/polkadot/src/handlers/blockHandler";
 
 const indexerServer = express();
 
 export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
-  const metrics = new MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
+  const metrics = new services.MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
 
   MQ.getMQ().consume("indexer", (msg: ConsumeMessage, channel: Channel) => {
     const blockNumber = Number(msg.content.toString());

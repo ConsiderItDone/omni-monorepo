@@ -6,11 +6,28 @@ try {
   //nop
 }
 
-import { getApi } from "@nodle/polkadot/src/api";
-import MQ from "@nodle/utils/src/mq";
-import { BlockRepository } from "@nodle/db/src/repositories";
+import { getApi } from "@nodle/polkadot";
+import { MQ } from "@nodle/utils";
+import { BlockRepository } from "@nodle/db";
 import { ConnectionOptions } from "typeorm";
-import { connect } from "@nodle/db";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
 import * as readline from "readline";
 
 const connectionOptions = {
@@ -23,8 +40,21 @@ const connectionOptions = {
   database: process.env.TYPEORM_DATABASE,
   logging: process.env.TYPEORM_LOGGING === "true",
   entities: [
-    path.resolve(__dirname) + "/../../../db/src/models/*.ts",
-    path.resolve(__dirname) + "/../../db/src/models/**/*.ts",
+    Account,
+    Application,
+    Balance,
+    Block,
+    Event,
+    Extrinsic,
+    ExtrinsicType,
+    Log,
+    RootCertificate,
+    VestingSchedule,
+    Validator,
+    BackfillProgress,
+    Vote,
+    Module,
+    EventType,
   ],
 } as ConnectionOptions;
 

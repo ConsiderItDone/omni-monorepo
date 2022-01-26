@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import { register, Histogram, Counter, Gauge, collectDefaultMetrics } from "prom-client";
 
-export default class MetricsService {
+export class MetricsService {
   server: Express;
   port: number;
   prefix: string;

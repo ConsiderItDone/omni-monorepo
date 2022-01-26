@@ -8,7 +8,24 @@ try {
 
 import { backfiller } from "./services/backfiller";
 import { patcher } from "./services/patcher";
-import { connect } from "@nodle/db";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {
@@ -21,7 +38,23 @@ const start = async function (): Promise<void> {
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
-    entities: ["../../db/src/models/*.ts", "../db/src/models/**/*.ts"],
+    entities: [
+      Account,
+      Application,
+      Balance,
+      Block,
+      Event,
+      Extrinsic,
+      ExtrinsicType,
+      Log,
+      RootCertificate,
+      VestingSchedule,
+      Validator,
+      BackfillProgress,
+      Vote,
+      Module,
+      EventType,
+    ],
   } as ConnectionOptions;
 
   const connection = await connect(connectionOptions);

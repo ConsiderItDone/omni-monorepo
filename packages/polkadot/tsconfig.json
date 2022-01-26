@@ -5,6 +5,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "noImplicitAny": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
@@ -12,11 +13,11 @@
     "skipLibCheck": true,
     "removeComments": true,
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "dist/esm",
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "files": ["index.ts"],
+  "files": ["src/index.ts"],
   "exclude": ["node_modules", "dist"]
 }

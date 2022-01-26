@@ -1,9 +1,7 @@
 import { FieldResolver, Resolver, Root } from "type-graphql";
-import Application from "@nodle/db/src/models/public/application";
-import Block from "@nodle/db/src/models/public/block";
+import { Application, Block, Account, Vote } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver, singleFieldResolver } from "../fieldsResolver";
-import { Account, Vote } from "@nodle/db/src/models";
 
 const ApplicationBaseResolver = createBaseResolver("Application", Application);
 

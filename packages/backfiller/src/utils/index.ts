@@ -1,1 +1,1 @@
-export { backfillAccounts } from "./backfillers";
+export { backfillAccounts, backfillTrackedEvents, backfillValidators } from "./backfillers";

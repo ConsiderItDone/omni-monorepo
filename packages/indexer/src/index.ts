@@ -8,10 +8,28 @@ try {
 }
 
 import { subscribe } from "./services/subscribe";
-import { connect } from "@nodle/db";
-import MQ from "@nodle/utils/src/mq";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
+import { MQ } from "@nodle/utils";
 import { ConnectionOptions } from "typeorm";
-import { logger } from "@nodle/utils/src/logger";
+import { logger as Logger } from "@nodle/utils";
+const { logger } = Logger;
 import { processBlock } from "./services/processBlock";
 import { processAccount } from "./services/processAccount";
 
@@ -24,7 +42,23 @@ const connectionOptions = {
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   logging: process.env.TYPEORM_LOGGING === "true",
-  entities: ["../db/src/models/*.ts", "../db/src/models/**/*.ts"],
+  entities: [
+    Account,
+    Application,
+    Balance,
+    Block,
+    Event,
+    Extrinsic,
+    ExtrinsicType,
+    Log,
+    RootCertificate,
+    VestingSchedule,
+    Validator,
+    BackfillProgress,
+    Vote,
+    Module,
+    EventType,
+  ],
 } as ConnectionOptions;
 
 const start = async (): Promise<void> => {

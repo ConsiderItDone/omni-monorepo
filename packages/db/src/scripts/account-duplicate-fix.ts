@@ -6,7 +6,24 @@ try {
   //nop
 }
 import { ConnectionOptions } from "typeorm";
-import { connect } from "@nodle/db";
+import {
+  connect,
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "..";
 
 const connectionOptions = {
   name: "default",
@@ -17,7 +34,23 @@ const connectionOptions = {
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   logging: process.env.TYPEORM_LOGGING === "true",
-  entities: ["../models/*.ts", "../models/**/*.ts"],
+  entities: [
+    Account,
+    Application,
+    Balance,
+    Block,
+    Event,
+    Extrinsic,
+    ExtrinsicType,
+    Log,
+    RootCertificate,
+    VestingSchedule,
+    Validator,
+    BackfillProgress,
+    Vote,
+    Module,
+    EventType,
+  ],
 } as ConnectionOptions;
 
 async function start() {
