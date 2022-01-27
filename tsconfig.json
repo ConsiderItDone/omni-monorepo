@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
+    "module": "es2020",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "skipLibCheck": true,
     "removeComments": true,
     "baseUrl": ".",
+    "outDir": "./dist/esm",
     "paths": {
       "@nodle/*": ["./packages/*"],
       "@nodle": ["./packages"]

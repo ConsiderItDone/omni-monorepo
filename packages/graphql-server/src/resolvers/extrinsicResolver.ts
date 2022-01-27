@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Resolver, FieldResolver, Root, Query, Arg, Args, ArgsType, Field, Int, ObjectType } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Block from "@nodle/db/src/models/public/block";
-import Extrinsic from "@nodle/db/src/models/public/extrinsic";
-import Event from "@nodle/db/src/models/public/event";
-import Account from "@nodle/db/src/models/public/account";
+import { Block, Extrinsic, Event, Account, Module, EventType, ExtrinsicType } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver, arrayFieldResolver } from "../fieldsResolver";
 import { getConnection, getRepository, In, ILike } from "typeorm";
-import EventType from "@nodle/db/src/models/public/eventType";
-import Module from "@nodle/db/src/models/public/module";
-import ExtrinsicType from "@nodle/db/src/models/public/extrinsicType";
 // import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { groupBy } from "lodash";
 import { Loader } from "type-graphql-dataloader";
@@ -268,8 +262,17 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @FieldResolver()
-  signer(@Root() source: Extrinsic): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId", "signerId");
+  @Loader<number, Account>(async (ids) => {
+    const accounts = await Account.createQueryBuilder("account")
+      .leftJoinAndSelect("account.extrinsics", "extrinsics")
+      .where(`extrinsics.extrinsicId IN(:...ids)`, { ids })
+      .getMany();
+
+    const itemsByEventId = groupByExtrinsicId<Account>(accounts);
+    return ids.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  signer(@Root() source: Extrinsic) {
+    return (dataloader: DataLoader<number, Account>) => dataloader.load(source.extrinsicId);
   }
 
   @FieldResolver()

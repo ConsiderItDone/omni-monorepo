@@ -1,7 +1,5 @@
 import { FieldResolver, Resolver, Root } from "type-graphql";
-import VestingSchedule from "@nodle/db/src/models/public/vestingSchedule";
-import Block from "@nodle/db/src/models/public/block";
-import Account from "@nodle/db/src/models/public/account";
+import { VestingSchedule, Block, Account } from "@nodle/db";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 

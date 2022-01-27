@@ -2,9 +2,9 @@ import { EntityManager } from "typeorm";
 import type { DigestItem, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Vec } from "@polkadot/types";
 
-import LogRepository from "@nodle/db/src/repositories/public/logRepository";
-import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import Log from "@nodle/db/src/models/public/log";
+import { LogRepository, Log } from "@nodle/db";
+import { logger as Logger } from "@nodle/utils";
+const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 
 export async function handleLogs(
   manager: EntityManager,

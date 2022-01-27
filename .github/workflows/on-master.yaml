@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - NOD-216-prod-mode
 
 jobs:
   test:
@@ -43,7 +44,7 @@ jobs:
         run: make docker-build-prod
       - run: docker tag nodle:prod gcr.io/${{ secrets.GCP_PROJECT_ID_TEST }}/app:${{steps.vars.outputs.sha}}
       - name: Login to GCP
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID_TEST }}
           service_account_key: ${{ secrets.GCP_CREDENTIALS_TEST }}

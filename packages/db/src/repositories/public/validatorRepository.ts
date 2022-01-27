@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from "typeorm";
-import { Validator } from "@nodle/db/src/models/";
+import { Validator } from "../../models";
 
 type NewValidatorParam = {
   accountId: number;
