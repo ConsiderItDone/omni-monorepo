@@ -9,6 +9,7 @@ export const Utils = {
 };
 
 export { default as MQ } from "./mq";
+export { default as tracer } from "./tracer";
 
 export * as types from "./types";
 

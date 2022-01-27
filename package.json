@@ -62,6 +62,7 @@
   "dependencies": {
     "@types/redis": "^2.8.31",
     "cluster": "^0.7.7",
+    "dd-trace": "^1.7.0",
     "prom-client": "^13.1.0",
     "redis": "^3.1.2",
     "ts-node": "^9.1.1",
