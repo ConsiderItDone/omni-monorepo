@@ -1,15 +1,15 @@
 {
-  "name": "@nodle/pagerduty",
+  "name": "@nodle/monitoring",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ConsiderItDone/nodle.git",
-    "directory": "packages/pagerduty"
+    "directory": "packages/monitoring"
   },
   "scripts": {
-    "start:pagerDuty": "npm exec -- ts-node -r tsconfig-paths/register src/index.ts",
+    "start:monitoring": "npm exec -- ts-node -r tsconfig-paths/register src/index.ts",
     "build": "npm exec tsc",
     "prepare": "npm run build"
   },
