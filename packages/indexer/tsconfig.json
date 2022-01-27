@@ -17,6 +17,6 @@
       "*": ["node_modules/*"]
     }
   },
-  "files": ["src/index.ts"],
+  "files": ["src/index.ts", "src/processor.ts"],
   "exclude": ["node_modules", "dist"]
 }
