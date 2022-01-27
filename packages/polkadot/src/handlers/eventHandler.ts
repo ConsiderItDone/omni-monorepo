@@ -12,7 +12,6 @@ import {
 import { findExtrinsicsWithEventsHash, transformEventData } from "@nodle/polkadot/src/misc";
 import { ExtrinsicWithBoundedEvents, CustomEventSection } from "@nodle/utils/src/types";
 import { logger, LOGGER_INFO_CONST, LOGGER_ERROR_CONST } from "@nodle/utils/src/logger";
-import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { Module, Extrinsic, EventType, Event as EventModel } from "@nodle/db/src/models";
 
 export async function handleEvents(
@@ -90,18 +89,18 @@ export async function handleEvents(
         });
         console.timeEnd("event save");
 
-        const dataKeys = Object.keys(transformedData);
-        if (dataKeys.includes("from")) {
-          cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
-        }
-        if (dataKeys.includes("to")) {
-          cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
-        }
-        if (dataKeys.includes("who")) {
-          cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
-        }
-
-        cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
+        // const dataKeys = Object.keys(transformedData);
+        // if (dataKeys.includes("from")) {
+        //   cacheService.delByPattern(`events*"from":"${(transformedData as any).from}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("to")) {
+        //   cacheService.delByPattern(`events*"to":"${(transformedData as any).to}"*`); // eslint-disable-line
+        // }
+        // if (dataKeys.includes("who")) {
+        //   cacheService.delByPattern(`events*"who":"${(transformedData as any).who}"*`); // eslint-disable-line
+        // }
+        //
+        // cacheService.delByPattern(`events-${module.moduleId}-${eventType.eventTypeId}-*`);
 
         newEvents.push(event);
       } catch (eventSaveError) {

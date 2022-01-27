@@ -16,6 +16,26 @@ import MQ from "@nodle/utils/src/mq";
 import { Utils } from "@nodle/utils/src";
 import { withFilter } from "apollo-server";
 
+@ArgsType()
+export class PaginationArgs {
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0)
+  skip: number;
+
+  @Field(() => Int, { defaultValue: 25 })
+  @Min(1)
+  @Max(100)
+  take = 25;
+
+  @Field(() => Int)
+  @Max(100)
+  first = 0;
+
+  @Field(() => Int)
+  @Max(100)
+  last = 0;
+}
+
 export function createBaseResolver<T extends ClassType>(
   suffix: string,
   objectTypeCls: T,
@@ -23,26 +43,6 @@ export function createBaseResolver<T extends ClassType>(
   orderDirection: "DESC" | "ASC" = "DESC"
   // eslint-disable-next-line
 ): any {
-  @ArgsType()
-  class PaginationArgs {
-    @Field(() => Int, { defaultValue: 0 })
-    @Min(0)
-    skip: number;
-
-    @Field(() => Int, { defaultValue: 25 })
-    @Min(1)
-    @Max(100)
-    take = 25;
-
-    @Field(() => Int)
-    @Max(100)
-    first = 0;
-
-    @Field(() => Int)
-    @Max(100)
-    last = 0;
-  }
-
   @ObjectType(`${suffix}Response`)
   class BaseResponse {
     @Field(() => [objectTypeCls])
