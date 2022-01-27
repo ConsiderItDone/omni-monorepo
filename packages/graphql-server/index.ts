@@ -119,7 +119,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
   });
 
   const app = express();
-  app.use("/graphql", express.json());
+  // app.use("/graphql", express.json());
 
   app.get("/connections", function (req: express.Request, res: express.Response) {
     server.getConnections((err, count) => {
