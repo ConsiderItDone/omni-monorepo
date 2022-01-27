@@ -7,6 +7,7 @@ try {
   //nop
 }
 async function run() {
+  //eslint-disable-next-line
   while (true) {
     console.log("Metrics collection cronjob started");
     await monitor();
