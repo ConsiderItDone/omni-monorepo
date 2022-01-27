@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { tracer } from "@nodle/utils";
 
 import * as dotenv from "dotenv";
