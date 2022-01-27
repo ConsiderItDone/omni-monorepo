@@ -262,8 +262,17 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
   }
 
   @FieldResolver()
-  signer(@Root() source: Extrinsic): Promise<Account> {
-    return singleFieldResolver(source, Account, "accountId", "signerId");
+  @Loader<number, Account>(async (ids) => {
+    const accounts = await Account.createQueryBuilder("account")
+      .leftJoinAndSelect("account.extrinsics", "extrinsics")
+      .where(`extrinsics.extrinsicId IN(:...ids)`, { ids })
+      .getMany();
+
+    const itemsByEventId = groupByExtrinsicId<Account>(accounts);
+    return ids.map((id) => itemsByEventId[id][0] ?? null);
+  })
+  signer(@Root() source: Extrinsic) {
+    return (dataloader: DataLoader<number, Account>) => dataloader.load(source.extrinsicId);
   }
 
   @FieldResolver()
