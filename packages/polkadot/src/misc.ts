@@ -321,7 +321,7 @@ export async function saveAccount(
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = account.address.toString();
-  const { nonce, refcount = null, data: balance } = account.data;
+  const { nonce, data: balance, sufficients } = account.data;
 
   const accountData = {
     address: address,
@@ -331,8 +331,14 @@ export async function saveAccount(
         : typeof nonce === "string"
         ? parseInt((nonce as string).replace(",", ""))
         : nonce?.toNumber(),
-    refcount: refcount?.toNumber() || null,
+    refcount:
+      typeof sufficients === "number"
+        ? sufficients
+        : typeof sufficients === "string"
+        ? parseInt((sufficients as string).replace(",", ""))
+        : sufficients?.toNumber(),
   };
+
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;
