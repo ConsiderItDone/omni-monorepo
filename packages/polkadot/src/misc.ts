@@ -72,10 +72,10 @@ export function getExtrinsicSuccess(
 
 export function extractArgs(data: GenericEventData): string[] {
   const {
-    meta: { documentation },
+    meta: { docs },
   } = data;
 
-  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
     return [];
