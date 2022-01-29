@@ -80,6 +80,8 @@ async function consume(
       }
 
       // we are in reorg and deleted old
+      //eslint-disable-next-line
+      //@ts-ignore
       newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
     }
 
@@ -103,6 +105,8 @@ async function consume(
     // 4.Events
     const [newEvents, trackedEvents] = await handleEvents(
       queryRunner.manager,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       extrinsicsWithBoundedEvents,
       blockId,
