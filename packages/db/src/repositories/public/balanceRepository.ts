@@ -29,6 +29,7 @@ export default class BalanceRepository extends Repository<Balance> {
       ...balanceData,
     });
   }
+  //@ts-ignore
   public async upsert(balanceId: number, balanceData: NewBalanceParam): Promise<Balance> {
     if (balanceId) {
       return await this.replace(balanceId, balanceData);

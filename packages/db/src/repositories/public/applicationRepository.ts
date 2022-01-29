@@ -38,7 +38,7 @@ export default class ApplicationRepository extends Repository<Application> {
       challengedBlock,
     });
   }
-
+  //@ts-ignore
   public async upsert(applicationData: Application): Promise<number> {
     const existingApplication = await this.findCandidate(applicationData.candidateId);
 

@@ -24,7 +24,7 @@ export default class ValidatorRepository extends Repository<Validator> {
   public async replace(validatorId: number, validatorData: NewValidatorParam): Promise<void> {
     await this.update(validatorId, validatorData);
   }
-
+  //@ts-ignore
   public async upsert(validatorData: NewValidatorParam): Promise<void | Validator> {
     const existingValidator = await this.findByAccountId(validatorData.accountId);
 

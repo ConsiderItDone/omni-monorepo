@@ -38,6 +38,7 @@ export default class AccountRepository extends Repository<Account> {
     });
   }
 
+  //@ts-ignore
   public async upsert(accountId: number, accountData: NewAccountParam): Promise<Account> {
     if (accountId) {
       return await this.replace(accountId, accountData);
