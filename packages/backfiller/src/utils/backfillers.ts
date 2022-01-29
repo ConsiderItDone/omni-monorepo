@@ -167,6 +167,8 @@ export async function backfillAccounts(connection: Connection, api: ApiPromise):
 
   for (const account of accounts) {
     const entityManager = await connection.createEntityManager();
+    //eslint-disable-next-line
+    //@ts-ignore
     await saveAccount(entityManager, { address: account[0].toString(), data: account[1] }, blockId);
   }
 }
