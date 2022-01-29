@@ -37,7 +37,7 @@ export default class AccountRepository extends Repository<Account> {
       ...accountData,
     });
   }
-
+  //eslint-disable-next-line
   //@ts-ignore
   public async upsert(accountId: number, accountData: NewAccountParam): Promise<Account> {
     if (accountId) {
