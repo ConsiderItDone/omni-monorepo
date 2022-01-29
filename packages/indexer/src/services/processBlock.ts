@@ -12,6 +12,7 @@ import { getApi, handleBlockReorg } from "@nodle/polkadot";
 import express from "express";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
+import type { Moment } from "@polkadot/types/interfaces/runtime";
 
 const indexerServer = express();
 
@@ -61,7 +62,7 @@ async function consume(
 
   try {
     // 1. Block
-    let newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
+    let newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp as Moment, specVersion.toNumber());
     // block already exists
     if (!newBlock) {
       // it is possible chain was reorg'ed

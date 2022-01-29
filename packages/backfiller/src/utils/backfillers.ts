@@ -216,10 +216,12 @@ export async function backfillAccountsFromDB(
 }
 
 export async function backfillValidators(connection: Connection, api: ApiPromise): Promise<void> {
-  const validators = await api.query.session.validators();
+  const validators = (await api.query.session.validators()) as any; //eslint-disable-line
 
   if (validators && validators.length > 0) {
-    const validatorDatas = await Promise.all(validators.map((authorityId) => api.query.system.account(authorityId)));
+    const validatorDatas = await Promise.all(
+      validators.map((authorityId: any) => api.query.system.account(authorityId)) //eslint-disable-line
+    );
     for (const [index, validator] of validators.entries()) {
       const entityManager = await connection.createEntityManager();
       const { savedAccount: validatorAccount } = await saveAccount(entityManager, {
