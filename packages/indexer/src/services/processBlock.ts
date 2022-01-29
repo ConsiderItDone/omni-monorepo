@@ -47,6 +47,8 @@ async function consume(
 ) {
   const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNum);
 
+  //eslint-disable-next-line
+  //@ts-ignore
   const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
     api.rpc.chain.getBlock(blockHash),
     api.query.timestamp.now.at(blockHash),
@@ -87,6 +89,8 @@ async function consume(
       queryRunner.manager,
       api,
       block.extrinsics,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       blockId,
       blockNumber,
