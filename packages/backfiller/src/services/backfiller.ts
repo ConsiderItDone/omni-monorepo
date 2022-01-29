@@ -15,7 +15,7 @@ import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
 import { AccountBlockData } from "@nodle/utils";
 import { handleAccountBalance, getApi } from "@nodle/polkadot";
-import { PaginationOptions } from "@polkadot/api/types/base";
+import { PaginationOptions } from "@polkadot/api/types";
 import { IAccount } from "@nodle/polkadot";
 const backfillServer = express();
 const metrics = new services.MetricsService(backfillServer, 3001, "backfiller_");
@@ -124,6 +124,8 @@ async function blockBackfillConsume(
 
   try {
     // 1. Block
+    //eslint-disable-next-line
+    //@ts-ignore
     const newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
     const { blockId } = newBlock;
     // 2. Extrinsics
@@ -131,6 +133,8 @@ async function blockBackfillConsume(
       queryRunner.manager,
       api,
       block.extrinsics,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       blockId,
       blockNumber,
@@ -143,6 +147,8 @@ async function blockBackfillConsume(
     // 4.Events
     const [, trackedEvents] = await handleEvents(
       queryRunner.manager,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       extrinsicsWithBoundedEvents,
       blockId,
@@ -225,6 +231,7 @@ async function accountBackfillPublish(api: ApiPromise, connection: Connection) {
     console.time("Process page");
     const opts: PaginationOptions = {
       pageSize: limit,
+      args: [],
     };
     if (lastKey !== null) {
       opts.startKey = String(lastKey);
