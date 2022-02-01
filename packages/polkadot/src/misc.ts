@@ -275,13 +275,13 @@ export function transformVestingSchedules(
   blockId: number
 ): VestingScheduleModel[] {
   return schedulesData.map((schedule) => {
-    const { start, period, period_count, per_period } = schedule;
+    const { start, period, periodCount, perPeriod } = schedule;
     return {
       accountId,
       start: start.toString(),
       period: period.toString(),
-      periodCount: period_count.toNumber(),
-      perPeriod: per_period.toString(),
+      periodCount: Number(periodCount.toString()),
+      perPeriod: perPeriod.toString(),
       blockId,
     } as VestingScheduleModel;
   });
