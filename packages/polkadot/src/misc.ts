@@ -101,7 +101,7 @@ export function transformEventData(data: GenericEventData): string | unknown {
     const res: any = {};
     args.map((arg, index) => {
       if (args[index] == "u128") {
-        res[arg] = (data[index] as u128).toBigInt().toString() || data[index].toString().split(",").join();
+        res[arg] = (data[index] as u128).toBigInt().toString() || data[index].toString().split(",").join("");
         return;
       }
       res[arg] = data[index].toString();
