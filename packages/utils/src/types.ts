@@ -1,7 +1,7 @@
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { Vec, Option, bool } from "@polkadot/types";
 import { Balance, BlockNumber, AccountId } from "@polkadot/types/interfaces/runtime";
-import { u32, u8 } from "@polkadot/types";
+import { u32, u8, u128 } from "@polkadot/types";
 import { ITuple } from "@polkadot/types/types";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
@@ -45,10 +45,10 @@ export enum ApplicationStatus {
 }
 
 export type VestingScheduleOf = {
-  start: BlockNumber;
-  period: BlockNumber;
-  period_count: u32;
-  per_period: Balance;
+  start: u32;
+  period: u32;
+  periodCount: u32;
+  perPeriod: u128;
 };
 
 export type RootCertificate = {

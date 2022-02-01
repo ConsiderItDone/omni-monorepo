@@ -285,7 +285,7 @@ export function transformVestingSchedules(
       accountId,
       start: start.toString(),
       period: period.toString(),
-      periodCount: periodCount.toNumber(),
+      periodCount: Number(periodCount.toString()),
       perPeriod: perPeriod.toString(),
       blockId,
     } as VestingScheduleModel;
