@@ -88,15 +88,12 @@ export function extractArgs(data: GenericEventData): string[] {
 }
 
 export function transformEventData(data: GenericEventData): string | unknown {
-  console.log("HUMANIZED", data.toHuman());
   if (data.method === "Transfer") {
     return {
       from: data[0].toHuman(),
       to: data[1].toHuman(),
       value: data[2].toString(),
     };
-  }
-  if (data.method === "NewAllocation") {
   }
   const args = extractArgs(data);
   if (args.length > 0) {
