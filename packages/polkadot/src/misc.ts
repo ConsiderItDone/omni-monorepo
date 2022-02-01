@@ -3,6 +3,7 @@ import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
+import { u128 } from "@polkadot/types";
 import { Connection, EntityManager } from "typeorm";
 import {
   ApplicationRepository,
@@ -78,7 +79,7 @@ export function extractArgs(data: GenericEventData): string[] {
   let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
-    return [];
+    return data.Types;
   }
 
   args = args[0]?.split(",")?.map((i) => i.replace(/\\/g, "").trim());
@@ -98,10 +99,14 @@ export function transformEventData(data: GenericEventData): string | unknown {
   if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
-    args.map(
-      (arg, index) =>
-        (res[arg] = data?.typeDef[index]?.type === "Balance" ? data[index]?.toString() : data[index].toHuman())
-    );
+    args.map((arg, index) => {
+      if (args[index] == "u128") {
+        res[arg] = (data[index] as u128).toBigInt().toString() || data[index].toString().split(",").join("");
+        return;
+      }
+      res[arg] = data[index].toString();
+    });
+    console.log("RES", res);
     return res;
   }
   return data.toHuman();
