@@ -72,10 +72,10 @@ export function getExtrinsicSuccess(
 
 export function extractArgs(data: GenericEventData): string[] {
   const {
-    meta: { documentation },
+    meta: { docs },
   } = data;
 
-  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
     return [];
@@ -299,7 +299,7 @@ export async function tryFetchAccount(
   blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
-    const data = await api.query.system.account.at(blockHash, accountAddress);
+    const data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
@@ -321,7 +321,7 @@ export async function saveAccount(
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = account.address.toString();
-  const { nonce, refcount = null, data: balance } = account.data;
+  const { nonce, data: balance, sufficients } = account.data;
 
   const accountData = {
     address: address,
@@ -331,8 +331,14 @@ export async function saveAccount(
         : typeof nonce === "string"
         ? parseInt((nonce as string).replace(",", ""))
         : nonce?.toNumber(),
-    refcount: refcount?.toNumber() || null,
+    refcount:
+      typeof sufficients === "number"
+        ? sufficients
+        : typeof sufficients === "string"
+        ? parseInt((sufficients as string).replace(",", ""))
+        : sufficients?.toNumber(),
   };
+
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;

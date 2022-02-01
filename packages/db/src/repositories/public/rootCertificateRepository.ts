@@ -40,7 +40,8 @@ export default class RootCertificateRepository extends Repository<RootCertificat
   public replace(rootCertificateId: number, certificateData: NewRootCertificateParam): Promise<UpdateResult> {
     return this.update(rootCertificateId, certificateData);
   }
-
+  //eslint-disable-next-line
+  //@ts-ignore
   public async upsert(
     keyId: number,
     certificateData: NewRootCertificateParam
