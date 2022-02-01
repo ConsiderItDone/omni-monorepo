@@ -72,6 +72,7 @@ async function start() {
       order: { eventId: "ASC" },
       take: 1000,
     });
+    console.log("Allocations taken: ", allocationEvents.length);
 
     if (!allocationEvents.length) {
       break;
@@ -90,7 +91,8 @@ async function start() {
           value: value.split(",").join(""),
         },
       };
-      await eventRepository.save(newAllocation);
+      const saved = await eventRepository.save(newAllocation);
+      console.log("Rewriten", saved.eventId);
     }
     lastAllocationId = allocationEvents[allocationEvents.length - 1].eventId;
     console.log("Page updated");
