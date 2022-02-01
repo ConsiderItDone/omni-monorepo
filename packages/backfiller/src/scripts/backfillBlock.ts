@@ -5,25 +5,11 @@ try {
 } catch (e) {
   //nop
 }
-import { Between, Connection, ConnectionOptions } from "typeorm";
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics } from "@nodle/polkadot";
-import { backfillTrackedEvents, backfillValidators } from "../utils";
-import { BlockRepository, BackfillProgressRepository } from "@nodle/db";
-import type { AccountInfo } from "@polkadot/types/interfaces/system";
-import type { AccountId } from "@polkadot/types/interfaces/runtime";
-const { CronJob } = require("cron"); // eslint-disable-line
-import { services, blockFinalizer, logger as Logger } from "@nodle/utils";
-type MetricsService = services.MetricsService;
-const { logger } = Logger;
-import express from "express";
-import { ApiPromise } from "@polkadot/api";
-import { MQ } from "@nodle/utils";
-import { ConsumeMessage } from "amqplib/properties";
-import { Channel } from "amqplib";
-import { AccountBlockData } from "@nodle/utils";
-import { handleAccountBalance, getApi } from "@nodle/polkadot";
-import { PaginationOptions } from "@polkadot/api/types";
-import { IAccount } from "@nodle/polkadot";
+import * as readline from "readline";
+import { ConnectionOptions } from "typeorm";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, getApi } from "@nodle/polkadot";
+import { backfillTrackedEvents } from "../utils";
+
 import {
   connect,
   Account,
@@ -132,4 +118,12 @@ const blockBackfill = async (blockNum: number) => {
   }
 };
 
-//blockBackfill();
+const r = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+r.question(`Input account address to update: `, async (blockNumber: string) => {
+  r.close();
+  await blockBackfill(Number(blockNumber));
+});
