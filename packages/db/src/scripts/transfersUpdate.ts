@@ -58,7 +58,7 @@ async function start() {
   const connection = await connect(connectionOptions);
   const eventRepository = connection.getCustomRepository(EventRepository);
 
-  //38007418 - first transfer event id on upgraded polkadot-api 
+  //38007418 - first transfer event id on upgraded polkadot-api
   const transferEvents = await eventRepository.find({
     where: { eventTypeId: 35, moduleId: 5, eventId: MoreThanOrEqual(38007418) },
   });
@@ -71,7 +71,7 @@ async function start() {
     const saved = await eventRepository.save(transferNew);
     console.log("saved", saved);
   }
-  console.log('Update complete')
+  console.log("Update complete");
 }
 
 start();
