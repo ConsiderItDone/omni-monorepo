@@ -5,7 +5,7 @@ try {
 } catch (e) {
   //nop
 }
-import { ConnectionOptions, MoreThan, MoreThanOrEqual } from "typeorm";
+import { ConnectionOptions, MoreThan } from "typeorm";
 import {
   connect,
   Account,
@@ -63,34 +63,37 @@ async function start() {
   const connection = await connect(connectionOptions);
   const eventRepository = connection.getCustomRepository(EventRepository);
 
+  //38008431 - first event id on upgraded polkadot-api
   let lastAllocationId = 38008430;
   //eslint-disable-next-line
   while (true) {
-    //38007418 - first transfer event id on upgraded polkadot-api
     const allocationEvents = await eventRepository.find({
       where: { eventTypeId: 26, eventId: MoreThan(lastAllocationId) },
       order: { eventId: "ASC" },
-      take: 10,
+      take: 1000,
     });
+
     if (!allocationEvents.length) {
       break;
     }
-    for (const allocation of [allocationEvents.pop()] as Allocation[]) {
-      console.log("allocation", allocation);
+
+    for (const allocation of allocationEvents as Allocation[]) {
+      const {
+        data: { fee, value },
+      } = allocation;
+
       const newAllocation = {
         ...allocation,
         data: {
           ...allocation.data,
-          fee: allocation.data.fee.split(",").join(""),
-          value: allocation.data.value.split(",").join(""),
+          fee: fee.split(",").join(""),
+          value: value.split(",").join(""),
         },
       };
-
-      console.log("newAllocation", newAllocation);
+      await eventRepository.save(newAllocation);
     }
     lastAllocationId = allocationEvents[allocationEvents.length - 1].eventId;
     console.log("Page updated");
-    break;
   }
   return;
 }
