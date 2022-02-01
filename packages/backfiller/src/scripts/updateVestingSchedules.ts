@@ -78,7 +78,6 @@ async function updateVestingSchedules(address: string) {
       await vestingScheduleRepository.removeSchedulesByAccount(1);
 
       for (const grant of grants) {
-        //@ts-ignore
         const { start, period, periodCount, perPeriod } = grant;
 
         const saved = await vestingScheduleRepository.add({
