@@ -47,7 +47,7 @@ export async function handleVestingSchedule(
     } = await saveAccount(manager, accountInfo, blockId);
 
     try {
-      grants = ((await api.query.grants.vestingSchedules(targetAccount)) as undefined) as VestingScheduleOf[];
+      grants = ((await api.query.vesting.vestingSchedules(targetAccount)) as undefined) as VestingScheduleOf[];
     } catch (grantsFetchError) {
       logger.error(
         LOGGER_ERROR_CONST.VESTING_SCHEDULE_FETCH_ERROR(targetAccount.toString(), blockNumber.toNumber()),
@@ -59,14 +59,14 @@ export async function handleVestingSchedule(
       await vestingScheduleRepository.removeSchedulesByAccount(accountId);
 
       for (const grant of grants) {
-        const { start, period, period_count, per_period } = grant;
+        const { start, period, periodCount, perPeriod } = grant;
         try {
           await vestingScheduleRepository.add({
             accountId,
             start: start.toString(),
             period: period.toString(),
-            periodCount: period_count.toNumber(),
-            perPeriod: per_period.toString(),
+            periodCount: Number(periodCount.toString()),
+            perPeriod: perPeriod.toString(),
             blockId,
           });
         } catch (grantSaveError) {
