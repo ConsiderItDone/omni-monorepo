@@ -18,7 +18,8 @@
     "start:backfiller:accounts": "npm exec -- ts-node src/run.ts accounts",
     "start:backfiller:accounts-daemon": "npm exec -- ts-node src/run.ts accounts-daemon",
     "start:updateAccount": "npm exec -- ts-node src/scripts/updateAccount.ts",
-    "start:updateVestingSchedules": "npm exec -- ts-node src/scripts/updateVestingSchedules.ts"
+    "start:updateVestingSchedules": "npm exec -- ts-node src/scripts/updateVestingSchedules.ts",
+    "start:backfillBlock": "npm exec -- ts-node src/scripts/backfillBlock.ts"
   },
   "dependencies": {
     "@nodle/db": "^1.1.0",

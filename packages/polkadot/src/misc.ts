@@ -86,16 +86,21 @@ export function extractArgs(data: GenericEventData): string[] {
   return args;
 }
 
-export function transformEventData(
-  data: GenericEventData | any //eslint-disable-line
-): string | unknown {
+export function transformEventData(data: GenericEventData): string | unknown {
+  if (data.method === "Transfer") {
+    return {
+      from: data[0].toHuman(),
+      to: data[1].toHuman(),
+      value: data[2].toString(),
+    };
+  }
   const args = extractArgs(data);
   if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
     args.map(
       (arg, index) =>
-        (res[arg] = data?.typeDef[index]?.type === "Balance" ? data[index]?.toString(10) : data[index].toHuman())
+        (res[arg] = data?.typeDef[index]?.type === "Balance" ? data[index]?.toString() : data[index].toHuman())
     );
     return res;
   }
