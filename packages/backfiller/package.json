@@ -11,7 +11,6 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build",
     "start:backfiller": "npm exec -- ts-node src/run.ts",
     "start:backfiller:blocks": "npm exec -- ts-node src/run.ts blocks",
     "start:backfiller:blocks-daemon": "npm exec -- ts-node src/run.ts blocks-daemon",

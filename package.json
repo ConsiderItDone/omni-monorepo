@@ -26,6 +26,7 @@
     "start:backfiller:accounts-daemon": "npm_config_yes=true npm run start:backfiller:accounts-daemon --prefix packages/backfiller",
     "start:updateAccount": "npm_config_yes=true npm run start:updateAccount --prefix packages/backfiller",
     "start:jest": "npm_config_yes=true npm run start:jest --prefix packages/test",
+    "start:monitoring": "npm_config_yes=true npm run start:monitoring --prefix packages/monitoring",
     "start:patcher": "npm_config_yes=true npm run start:backfiller --prefix packages/backfiller patcher-only",
     "start:server:prod": "node packages/graphql-server/dist/esm/index.js",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
@@ -39,7 +40,8 @@
       "./packages/graphql-server",
       "./packages/backfiller",
       "./packages/polkadot",
-      "./packages/test"
+      "./packages/test",
+      "./packages/monitoring"
     ]
   },
   "repository": {
@@ -62,6 +64,7 @@
   },
   "dependencies": {
     "@types/redis": "^2.8.31",
+    "apollo-link-timeout": "^4.0.0",
     "cluster": "^0.7.7",
     "dd-trace": "^1.7.0",
     "prom-client": "^13.1.0",

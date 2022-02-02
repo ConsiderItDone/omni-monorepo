@@ -1,7 +1,7 @@
 import { Between, EntityManager } from "typeorm";
 import { ApiPromise } from "@polkadot/api";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
-import type { Event, AccountInfoWithProviders } from "@polkadot/types/interfaces/system";
+import type { Event, AccountInfoWithProviders, AccountInfo } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 
 import {
@@ -228,7 +228,7 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
       const entityManager = await connection.createEntityManager();
       const { savedAccount: validatorAccount } = await saveAccount(entityManager, {
         address: validator,
-        data: validatorDatas[index],
+        data: validatorDatas[index] as AccountInfo,
       });
       await saveValidator(
         entityManager,
