@@ -10,8 +10,7 @@
     "directory": "packages/polkadot"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json"
   },
   "dependencies": {
     "@nodle/db": "^1.1.0",

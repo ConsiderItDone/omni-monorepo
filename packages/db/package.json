@@ -11,7 +11,6 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert",
     "account-duplicate-fix:run": "npm exec ts-node ./src/scripts/account-duplicate-fix ",
