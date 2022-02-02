@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
+    "prepare": "npm run build",
     "start:indexer": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
     "start:daemon": "npm exec -- ts-node -r tsconfig-paths/register src/processor.ts",
     "start:accountDaemon": "npm exec -- ts-node -r tsconfig-paths/register src/accountProcessor.ts"
