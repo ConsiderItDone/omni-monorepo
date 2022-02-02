@@ -17,7 +17,7 @@
     "start:accountDaemon": "npm exec -- ts-node -r tsconfig-paths/register src/accountProcessor.ts"
   },
   "dependencies": {
-    "@polkadot/api": "^3.11.1",
+    "@polkadot/api": "^7.4.1",
     "@nodle/db": "^1.1.0",
     "@nodle/utils": "^1.1.0",
     "@nodle/polkadot": "^1.0.0",

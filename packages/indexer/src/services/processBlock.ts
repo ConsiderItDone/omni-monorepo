@@ -12,6 +12,7 @@ import { getApi, handleBlockReorg } from "@nodle/polkadot";
 import express from "express";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
+import type { Moment } from "@polkadot/types/interfaces/runtime";
 
 const indexerServer = express();
 
@@ -46,6 +47,8 @@ async function consume(
 ) {
   const blockHash: BlockHash = await api.rpc.chain.getBlockHash(blockNum);
 
+  //eslint-disable-next-line
+  //@ts-ignore
   const [{ block }, timestamp, events, { specVersion }] = await Promise.all([
     api.rpc.chain.getBlock(blockHash),
     api.query.timestamp.now.at(blockHash),
@@ -61,7 +64,7 @@ async function consume(
 
   try {
     // 1. Block
-    let newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
+    let newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp as Moment, specVersion.toNumber());
     // block already exists
     if (!newBlock) {
       // it is possible chain was reorg'ed
@@ -77,6 +80,8 @@ async function consume(
       }
 
       // we are in reorg and deleted old
+      //eslint-disable-next-line
+      //@ts-ignore
       newBlock = await handleNewBlock(queryRunner.manager, block.header, timestamp, specVersion.toNumber());
     }
 
@@ -86,6 +91,8 @@ async function consume(
       queryRunner.manager,
       api,
       block.extrinsics,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       blockId,
       blockNumber,
@@ -98,6 +105,8 @@ async function consume(
     // 4.Events
     const [newEvents, trackedEvents] = await handleEvents(
       queryRunner.manager,
+      //eslint-disable-next-line
+      //@ts-ignore
       events,
       extrinsicsWithBoundedEvents,
       blockId,

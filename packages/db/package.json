@@ -14,7 +14,9 @@
     "prepare": "npm run build",
     "migrate:up": "npm exec ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "npm exec ts-node ./node_modules/typeorm/cli.js migration:revert",
-    "account-duplicate-fix:run": "npm exec ts-node ./src/scripts/account-duplicate-fix "
+    "account-duplicate-fix:run": "npm exec ts-node ./src/scripts/account-duplicate-fix ",
+    "transfersUpdate:run": "npm exec ts-node ./src/scripts/transfersUpdate",
+    "allocationsUpdate:run": "npm exec ts-node ./src/scripts/allocationsUpdate"
   },
   "dependencies": {
     "ts-node": "^9.1.1",

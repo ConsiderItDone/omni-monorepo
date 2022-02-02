@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@nodle/db": "^1.1.0",
-    "@polkadot/api": "^3.11.1",
+    "@polkadot/api": "^7.4.1",
     "amqplib": "^0.7.1",
     "graphql-amqp-subscriptions": "^1.1.2",
     "ts-node": "^9.1.1",

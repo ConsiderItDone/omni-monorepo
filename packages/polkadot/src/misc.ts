@@ -3,6 +3,7 @@ import type { GenericEventData, GenericExtrinsic, Vec } from "@polkadot/types";
 import { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { GenericAccountId } from "@polkadot/types";
+import { u128 } from "@polkadot/types";
 import { Connection, EntityManager } from "typeorm";
 import {
   ApplicationRepository,
@@ -72,13 +73,13 @@ export function getExtrinsicSuccess(
 
 export function extractArgs(data: GenericEventData): string[] {
   const {
-    meta: { documentation },
+    meta: { docs },
   } = data;
 
-  let args = documentation[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
-    return [];
+    return data.Types;
   }
 
   args = args[0]?.split(",")?.map((i) => i.replace(/\\/g, "").trim());
@@ -86,17 +87,26 @@ export function extractArgs(data: GenericEventData): string[] {
   return args;
 }
 
-export function transformEventData(
-  data: GenericEventData | any //eslint-disable-line
-): string | unknown {
+export function transformEventData(data: GenericEventData): string | unknown {
+  if (data.method === "Transfer") {
+    return {
+      from: data[0].toHuman(),
+      to: data[1].toHuman(),
+      value: data[2].toString(),
+    };
+  }
   const args = extractArgs(data);
   if (args.length > 0) {
     //eslint-disable-next-line
     const res: any = {};
-    args.map(
-      (arg, index) =>
-        (res[arg] = data?.typeDef[index]?.type === "Balance" ? data[index]?.toString(10) : data[index].toHuman())
-    );
+    args.map((arg, index) => {
+      if (args[index] == "u128") {
+        res[arg] = (data[index] as u128).toBigInt().toString() || data[index].toString().split(",").join("");
+        return;
+      }
+      res[arg] = data[index].toString();
+    });
+    console.log("RES", res);
     return res;
   }
   return data.toHuman();
@@ -275,13 +285,13 @@ export function transformVestingSchedules(
   blockId: number
 ): VestingScheduleModel[] {
   return schedulesData.map((schedule) => {
-    const { start, period, period_count, per_period } = schedule;
+    const { start, period, periodCount, perPeriod } = schedule;
     return {
       accountId,
       start: start.toString(),
       period: period.toString(),
-      periodCount: period_count.toNumber(),
-      perPeriod: per_period.toString(),
+      periodCount: Number(periodCount.toString()),
+      perPeriod: perPeriod.toString(),
       blockId,
     } as VestingScheduleModel;
   });
@@ -299,7 +309,7 @@ export async function tryFetchAccount(
   blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
   try {
-    const data = await api.query.system.account.at(blockHash, accountAddress);
+    const data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
@@ -321,13 +331,24 @@ export async function saveAccount(
   const balanceRepository = manager.getCustomRepository(BalanceRepository);
 
   const address = account.address.toString();
-  const { nonce, refcount = null, data: balance } = account.data;
+  const { nonce, data: balance, sufficients } = account.data;
 
   const accountData = {
     address: address,
-    nonce: typeof nonce === "number" ? nonce : typeof nonce === "string" ? Number(nonce) : nonce?.toNumber(),
-    refcount: refcount?.toNumber() || null,
+    nonce:
+      typeof nonce === "number"
+        ? nonce
+        : typeof nonce === "string"
+        ? parseInt((nonce as string).replace(",", ""))
+        : nonce?.toNumber(),
+    refcount:
+      typeof sufficients === "number"
+        ? sufficients
+        : typeof sufficients === "string"
+        ? parseInt((sufficients as string).replace(",", ""))
+        : sufficients?.toNumber(),
   };
+
   const savedAccount = await accountRepository.upsert(options?.accountId, accountData);
 
   const { free, reserved, miscFrozen, feeFrozen } = balance;
