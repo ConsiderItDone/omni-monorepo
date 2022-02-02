@@ -14,6 +14,7 @@
     "build:db": "npm run build --prefix packages/db",
     "build:server": "npm run build --prefix packages/graphql-server",
     "build": "npm run build:db && npm run build:utils && npm run build:polkadot && npm run build:indexer && npm run build:server && npm run build:backfiller",
+    "prepare": "npm run build",
     "start:indexer": "npm_config_yes=true npm run start:indexer --prefix packages/indexer",
     "start:indexer:daemon": "npm_config_yes=true npm run start:daemon --prefix packages/indexer",
     "start:indexer:daemon:prod": "node packages/indexer/dist/esm/processor.js",
