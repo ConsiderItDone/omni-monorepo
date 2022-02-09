@@ -48,6 +48,7 @@ import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
 import VoteResolver from "./src/resolvers/voteResolver";
+import { v4 as uuidv4 } from "uuid";
 
 const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
 (async (): Promise<void> => {
@@ -103,6 +104,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     schema,
     introspection: true,
     playground: true,
+    context: { _tgdContext: { requestId: uuidv4() } }, // Required for type-graphql-dataloader
     plugins: [
       {
         requestDidStart(ctx): void {

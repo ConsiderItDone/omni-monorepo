@@ -249,7 +249,6 @@ export default class EventResolver extends EventBaseResolver {
       .leftJoinAndSelect("block.events", "events")
       .where(`events.eventId IN(:...eventIds)`, { eventIds })
       .getMany();
-
     const itemsByEventId = groupByEventId<Block>(blocks);
     return eventIds.map((id) => itemsByEventId[id][0] ?? null);
   })
