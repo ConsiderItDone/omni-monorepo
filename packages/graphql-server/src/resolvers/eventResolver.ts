@@ -284,7 +284,10 @@ export default class EventResolver extends EventBaseResolver {
   @Subscription(() => Event, {
     subscribe: withFilter(
       () => MQ.getMQ().on(`newEvent`),
-      (payload, variables) => payload.eventTypeId === variables.eventTypeId
+      async (payload, variables) => {
+        const { eventTypeId } = await EventType.findOne({ where: { name: variables.eventName } });
+        return payload.eventTypeId === eventTypeId;
+      }
     ),
   })
   newEventByName(
