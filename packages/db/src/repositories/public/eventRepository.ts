@@ -90,7 +90,7 @@ export default class EventRepository extends Repository<Event> {
     return 0;
   }
 
-  public getOrderBy(orderBy: [string, "ASC" | "DESC"]) {
+  public getOrderBy(orderBy: [string, "ASC" | "DESC"]): string {
     const [value, direction] = orderBy;
     switch (value) {
       case "date":
