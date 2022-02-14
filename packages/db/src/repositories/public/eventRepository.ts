@@ -150,7 +150,11 @@ export default class EventRepository extends Repository<Event> {
     }
     if (filters) {
       Object.keys(filters).forEach((filter) => {
-        wheres.push(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
+        if (filter === "fromTo") {
+          wheres.push(`(event.data @> '{"to":"${filters[filter]}"}' OR event.data @> '{"from":"${filters[filter]}"}')`);
+        } else {
+          wheres.push(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
+        }
       });
     }
 
