@@ -104,7 +104,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     schema,
     introspection: true,
     playground: true,
-    context: { _tgdContext: { requestId: uuidv4() } }, // Required for type-graphql-dataloader
+    context: () => ({ _tgdContext: { requestId: uuidv4() } }), // Required for type-graphql-dataloader
     plugins: [
       {
         requestDidStart(ctx): void {
