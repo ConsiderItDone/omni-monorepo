@@ -249,7 +249,6 @@ export default class EventResolver extends EventBaseResolver {
       .leftJoinAndSelect("block.events", "events")
       .where(`events.eventId IN(:...eventIds)`, { eventIds })
       .getMany();
-
     const itemsByEventId = groupByEventId<Block>(blocks);
     return eventIds.map((id) => itemsByEventId[id][0] ?? null);
   })
@@ -284,7 +283,10 @@ export default class EventResolver extends EventBaseResolver {
   @Subscription(() => Event, {
     subscribe: withFilter(
       () => MQ.getMQ().on(`newEvent`),
-      (payload, variables) => payload.eventTypeId === variables.eventTypeId
+      async (payload, variables) => {
+        const { eventTypeId } = await EventType.findOne({ where: { name: variables.eventName } });
+        return payload.eventTypeId === eventTypeId;
+      }
     ),
   })
   newEventByName(
