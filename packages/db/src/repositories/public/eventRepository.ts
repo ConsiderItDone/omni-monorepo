@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, DeleteResult, SelectQueryBuilder } from "typeorm";
+import { EntityRepository, Repository, DeleteResult } from "typeorm";
 import Event from "../../models/public/event";
 
 @EntityRepository(Event)
@@ -62,7 +62,14 @@ export default class EventRepository extends Repository<Event> {
     dateEnd: Date,
     extrinsicHash: string
   ): Promise<number> {
-    const [whereStr, parameters] = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
+    const [whereStr, parameters] = this.getConditionStr(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash
+    );
 
     if (!filters || !Object.keys(filters).length) {
       // TODO: remove hot-fix, use quick count
@@ -97,8 +104,8 @@ export default class EventRepository extends Repository<Event> {
     dateStart: Date,
     dateEnd: Date,
     extrinsicHash: string,
-    skip: number = 0,
-    take: number = 10
+    skip = 0,
+    take = 10
   ): Promise<Event[]> {
     const [whereStr, parameters] = this.getConditionStr(
       moduleId,
@@ -138,7 +145,7 @@ export default class EventRepository extends Repository<Event> {
     const wheres: string[] = [];
 
     let order = 0;
-    let arr: (number | string)[] = [];
+    const arr: (number | string)[] = [];
 
     if (moduleId) {
       wheres.push(`event.module_id = $${++order}`);
