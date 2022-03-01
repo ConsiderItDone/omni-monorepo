@@ -62,8 +62,7 @@ export default class EventRepository extends Repository<Event> {
     dateEnd: Date,
     extrinsicHash: string
   ): Promise<number> {
-    return 0;
-    const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
+    const [whereStr, parameters] = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
 
     if (!filters || !Object.keys(filters).length) {
       // TODO: remove hot-fix, use quick count
@@ -83,7 +82,7 @@ export default class EventRepository extends Repository<Event> {
           `;
     }
 
-    const result = await this.query(sql);
+    const result = await this.query(sql, parameters);
     if (result.length) {
       return result[0].count;
     }
@@ -98,100 +97,36 @@ export default class EventRepository extends Repository<Event> {
     dateStart: Date,
     dateEnd: Date,
     extrinsicHash: string,
-    skip: number,
-    take: number
+    skip: number = 0,
+    take: number = 10
   ): Promise<Event[]> {
-    const res = this.createQueryBuilder("event").innerJoin("event.block", "block");
+    const [whereStr, parameters] = this.getConditionStr(
+      moduleId,
+      eventTypeId,
+      filters,
+      dateStart,
+      dateEnd,
+      extrinsicHash
+    );
 
-    const withWhere = this.withWhere(res, { moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash });
-
-    // ADD ORDERBY
-    withWhere.take(take).skip(skip);
-
-    return await withWhere.getMany();
-
-    /*
-    const whereStr = this.getConditionStr(moduleId, eventTypeId, filters, dateStart, dateEnd, extrinsicHash);
     const orderStr =
       !filters || !Object.keys(filters).length
         ? "ORDER BY b.number DESC"
         : "ORDER BY b.number::character varying::bigint DESC";
 
-    console.log("query", withWhere.getQueryAndParameters());
-    console.log("sql", withWhere.getSql());
-
-    const sql = `
-    SELECT "event"."event_id" AS "eventId",
-    "event"."index" AS "index",
-    "event"."data" AS "data", 
-    "event"."extrinsic_hash" AS "extrinsicHash", 
-             "event"."extrinsic_hash" AS "extrinsicHash",
-    "event"."extrinsic_hash" AS "extrinsicHash", 
-    "event"."module_id" AS "moduleId",
-    "event"."event_type_id"  AS "eventTypeId",
-    "event"."block_id" AS "blockId",
-    "event"."extrinsic_id" AS "extrinsicId"
-    FROM "public"."event" "event" 
-        FROM "public"."event" "event"
-    FROM "public"."event" "event" 
-    INNER JOIN block b on b.block_id = event.block_id ${whereStr} ${
+    const sql = `SELECT "event"."event_id" AS "eventId", "event"."index" AS "index", "event"."data" AS "data", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."module_id" AS "moduleId", "event"."event_type_id"  AS "eventTypeId", "event"."block_id" AS "blockId", "event"."extrinsic_id" AS "extrinsicId" FROM "public"."event" "event"  INNER JOIN block b on b.block_id = event.block_id ${whereStr} ${
       orderStr + " " ? orderStr : ""
     } LIMIT ${take} OFFSET ${skip}`;
 
-    console.log("rawSql", sql);
-
-    const events = await this.query(sql);
+    const events = await this.query(sql, parameters);
 
     return this.create(events);
-    */
   }
 
   public deleteByBlockId(blockId: number): Promise<DeleteResult> {
     return this.delete({ blockId });
   }
 
-  private withWhere(
-    queryBuilder: SelectQueryBuilder<Event>,
-    options: {
-      moduleId: number;
-      eventTypeId: number;
-      filters: any; // eslint-disable-line
-      dateStart: Date;
-      dateEnd: Date;
-      extrinsicHash: string;
-    }
-  ) {
-    const { moduleId, eventTypeId, filters, dateEnd, dateStart, extrinsicHash } = options;
-    const wheres = new Array<[string, any]>();
-    if (moduleId) wheres.push(["event.module_id = :moduleId", { moduleId: moduleId }]);
-
-    if (eventTypeId) wheres.push(["event.event_type_id = :eventTypeId", { eventTypeId: eventTypeId }]);
-
-    if (extrinsicHash) wheres.push([`event.extrinsic_hash = :extrinsicHash`, { extrinsicHash: extrinsicHash }]);
-
-    if (filters) {
-      Object.keys(filters).forEach((key) => {
-        wheres.push([`event.data ::jsonb @> :data`, { data: { [key]: filters[key] } }]);
-      });
-    }
-
-    if (dateStart || dateEnd) {
-      if (dateStart)
-        wheres.push(["block.timestamp >= :dateStart ::timestamp", { dateStart: `${dateStart.toUTCString()}` }]); // `b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
-
-      if (dateEnd) wheres.push(["block.timestamp <= :dateEnd ::timestamp", { dateEnd: `${dateEnd.toUTCString()}` }]); // `b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
-    }
-
-    for (const [index, condition] of wheres.entries()) {
-      if (index === 0) {
-        queryBuilder.where(condition[0], condition[1]);
-        continue;
-      }
-      queryBuilder.andWhere(condition[0], condition[1]);
-    }
-
-    return queryBuilder;
-  }
   private getConditionStr(
     moduleId: number,
     eventTypeId: number,
@@ -199,38 +134,50 @@ export default class EventRepository extends Repository<Event> {
     dateStart: Date,
     dateEnd: Date,
     extrinsicHash: string
-  ): string {
+  ): [string, (string | number)[]] {
     const wheres: string[] = [];
 
+    let order = 0;
+    let arr: (number | string)[] = [];
+
     if (moduleId) {
-      wheres.push(`event.module_id = ${moduleId}`);
+      wheres.push(`event.module_id = $${++order}`);
+      arr.push(moduleId);
     }
     if (eventTypeId) {
-      wheres.push(`event.event_type_id = ${eventTypeId}`);
+      wheres.push(`event.event_type_id = $${++order}`);
+      arr.push(eventTypeId);
     }
     if (filters) {
       Object.keys(filters).forEach((filter) => {
-        wheres.push(`event.data @> '{"${filter}":"${filters[filter]}"}'`);
+        wheres.push(`event.data @> $${++order}`);
+        arr.push(`{"${filter}":"${filters[filter]}"}`);
       });
     }
 
     if (dateStart || dateEnd) {
       if (dateStart) {
-        wheres.push(`b.timestamp >= '${dateStart.toUTCString()}'::timestamp`);
+        wheres.push(`b.timestamp >= $${++order}::timestamp`);
+        arr.push(`${dateStart.toUTCString()}`);
       }
       if (dateEnd) {
-        wheres.push(`b.timestamp <= '${dateEnd.toUTCString()}'::timestamp`);
+        wheres.push(`b.timestamp <= $${++order}::timestamp`);
+        arr.push(`${dateEnd.toUTCString()}`);
       }
     }
 
     if (extrinsicHash) {
-      wheres.push(`event.extrinsic_hash = ${extrinsicHash}`);
+      wheres.push(`event.extrinsic_hash = $${++order}`);
+      arr.push(extrinsicHash);
     }
 
-    return wheres
-      .map((where: string, index: number) => {
-        return (index > 0 ? "AND " : "WHERE ") + where;
-      })
-      .join(" ");
+    return [
+      wheres
+        .map((where: string, index: number) => {
+          return (index > 0 ? "AND " : "WHERE ") + where;
+        })
+        .join(" "),
+      arr,
+    ];
   }
 }
