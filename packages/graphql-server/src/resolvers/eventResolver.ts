@@ -264,7 +264,7 @@ export default class EventResolver extends EventBaseResolver {
       .getMany();
 
     const itemsByEventId = groupByEventId<Extrinsic>(items);
-    return eventIds.map((id) => itemsByEventId[id][0] ?? null);
+    return eventIds.map((id) => (itemsByEventId[id]?.length ? itemsByEventId[id][0] : null));
   })
   extrinsic(@Root() source: Event) {
     return (dataloader: DataLoader<number, Extrinsic>) => dataloader.load(source.eventId);
