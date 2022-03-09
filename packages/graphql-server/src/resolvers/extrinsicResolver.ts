@@ -225,6 +225,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       from public."extrinsic" e 
       left join public.block b on b.block_id = e.block_id 
       group by 1
+      order by date DESC
       LIMIT 100
     `);
 
