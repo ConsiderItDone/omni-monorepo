@@ -70,6 +70,9 @@ class EventByNameArgs {
 
   @Field(() => Date, { nullable: true })
   dateEnd?: Date;
+
+  @Field(() => [String, String], { defaultValue: ["date", "DESC"], nullable: true })
+  orderBy?: [string, "ASC" | "DESC"];
 }
 
 @ArgsType()
@@ -103,7 +106,7 @@ class TransferChartData {
 export default class EventResolver extends EventBaseResolver {
   @Query(() => EventsResponse)
   protected async events(
-    @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd }: EventByNameArgs
+    @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd, orderBy }: EventByNameArgs
   ): Promise<EventsResponse> {
     let cacheKey = "";
 
@@ -178,7 +181,8 @@ export default class EventResolver extends EventBaseResolver {
       dateEnd,
       extrinsicHash,
       skip,
-      take
+      take,
+      orderBy
     );
     console.timeEnd("events");
     console.time("event count");
