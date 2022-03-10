@@ -97,6 +97,18 @@ export default class EventRepository extends Repository<Event> {
     return 0;
   }
 
+  public getOrderBy(orderBy: [string, "ASC" | "DESC"]): string {
+    const [value, direction] = orderBy;
+    switch (value) {
+      case "date":
+        return `ORDER BY b.timestamp ${direction}`;
+      case "value":
+        return `ORDER BY (event.data->>'value')::bigint ${direction}`;
+      case "address":
+        return `ORDER BY event.data->>'from' ${direction}`;
+    }
+  }
+
   public async findByParams(
     moduleId: number,
     eventTypeId: number,
@@ -105,7 +117,8 @@ export default class EventRepository extends Repository<Event> {
     dateEnd: Date,
     extrinsicHash: string,
     skip = 0,
-    take = 10
+    take = 10,
+    orderBy?: [string, "ASC" | "DESC"]
   ): Promise<Event[]> {
     const [whereStr, parameters] = this.getConditionStr(
       moduleId,
@@ -117,7 +130,9 @@ export default class EventRepository extends Repository<Event> {
     );
 
     const orderStr =
-      !filters || !Object.keys(filters).length
+      filters?.fromTo && orderBy && orderBy.length === 2
+        ? this.getOrderBy(orderBy)
+        : !filters || !Object.keys(filters).length
         ? "ORDER BY b.number DESC"
         : "ORDER BY b.number::character varying::bigint DESC";
 
@@ -157,8 +172,14 @@ export default class EventRepository extends Repository<Event> {
     }
     if (filters) {
       Object.keys(filters).forEach((filter) => {
-        wheres.push(`event.data @> $${++order}`);
-        arr.push(`{"${filter}":"${filters[filter]}"}`);
+        if (filter === "fromTo") {
+          wheres.push(`(event.data @> $${++order} OR event.data @> $${++order})`);
+          arr.push(`{"to":"${filters[filter]}"}`);
+          arr.push(`{"from":"${filters[filter]}"}`);
+        } else {
+          wheres.push(`event.data @> $${++order}`);
+          arr.push(`{"${filter}":"${filters[filter]}"}`);
+        }
       });
     }
 
