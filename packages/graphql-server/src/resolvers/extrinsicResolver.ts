@@ -212,8 +212,8 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       }
     }
 
-    const result = await query.getManyAndCount();
-    return { items: result[0], totalCount: result[1] };
+    const result = await query.getMany();
+    return { items: result, totalCount: 1000 };
   }
 
   @Query(() => [ExtrinsicChartData])
