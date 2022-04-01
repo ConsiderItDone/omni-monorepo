@@ -9,7 +9,7 @@ export class BalanceService {
     const cachedBalance = await cacheService.get(address).then(JSON.parse);
     console.timeEnd(`balance-cache-${address}`);
 
-    if (cachedBalance && JSON.stringify(cachedBalance) !== '{}') {
+    if (cachedBalance && JSON.stringify(cachedBalance) !== "{}") {
       console.log(`Found balance in cache by key: ${address} `);
       return cachedBalance;
     }
