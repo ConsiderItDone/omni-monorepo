@@ -9,12 +9,12 @@ export class BalanceService {
     const cachedBalance = await cacheService.get(address).then(JSON.parse);
     console.timeEnd(`balance-cache-${address}`);
 
-    if (cachedBalance) {
+    if (cachedBalance && JSON.stringify(cachedBalance) !== '{}') {
       console.log(`Found balance in cache by key: ${address} `);
       return cachedBalance;
     }
 
-    const balanceRepository = getConnection().getCustomRepository(BalanceRepository);
+    const balanceRepository: BalanceRepository = getConnection().getCustomRepository(BalanceRepository);
 
     const balance = await balanceRepository.getBalanceByAddress(address);
 
