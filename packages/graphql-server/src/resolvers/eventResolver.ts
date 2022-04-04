@@ -49,7 +49,7 @@ class EventByNameArgs {
   skip: number;
 
   @Field(() => Int, { defaultValue: 25 })
-  @Min(1)
+  @Min(0)
   @Max(100)
   take?: number;
 

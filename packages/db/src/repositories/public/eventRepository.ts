@@ -138,7 +138,7 @@ export default class EventRepository extends Repository<Event> {
 
     const sql = `SELECT "event"."event_id" AS "eventId", "event"."index" AS "index", "event"."data" AS "data", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."module_id" AS "moduleId", "event"."event_type_id"  AS "eventTypeId", "event"."block_id" AS "blockId", "event"."extrinsic_id" AS "extrinsicId" FROM "public"."event" "event"  INNER JOIN block b on b.block_id = event.block_id ${whereStr} ${
       orderStr + " " ? orderStr : ""
-    } LIMIT ${take} OFFSET ${skip}`;
+    } ${take > 0 ? `LIMIT ${take} ` : ""}OFFSET ${skip}`;
 
     const events = await this.query(sql, parameters);
 
