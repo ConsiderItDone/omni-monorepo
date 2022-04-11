@@ -240,7 +240,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       .getMany();
 
     const itemsByEventId = groupByExtrinsicId<Block>(blocks);
-    return ids.map((id) => itemsByEventId[id][0] ?? null);
+    return ids.map((id) => (itemsByEventId[id] && itemsByEventId[id]?.length >= 0 ? itemsByEventId[id][0] : null));
   })
   block(@Root() source: Extrinsic) {
     return (dataloader: DataLoader<number, Block>) => dataloader.load(source.extrinsicId);
