@@ -1,7 +1,7 @@
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
 import { handleEvents, handleExtrinsics, handleLogs, handleNewBlock, handleTrackedEvents } from "@nodle/polkadot";
-import { MQ } from "@nodle/utils";
+import { CacheService, MQ } from "@nodle/utils";
 import { Block, Extrinsic, Log, Event as EventModel } from "@nodle/db";
 import { logger as Logger, services } from "@nodle/utils";
 const { logger } = Logger;
@@ -15,6 +15,8 @@ import { Channel } from "amqplib";
 import type { Moment } from "@polkadot/types/interfaces/runtime";
 
 const indexerServer = express();
+
+const cacheService = new CacheService();
 
 export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
@@ -123,6 +125,9 @@ async function consume(
     channel.ack(msg);
 
     MQ.getMQ().emit<Block>("newBlock", newBlock);
+
+    cacheService.set("totalBlocks-cache", String(newBlock.number));
+
     for (const extrinsic of newExtrinsics) {
       MQ.getMQ().emit<Extrinsic>("newExtrinsic", extrinsic);
     }

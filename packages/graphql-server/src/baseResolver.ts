@@ -12,7 +12,7 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { MQ, Utils } from "@nodle/utils";
+import { CacheService, MQ, Utils } from "@nodle/utils";
 import { withFilter } from "apollo-server";
 
 @ArgsType()
@@ -90,13 +90,21 @@ export function createBaseResolver<T extends ClassType>(
         order[this.orderBy] = "DESC";
       }
 
-      // eslint-disable-next-line
-      const result = await (objectTypeCls as any).findAndCount({
-        take,
-        skip,
-        order,
-      });
-      return { items: result[0], totalCount: result[1] };
+      const options = { take, skip, order };
+
+      if (suffix === "Block") {
+        const items = await (objectTypeCls as any).find(options);
+
+        const cacheService = new CacheService();
+        const cachedTotal = await cacheService.get("totalBlocks-cache");
+
+        const totalCount = Number(cachedTotal || 1000);
+
+        return { items, totalCount };
+      }
+
+      const [items, totalCount] = await (objectTypeCls as any).findAndCount(options);
+      return { items, totalCount };
     }
 
     @Subscription(() => objectTypeCls, {
