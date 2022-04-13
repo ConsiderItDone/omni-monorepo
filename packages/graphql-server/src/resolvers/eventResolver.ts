@@ -76,6 +76,14 @@ class EventByNameArgs {
 }
 
 @ArgsType()
+class EventStatsArgs {
+  @Field(() => String)
+  eventName: string;
+  @Field(() => String, { nullable: true })
+  moduleName: string;
+}
+
+@ArgsType()
 class SubscribeEventsByNameArgs {
   @Field(() => String)
   eventName: string;
@@ -91,13 +99,16 @@ class EventsResponse {
 }
 
 @ObjectType()
-class TransferChartData {
+class EventStatsData {
   @Field(() => Date)
   date: Date;
 
   @Field(() => Int, { defaultValue: 0 })
   quantity: number;
+}
 
+@ObjectType()
+class TransferChartData extends EventStatsData{
   @Field(() => Int, { defaultValue: 0 })
   amount: number;
 }
@@ -242,7 +253,27 @@ export default class EventResolver extends EventBaseResolver {
 
     const eventRepository = getConnection().getCustomRepository(EventRepository);
 
-    const data = await eventRepository.getStats(eventType.eventTypeId);
+    const data = await eventRepository.getStats(eventType);
+
+    return data || [];
+  }
+
+  @Query(() => [EventStatsData])
+  async eventsStat(@Args() { eventName, moduleName }: EventStatsArgs): Promise<EventStatsData[]> {
+    const moduleType = moduleName && (await Module.findOne({ where: { name: moduleName } }));
+
+    const eventType = await EventType.findOne({
+      name: eventName,
+      moduleId: moduleType?.moduleId,
+    });
+
+    if (!eventType || !moduleType) {
+      return [];
+    }
+
+    const eventRepository = getConnection().getCustomRepository(EventRepository);
+
+    const data = await eventRepository.getStats(eventType, moduleType);
 
     return data || [];
   }

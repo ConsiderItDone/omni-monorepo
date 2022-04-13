@@ -1,5 +1,7 @@
+import EventType from "../../models/public/eventType";
 import { EntityRepository, Repository, DeleteResult } from "typeorm";
 import Event from "../../models/public/event";
+import ModuleType from "../../models/public/module";
 
 @EntityRepository(Event)
 export default class EventRepository extends Repository<Event> {
@@ -34,23 +36,23 @@ export default class EventRepository extends Repository<Event> {
   }
 
   // eslint-disable-next-line
-  public getStats(eventTypeId: number): Promise<any> {
+  public getStats(eventType: EventType, moduleType?: ModuleType): Promise<any> {
     return this.query(
       `
       select
         date_trunc('day', b."timestamp") as date,
-        count(1) as quantity,
-        sum(
-          CEIL(CAST(e."data"->>'value' as numeric) / 10^12)
-        ) as amount
+        count(1) as quantity${
+          eventType.name === "Transfer" ? `, sum(CEIL(CAST(e."data"->>'value' as numeric) / 10^12)) as amount` : ""
+        }
       from public."event" e 
       left join public.block b on b.block_id = e.block_id 
-      where e.event_type_id = $1
+      where e.event_type_id = $1 
+      ${moduleType ? `and where e.module_type_id = $2` : ""}
       group by 1
-      ORDER BY date
+      ORDER BY date DESC
       LIMIT 100
     `,
-      [eventTypeId]
+      [eventType.eventTypeId, moduleType?.moduleId]
     );
   }
 
