@@ -12,9 +12,9 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { CacheService, MQ, Utils } from "@nodle/utils";
+import { MQ, Utils } from "@nodle/utils";
+import { cacheService } from "@nodle/utils";
 import { withFilter } from "apollo-server";
-
 @ArgsType()
 export class PaginationArgs {
   @Field(() => Int, { defaultValue: 0 })
@@ -95,7 +95,6 @@ export function createBaseResolver<T extends ClassType>(
       if (suffix === "Block") {
         const items = await (objectTypeCls as any).find(options);
 
-        const cacheService = new CacheService();
         const cachedTotal = await cacheService.get("totalBlocks-cache");
 
         const totalCount = Number(cachedTotal || 1000);

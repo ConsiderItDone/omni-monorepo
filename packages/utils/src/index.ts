@@ -26,6 +26,6 @@ export * as blockFinalizer from "./blockFinalizer";
 
 export * as services from "./services";
 
-export { CacheService, MetricsService, BalanceService } from "./services";
-
+export { MetricsService, BalanceService } from "./services";
+export { default as cacheService } from "./services/cacheService";
 export * as logger from "./logger";
