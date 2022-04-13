@@ -108,7 +108,7 @@ class EventStatsData {
 }
 
 @ObjectType()
-class TransferChartData extends EventStatsData{
+class TransferChartData extends EventStatsData {
   @Field(() => Int, { defaultValue: 0 })
   amount: number;
 }
