@@ -96,8 +96,7 @@ export function createBaseResolver<T extends ClassType>(
         const items = await (objectTypeCls as any).find(options);
 
         const cachedTotal = await cacheService.get("totalBlocks-cache");
-
-        const totalCount = Number(cachedTotal || 1000);
+        const totalCount = cachedTotal ? Number(JSON.parse(cachedTotal)) : 1000;
 
         return { items, totalCount };
       }
