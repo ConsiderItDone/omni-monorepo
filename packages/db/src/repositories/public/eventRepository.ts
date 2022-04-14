@@ -38,7 +38,7 @@ export default class EventRepository extends Repository<Event> {
   // eslint-disable-next-line
   public getStats(eventType: EventType, moduleType?: ModuleType): Promise<any> {
     const preparedStatements = [eventType.eventTypeId];
-    
+
     let whereStr = "where e.event_type_id = $1";
     if (moduleType) {
       preparedStatements.push(moduleType.moduleId);
