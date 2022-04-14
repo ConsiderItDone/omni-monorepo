@@ -37,22 +37,29 @@ export default class EventRepository extends Repository<Event> {
 
   // eslint-disable-next-line
   public getStats(eventType: EventType, moduleType?: ModuleType): Promise<any> {
+    const preparedStatements = [eventType.eventTypeId];
+    
+    let whereStr = "where e.event_type_id = $1";
+    if (moduleType) {
+      preparedStatements.push(moduleType.moduleId);
+      whereStr = whereStr.concat(" and e.module_id = $2");
+    }
+
+    let selectStr = `date_trunc('day', b."timestamp") as date, count(1) as quantity`;
+    if (eventType.name === "Transfer") {
+      selectStr = selectStr.concat(`, sum(CEIL(CAST(e."data"->>'value' as numeric) / 10^12)) as amount`);
+    }
+
     return this.query(
-      `
-      select
-        date_trunc('day', b."timestamp") as date,
-        count(1) as quantity${
-          eventType.name === "Transfer" ? `, sum(CEIL(CAST(e."data"->>'value' as numeric) / 10^12)) as amount` : ""
-        }
+      `select
+      ${selectStr}
       from public."event" e 
-      left join public.block b on b.block_id = e.block_id 
-      where e.event_type_id = $1 
-      ${moduleType ? `and where e.module_type_id = $2` : ""}
+      left join public.block b on b.block_id = e.block_id
+      ${whereStr}
       group by 1
       ORDER BY date DESC
-      LIMIT 100
-    `,
-      [eventType.eventTypeId, moduleType?.moduleId]
+      LIMIT 100`,
+      preparedStatements
     );
   }
 
