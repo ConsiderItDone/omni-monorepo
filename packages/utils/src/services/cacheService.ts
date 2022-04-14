@@ -12,7 +12,7 @@ export class CacheService {
       port: Number(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
     };
-    
+
     this.client = Redis.createClient(clientOptions);
     console.log("Cache service initiated");
     this.client.on("error", function (error: Error) {

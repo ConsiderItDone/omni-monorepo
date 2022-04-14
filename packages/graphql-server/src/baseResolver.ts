@@ -93,7 +93,7 @@ export function createBaseResolver<T extends ClassType>(
       const options = { take, skip, order };
 
       if (suffix === "Block") {
-        const items = await (objectTypeCls as any).find(options);
+        const items = await (objectTypeCls as any).find(options); // eslint-disable-line
 
         const cachedTotal = await cacheService.get("totalBlocks-cache");
         const totalCount = cachedTotal ? Number(JSON.parse(cachedTotal)) : 1000;
@@ -101,7 +101,7 @@ export function createBaseResolver<T extends ClassType>(
         return { items, totalCount };
       }
 
-      const [items, totalCount] = await (objectTypeCls as any).findAndCount(options);
+      const [items, totalCount] = await (objectTypeCls as any).findAndCount(options); // eslint-disable-line
       return { items, totalCount };
     }
 
