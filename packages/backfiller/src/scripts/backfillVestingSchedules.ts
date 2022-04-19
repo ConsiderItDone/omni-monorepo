@@ -7,15 +7,8 @@ try {
 }
 
 import { getApi } from "@nodle/polkadot";
-import { VestingScheduleOf } from "@nodle/utils";
-import {
-  AccountRepository,
-  BlockRepository,
-  EventRepository,
-  EventTypeRepository,
-  VestingScheduleRepository,
-} from "@nodle/db";
-import { ConnectionOptions, MoreThanOrEqual } from "typeorm";
+import { EventRepository, EventTypeRepository } from "@nodle/db";
+import { ConnectionOptions } from "typeorm";
 import {
   connect,
   Account,
@@ -64,7 +57,7 @@ const connectionOptions = {
   ],
 } as ConnectionOptions;
 
-async function backfillVestingSchedules() {
+async function backfillVestingSchedules(): Promise<void> {
   console.log(`Backfilling Vesting Schedules started`);
 
   const connection = await connect(connectionOptions);
@@ -80,8 +73,7 @@ async function backfillVestingSchedules() {
     where: [...eventIds.map((eventTypeId) => ({ eventTypeId: eventTypeId }))],
   });
 
-  //@ts-ignore
-  const accounts = vestingEvents.map((v) => v.data?.to || v.data?.who);
+  const accounts = vestingEvents.map(({ data }: { data: { to?: string; who?: string } }) => data?.to || data?.who);
   console.log(`Received ${accounts.length} accounts`);
 
   for await (const account of accounts) {

@@ -59,7 +59,7 @@ const connectionOptions = {
   ],
 } as ConnectionOptions;
 
-export async function updateVestingSchedules(address: string, api: ApiPromise, connection: Connection) {
+export async function updateVestingSchedules(address: string, api: ApiPromise, connection: Connection): Promise<void> {
   console.log(`Updating Vesting Schedules for '${address}'`);
 
   const grants = ((await api.query.vesting.vestingSchedules(address)) as undefined) as VestingScheduleOf[];
@@ -90,6 +90,7 @@ export async function updateVestingSchedules(address: string, api: ApiPromise, c
       }
     }
   }
+  return;
 }
 
 const r = readline.createInterface({

@@ -18,7 +18,7 @@ export async function handleVestingSchedule(
   blockHash: BlockHash
 ): Promise<void> {
   try {
-    let targetAccount = event.data[0];
+    const targetAccount = event.data[0];
     const vestingScheduleRepository = manager.getCustomRepository(VestingScheduleRepository);
 
     switch (event.method) {
