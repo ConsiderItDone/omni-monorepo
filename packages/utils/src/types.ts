@@ -13,7 +13,7 @@ export type ExtrinsicWithBoundedEvents = {
 
 export enum CustomEventSection {
   RootOfTrust = "pkiRootOfTrust",
-  VestingSchedule = "grants",
+  VestingSchedule = "vesting",
   Application = "pkiTcr",
   Balance = "balances",
   Allocation = "allocations",

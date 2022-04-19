@@ -22,20 +22,11 @@ export async function handleVestingSchedule(
     const vestingScheduleRepository = manager.getCustomRepository(VestingScheduleRepository);
 
     switch (event.method) {
-      case "VestingScheduleAdded": {
-        targetAccount = event.data[1];
-        // const vestingScheduleData = (event.data[2] as undefined) as VestingScheduleOf;
+      case "VestingScheduleAdded":
+      case "VestingSchedulesCanceled":
+      case "VestingOverwritten":
+      case "Claimed":
         break;
-      }
-      case "VestingSchedulesCanceled": {
-        /* removes vesting schedule. move remain coins to another account. It Does trigger Claim and balance transfer events */
-        // await vestingScheduleRepository.cancelSchedules(targetAccount);
-        break;
-      }
-      case "Claimed": {
-        //balance resolved by claim extrinsic signer
-        break;
-      }
       default:
         return;
     }
