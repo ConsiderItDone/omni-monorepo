@@ -9,7 +9,7 @@ try {
 import { getApi } from "@nodle/polkadot";
 import { MQ, VestingScheduleOf } from "@nodle/utils";
 import { AccountRepository, BlockRepository, VestingScheduleRepository } from "@nodle/db";
-import { ConnectionOptions } from "typeorm";
+import { Connection, ConnectionOptions } from "typeorm";
 import {
   connect,
   Account,
@@ -29,6 +29,7 @@ import {
   EventType,
 } from "@nodle/db";
 import * as readline from "readline";
+import { ApiPromise } from "@polkadot/api";
 
 const connectionOptions = {
   name: "default",
@@ -58,11 +59,8 @@ const connectionOptions = {
   ],
 } as ConnectionOptions;
 
-async function updateVestingSchedules(address: string) {
+export async function updateVestingSchedules(address: string, api: ApiPromise, connection: Connection) {
   console.log(`Updating Vesting Schedules for '${address}'`);
-  const api = await getApi(process.env.WS_PROVIDER);
-
-  const connection = await connect(connectionOptions);
 
   const grants = ((await api.query.vesting.vestingSchedules(address)) as undefined) as VestingScheduleOf[];
   console.log("Grants:", grants);
@@ -103,6 +101,7 @@ r.question(`Input account address to update Vesting schedules: `, async (address
   r.close();
   // init MQ connection
   await MQ.init(process.env.RABBIT_MQ_URL);
-
-  await updateVestingSchedules(address);
+  const connection = await connect(connectionOptions);
+  const api = await getApi(process.env.WS_PROVIDER);
+  await updateVestingSchedules(address, api, connection);
 });
