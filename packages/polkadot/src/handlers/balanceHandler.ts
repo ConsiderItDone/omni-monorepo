@@ -31,6 +31,8 @@ export async function handleBalance(
         }
         break;
       }
+      case "Withdraw":
+      case "Deposit":
       case "DustLost": {
         await MQ.getMQ().publish(
           isBackfiller ? "backfill_account" : "account_indexer",
