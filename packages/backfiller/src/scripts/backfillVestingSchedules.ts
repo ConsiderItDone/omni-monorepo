@@ -78,7 +78,6 @@ async function backfillVestingSchedules() {
 
   const vestingEvents = await eventRepository.find({
     where: [...eventIds.map((eventTypeId) => ({ eventTypeId: eventTypeId }))],
-    take: 10,
   });
 
   //@ts-ignore
