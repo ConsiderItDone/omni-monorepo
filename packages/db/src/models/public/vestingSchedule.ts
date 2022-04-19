@@ -24,7 +24,7 @@ export default class VestingSchedule extends BaseEntity {
   public periodCount: number;
 
   @Field(() => String)
-  @Column("bigint", { name: "per_period", default: () => "0" })
+  @Column("character varying", { name: "per_period", default: () => "0" })
   public perPeriod: string;
 
   @Field(() => Int)
