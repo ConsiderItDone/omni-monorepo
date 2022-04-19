@@ -14,6 +14,7 @@ import { handleBalance } from "./balanceHandler";
 import { handleRootOfTrust } from "./rootOfTrustHandler";
 import { handleVestingSchedule } from "./vestingScheduleHandler";
 import { handleAllocation } from "./allocationHandler";
+import { handleCompanyReserve } from "./companyReserveHandler";
 import { tryFetchAccount, saveAccount, IAccount } from "../misc";
 
 export async function handleTrackedEvents(
@@ -40,12 +41,13 @@ export async function handleTrackedEvents(
         case CustomEventSection.Application:
           await handleApplication(manager, event, blockId, api, blockNumber, blockHash);
           break;
-        case CustomEventSection.Balance: {
+        case CustomEventSection.Balance:
           await handleBalance(event, blockId, blockHash, blockNumber);
-          break;
-        }
         case CustomEventSection.Allocation:
           await handleAllocation(event, blockId, blockHash, blockNumber);
+          break;
+        case CustomEventSection.CompanyReserve:
+          await handleCompanyReserve(event, blockId, blockHash, blockNumber);
           break;
         default:
           return;
