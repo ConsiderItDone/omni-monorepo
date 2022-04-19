@@ -8,56 +8,10 @@ try {
 
 import { getApi } from "@nodle/polkadot";
 import { EventRepository, EventTypeRepository } from "@nodle/db";
-import { ConnectionOptions } from "typeorm";
-import {
-  connect,
-  Account,
-  Application,
-  Balance,
-  Block,
-  Event,
-  Extrinsic,
-  ExtrinsicType,
-  Log,
-  RootCertificate,
-  VestingSchedule,
-  Validator,
-  BackfillProgress,
-  Vote,
-  Module,
-  EventType,
-} from "@nodle/db";
-import { updateVestingSchedules } from "./updateVestingSchedules";
+import { connect } from "@nodle/db";
+import { connectionOptions, backfillVestingSchedules } from "../utils";
 
-const connectionOptions = {
-  name: "default",
-  type: "postgres",
-  host: process.env.TYPEORM_HOST,
-  port: Number(process.env.TYPEORM_PORT),
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING === "true",
-  entities: [
-    Account,
-    Application,
-    Balance,
-    Block,
-    Event,
-    Extrinsic,
-    ExtrinsicType,
-    Log,
-    RootCertificate,
-    VestingSchedule,
-    Validator,
-    BackfillProgress,
-    Vote,
-    Module,
-    EventType,
-  ],
-} as ConnectionOptions;
-
-async function backfillVestingSchedules(): Promise<void> {
+async function run(): Promise<void> {
   console.log(`Backfilling Vesting Schedules started`);
 
   const connection = await connect(connectionOptions);
@@ -77,12 +31,10 @@ async function backfillVestingSchedules(): Promise<void> {
   console.log(`Received ${accounts.length} accounts`);
 
   for await (const account of accounts) {
-    await updateVestingSchedules(account, api, connection);
+    await backfillVestingSchedules(account, api, connection);
   }
   console.log(`Vesting schedules backfiller finished`);
   return;
 }
 
-backfillVestingSchedules();
-
-export default backfillVestingSchedules;
+run();

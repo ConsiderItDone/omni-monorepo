@@ -14,11 +14,11 @@ import {
   saveValidator,
   tryFetchAccount,
 } from "@nodle/polkadot";
-import { Application as ApplicationType } from "@nodle/utils";
+import { Application as ApplicationType, VestingScheduleOf } from "@nodle/utils";
 import { logger as Logger, types } from "@nodle/utils";
 const { logger } = Logger;
 const { CustomEventSection, ApplicationStatus } = types;
-import { ApplicationRepository, AccountRepository, BlockRepository } from "@nodle/db";
+import { ApplicationRepository, AccountRepository, BlockRepository, VestingScheduleRepository } from "@nodle/db";
 import { handleBalance, handleRootOfTrust, handleVestingSchedule } from "@nodle/polkadot";
 import { Connection } from "typeorm";
 
@@ -238,4 +238,42 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
       );
     }
   }
+}
+
+export async function backfillVestingSchedules(
+  address: string,
+  api: ApiPromise,
+  connection: Connection
+): Promise<void> {
+  console.log(`Updating Vesting Schedules for '${address}'`);
+
+  const grants = ((await api.query.vesting.vestingSchedules(address)) as undefined) as VestingScheduleOf[];
+  console.log("Grants:", grants);
+
+  if (grants) {
+    const { blockId } = await connection.getCustomRepository(BlockRepository).findOne({ order: { number: "DESC" } });
+    const accountRepository = await connection.getCustomRepository(AccountRepository);
+    const vestingScheduleRepository = await connection.getCustomRepository(VestingScheduleRepository);
+
+    const account = await accountRepository.findOne({ where: { address: address } });
+    if (account) {
+      const { accountId } = account;
+      await vestingScheduleRepository.removeSchedulesByAccount(1);
+
+      for (const grant of grants) {
+        const { start, period, periodCount, perPeriod } = grant;
+
+        const saved = await vestingScheduleRepository.add({
+          accountId,
+          start: start.toString(),
+          period: period.toString(),
+          periodCount: Number(periodCount.toString()),
+          perPeriod: perPeriod.toString(),
+          blockId,
+        });
+        console.log("Saved", saved);
+      }
+    }
+  }
+  return;
 }

@@ -6,56 +6,9 @@ try {
   //nop
 }
 import * as readline from "readline";
-import { ConnectionOptions } from "typeorm";
 import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, getApi } from "@nodle/polkadot";
-import { backfillTrackedEvents } from "../utils";
-
-import {
-  connect,
-  Account,
-  Application,
-  Balance,
-  Block,
-  Event,
-  Extrinsic,
-  ExtrinsicType,
-  Log,
-  RootCertificate,
-  VestingSchedule,
-  Validator,
-  BackfillProgress,
-  Vote,
-  Module,
-  EventType,
-} from "@nodle/db";
-
-const connectionOptions = {
-  name: "default",
-  type: "postgres",
-  host: process.env.TYPEORM_HOST,
-  port: Number(process.env.TYPEORM_PORT),
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING === "true",
-  entities: [
-    Account,
-    Application,
-    Balance,
-    Block,
-    Event,
-    Extrinsic,
-    ExtrinsicType,
-    Log,
-    RootCertificate,
-    VestingSchedule,
-    Validator,
-    BackfillProgress,
-    Vote,
-    Module,
-    EventType,
-  ],
-} as ConnectionOptions;
+import { backfillTrackedEvents, connectionOptions } from "../utils";
+import { connect } from "@nodle/db";
 
 const blockBackfill = async (blockNum: number) => {
   const api = await getApi(process.env.WS_PROVIDER);
