@@ -34,5 +34,3 @@ export async function handleCompanyReserve(
     logger.error(error);
   }
 }
-
-

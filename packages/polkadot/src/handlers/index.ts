@@ -43,6 +43,7 @@ export async function handleTrackedEvents(
           break;
         case CustomEventSection.Balance:
           await handleBalance(event, blockId, blockHash, blockNumber);
+          break;
         case CustomEventSection.Allocation:
           await handleAllocation(event, blockId, blockHash, blockNumber);
           break;
