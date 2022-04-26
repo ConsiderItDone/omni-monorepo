@@ -13,6 +13,7 @@ import {
   saveAccount,
   saveValidator,
   tryFetchAccount,
+  getApi,
 } from "@nodle/polkadot";
 import { Application as ApplicationType } from "@nodle/utils";
 import { logger as Logger, types } from "@nodle/utils";
@@ -217,7 +218,8 @@ export async function backfillAccountsFromDB(
   isRunning = false;
 }
 
-export async function backfillValidators(connection: Connection, api: ApiPromise): Promise<void> {
+export async function backfillValidators(ws: string, connection: Connection): Promise<void> {
+  const api = await getApi(ws);
   const validators = (await api.query.session.validators()) as any; //eslint-disable-line
 
   if (validators && validators.length > 0) {
@@ -238,4 +240,5 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
       );
     }
   }
+  await api.disconnect()
 }

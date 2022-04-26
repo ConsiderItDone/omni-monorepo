@@ -283,18 +283,16 @@ async function accountBackfillConsume(
 }
 
 export async function backfiller(ws: string, connection: Connection): Promise<void> {
-  const api = await getApi(ws);
-
   // eslint-disable-next-line
   //let backfillAccountRunning = false;
 
   // "00 */5 * * * *" to start every 5 minutes
-  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => blockFinalizer.finalizeBlocks(api, connection));
+  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => blockFinalizer.finalizeBlocks(ws, connection));
   // const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
   //   backfillAccountsFromDB(connection, api, backfillAccountRunning)
   // );
 
-  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(connection, api));
+  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(ws, connection));
 
   logger.info("Backfiller started");
   blockFinalizerJob.start();
