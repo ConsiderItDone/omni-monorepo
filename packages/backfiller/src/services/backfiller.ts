@@ -282,7 +282,7 @@ async function accountBackfillConsume(
   console.log(`${prefetched.address} consumed`);
 }
 
-export async function backfiller(ws: string, connection: Connection): Promise<void> {
+export function backfiller(ws: string, connection: Connection): void {
   // eslint-disable-next-line
   //let backfillAccountRunning = false;
 

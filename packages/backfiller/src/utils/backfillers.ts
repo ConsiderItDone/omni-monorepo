@@ -240,5 +240,5 @@ export async function backfillValidators(ws: string, connection: Connection): Pr
       );
     }
   }
-  await api.disconnect()
+  await api.disconnect();
 }
