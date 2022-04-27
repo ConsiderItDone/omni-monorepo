@@ -1,10 +1,13 @@
 import { Connection } from "typeorm";
 import { BlockRepository } from "@nodle/db";
 import { logger } from "./logger";
-import { getApi } from "@nodle/polkadot";
+import { ApiPromise } from "@polkadot/api";
 
-export async function finalizeBlocks(ws: string, connection: Connection): Promise<void> {
-  const api = await getApi(ws);
+export async function finalizeBlocks(
+  createApiConnection: () => Promise<ApiPromise>,
+  connection: Connection
+): Promise<void> {
+  const api = await createApiConnection();
   logger.info("Finalizer started");
   const lastFinalizedHash = await api.rpc.chain.getFinalizedHead();
   const { number: lastFinalizedBlockNumber } = await api.rpc.chain.getHeader(lastFinalizedHash);

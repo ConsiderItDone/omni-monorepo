@@ -286,13 +286,19 @@ export function backfiller(ws: string, connection: Connection): void {
   // eslint-disable-next-line
   //let backfillAccountRunning = false;
 
+  const createApiConnection: () => Promise<ApiPromise> = getApi.bind(null, ws);
+
   // "00 */5 * * * *" to start every 5 minutes
-  const blockFinalizerJob = new CronJob("00 */1 * * * *", () => blockFinalizer.finalizeBlocks(ws, connection));
+  const blockFinalizerJob = new CronJob("00 */1 * * * *", () =>
+    blockFinalizer.finalizeBlocks(createApiConnection, connection)
+  );
   // const backfillAccountsJob = new CronJob("00 */30 * * * *", () =>
   //   backfillAccountsFromDB(connection, api, backfillAccountRunning)
   // );
 
-  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () => backfillValidators(ws, connection));
+  const backfillValidatorsJob = new CronJob("00 */30 * * * *", () =>
+    backfillValidators(createApiConnection, connection)
+  );
 
   logger.info("Backfiller started");
   blockFinalizerJob.start();
