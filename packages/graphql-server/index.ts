@@ -3,6 +3,8 @@ import { tracer } from "@nodle/utils";
 
 import * as dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
+
 try {
   dotenv.config({ path: path.resolve(__dirname) + "/../../.env" });
 } catch (e) {
@@ -61,6 +63,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
+    ssl: { ca: fs.readFileSync("./server-ca.pem").toString() },
     entities: [
       Account,
       Application,

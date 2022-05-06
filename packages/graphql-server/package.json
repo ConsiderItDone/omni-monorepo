@@ -10,8 +10,9 @@
     "directory": "packages/graphql-server"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json && npm run copy-key",
     "prepare": "npm run build",
+    "copy-key": "copyfiles ./server-ca.pem ./dist/cjs && copyfiles ./server-ca.pem ./dist/esm",
     "start:server": "npm exec -- ts-node -r tsconfig-paths/register index.ts"
   },
   "dependencies": {
