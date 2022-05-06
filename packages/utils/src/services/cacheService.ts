@@ -6,6 +6,7 @@ export class CacheService {
   // eslint-disable-next-line
   public get: (key: string, cb?: Redis.Callback<string>) => any;
   constructor() {
+    console.log("Initiating cache service");
     const clientOptions: Redis.ClientOpts = {
       host: process.env.REDIS_HOST,
       port: Number(process.env.REDIS_PORT),
@@ -13,6 +14,7 @@ export class CacheService {
     };
 
     this.client = Redis.createClient(clientOptions);
+    console.log("Cache service initiated");
     this.client.on("error", function (error: Error) {
       console.error(error);
     });
@@ -47,3 +49,5 @@ export class CacheService {
     });
   }
 }
+
+export default new CacheService();

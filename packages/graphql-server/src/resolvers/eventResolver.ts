@@ -24,6 +24,7 @@ import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@no
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
 import { groupBy } from "lodash";
+import { cacheService } from "@nodle/utils/";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -169,6 +170,16 @@ export default class EventResolver extends EventBaseResolver {
       //   return { items: cachedValue[0], totalCount: cachedValue[1] };
       // }
     }
+    if (cacheKey === "" && callModule === "allocations" && eventName === "NewAllocation") {
+      cacheKey = `events${cacheKey}-${take}-${skip}`;
+      console.time("allocations from cache");
+      const cachedValue = await cacheService.get(cacheKey).then(JSON.parse);
+      console.timeEnd("events from cache");
+      if (cachedValue) {
+        console.log(`Found allocations in cache by key: ${cacheKey}`);
+        return { items: cachedValue[0], totalCount: cachedValue[1] };
+      }
+    }
 
     const eventRepository = getConnection().getCustomRepository(EventRepository);
 
@@ -199,6 +210,9 @@ export default class EventResolver extends EventBaseResolver {
     // if (cacheKey !== "" && events) {
     //   cacheService.set(cacheKey, [events, count]);
     // }
+    if (cacheKey !== "" && events && callModule === "allocations" && eventName === "NewAllocation") {
+      cacheService.set(cacheKey, [events, count]);
+    }
 
     return { items: events, totalCount: count };
   }
