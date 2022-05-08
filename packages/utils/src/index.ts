@@ -30,4 +30,4 @@ export { CacheService, MetricsService, BalanceService } from "./services";
 
 export * as logger from "./logger";
 
-export * as sslKeys from './sslKeys' 
+export * as sslKeys from "./sslKeys";
