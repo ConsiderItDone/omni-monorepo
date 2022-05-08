@@ -45,7 +45,7 @@ import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 import ValidatorResolver from "./src/resolvers/validatorResolver";
-import { MQ } from "@nodle/utils";
+import { MQ, sslKeys } from "@nodle/utils";
 import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
@@ -63,7 +63,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
-    ssl: { ca: fs.readFileSync("./server-ca.pem").toString() },
+    ssl: sslKeys,
     entities: [
       Account,
       Application,

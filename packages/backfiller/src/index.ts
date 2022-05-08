@@ -5,6 +5,7 @@ try {
 } catch (e) {
   //nop
 }
+import fs from "fs";
 
 import { backfiller } from "./services/backfiller";
 import { patcher } from "./services/patcher";
@@ -27,6 +28,7 @@ import {
   EventType,
 } from "@nodle/db";
 import { ConnectionOptions } from "typeorm";
+import { sslKeys } from "@nodle/utils"
 
 const start = async function (): Promise<void> {
   const connectionOptions = {
@@ -38,6 +40,7 @@ const start = async function (): Promise<void> {
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
+    ssl: sslKeys,
     entities: [
       Account,
       Application,

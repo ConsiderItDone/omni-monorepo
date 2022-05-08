@@ -10,7 +10,8 @@
     "directory": "packages/utils"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json && npm run copy-keys",
+    "copy-keys": "copyfiles -f src/sslKeys/*.pem dist/cjs/sslKeys && copyfiles -f src/sslKeys/*.pem dist/esm/sslKeys",
     "prepare": "npm run build"
   },
   "dependencies": {
