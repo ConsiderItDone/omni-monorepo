@@ -9,54 +9,9 @@ try {
 import { getApi } from "@nodle/polkadot";
 import { MQ } from "@nodle/utils";
 import { BlockRepository } from "@nodle/db";
-import { ConnectionOptions } from "typeorm";
-import {
-  connect,
-  Account,
-  Application,
-  Balance,
-  Block,
-  Event,
-  Extrinsic,
-  ExtrinsicType,
-  Log,
-  RootCertificate,
-  VestingSchedule,
-  Validator,
-  BackfillProgress,
-  Vote,
-  Module,
-  EventType,
-} from "@nodle/db";
+import { connectionOptions } from "../utils";
+import { connect } from "@nodle/db";
 import * as readline from "readline";
-
-const connectionOptions = {
-  name: "default",
-  type: "postgres",
-  host: process.env.TYPEORM_HOST,
-  port: Number(process.env.TYPEORM_PORT),
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING === "true",
-  entities: [
-    Account,
-    Application,
-    Balance,
-    Block,
-    Event,
-    Extrinsic,
-    ExtrinsicType,
-    Log,
-    RootCertificate,
-    VestingSchedule,
-    Validator,
-    BackfillProgress,
-    Vote,
-    Module,
-    EventType,
-  ],
-} as ConnectionOptions;
 
 async function updateAccount(address: string) {
   console.log(`Updating ${address}`);

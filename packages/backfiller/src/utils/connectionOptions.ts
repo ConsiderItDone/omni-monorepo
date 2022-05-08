@@ -1,0 +1,48 @@
+import {
+  Account,
+  Application,
+  Balance,
+  Block,
+  Event,
+  Extrinsic,
+  ExtrinsicType,
+  Log,
+  RootCertificate,
+  VestingSchedule,
+  Validator,
+  BackfillProgress,
+  Vote,
+  Module,
+  EventType,
+} from "@nodle/db";
+import { ConnectionOptions } from "typeorm";
+import { sslKeys } from "@nodle/utils";
+
+export const connectionOptions = {
+  name: "default",
+  type: "postgres",
+  host: process.env.TYPEORM_HOST,
+  port: Number(process.env.TYPEORM_PORT),
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
+  logging: process.env.TYPEORM_LOGGING === "true",
+  ssl: sslKeys,
+  entities: [
+    Account,
+    Application,
+    Balance,
+    Block,
+    Event,
+    Extrinsic,
+    ExtrinsicType,
+    Log,
+    RootCertificate,
+    VestingSchedule,
+    Validator,
+    BackfillProgress,
+    Vote,
+    Module,
+    EventType,
+  ],
+} as ConnectionOptions;
