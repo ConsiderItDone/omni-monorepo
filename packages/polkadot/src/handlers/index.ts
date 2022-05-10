@@ -91,7 +91,7 @@ export async function handleAccountBalance(
     }
     return await saveAccountBalance();
   } catch (e) {
-    logger.error("Error saving account");
+    throw Error(`Error saving account: ${address}, at blockHash:${blockHash}, blockNumber:${blockNumber}`);
   }
 
   async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
