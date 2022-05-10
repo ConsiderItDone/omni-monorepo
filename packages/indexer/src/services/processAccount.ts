@@ -62,7 +62,7 @@ async function consume(
       address: savedAccount.address,
     });
   } catch (error) {
-    logger.error(error);
+    logger.error(error?.message);
     if (queryRunner.isTransactionActive) {
       await queryRunner.rollbackTransaction();
     }

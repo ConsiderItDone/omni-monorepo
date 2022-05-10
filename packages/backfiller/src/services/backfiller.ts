@@ -277,9 +277,14 @@ async function accountBackfillConsume(
   data: AccountBlockData,
   prefetched?: IAccount
 ) {
-  console.log(`Consuming ${prefetched.address}`);
-  await handleAccountBalance(api, connection, data, prefetched);
-  console.log(`${prefetched.address} consumed`);
+  try {
+    console.log(`Consuming ${prefetched.address}`);
+    await handleAccountBalance(api, connection, data, prefetched);
+    console.log(`${prefetched.address} consumed`);
+  } catch (e) {
+    logger.error("Error consuming account,", e.message);
+    throw Error(e?.message);
+  }
 }
 
 export function backfiller(ws: string, connection: Connection): void {
