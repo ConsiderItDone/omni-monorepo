@@ -11,7 +11,7 @@ export async function finalizeBlocks(
   try {
     logger.info("Finalizer started");
     const lastFinalizedHash = await api.rpc.chain.getFinalizedHead();
-    logger.info(`Last finalized block №: ${lastFinalizedHash.toHuman()}`)
+    logger.info(`Last finalized block №: ${lastFinalizedHash.toHuman()}`);
     const { number: lastFinalizedBlockNumber } = await api.rpc.chain.getHeader(lastFinalizedHash);
     logger.info(`Last finalized block №: ${lastFinalizedBlockNumber}`);
 
