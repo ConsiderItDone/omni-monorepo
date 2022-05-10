@@ -217,7 +217,11 @@ export async function backfillAccountsFromDB(
   isRunning = false;
 }
 
-export async function backfillValidators(connection: Connection, api: ApiPromise): Promise<void> {
+export async function backfillValidators(
+  createApiConnection: () => Promise<ApiPromise>,
+  connection: Connection
+): Promise<void> {
+  const api = await createApiConnection();
   const validators = (await api.query.session.validators()) as any; //eslint-disable-line
 
   if (validators && validators.length > 0) {
@@ -238,4 +242,5 @@ export async function backfillValidators(connection: Connection, api: ApiPromise
       );
     }
   }
+  await api.disconnect();
 }
