@@ -283,7 +283,7 @@ async function accountBackfillConsume(
     console.log(`${prefetched.address} consumed`);
   } catch (e) {
     logger.error("Error consuming account,", e.message);
-    throw Error(e?.message)
+    throw Error(e?.message);
   }
 }
 
