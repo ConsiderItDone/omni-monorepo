@@ -8,13 +8,18 @@ export async function finalizeBlocks(
   connection: Connection
 ): Promise<void> {
   const api = await createApiConnection();
-  logger.info("Finalizer started");
-  const lastFinalizedHash = await api.rpc.chain.getFinalizedHead();
-  const { number: lastFinalizedBlockNumber } = await api.rpc.chain.getHeader(lastFinalizedHash);
-  logger.info(`Last finalized block №: ${lastFinalizedBlockNumber}`);
+  try {
+    logger.info("Finalizer started");
+    const lastFinalizedHash = await api.rpc.chain.getFinalizedHead();
+    const { number: lastFinalizedBlockNumber } = await api.rpc.chain.getHeader(lastFinalizedHash);
+    logger.info(`Last finalized block №: ${lastFinalizedBlockNumber}`);
 
-  const blockRepository = connection.getCustomRepository(BlockRepository);
-  const result = await blockRepository.finalizeBlocks(lastFinalizedBlockNumber.toNumber());
-  logger.info(`Found ${result.affected} unfinalized block. Finalization done`);
-  await api.disconnect();
+    const blockRepository = connection.getCustomRepository(BlockRepository);
+    const result = await blockRepository.finalizeBlocks(lastFinalizedBlockNumber.toNumber());
+    logger.info(`Found ${result.affected} unfinalized block. Finalization done`);
+  } catch (e) {
+    logger.error(e);
+  } finally {
+    await api.disconnect();
+  }
 }
