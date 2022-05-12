@@ -311,6 +311,7 @@ export async function tryFetchAccount(
   let data: AccountInfo;
   try {
     data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
+    return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
       LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
@@ -320,7 +321,6 @@ export async function tryFetchAccount(
       accountFetchError
     );
     data = (await api.query.system.account(accountAddress)) as AccountInfo;
-  } finally {
     return { address: accountAddress, data };
   }
 }
