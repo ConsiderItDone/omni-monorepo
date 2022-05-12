@@ -308,9 +308,9 @@ export async function tryFetchAccount(
   blockHash: BlockHash,
   blockNumber?: number | BlockNumber
 ): Promise<IAccount> {
+  let data: AccountInfo;
   try {
-    const data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
-    return { address: accountAddress, data };
+    data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
   } catch (accountFetchError) {
     logger.error(
       LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
@@ -319,6 +319,9 @@ export async function tryFetchAccount(
       ),
       accountFetchError
     );
+    data = (await api.query.system.account(accountAddress)) as AccountInfo;
+  } finally {
+    return { address: accountAddress, data };
   }
 }
 export async function saveAccount(

@@ -106,7 +106,7 @@ export const LOGGER_ERROR_CONST = {
   APPLICATION_UPSERT_ERROR: (accountAddress: string, blockNumber: number): string =>
     `${saveErrorPrefix} applicatin for ${accountAddress} at block № ${blockNumber}`,
 
-  ACCOUNT_FETCH_ERROR: (accountAddress: string, blockNumber: number): string =>
-    `${fetchingErrorPrefix} account '${accountAddress}' at block №: ${blockNumber}`,
+  ACCOUNT_FETCH_ERROR: (accountAddress: string, blockHash: string): string =>
+    `${fetchingErrorPrefix} account '${accountAddress}' at block hash: ${blockHash},\nFetching latest account data`,
   ACCOUNT_SAVE_ERROR: (blockNumber: number): string => `${saveErrorPrefix} one of accounts at block № ${blockNumber}`,
 };
