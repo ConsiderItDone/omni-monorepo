@@ -305,20 +305,19 @@ export interface IAccount {
 export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
-  blockHash: BlockHash,
-  blockNumber?: number | BlockNumber
+  blockHash: BlockHash
 ): Promise<IAccount> {
+  let data: AccountInfo;
   try {
-    const data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
+    data = (await api.query.system.account.at(blockHash, accountAddress)) as AccountInfo;
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
-        accountAddress.toString(),
-        typeof blockNumber === "number" ? blockNumber : blockNumber?.toNumber()
-      ),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockHash.toString()),
       accountFetchError
     );
+    data = (await api.query.system.account(accountAddress)) as AccountInfo;
+    return { address: accountAddress, data };
   }
 }
 export async function saveAccount(
@@ -396,7 +395,7 @@ export async function getOrCreateAccount(
   if (account) {
     return account;
   } else {
-    const account = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+    const account = await tryFetchAccount(api, accountAddress, blockHash);
     const { savedAccount } = await saveAccount(entityManager, account, blockId);
 
     return savedAccount;

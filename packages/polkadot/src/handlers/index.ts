@@ -95,7 +95,7 @@ export async function handleAccountBalance(
   }
 
   async function saveAccountBalance(options?: { accountId?: number; balanceId?: number }) {
-    const account = prefetched || (await tryFetchAccount(api, address, blockHash, blockNumber));
+    const account = prefetched || (await tryFetchAccount(api, address, blockHash));
     return await saveAccount(connection, account, block.blockId, options);
   }
 }
