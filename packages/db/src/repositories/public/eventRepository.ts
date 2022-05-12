@@ -47,7 +47,7 @@ export default class EventRepository extends Repository<Event> {
       left join public.block b on b.block_id = e.block_id 
       where e.event_type_id = $1
       group by 1
-      ORDER BY date
+      ORDER BY date DESC
       LIMIT 100
     `,
       [eventTypeId]
