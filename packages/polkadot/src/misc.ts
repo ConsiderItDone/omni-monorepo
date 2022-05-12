@@ -314,10 +314,7 @@ export async function tryFetchAccount(
     return { address: accountAddress, data };
   } catch (accountFetchError) {
     logger.error(
-      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(
-        accountAddress.toString(),
-        typeof blockNumber === "number" ? blockNumber : blockNumber?.toNumber()
-      ),
+      LOGGER_ERROR_CONST.ACCOUNT_FETCH_ERROR(accountAddress.toString(), blockHash.toString()),
       accountFetchError
     );
     data = (await api.query.system.account(accountAddress)) as AccountInfo;
