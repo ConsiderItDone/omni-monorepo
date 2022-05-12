@@ -209,7 +209,7 @@ export async function backfillAccountsFromDB(
 
     for (const account of accounts) {
       logger.info(`backfilling account: ${account.address}`);
-      const accountInfo = await tryFetchAccount(api, account.address, hash, number.unwrap());
+      const accountInfo = await tryFetchAccount(api, account.address, hash);
       const entityManager = await connection.createEntityManager();
       await saveAccount(entityManager, accountInfo, currentBlock?.blockId);
     }

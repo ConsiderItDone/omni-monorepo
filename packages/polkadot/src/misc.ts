@@ -305,8 +305,7 @@ export interface IAccount {
 export async function tryFetchAccount(
   api: ApiPromise,
   accountAddress: AccountId | string,
-  blockHash: BlockHash,
-  blockNumber?: number | BlockNumber
+  blockHash: BlockHash
 ): Promise<IAccount> {
   let data: AccountInfo;
   try {
@@ -396,7 +395,7 @@ export async function getOrCreateAccount(
   if (account) {
     return account;
   } else {
-    const account = await tryFetchAccount(api, accountAddress, blockHash, blockNumber);
+    const account = await tryFetchAccount(api, accountAddress, blockHash);
     const { savedAccount } = await saveAccount(entityManager, account, blockId);
 
     return savedAccount;

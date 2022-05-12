@@ -41,7 +41,7 @@ export async function handleVestingSchedule(
     }
     let grants: VestingScheduleOf[];
 
-    const accountInfo = await tryFetchAccount(api, targetAccount as AccountId, blockHash, blockNumber);
+    const accountInfo = await tryFetchAccount(api, targetAccount as AccountId, blockHash);
     const {
       savedAccount: { accountId },
     } = await saveAccount(manager, accountInfo, blockId);
