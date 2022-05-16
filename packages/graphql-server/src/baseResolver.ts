@@ -91,12 +91,12 @@ export function createBaseResolver<T extends ClassType>(
       }
 
       // eslint-disable-next-line
-      const result = await (objectTypeCls as any).findAndCount({
+      const items = await (objectTypeCls as any).find({
         take,
         skip,
         order,
       });
-      return { items: result[0], totalCount: result[1] };
+      return { items: items, totalCount: 1000 };
     }
 
     @Subscription(() => objectTypeCls, {
