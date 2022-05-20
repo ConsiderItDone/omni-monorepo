@@ -158,6 +158,7 @@ export default class EventRepository extends Repository<Event> {
     let order = 0;
     const arr: (number | string)[] = [];
 
+    moduleId = moduleId || 2; // to avoid db lock
     if (moduleId) {
       wheres.push(`event.module_id = $${++order}`);
       arr.push(moduleId);
@@ -169,23 +170,27 @@ export default class EventRepository extends Repository<Event> {
     if (filters) {
       Object.keys(filters).forEach((filter) => {
         if (filter === "fromTo") {
-          wheres.push(`(event.data->>'to' = $${++order} OR event.data->>'from' = $${++order})`);
-          arr.push(filters[filter]);
-          arr.push(filters[filter]);
+          wheres.push(`(event.data @> $${++order} OR event.data @> $${++order})`);
+          arr.push(`{"to":"${filters[filter]}"}`);
+          arr.push(`{"from":"${filters[filter]}"}`);
         } else {
-          wheres.push(`event.data->>'${filter}' = $${++order}`);
-          arr.push(filters[filter]);
+          wheres.push(`event.data @> $${++order}`);
+          arr.push(`{"${filter}":"${filters[filter]}"}`);
         }
       });
     }
 
+    const defaultDate = new Date();
+    defaultDate.setMonth(defaultDate.getMonth() - 1);
+
+    dateStart = dateStart || defaultDate; // to avoid db lock
     if (dateStart || dateEnd) {
       if (dateStart) {
-        wheres.push(`b.timestamp >= $${++order}`);
+        wheres.push(`b.timestamp >= $${++order}::timestamp`);
         arr.push(`${dateStart.toUTCString()}`);
       }
       if (dateEnd) {
-        wheres.push(`b.timestamp <= $${++order}`);
+        wheres.push(`b.timestamp <= $${++order}::timestamp`);
         arr.push(`${dateEnd.toUTCString()}`);
       }
     }
