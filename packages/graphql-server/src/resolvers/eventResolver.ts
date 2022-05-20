@@ -19,13 +19,12 @@ import { MQ } from "@nodle/utils";
 import { withFilter } from "graphql-subscriptions";
 import { getConnection, ILike } from "typeorm";
 import { GraphQLJSON } from "graphql-type-json";
-import { CacheService } from "@nodle/utils/src/services/cacheService";
+import { cacheService } from "@nodle/utils/src/services/cacheService";
 import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@nodle/db";
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
 import { groupBy } from "lodash";
 
-const cacheService = new CacheService();
 const EventBaseResolver = createBaseResolver("Event", Event);
 
 function groupByEventId<T>(items: T[]) {
