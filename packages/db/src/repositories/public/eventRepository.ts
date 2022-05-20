@@ -130,9 +130,7 @@ export default class EventRepository extends Repository<Event> {
     );
 
     const orderStr =
-      filters?.fromTo && orderBy && orderBy.length === 2
-        ? this.getOrderBy(orderBy)
-        : "ORDER BY b.number DESC";
+      filters?.fromTo && orderBy && orderBy.length === 2 ? this.getOrderBy(orderBy) : "ORDER BY b.number DESC";
 
     const sql = `SELECT "event"."event_id" AS "eventId", "event"."index" AS "index", "event"."data" AS "data", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."module_id" AS "moduleId", "event"."event_type_id"  AS "eventTypeId", "event"."block_id" AS "blockId", "event"."extrinsic_id" AS "extrinsicId" FROM "public"."event" "event"  INNER JOIN block b on b.block_id = event.block_id ${whereStr} ${
       orderStr + " " ? orderStr : ""
@@ -171,23 +169,23 @@ export default class EventRepository extends Repository<Event> {
     if (filters) {
       Object.keys(filters).forEach((filter) => {
         if (filter === "fromTo") {
-          wheres.push(`(event.data @> $${++order} OR event.data @> $${++order})`);
-          arr.push(`{"to":"${filters[filter]}"}`);
-          arr.push(`{"from":"${filters[filter]}"}`);
+          wheres.push(`(event.data->>'to' = $${++order} OR event.data->>'from' = $${++order})`);
+          arr.push(filters[filter]);
+          arr.push(filters[filter]);
         } else {
-          wheres.push(`event.data @> $${++order}`);
-          arr.push(`{"${filter}":"${filters[filter]}"}`);
+          wheres.push(`event.data->>'${filter}' = $${++order}`);
+          arr.push(filters[filter]);
         }
       });
     }
 
     if (dateStart || dateEnd) {
       if (dateStart) {
-        wheres.push(`b.timestamp >= $${++order}::timestamp`);
+        wheres.push(`b.timestamp >= $${++order}`);
         arr.push(`${dateStart.toUTCString()}`);
       }
       if (dateEnd) {
-        wheres.push(`b.timestamp <= $${++order}::timestamp`);
+        wheres.push(`b.timestamp <= $${++order}`);
         arr.push(`${dateEnd.toUTCString()}`);
       }
     }
