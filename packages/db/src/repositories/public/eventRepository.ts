@@ -158,7 +158,6 @@ export default class EventRepository extends Repository<Event> {
     let order = 0;
     const arr: (number | string)[] = [];
 
-    moduleId = moduleId || 2; // to avoid db lock
     if (moduleId) {
       wheres.push(`event.module_id = $${++order}`);
       arr.push(moduleId);
@@ -180,10 +179,6 @@ export default class EventRepository extends Repository<Event> {
       });
     }
 
-    const defaultDate = new Date();
-    defaultDate.setMonth(defaultDate.getMonth() - 1);
-
-    dateStart = dateStart || defaultDate; // to avoid db lock
     if (dateStart || dateEnd) {
       if (dateStart) {
         wheres.push(`b.timestamp >= $${++order}::timestamp`);
