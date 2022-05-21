@@ -78,6 +78,9 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       Module,
       EventType,
     ],
+    extra: {
+      statement_timeout: 60000, // 60s
+    },
   } as ConnectionOptions;
   await connect(connectionOptions);
   await MQ.init(process.env.RABBIT_MQ_URL); // init MQ connection
