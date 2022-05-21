@@ -108,6 +108,11 @@ export default class EventResolver extends EventBaseResolver {
   protected async events(
     @Args() { take, skip, callModule, eventName, extrinsicHash, filters, dateStart, dateEnd, orderBy }: EventByNameArgs
   ): Promise<EventsResponse> {
+    return {
+      items: [],
+      totalCount: 0,
+    };
+
     let cacheKey = "";
 
     let moduleId = 0;
