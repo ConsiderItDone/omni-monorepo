@@ -133,8 +133,8 @@ export default class EventRepository extends Repository<Event> {
       filters?.fromTo && orderBy && orderBy.length === 2
         ? this.getOrderBy(orderBy)
         : `ORDER BY "event"."event_id" DESC`;
-    
-    const blockJoin = blockConditions ? ' INNER JOIN block b on b.block_id = event.block_id ' : '';
+
+    const blockJoin = blockConditions ? " INNER JOIN block b on b.block_id = event.block_id " : "";
 
     const sql = `
         SELECT 
