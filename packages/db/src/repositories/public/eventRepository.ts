@@ -120,7 +120,7 @@ export default class EventRepository extends Repository<Event> {
     take = 10,
     orderBy?: [string, "ASC" | "DESC"]
   ): Promise<Event[]> {
-    const [whereStr, parameters] = this.getConditionStr(
+    const [whereStr, parameters, blockConditions] = this.getConditionStr(
       moduleId,
       eventTypeId,
       filters,
@@ -134,9 +134,26 @@ export default class EventRepository extends Repository<Event> {
         ? this.getOrderBy(orderBy)
         : `ORDER BY "event"."event_id" DESC`;
 
-    const sql = `SELECT "event"."event_id" AS "eventId", "event"."index" AS "index", "event"."data" AS "data", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."extrinsic_hash" AS "extrinsicHash", "event"."module_id" AS "moduleId", "event"."event_type_id"  AS "eventTypeId", "event"."block_id" AS "blockId", "event"."extrinsic_id" AS "extrinsicId" FROM "public"."event" "event"  INNER JOIN block b on b.block_id = event.block_id ${whereStr} ${
-      orderStr + " " ? orderStr : ""
-    } ${take > 0 ? `LIMIT ${take} ` : ""}OFFSET ${skip}`;
+    const blockJoin = blockConditions ? " INNER JOIN block b on b.block_id = event.block_id " : "";
+
+    const sql = `
+        SELECT 
+               "event"."event_id" AS "eventId", 
+               "event"."index" AS "index", 
+               "event"."data" AS "data", 
+               "event"."extrinsic_hash" AS "extrinsicHash", 
+               "event"."extrinsic_hash" AS "extrinsicHash", 
+               "event"."extrinsic_hash" AS "extrinsicHash", 
+               "event"."module_id" AS "moduleId", 
+               "event"."event_type_id"  AS "eventTypeId", 
+               "event"."block_id" AS "blockId", 
+               "event"."extrinsic_id" AS "extrinsicId" 
+        FROM "public"."event" "event"  
+            ${blockJoin}
+        ${whereStr} 
+        ${orderStr + " " ? orderStr : ""} 
+        ${take > 0 ? `LIMIT ${take} ` : ""}
+        OFFSET ${skip}`;
 
     const events = await this.query(sql, parameters);
 
@@ -154,9 +171,10 @@ export default class EventRepository extends Repository<Event> {
     dateStart: Date,
     dateEnd: Date,
     extrinsicHash: string
-  ): [string, (string | number)[]] {
+  ): [string, (string | number)[], boolean] {
     const wheres: string[] = [];
 
+    let blockTableConditions = false;
     let order = 0;
     const arr: (number | string)[] = [];
 
@@ -190,6 +208,8 @@ export default class EventRepository extends Repository<Event> {
         wheres.push(`b.timestamp <= $${++order}::timestamp`);
         arr.push(`${dateEnd.toUTCString()}`);
       }
+
+      blockTableConditions = true;
     }
 
     if (extrinsicHash) {
@@ -204,6 +224,7 @@ export default class EventRepository extends Repository<Event> {
         })
         .join(" "),
       arr,
+      blockTableConditions,
     ];
   }
 }
