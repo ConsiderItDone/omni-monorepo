@@ -62,7 +62,7 @@ export default class EventRepository extends Repository<Event> {
     dateEnd: Date,
     extrinsicHash: string
   ): Promise<number> {
-    const [whereStr, parameters, blockConditions] = this.getConditionStr(
+    const [whereStr, parameters] = this.getConditionStr(
       moduleId,
       eventTypeId,
       filters,
