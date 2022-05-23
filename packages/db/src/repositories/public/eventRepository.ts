@@ -137,7 +137,7 @@ export default class EventRepository extends Repository<Event> {
     const blockJoin = blockConditions ? " INNER JOIN block b on b.block_id = event.block_id " : "";
 
     const sql = `
-        SELECT /*+ BitmapScan(event) */
+        SELECT /*+ BitmapScan(event event_data_index) */
                "event"."event_id" AS "eventId", 
                "event"."index" AS "index", 
                "event"."data" AS "data", 
