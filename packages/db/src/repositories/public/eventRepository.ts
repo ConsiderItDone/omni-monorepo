@@ -71,9 +71,9 @@ export default class EventRepository extends Repository<Event> {
       extrinsicHash
     );
 
-    let useBitmapScan = false;
-    if (filters && Object.keys(filters).length) {
-      useBitmapScan = true;
+    if (!filters || !Object.keys(filters).length) {
+      // TODO: remove hot-fix, use quick count
+      return 10000;
     }
 
     let sql: string;
@@ -82,7 +82,7 @@ export default class EventRepository extends Repository<Event> {
       sql = `SELECT reltuples::bigint AS count FROM pg_class WHERE oid = 'public.event'::regclass`;
     } else {
       sql = `
-          SELECT ${useBitmapScan ? "/*+ BitmapScan(event event_data_index) */" : ""} count(*) as count
+          SELECT /*+ BitmapScan(event event_data_index) */ count(*) as count
           FROM "public"."event" "event"
                    INNER JOIN block b on b.block_id = event.block_id
           ${whereStr}
