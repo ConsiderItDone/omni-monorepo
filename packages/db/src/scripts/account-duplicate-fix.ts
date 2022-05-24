@@ -38,6 +38,7 @@ const connectionOptions = {
     ca: process.env.TYPEORM_SSL_CA,
     cert: process.env.TYPEORM_SSL_CERT,
     key: process.env.TYPEORM_SSL_KEY,
+    rejectUnauthorized: false,
   },
   entities: [
     Account,
