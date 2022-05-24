@@ -15,6 +15,11 @@ module.exports = {
     'password': process.env.TYPEORM_PASSWORD,
     'database': process.env.TYPEORM_DATABASE,
     'logging': process.env.TYPEORM_LOGGING,
+    'ssl': {
+        'ca': process.env.TYPEORM_SSL_CA,
+        'cert': process.env.TYPEORM_SSL_CERT,
+        'key': process.env.TYPEORM_SSL_KEY,
+    },
     'schema': "public",
     "entities": process.env.NODE_ENV === 'production' ?
         [__dirname + "/packages/db/dist/models/public/*.js",] :

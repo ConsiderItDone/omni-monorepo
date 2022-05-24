@@ -38,6 +38,11 @@ const start = async function (): Promise<void> {
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
+    ssl: {
+      ca: process.env.TYPEORM_SSL_CA,
+      cert: process.env.TYPEORM_SSL_CERT,
+      key: process.env.TYPEORM_SSL_KEY,
+    },
     entities: [
       Account,
       Application,
