@@ -19,6 +19,7 @@ module.exports = {
         'ca': process.env.TYPEORM_SSL_CA,
         'cert': process.env.TYPEORM_SSL_CERT,
         'key': process.env.TYPEORM_SSL_KEY,
+        'rejectUnauthorized': false,
     },
     'schema': "public",
     "entities": process.env.NODE_ENV === 'production' ?
