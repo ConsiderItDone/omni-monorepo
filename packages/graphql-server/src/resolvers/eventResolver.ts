@@ -24,6 +24,7 @@ import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@no
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
 import { groupBy } from "lodash";
+import DateTypeScalar from "../scalars/date";
 
 const EventBaseResolver = createBaseResolver("Event", Event);
 
@@ -65,10 +66,10 @@ class EventByNameArgs {
   @Field(() => GraphQLJSON, { nullable: true })
   filters?: any; // eslint-disable-line
 
-  @Field(() => Date, { nullable: true })
+  @Field(() => DateTypeScalar, { nullable: true })
   dateStart?: Date;
 
-  @Field(() => Date, { nullable: true })
+  @Field(() => DateTypeScalar, { nullable: true })
   dateEnd?: Date;
 
   @Field(() => [String, String], { defaultValue: ["date", "DESC"], nullable: true })

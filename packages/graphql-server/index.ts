@@ -49,6 +49,7 @@ import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
 import VoteResolver from "./src/resolvers/voteResolver";
 import { v4 as uuidv4 } from "uuid";
+import DateTypeScalar from "./src/scalars/date";
 
 const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
 (async (): Promise<void> => {
@@ -107,6 +108,7 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
       ExtrinsicTypeResolver,
       VoteResolver,
     ],
+    scalarsMap: [{ type: Date, scalar: DateTypeScalar }],
   });
 
   const apolloServer = new ApolloServer({
