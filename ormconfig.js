@@ -26,7 +26,7 @@ module.exports = {
         [__dirname + "/packages/db/dist/cjs/models/public/*.js",] :
         ["packages/db/src/models/public/*.ts"],
     "migrations": process.env.NODE_ENV === 'production' ?
-        [__dirname + "/packages/db/dist/cjs/src/migrations/*.js"] :
+        [__dirname + "/packages/db/dist/cjs/migrations/*.js"] :
         ["packages/db/src/migrations/*.ts"],
     'cli': {
         'entitiesDir': 'packages/db/src/models',
