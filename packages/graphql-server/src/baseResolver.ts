@@ -107,7 +107,7 @@ export function createBaseResolver<T extends ClassType>(
           let isValid = true;
           if (payload.number) {
             // NOD-140 Subscription: ID filtering
-            if (this.lastNumber && Number(payload.number) <= this.lastNumber) {
+            if (this.lastNumber && Number(payload.number) < this.lastNumber) {
               isValid = false;
             }
 
