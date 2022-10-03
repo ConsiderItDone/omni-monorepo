@@ -11,7 +11,7 @@ try {
 
 import express = require("express");
 import { createServer } from "http";
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, CorsOptions } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { ApolloServerLoaderPlugin } from "type-graphql-dataloader";
 import { ConnectionOptions, getConnection } from "typeorm";
@@ -149,8 +149,14 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
   app.get("/", function (req: express.Request, res: express.Response) {
     res.status(200).end();
   });
-  apolloServer.applyMiddleware({ app });
 
+  
+  const corsOptions: CorsOptions = {
+    origin: ["*"]
+  };
+  
+  apolloServer.applyMiddleware({ app, cors: corsOptions });
+  
   const server = createServer(app);
   apolloServer.installSubscriptionHandlers(server);
 
