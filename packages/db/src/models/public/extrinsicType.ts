@@ -12,7 +12,7 @@ export default class ExtrinsicType extends BaseEntity {
   public extrinsicTypeId: number;
 
   @Field(() => String)
-  @Column("character varying", { name: "name", unique: true })
+  @Column("character varying", { name: "name" })
   public name: string;
 
   @Field(() => Int)
