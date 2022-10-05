@@ -240,7 +240,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       .getMany();
 
     const itemsByEventId = groupByExtrinsicId<Block>(blocks);
-    return ids.map((id) => itemsByEventId[id][0] ?? null);
+    return ids.map((id) => (id in itemsByEventId ? itemsByEventId[id].length && itemsByEventId[id][0] : null));
   })
   block(@Root() source: Extrinsic) {
     return (dataloader: DataLoader<number, Block>) => dataloader.load(source.extrinsicId);
@@ -270,7 +270,7 @@ export default class ExtrinsicResolver extends ExtrinsicBaseResolver {
       .getMany();
 
     const itemsByEventId = groupByExtrinsicId<Account>(accounts);
-    return ids.map((id) => itemsByEventId[id][0] ?? null);
+    return ids.map((id) => (id in itemsByEventId ? itemsByEventId[id].length && itemsByEventId[id][0] : null));
   })
   signer(@Root() source: Extrinsic) {
     return (dataloader: DataLoader<number, Account>) => dataloader.load(source.extrinsicId);
