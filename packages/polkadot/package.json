@@ -1,21 +1,20 @@
 {
-  "name": "@nodle/polkadot",
+  "name": "@omni/polkadot",
   "version": "1.0.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni.git",
     "directory": "packages/polkadot"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json"
   },
   "dependencies": {
-    "@nodle/db": "^1.1.0",
-    "@nodle/utils": "^1.1.0",
+    "@omni/db": "^1.1.0",
+    "@omni/utils": "^1.1.0",
     "@polkadot/api": "^7.4.1",
     "ts-node": "^9.1.1",
     "typeorm": "^0.2.31",

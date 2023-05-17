@@ -1,12 +1,12 @@
 {
-  "name": "@nodle/db",
+  "name": "@omni/db",
   "version": "1.1.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni.git",
     "directory": "packages/db"
   },
   "scripts": {

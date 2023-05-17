@@ -1,17 +1,16 @@
 {
-  "name": "@nodle/test",
+  "name": "@omni/test",
   "version": "1.0.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni-monorepo.git",
     "directory": "packages/test"
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build",
     "start:test": "npm exec -- ts-node -r tsconfig-paths/register src/run.ts",
     "start:jest": "npx jest --forceExit --runInBand",
     "start:jest noDetect": "npx jest --forceExit --runInBand"

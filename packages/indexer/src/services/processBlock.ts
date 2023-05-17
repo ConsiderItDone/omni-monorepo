@@ -1,14 +1,14 @@
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import type { BlockNumber } from "@polkadot/types/interfaces/runtime";
-import { handleEvents, handleExtrinsics, handleLogs, handleNewBlock, handleTrackedEvents } from "@nodle/polkadot";
-import { MQ } from "@nodle/utils";
-import { Block, Extrinsic, Log, Event as EventModel } from "@nodle/db";
-import { logger as Logger, services } from "@nodle/utils";
+import { handleEvents, handleExtrinsics, handleLogs, handleNewBlock, handleTrackedEvents } from "@omni/polkadot";
+import { MQ } from "@omni/utils";
+import { Block, Extrinsic, Log, Event as EventModel } from "@omni/db";
+import { logger as Logger, services } from "@omni/utils";
 const { logger } = Logger;
 type MetricsService = services.MetricsService;
 import { ApiPromise } from "@polkadot/api";
 import { Connection } from "typeorm";
-import { getApi, handleBlockReorg } from "@nodle/polkadot";
+import { getApi, handleBlockReorg } from "@omni/polkadot";
 import express from "express";
 import { ConsumeMessage } from "amqplib/properties";
 import { Channel } from "amqplib";
@@ -18,7 +18,7 @@ const indexerServer = express();
 
 export async function processBlock(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);
-  const metrics = new services.MetricsService(indexerServer, 3051, "nodle_indexer_processor_");
+  const metrics = new services.MetricsService(indexerServer, 3051, "omni_indexer_processor_");
 
   MQ.getMQ().consume("indexer", (msg: ConsumeMessage, channel: Channel) => {
     const blockNumber = Number(msg.content.toString());

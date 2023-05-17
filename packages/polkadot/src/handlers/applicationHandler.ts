@@ -5,8 +5,8 @@ import type { Event } from "@polkadot/types/interfaces/system";
 
 import { upsertApplication, tryFetchApplication, ApplicationFetchMethods } from "../misc";
 
-import { Application as ApplicationType } from "@nodle/utils";
-import { types, logger as Logger } from "@nodle/utils";
+import { Application as ApplicationType } from "@omni/utils";
+import { types, logger as Logger } from "@omni/utils";
 const ApplicationStatus = types.ApplicationStatus;
 const { logger, LOGGER_ERROR_CONST } = Logger;
 import { BlockHash } from "@polkadot/types/interfaces/chain";

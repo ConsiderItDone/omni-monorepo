@@ -1,23 +1,22 @@
 {
-  "name": "@nodle/graphql-server",
+  "name": "@omni/graphql-server",
   "version": "1.0.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni-monorepo.git",
     "directory": "packages/graphql-server"
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build",
     "start:server": "npm exec -- ts-node -r tsconfig-paths/register index.ts"
   },
   "dependencies": {
-    "@nodle/db": "^1.1.0",
-    "@nodle/polkadot": "^1.0.0",
-    "@nodle/utils": "^1.1.0",
+    "@omni/db": "^1.1.0",
+    "@omni/polkadot": "^1.0.0",
+    "@omni/utils": "^1.1.0",
     "@types/express": "^4.17.11",
     "apollo-server": "^2.21.0",
     "apollo-server-express": "^2.24.0",

@@ -18,7 +18,7 @@ import {
   Account as AccountModel,
   Validator,
   Balance as BalanceModel,
-} from "@nodle/db";
+} from "@omni/db";
 
 import { ApiPromise } from "@polkadot/api";
 import {
@@ -26,8 +26,8 @@ import {
   Application as ApplicationType,
   RootCertificate as RootCertificateType,
   VestingScheduleOf as VestingScheduleType,
-} from "@nodle/utils";
-import { types, logger as Logger, CacheService } from "@nodle/utils";
+} from "@omni/utils";
+import { types, logger as Logger, CacheService } from "@omni/utils";
 type ApplicationStatus = types.ApplicationStatus;
 const { logger, LOGGER_ERROR_CONST } = Logger;
 
@@ -76,7 +76,7 @@ export function extractArgs(data: GenericEventData): string[] {
     meta: { docs },
   } = data;
 
-  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args: string[] = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
     return data.Types;

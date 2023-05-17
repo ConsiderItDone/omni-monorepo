@@ -25,10 +25,10 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
-import { MQ } from "@nodle/utils";
+} from "@omni/db";
+import { MQ } from "@omni/utils";
 import { ConnectionOptions } from "typeorm";
-import { logger as Logger } from "@nodle/utils";
+import { logger as Logger } from "@omni/utils";
 const { logger } = Logger;
 import { processBlock } from "./services/processBlock";
 import { processAccount } from "./services/processAccount";

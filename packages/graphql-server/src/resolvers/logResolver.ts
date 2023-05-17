@@ -1,5 +1,5 @@
 import { Resolver, FieldResolver, Root, Query, Arg } from "type-graphql";
-import { Log, Block } from "@nodle/db";
+import { Log, Block } from "@omni/db";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
 

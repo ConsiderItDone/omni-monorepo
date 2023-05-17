@@ -1,20 +1,19 @@
 {
-  "name": "@nodle/utils",
+  "name": "@omni/utils",
   "version": "1.1.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni-monorepo.git",
     "directory": "packages/utils"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build"
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json"
   },
   "dependencies": {
-    "@nodle/db": "^1.1.0",
+    "@omni/db": "^1.1.0",
     "@polkadot/api": "^7.4.1",
     "amqplib": "^0.7.1",
     "graphql-amqp-subscriptions": "^1.1.2",

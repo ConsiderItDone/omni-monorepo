@@ -1,5 +1,5 @@
 import { Connection } from "typeorm";
-import { BlockRepository } from "@nodle/db";
+import { BlockRepository } from "@omni/db";
 import { logger } from "./logger";
 import { ApiPromise } from "@polkadot/api";
 

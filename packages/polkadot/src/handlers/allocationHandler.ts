@@ -5,9 +5,9 @@ import type { BlockHash } from "@polkadot/types/interfaces/chain";
 import { getAccountBlockBuffer } from "../misc";
 
 import { GenericAccountId } from "@polkadot/types";
-import { logger as Logger } from "@nodle/utils";
+import { logger as Logger } from "@omni/utils";
 const { logger, LOGGER_ERROR_CONST } = Logger;
-import { MQ } from "@nodle/utils";
+import { MQ } from "@omni/utils";
 
 export async function handleAllocation(
   event: Event,

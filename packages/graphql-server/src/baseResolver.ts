@@ -12,7 +12,7 @@ import {
   ObjectType,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { MQ, Utils } from "@nodle/utils";
+import { MQ, Utils } from "@omni/utils";
 import { withFilter } from "apollo-server";
 
 @ArgsType()

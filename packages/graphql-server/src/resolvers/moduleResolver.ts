@@ -1,5 +1,5 @@
 import { FieldResolver, Resolver, Root } from "type-graphql";
-import { Module, EventType, ExtrinsicType } from "@nodle/db";
+import { Module, EventType, ExtrinsicType } from "@omni/db";
 import { createBaseResolver } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
 

@@ -10,10 +10,10 @@ import {
   Module,
   Extrinsic,
   ExtrinsicType,
-} from "@nodle/db";
+} from "@omni/db";
 import { getExtrinsicSuccess, boundEventsToExtrinsics, getOrCreateAccount } from "../misc";
-import { ExtrinsicWithBoundedEvents } from "@nodle/utils";
-import { logger as Logger } from "@nodle/utils";
+import { ExtrinsicWithBoundedEvents } from "@omni/utils";
+import { logger as Logger } from "@omni/utils";
 const { logger, LOGGER_ERROR_CONST, LOGGER_INFO_CONST } = Logger;
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces/chain";

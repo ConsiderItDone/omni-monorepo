@@ -15,12 +15,12 @@ import {
 import { Min, Max } from "class-validator";
 import { createBaseResolver } from "../baseResolver";
 import { singleFieldResolver } from "../fieldsResolver";
-import { MQ } from "@nodle/utils";
+import { MQ } from "@omni/utils";
 import { withFilter } from "graphql-subscriptions";
 import { getConnection, ILike } from "typeorm";
 import { GraphQLJSON } from "graphql-type-json";
-// import { cacheService } from "@nodle/utils/src/services/cacheService";
-import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@nodle/db";
+// import { cacheService } from "@omni/utils/src/services/cacheService";
+import { EventRepository, Module, EventType, Event, Block, Extrinsic } from "@omni/db";
 import DataLoader from "dataloader";
 import { Loader } from "type-graphql-dataloader";
 import { groupBy } from "lodash";
