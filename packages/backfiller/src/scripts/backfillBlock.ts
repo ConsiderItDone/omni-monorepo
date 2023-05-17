@@ -7,7 +7,7 @@ try {
 }
 import * as readline from "readline";
 import { ConnectionOptions } from "typeorm";
-import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, getApi } from "@nodle/polkadot";
+import { handleNewBlock, handleEvents, handleLogs, handleExtrinsics, getApi } from "@omni/polkadot";
 import { backfillTrackedEvents } from "../utils";
 
 import {
@@ -27,7 +27,7 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
+} from "@omni/db";
 
 const connectionOptions = {
   name: "default",

@@ -1,7 +1,7 @@
 {
-  "name": "nodle",
+  "name": "omni",
   "version": "1.0.0",
-  "description": "Nodle monorepo",
+  "description": "Omni monorepo",
   "scripts": {
     "lint": "npm run prettier-check & npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages",
     "lint:fix": "npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages --fix",
@@ -46,9 +46,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ConsiderItDone/nodle.git"
+    "url": "git+https://github.com/ConsiderItDone/omni-monorepo.git"
   },
-  "homepage": "https://github.com/ConsiderItDone/nodle#readme",
+  "homepage": "https://github.com/ConsiderItDone/omni-monorepo#readme",
   "engines": {
     "npm": "^7.0.0"
   },

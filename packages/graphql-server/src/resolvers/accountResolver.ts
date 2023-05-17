@@ -1,9 +1,9 @@
-import { Account, Balance, VestingSchedule, Extrinsic, Application, RootCertificate } from "@nodle/db";
+import { Account, Balance, VestingSchedule, Extrinsic, Application, RootCertificate } from "@omni/db";
 import { createBaseResolver, PaginationArgs } from "../baseResolver";
 import { arrayFieldResolver } from "../fieldsResolver";
 import { Arg, Args, ArgsType, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql";
 import { Min, Max } from "class-validator";
-import { BalanceService } from "@nodle/utils";
+import { BalanceService } from "@omni/utils";
 
 const AccountBaseResolver = createBaseResolver("Account", Account);
 

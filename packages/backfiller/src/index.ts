@@ -25,7 +25,7 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
+} from "@omni/db";
 import { ConnectionOptions } from "typeorm";
 
 const start = async function (): Promise<void> {

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { tracer } from "@nodle/utils";
+import { tracer } from "@omni/utils";
 
 import * as dotenv from "dotenv";
 import path from "path";
@@ -32,7 +32,7 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
+} from "@omni/db";
 import BlockResolver from "./src/resolvers/blockResolver";
 import EventResolver from "./src/resolvers/eventResolver";
 import LogResolver from "./src/resolvers/logResolver";
@@ -43,7 +43,7 @@ import ApplicationResolver from "./src/resolvers/applicationResolver";
 import BalanceResolver from "./src/resolvers/balanceResolver";
 import VestingScheduleResolver from "./src/resolvers/vestingScheduleResolver";
 import ValidatorResolver from "./src/resolvers/validatorResolver";
-import { MQ } from "@nodle/utils";
+import { MQ } from "@omni/utils";
 import EventTypeResolver from "./src/resolvers/eventTypeResolver";
 import ModuleResolver from "./src/resolvers/moduleResolver";
 import ExtrinsicTypeResolver from "./src/resolvers/extrinsicTypeResolver";
@@ -62,12 +62,12 @@ const PORT = process.env.GRAPHQL_SERVER_PORT || 4000;
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
     logging: process.env.TYPEORM_LOGGING === "true",
-    ssl: {
+/*     ssl: {
       ca: process.env.TYPEORM_SSL_CA,
       cert: process.env.TYPEORM_SSL_CERT,
       key: process.env.TYPEORM_SSL_KEY,
       rejectUnauthorized: false,
-    },
+    }, */
     entities: [
       Account,
       Application,

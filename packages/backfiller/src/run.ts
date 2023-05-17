@@ -33,8 +33,8 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
-import { logger as Logger } from "@nodle/utils";
+} from "@omni/db";
+import { logger as Logger } from "@omni/utils";
 const { logger } = Logger;
 
 const connectionOptions = {

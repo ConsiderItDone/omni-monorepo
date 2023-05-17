@@ -4,12 +4,12 @@ import { Channel } from "amqplib";
 import { Connection } from "typeorm";
 import { TypeRegistry } from "@polkadot/types/create";
 
-import { MQ } from "@nodle/utils";
-import { logger as Logger } from "@nodle/utils";
+import { MQ } from "@omni/utils";
+import { logger as Logger } from "@omni/utils";
 const { logger } = Logger;
-import { getApi, handleAccountBalance } from "@nodle/polkadot";
-import { AccountBlockData } from "@nodle/utils";
-import { BlockRepository } from "@nodle/db";
+import { getApi, handleAccountBalance } from "@omni/polkadot";
+import { AccountBlockData } from "@omni/utils";
+import { BlockRepository } from "@omni/db";
 
 export async function processAccount(ws: string, connection: Connection): Promise<void> {
   const api = await getApi(ws);

@@ -3,9 +3,9 @@ import { EntityManager } from "typeorm";
 import type { AccountId, BlockNumber } from "@polkadot/types/interfaces/runtime";
 import type { Event } from "@polkadot/types/interfaces/system";
 import type { BlockHash } from "@polkadot/types/interfaces/chain";
-import { VestingScheduleRepository } from "@nodle/db";
-import { VestingScheduleOf } from "@nodle/utils";
-import { logger as Logger } from "@nodle/utils";
+import { VestingScheduleRepository } from "@omni/db";
+import { VestingScheduleOf } from "@omni/utils";
+import { logger as Logger } from "@omni/utils";
 const { logger, LOGGER_ERROR_CONST } = Logger;
 import { saveAccount, tryFetchAccount } from "../misc";
 

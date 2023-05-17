@@ -6,9 +6,9 @@ try {
   //nop
 }
 
-import { getApi } from "@nodle/polkadot";
-import { MQ } from "@nodle/utils";
-import { BlockRepository } from "@nodle/db";
+import { getApi } from "@omni/polkadot";
+import { MQ } from "@omni/utils";
+import { BlockRepository } from "@omni/db";
 import { ConnectionOptions } from "typeorm";
 import {
   connect,
@@ -27,7 +27,7 @@ import {
   Vote,
   Module,
   EventType,
-} from "@nodle/db";
+} from "@omni/db";
 import * as readline from "readline";
 
 const connectionOptions = {

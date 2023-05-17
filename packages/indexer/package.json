@@ -1,12 +1,12 @@
 {
-  "name": "@nodle/indexer",
+  "name": "@omni/indexer",
   "version": "1.0.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni-monorepo.git",
     "directory": "packages/indexer"
   },
   "scripts": {
@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@polkadot/api": "^7.4.1",
-    "@nodle/db": "^1.1.0",
-    "@nodle/utils": "^1.1.0",
-    "@nodle/polkadot": "^1.0.0",
+    "@omni/db": "^1.1.0",
+    "@omni/utils": "^1.1.0",
+    "@omni/polkadot": "^1.0.0",
     "apollo-server": "^2.21.0",
     "dotenv": "^8.2.0",
     "envalid": "^7.0.0",

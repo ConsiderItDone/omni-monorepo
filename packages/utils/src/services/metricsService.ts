@@ -15,13 +15,13 @@ export class MetricsService {
   constructor(
     server: Express = express(),
     port: number = parseInt(process.env.METRICS_PORT) || 9100,
-    prefix = "nodle_"
+    prefix = "omni_"
   ) {
     this.server = server;
     this.port = port;
     this.init();
     this.start();
-    this.prefix = "nodle_indexer_";
+    this.prefix = "omni_indexer_";
 
     collectDefaultMetrics({
       gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],

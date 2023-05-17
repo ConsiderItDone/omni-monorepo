@@ -1,4 +1,4 @@
-import { BalanceRepository, Balance } from "@nodle/db";
+import { BalanceRepository, Balance } from "@omni/db";
 import { getConnection } from "typeorm";
 import { CacheService } from "./cacheService";
 const cacheService = new CacheService();

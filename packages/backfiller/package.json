@@ -1,12 +1,12 @@
 {
-  "name": "@nodle/backfiller",
+  "name": "@omni/backfiller",
   "version": "1.0.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsiderItDone/nodle.git",
+    "url": "https://github.com/ConsiderItDone/omni-monorepo.git",
     "directory": "packages/backfiller"
   },
   "scripts": {
@@ -21,9 +21,9 @@
     "start:backfillBlock": "npm exec -- ts-node src/scripts/backfillBlock.ts"
   },
   "dependencies": {
-    "@nodle/db": "^1.1.0",
-    "@nodle/polkadot": "^1.0.0",
-    "@nodle/utils": "^1.1.0",
+    "@omni/db": "^1.1.0",
+    "@omni/polkadot": "^1.0.0",
+    "@omni/utils": "^1.1.0",
     "@polkadot/api": "^7.4.1",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",

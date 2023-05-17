@@ -12,7 +12,7 @@ export default class Prometheus {
     this.init();
     this.start();
     this.gauge = new Gauge({
-      name: `nodle_graphql`,
+      name: `omni_graphql`,
       help: "Graphql endpoint error",
       labelNames: ["name", "timestamp"],
     });
