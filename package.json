@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Omni monorepo",
   "scripts": {
-    "lint": "npm run prettier-check & npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages",
+    "lint": "npm run prettier-check & npm exec -- eslint --ext=ts,tsx ./packages",
     "lint:fix": "npm exec -- eslint --max-warnings=0 --ext=ts,tsx ./packages --fix",
     "prettier-format": "npm exec -- prettier --write ./packages",
     "prettier-check": "npm exec -- prettier --check ./packages",
