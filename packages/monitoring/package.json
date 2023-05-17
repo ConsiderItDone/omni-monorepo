@@ -11,8 +11,7 @@
   },
   "scripts": {
     "start:monitoring": "npm exec -- ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build"
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json"
   },
   "dependencies": {
     "@apollo/client": "^3.5.7",

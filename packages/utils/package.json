@@ -10,8 +10,7 @@
     "directory": "packages/utils"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json",
-    "prepare": "npm run build"
+    "build": "rm -rf dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && tsc -p tsconfig-type.json"
   },
   "dependencies": {
     "@omni/db": "^1.1.0",
