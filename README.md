@@ -1,6 +1,6 @@
-# Nodle
+# Omni monorepo
 
-Monorepository
+Monorepository includes:
 
 - indexer
 - backfill servive
