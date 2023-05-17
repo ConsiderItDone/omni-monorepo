@@ -76,7 +76,7 @@ export function extractArgs(data: GenericEventData): string[] {
     meta: { docs },
   } = data;
 
-  let args = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
+  let args: string[] = docs[0]?.toString()?.match(/(?<=\[)(.*?)(?=\])/g);
 
   if (!args) {
     return data.Types;
