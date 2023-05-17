@@ -48,31 +48,18 @@ Test specific blockchain events execution
 `npm run start:jest`
 
 ## Environmental variables description
-### Database credentials
-```
-TYPEORM_HOST=
-TYPEORM_USERNAME=
-TYPEORM_PASSWORD=
-TYPEORM_SSL_CA=
-TYPEORM_SSL_CERT=
-TYPEORM_SSL_KEY=
-TYPEORM_DATABASE=
-TYPEORM_PORT=
-TYPEORM_LOGGING=false
-```
-### Redis caching service
-```
-REDIS_HOST=
-REDIS_PORT=
-REDIS_PASSWORD=
-REDIS_DB=
-```
-### Blockchain node provider
-```
-WS_PROVIDER=ws://195.201.97.114:9944
-```
-### Rabbit MQ
-Rabbit MQ for messaging between Indexer services
-```
-RABBIT_MQ_URL=
-```
+| Environment variable          | Description                                                                                                            | Example value                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `TYPEORM_HOST`                | Host address of database                                                                                               | `127.0.0.1`                                                                 |
+| `TYPEORM_USERNAME`            | Username for database access                                                                                           | `postgres`                                                                  |
+| `TYPEORM_PASSWORD`            | Password for database access                                                                                           | `postgres`                                                                  |
+| `TYPEORM_DATABASE`            | Name of database                                                                                                       | `database`                                                                  |
+| `TYPEORM_PORT`                | Port of database                                                                                                       | `25433`                                                                     |
+| `TYPEORM_LOGGING`             | Should database make logs of transactions or not                                                                       | `false`                                                                     |
+| `RABBIT_MQ_URL`               | Connection string for RabbitMQ                                                                                         | `amqp://guest:nj42pdnopdaf4@localhost:5672?heartbeat=30`                    |
+| `REDIS_HOST`                  | Host address of redis                                                                                                 | **secret**                                                                  |
+| `REDIS_PORT`                  | Port of database                                                                                                       | **secret**                                                                  |
+| `REDIS_PASSWORD`              | Password for database access                                                                                           | **secret**                                                                  |
+| `REDIS_DB`                    | Name of redis database                                                                                                 | **secret**                                                                  |
+| `WS_PROVIDER`                 | Websocket URL for polkadot chain node                                                                                  | `wss://rpc.ibp.network/polkadot`                                            |
+
